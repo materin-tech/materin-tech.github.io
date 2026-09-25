@@ -424,13 +424,13 @@
 }
 
 /* 单页聚焦模式：只显示当前页，翻页切换 */
-.materin-learn-slide { display: none; }
+.materin-learn-slide-page { display: none; height: 1080px; }
 
-.materin-learn-slide.is-active-slide {
+.materin-learn-slide-page.is-active-slide {
   display: block;
   transform-origin: top left;
 }
 
 /* 导出模式：全部页纵向排列（?export=1） */
-body.is-export .materin-learn-slide { display: block; }
+body.is-export .materin-learn-slide-page { display: block; }
 body.is-export .materin-learn-slide-nav { display: none; }

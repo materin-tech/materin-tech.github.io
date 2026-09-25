@@ -35,7 +35,7 @@
 
   /* 封面 */
   function cover(day, stageName) {
-    var s = el('section', 'materin-learn-slide');
+    var s = el('section', 'materin-learn-slide materin-learn-slide-page');
     var c = el('div', 'materin-learn-cover');
     c.appendChild(el('div', 'materin-learn-cover__kicker', '第 ' + day.n + ' 天 · ' + stageName));
     c.appendChild(el('h1', 'materin-learn-cover__title', t(day.title)));
@@ -61,7 +61,7 @@
 
   /* 内容页（带右侧可视化板） */
   function content(day, idx, sec) {
-    var s = el('section', 'materin-learn-slide');
+    var s = el('section', 'materin-learn-slide materin-learn-slide-page');
     var c = el('div', 'materin-learn-content');
     var head = el('div', 'materin-learn-content__head');
     head.appendChild(el('span', 'materin-learn-content__no', String(idx + 1).padStart(2, '0')));
@@ -139,7 +139,7 @@
 
   /* 结尾页：沉淀 + 动手 */
   function endPage(day) {
-    var s = el('section', 'materin-learn-slide');
+    var s = el('section', 'materin-learn-slide materin-learn-slide-page');
     var c = el('div', 'materin-learn-end');
     c.appendChild(el('div', 'materin-learn-end__kicker', '一句话带走'));
     c.appendChild(el('p', 'materin-learn-end__takeaway', t(day.takeaway)));
@@ -199,7 +199,7 @@
   }
 
   function go(i) {
-    var slides = document.querySelectorAll('.materin-learn-slide');
+    var slides = document.querySelectorAll('.materin-learn-slide-page');
     if (i < 0 || i >= slides.length) return;
     current = i;
     slides.forEach(function (s, k) {
@@ -222,10 +222,10 @@
     day.sections.forEach(function (sec, i) { root.appendChild(content(day, i, sec)); });
     root.appendChild(endPage(day));
     setPageNos();
-    var slides = [...document.querySelectorAll('.materin-learn-slide')];
+    var pages = [...document.querySelectorAll('.materin-learn-slide-page')];
     if (!qs('export')) {
-      slides.forEach(function (s, k) { s.classList.toggle('is-active-slide', k === 0); });
-      buildNav(slides);
+      pages.forEach(function (p, k) { p.classList.toggle('is-active-slide', k === 0); });
+      buildNav(pages);
     }
     fitScale();
     window.addEventListener('resize', fitScale);
@@ -233,7 +233,7 @@
 
   /* 窗口小于 1920 时整体缩放预览；截图时按 1920×1080 布局导出 */
   function fitScale() {
-    var slide = document.querySelector('.materin-learn-slide.is-active-slide');
+    var slide = document.querySelector('.materin-learn-slide-page.is-active-slide');
     if (!slide) return;
     var scale = Math.min(1, window.innerWidth / 1920);
     slide.style.transform = 'scale(' + scale + ')';
