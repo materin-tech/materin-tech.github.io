@@ -5,16 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>每日一课 · AI 原生学习路线</title>
   <link rel="stylesheet" href="/assets/css/materin-ui.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
   <link rel="stylesheet" href="/assets/css/site.css">
   <link rel="stylesheet" href="assets/learn.css">
   <script>
     (function () {
-      var stored = null;
-      try { stored = localStorage.getItem('lang'); } catch (e) {}
-      var lang = stored || (navigator.language || 'zh').slice(0, 2) === 'en' ? 'en' : 'zh';
-      if (stored) lang = stored;
-      document.documentElement.setAttribute('data-lang', lang);
+      var t = 'dark', l = 'zh';
+      try {
+        t = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        l = localStorage.getItem('lang') || ((navigator.language || 'zh').slice(0, 2) === 'en' ? 'en' : 'zh');
+      } catch (e) {}
+      var d = document.documentElement;
+      d.setAttribute('data-theme', t);
+      d.setAttribute('data-lang', l);
     })();
+    function toggleTheme() {
+      var root = document.documentElement;
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch (e) {}
+    }
     function setLang(l) {
       document.documentElement.setAttribute('data-lang', l);
       try { localStorage.setItem('lang', l); } catch (e) {}
@@ -33,6 +43,7 @@
       <div class="materin-learn-lang">
         <button type="button" onclick="setLang('zh')">中</button>
         <button type="button" onclick="setLang('en')">EN</button>
+        <button type="button" onclick="toggleTheme()" aria-label="切换主题 / Toggle theme">🌗</button>
       </div>
     </div>
   </header>
