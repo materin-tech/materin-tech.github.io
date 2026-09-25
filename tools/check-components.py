@@ -125,7 +125,14 @@ def classes_in_styles(files) -> dict:
             if "{" in line:
                 parent = stack[-1][1] if stack else None
                 m = CLASS_DEF.search(line)
-                cur = m.group(1) if m else (parent if line.startswith("&") else None)
+                if m:
+                    cur = m.group(1)
+                elif parent and line.startswith("&"):
+                    # 嵌套的 &__part / &--variant 要接着上一层已解析的名字拼，而不是回到根名
+                    nm = NESTED.match(line)
+                    cur = f"{parent}{nm.group(1)}{nm.group(2)}" if nm else parent
+                else:
+                    cur = None
                 depth += line.count("{")
                 stack.append((depth, cur))
             if "}" in line:

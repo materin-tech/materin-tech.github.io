@@ -57,6 +57,314 @@
   },
   "components": [
     {
+      "name": "materin-ui-notification__item",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/notification-item/NotificationItem.vue",
+      "purpose": {
+        "zh": "单条通知卡（标题 + 正文），一般不用手动引用",
+        "en": "A single notification card (title plus body), rarely referenced directly"
+      },
+      "parts": [
+        "materin-ui-notification__header",
+        "materin-ui-notification__title",
+        "materin-ui-notification__close",
+        "materin-ui-notification__content"
+      ],
+      "variants": [
+        "--info",
+        "--success",
+        "--warning",
+        "--error"
+      ],
+      "states": [],
+      "batch": "D2-feedback"
+    },
+    {
+      "name": "materin-ui-message__item",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/message-item/MessageItem.vue",
+      "purpose": {
+        "zh": "单条提示卡（消息 / 通知共用样式），一般不用手动引用",
+        "en": "A single toast card (shared by message and notification), rarely referenced directly"
+      },
+      "parts": [
+        "materin-ui-message__icon",
+        "materin-ui-message__text",
+        "materin-ui-message__close"
+      ],
+      "variants": [
+        "--info",
+        "--success",
+        "--warning",
+        "--error"
+      ],
+      "states": [],
+      "batch": "D2-feedback"
+    },
+    {
+      "name": "materin-ui-notification",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/notification/NotificationHost.vue",
+      "purpose": {
+        "zh": "全局通知：右上角浮出的通知卡，带标题，可多条、定时关闭",
+        "en": "Notification: titled cards floating in from a corner, stacking and auto-dismiss"
+      },
+      "parts": [
+        "materin-ui-notification__item",
+        "materin-ui-notification__header",
+        "materin-ui-notification__title",
+        "materin-ui-notification__close",
+        "materin-ui-notification__content"
+      ],
+      "variants": [
+        "--top-right",
+        "--top-left",
+        "--bottom-right",
+        "--bottom-left"
+      ],
+      "states": [],
+      "batch": "D2-feedback"
+    },
+    {
+      "name": "materin-ui-message",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/message/MessageHost.vue",
+      "purpose": {
+        "zh": "全局消息：MiMessage.success(...) 一行调用，可多条堆叠、定时关闭",
+        "en": "Message: one-line MiMessage.success(...) calls, stacking and auto-dismiss"
+      },
+      "parts": [
+        "materin-ui-message__item",
+        "materin-ui-message__icon",
+        "materin-ui-message__text",
+        "materin-ui-message__close"
+      ],
+      "variants": [],
+      "states": [],
+      "batch": "D2-feedback"
+    },
+    {
+      "name": "materin-ui-tour",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/tour/Tour.vue",
+      "purpose": {
+        "zh": "漫游引导：按步骤高亮页面元素并给说明，可上一步/下一步/完成",
+        "en": "Tour: highlights page elements step by step with copy, prev, next and finish"
+      },
+      "parts": [
+        "materin-ui-tour__highlight",
+        "materin-ui-tour__popper",
+        "materin-ui-tour__header",
+        "materin-ui-tour__title",
+        "materin-ui-tour__close",
+        "materin-ui-tour__body",
+        "materin-ui-tour__footer",
+        "materin-ui-tour__indicator",
+        "materin-ui-tour__actions",
+        "materin-ui-tour__prev",
+        "materin-ui-tour__next"
+      ],
+      "variants": [
+        "--top",
+        "--bottom",
+        "--left",
+        "--right"
+      ],
+      "states": [],
+      "batch": "D2-feedback"
+    },
+    {
+      "name": "materin-ui-drawer",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/drawer/Drawer.vue",
+      "purpose": {
+        "zh": "抽屉：从四边滑出，可设宽高、可不要标题栏、可玻璃",
+        "en": "Drawer: slides in from any of four sides, sizeable, header optional, glass optional"
+      },
+      "parts": [
+        "materin-ui-drawer__overlay",
+        "materin-ui-drawer__panel",
+        "materin-ui-drawer__header",
+        "materin-ui-drawer__title",
+        "materin-ui-drawer__close",
+        "materin-ui-drawer__body",
+        "materin-ui-drawer__footer"
+      ],
+      "variants": [
+        "--rtl",
+        "--ltr",
+        "--ttb",
+        "--btt",
+        "--glass"
+      ],
+      "states": [],
+      "batch": "D2-feedback"
+    },
+    {
+      "name": "materin-ui-dialog",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/dialog/Dialog.vue",
+      "purpose": {
+        "zh": "对话框：遮罩 + 面板，可居中/全屏/玻璃，点遮罩或 ESC 关闭，打开时锁滚动",
+        "en": "Dialog: overlay plus panel, centred, fullscreen or glass, closes on overlay click or Escape, locks scrolling"
+      },
+      "parts": [
+        "materin-ui-dialog__overlay",
+        "materin-ui-dialog__panel",
+        "materin-ui-dialog__header",
+        "materin-ui-dialog__title",
+        "materin-ui-dialog__close",
+        "materin-ui-dialog__body",
+        "materin-ui-dialog__footer"
+      ],
+      "variants": [
+        "--center",
+        "--fullscreen",
+        "--glass"
+      ],
+      "states": [],
+      "batch": "D2-feedback"
+    },
+    {
+      "name": "materin-ui-popconfirm",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/popconfirm/Popconfirm.vue",
+      "purpose": {
+        "zh": "气泡确认：二次确认后再执行，确认按钮分常用与危险两种语气",
+        "en": "Popconfirm: asks before acting, with a normal or a danger confirm button"
+      },
+      "parts": [
+        "materin-ui-popconfirm__trigger",
+        "materin-ui-popconfirm__popper",
+        "materin-ui-popconfirm__head",
+        "materin-ui-popconfirm__icon",
+        "materin-ui-popconfirm__title",
+        "materin-ui-popconfirm__actions",
+        "materin-ui-popconfirm__cancel",
+        "materin-ui-popconfirm__confirm"
+      ],
+      "variants": [
+        "--top",
+        "--bottom",
+        "--left",
+        "--right",
+        "--danger"
+      ],
+      "states": [
+        "is-open",
+        "is-disabled"
+      ],
+      "batch": "D1-feedback"
+    },
+    {
+      "name": "materin-ui-popover",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/popover/Popover.vue",
+      "purpose": {
+        "zh": "气泡卡片：可放交互内容，点击/悬浮/聚焦触发，点外部关闭",
+        "en": "Popover: holds interactive content, opened by click, hover or focus, closes on outside click"
+      },
+      "parts": [
+        "materin-ui-popover__trigger",
+        "materin-ui-popover__popper",
+        "materin-ui-popover__title",
+        "materin-ui-popover__content"
+      ],
+      "variants": [
+        "--top",
+        "--bottom",
+        "--left",
+        "--right"
+      ],
+      "states": [
+        "is-open",
+        "is-disabled"
+      ],
+      "batch": "D1-feedback"
+    },
+    {
+      "name": "materin-ui-tooltip",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/tooltip/Tooltip.vue",
+      "purpose": {
+        "zh": "文字提示：悬浮或聚焦出现，四个方向、可设出现与消失延迟",
+        "en": "Tooltip: appears on hover or focus, four placements, configurable show and hide delays"
+      },
+      "parts": [
+        "materin-ui-tooltip__popper"
+      ],
+      "variants": [
+        "--top",
+        "--bottom",
+        "--left",
+        "--right"
+      ],
+      "states": [
+        "is-disabled"
+      ],
+      "batch": "D1-feedback"
+    },
+    {
+      "name": "materin-ui-loading",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/loading/Loading.vue",
+      "purpose": {
+        "zh": "加载态：盖在内容上的遮罩，可全屏、可带文案、三档转圈大小",
+        "en": "Loading: a mask over its content, optional fullscreen, optional text, three spinner sizes"
+      },
+      "parts": [
+        "materin-ui-loading__mask",
+        "materin-ui-loading__spinner",
+        "materin-ui-loading__text"
+      ],
+      "variants": [
+        "--sm",
+        "--md",
+        "--lg",
+        "--fullscreen"
+      ],
+      "states": [],
+      "batch": "D1-feedback"
+    },
+    {
+      "name": "materin-ui-alert",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/alert/Alert.vue",
+      "purpose": {
+        "zh": "提示条：四种语义、标题与描述、可关闭、图标、居中、玻璃底",
+        "en": "Alert: four semantic types, title and description, closable, icon, centred, glass background"
+      },
+      "parts": [
+        "materin-ui-alert__icon",
+        "materin-ui-alert__content",
+        "materin-ui-alert__title",
+        "materin-ui-alert__description",
+        "materin-ui-alert__close"
+      ],
+      "variants": [
+        "--info",
+        "--success",
+        "--warning",
+        "--error",
+        "--center",
+        "--glass"
+      ],
+      "states": [],
+      "batch": "D1-feedback"
+    },
+    {
       "name": "materin-ui-rate",
       "scope": "ui",
       "repo": "materin-ui",

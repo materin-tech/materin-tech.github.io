@@ -46,7 +46,7 @@
     <p class="materin-site-crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <a href="/projects/"><span class="lang-zh">内容</span><span class="lang-en">Content</span></a> / Materin UI</p>
 
     <div class="materin-site-doc__head">
-      <h1>Materin UI <span class="materin-site-pill">v0.4.0</span></h1>
+      <h1>Materin UI <span class="materin-site-pill">v0.5.0</span></h1>
       <p class="materin-site-doc__sub lang-zh">一套令牌与命名契约，加一个 Vue 3 组件库。颜色跟随宿主主题，形状与间距固定；每个组件有唯一的名字，改哪儿、在哪儿改，按名可查。</p>
       <p class="materin-site-doc__sub lang-en">One token sheet and one naming contract, plus a Vue 3 component library. Colours follow the host theme, shape and spacing stay fixed, and every component has a single name — so what to change, and where, is findable by name.</p>
       <p class="materin-site-doc__sub" style="margin-top:10px">
@@ -75,13 +75,14 @@
           <li><strong>校验脚本</strong>（<code>tools/check-components.py</code>）—— 核对名字、清单、样式、令牌四者是否一致：有没有用了没登记的类名、有没有引用了不存在的令牌、有没有绕过令牌写死色值。契约不靠自觉，靠脚本。</li>
         </ul>
 
-        <h2>组件（当前 34 个）</h2>
+        <h2>组件（当前 44 个）</h2>
         <ul>
           <li><strong>布局 9 个</strong> —— Container / Header / Aside / Main / Footer（侧栏一出现容器自动转横向）、Row / Col（24 栅格，span / offset / order + xs~xl 断点）、Space、Divider（横竖、三种线型、文字位置）；</li>
           <li><strong>基础与展示 8 个</strong> —— Link（七种语义色）、Text（语义色 / 三档字号 / 单行与多行省略）、Title（1–6 级）、Badge（数字 / 小红点 / 超出显示 99+）、Avatar（图片 / 文字 / 默认剪影，圆或方）、Skeleton 与 SkeletonItem（扫光骨架屏）、Empty（空状态）；</li>
+          <li><strong>反馈与浮层 10 个</strong> —— Alert、Loading（局部与全屏遮罩）、Tooltip / Popover / Popconfirm（一套浮层机制，四个方向、点外部关闭）、Dialog（遮罩、居中/全屏/玻璃、ESC 关闭、打开锁滚动）、Drawer（四边滑出）、<strong>MiMessage 与 MiNotification</strong>（一行调用的全局消息与通知）、Tour（逐步骤高亮引导）；</li>
           <li><strong>表单与选择 13 个</strong> —— Form / FormItem（自研轻量校验：必填、类型、长度、区间、正则、自定义，可按失焦或变更触发；<code>validate</code> / <code>validateField</code> / <code>resetFields</code> / <code>clearValidate</code> 齐全）、InputNumber、Select + Option + OptionGroup（单选多选、键盘导航、点外部关闭、分组标题）、Checkbox 与 CheckboxGroup、Radio 与 RadioGroup、Switch、Slider（含双滑块区间）、Rate；</li>
           <li><strong>展示 4 个</strong> —— Input（<code>materin-ui-field</code>，在表单里会跟着表单项切尺寸 / 禁用 / 错误态）、Button、Tag、Card（default / glass / hero，不支持 <code>backdrop-filter</code> 时自动降级为不透明面）；</li>
-          <li><strong>路线图 63 个</strong> —— 目标是对标 Element Plus 全覆盖（92 项），另加本系列需要的 5 件：复制按钮、HTTP 方法徽标、状态点、毛玻璃面板、页面骨架。清单在 <code>registry/roadmap.json</code>，已完成与待做都标着。</li>
+          <li><strong>路线图 53 个</strong> —— 目标是对标 Element Plus 全覆盖（92 项），另加本系列需要的 5 件：复制按钮、HTTP 方法徽标、状态点、毛玻璃面板、页面骨架。清单在 <code>registry/roadmap.json</code>，已完成与待做都标着。</li>
         </ul>
 
         <h2>安装与使用</h2>
@@ -111,7 +112,7 @@ python3 tools/check-components.py --repo .   # 契约检查</code></pre>
         <p>MIT。</p>
 
         <h2>内容来源</h2>
-        <p>本页依据仓库 <code>materin-tech/materin-ui</code> 的 README、CHANGELOG 与路线图整理（版本 0.4.0）。以源码仓库为准。</p>
+        <p>本页依据仓库 <code>materin-tech/materin-ui</code> 的 README、CHANGELOG 与路线图整理（版本 0.5.0）。以源码仓库为准。</p>
       </div>
 
       <!-- ============ English ============ -->
@@ -127,13 +128,14 @@ python3 tools/check-components.py --repo .   # 契约检查</code></pre>
           <li><strong>Checker</strong> (<code>tools/check-components.py</code>) — verifies that names, registry, styles and tokens agree: class names not in the registry, references to tokens that do not exist, colours written past the tokens. The contract is enforced by a script, not by good intentions.</li>
         </ul>
 
-        <h2>Components (34 today)</h2>
+        <h2>Components (44 today)</h2>
         <ul>
           <li><strong>Nine layout pieces</strong> — Container / Header / Aside / Main / Footer (the container turns horizontal as soon as an aside appears), Row / Col (24-column grid with span / offset / order and xs–xl breakpoints), Space, Divider (horizontal or vertical, three line styles, text position);</li>
           <li><strong>Eight foundation and display pieces</strong> — Link (seven semantic colours), Text (semantic colours, three sizes, single- and multi-line truncation), Title (levels 1–6), Badge (numbers, status dot, 99+ over the max), Avatar (image, text or default silhouette; circle or square), Skeleton and SkeletonItem (sweeping placeholders), Empty;</li>
+          <li><strong>Ten feedback and overlay pieces</strong> — Alert, Loading (local or fullscreen mask), Tooltip / Popover / Popconfirm (one popper mechanism: four placements, closes on outside click), Dialog (overlay, centred, fullscreen or glass, closes on Escape, locks scrolling), Drawer (slides in from any side), <strong>MiMessage and MiNotification</strong> (one-line global messages and notices) and Tour (step-by-step highlighting);</li>
           <li><strong>Thirteen form and choice pieces</strong> — Form / FormItem (a small self-contained validator: required, type, length, range, pattern, custom, triggered on blur or change, with <code>validate</code> / <code>validateField</code> / <code>resetFields</code> / <code>clearValidate</code>), InputNumber, Select + Option + OptionGroup (single or multiple, keyboard navigation, closes on outside click, grouped options), Checkbox and CheckboxGroup, Radio and RadioGroup, Switch, Slider (including a two-handle range) and Rate;</li>
           <li><strong>Four display pieces</strong> — Input (<code>materin-ui-field</code>, which inherits size, disabled and error state from its form item), Button, Tag, Card (default / glass / hero, falling back to an opaque surface without <code>backdrop-filter</code>);</li>
-          <li><strong>Sixty-three on the roadmap</strong> — the target is full Element Plus coverage (92 items) plus five components this series needs: a copy button, an HTTP method badge, a status dot, a glass panel and a page shell. The list lives in <code>registry/roadmap.json</code>, done and pending both marked.</li>
+          <li><strong>Fifty-three on the roadmap</strong> — the target is full Element Plus coverage (92 items) plus five components this series needs: a copy button, an HTTP method badge, a status dot, a glass panel and a page shell. The list lives in <code>registry/roadmap.json</code>, done and pending both marked.</li>
         </ul>
 
         <h2>Install and use</h2>
@@ -163,7 +165,7 @@ python3 tools/check-components.py --repo .   # naming contract check</code></pre
         <p>MIT.</p>
 
         <h2>Source</h2>
-        <p>This page is based on the README, CHANGELOG and roadmap of <code>materin-tech/materin-ui</code> (version 0.4.0). The source repository is authoritative.</p>
+        <p>This page is based on the README, CHANGELOG and roadmap of <code>materin-tech/materin-ui</code> (version 0.5.0). The source repository is authoritative.</p>
       </div>
     </div>
 
