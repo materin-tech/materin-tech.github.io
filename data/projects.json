@@ -12,7 +12,10 @@
       "url": "https://github.com/leapord/Materin-office",
       "page": "/projects/materin-office/",
       "homepage": null,
-      "tags": ["obsidian", "plugin"],
+      "tags": [
+        "obsidian",
+        "plugin"
+      ],
       "language": "TypeScript",
       "visibility": "public",
       "updated": "2026-09"
@@ -28,7 +31,11 @@
       "url": "https://github.com/leapord/Materin-view",
       "page": "/projects/materin-view/",
       "homepage": null,
-      "tags": ["obsidian", "plugin", "openapi"],
+      "tags": [
+        "obsidian",
+        "plugin",
+        "openapi"
+      ],
       "language": "TypeScript",
       "visibility": "public",
       "updated": "2026-08"
@@ -44,24 +51,34 @@
       "url": "https://github.com/leapord/Materin-ctx",
       "page": "/projects/materin-ctx/",
       "homepage": null,
-      "tags": ["obsidian", "plugin", "json", "yaml"],
+      "tags": [
+        "obsidian",
+        "plugin",
+        "json",
+        "yaml"
+      ],
       "language": "TypeScript",
       "visibility": "public",
       "updated": "2026-08"
     },
     {
       "name": "Materin UI",
-      "slug": "design",
-      "version": "0.1",
+      "slug": "materin-ui",
+      "version": "0.2.1",
       "description": {
-        "zh": "系列共用的 UI 规范：颜色跟随宿主主题、形状与间距固定、变量统一。含令牌文件与三个仓库的实测差异清单。",
-        "en": "The UI spec shared by the series: colours follow the host theme, shape and spacing are fixed, variables are unified — with the token file and a measured gap list."
+        "zh": "系列共用的 UI 规范与 Vue 3 组件库：令牌管取值，契约管命名。组件库发布为 npm 包，文档与风格展示站点在 /materin-ui/。",
+        "en": "The UI spec and Vue 3 component library shared by the series: tokens decide values, the contract decides names. Published as an npm package, with docs and a style showcase at /materin-ui/."
       },
-      "url": null,
-      "page": "/design/",
+      "url": "https://github.com/materin-tech/materin-ui",
+      "page": "/projects/materin-ui/",
       "homepage": null,
-      "tags": ["design", "ui"],
-      "language": "CSS",
+      "tags": [
+        "ui",
+        "vue",
+        "npm",
+        "design"
+      ],
+      "language": "Vue / TypeScript",
       "visibility": "public",
       "updated": "2026-09"
     },
@@ -75,7 +92,10 @@
       },
       "url": "https://github.com/materin-tech/materin-tech.github.io",
       "page": "/about/",
-      "tags": ["site", "pages"],
+      "tags": [
+        "site",
+        "pages"
+      ],
       "language": "HTML",
       "visibility": "public",
       "updated": "2026-09"

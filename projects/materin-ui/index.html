@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materin UI — 系列共用的 UI 规范与 Vue 3 组件库 / UI spec and Vue 3 component library</title>
+<meta name="description" content="Materin UI：一套令牌与命名契约，加上一个 Vue 3 组件库。组件库发布到 npm，文档与风格展示站点在 /materin-ui/。">
+<meta name="theme-color" content="#0b0f19">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/materin-ui.css">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<script>
+  (function () {
+    var d = document.documentElement, t = null, l = null;
+    try { t = localStorage.getItem('theme'); l = localStorage.getItem('lang'); } catch (e) {}
+    d.setAttribute('data-theme', t || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+    if (!l) { l = (navigator.language || 'zh').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'; }
+    d.setAttribute('data-lang', l);
+    d.lang = l === 'zh' ? 'zh-CN' : 'en';
+  })();
+</script>
+</head>
+<body>
+<a class="materin-u-skip" href="#main">跳到主内容 / Skip to content</a>
+
+<header class="materin-site-header">
+  <div class="materin-u-wrap materin-site-header__inner">
+    <a class="materin-site-brand" href="/">
+      <img src="/assets/img/favicon.svg" alt="" width="28" height="28">
+      <span class="materin-site-brand__name">Materin</span>
+    </a>
+    <nav class="materin-site-nav">
+      <a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a>
+      <a href="/projects/"><span class="lang-zh">内容</span><span class="lang-en">Content</span></a>
+      <a href="/design/"><span class="lang-zh">设计</span><span class="lang-en">UI</span></a>
+      <a href="/about/"><span class="lang-zh">关于</span><span class="lang-en">About</span></a>
+      <button id="lang-toggle" class="materin-site-lang-toggle" type="button" aria-label="Switch to English">EN</button>
+      <button id="theme-toggle" class="materin-site-theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="materin-site-doc">
+  <div class="materin-u-wrap">
+    <p class="materin-site-crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <a href="/projects/"><span class="lang-zh">内容</span><span class="lang-en">Content</span></a> / Materin UI</p>
+
+    <div class="materin-site-doc__head">
+      <h1>Materin UI <span class="materin-site-pill">v0.2.1</span></h1>
+      <p class="materin-site-doc__sub lang-zh">一套令牌与命名契约，加一个 Vue 3 组件库。颜色跟随宿主主题，形状与间距固定；每个组件有唯一的名字，改哪儿、在哪儿改，按名可查。</p>
+      <p class="materin-site-doc__sub lang-en">One token sheet and one naming contract, plus a Vue 3 component library. Colours follow the host theme, shape and spacing stay fixed, and every component has a single name — so what to change, and where, is findable by name.</p>
+      <p class="materin-site-doc__sub" style="margin-top:10px">
+        <span class="lang-zh">组件演示与令牌实时取值：<a href="/materin-ui/">打开文档与风格展示站点</a>　·　规范正文：<a href="/design/">设计规范</a></span>
+        <span class="lang-en">Live component demos and token values: <a href="/materin-ui/">open the docs and style showcase</a>　·　Full spec: <a href="/design/">UI spec</a></span>
+      </p>
+    </div>
+
+    <div class="materin-site-btn-row">
+      <a class="materin-site-btn" href="/materin-ui/"><span class="lang-zh">文档与组件演示</span><span class="lang-en">Docs &amp; component demos</span> →</a>
+      <a class="materin-site-btn" href="/design/"><span class="lang-zh">令牌与命名契约</span><span class="lang-en">Tokens &amp; contract</span></a>
+      <a class="materin-site-btn" href="/projects/"><span class="lang-zh">全部内容</span><span class="lang-en">All content</span></a>
+    </div>
+
+    <div class="materin-site-prose">
+      <!-- ============ 中文 ============ -->
+      <div class="lang-zh">
+        <h2>概览</h2>
+        <p>Materin 的内容分散在若干处：Obsidian 插件、组织站点，以及一套 Vue 3 组件库。如果各写各的样式，改一次颜色要改四个仓库。Materin UI 把这些收在一处——<strong>令牌管取值，契约管命名</strong>，插件与站点只消费，不各自发挥。</p>
+
+        <h2>四件东西</h2>
+        <ul>
+          <li><strong>令牌表</strong>（<code>tokens/materin-ui.css</code>）—— 要改风格只改这一个文件。取值规则是「先宿主、后品牌」：宿主主题（Obsidian 的 <code>--interactive-accent</code>、<code>--background-primary</code>、<code>--radius-s</code> …）有该变量就用宿主的，没有才用品牌回落值。用户换主题，界面自动跟着变；</li>
+          <li><strong>命名契约</strong> —— <code>materin-&lt;scope&gt;-&lt;component&gt;[__part][--variant]</code>。一个组件一个名字，不允许别名。这样人和工具都能按名定位到组件与它的样式；</li>
+          <li><strong>Vue 3 组件库</strong>（<code>@materin-tech/materin-ui</code>）—— 4 个组件，全部只引用令牌，零硬编码颜色；</li>
+          <li><strong>校验脚本</strong>（<code>tools/check-components.py</code>）—— 核对名字、清单、样式、令牌四者是否一致：有没有用了没登记的类名、有没有引用了不存在的令牌、有没有绕过令牌写死色值。契约不靠自觉，靠脚本。</li>
+        </ul>
+
+        <h2>组件</h2>
+        <ul>
+          <li><strong>Button 按钮</strong>（<code>materin-ui-btn</code>）—— primary / secondary / ghost / danger 四种类型，三种尺寸，另有 <code>loading</code>、<code>disabled</code>、<code>block</code> 与图标插槽；</li>
+          <li><strong>Input 输入框</strong>（<code>materin-ui-field</code>）—— 标签、说明、错误态、可清空，前缀后缀插槽与三种尺寸；</li>
+          <li><strong>Tag 标签</strong>（<code>materin-ui-tag</code>）—— 六种语义色 × 三种尺寸，可关闭；</li>
+          <li><strong>Card 卡片</strong>（<code>materin-ui-card</code>）—— default / glass / hero 三种变体；玻璃变体走毛玻璃与高光边，不支持 <code>backdrop-filter</code> 时自动降级为不透明面。</li>
+        </ul>
+
+        <h2>安装与使用</h2>
+        <pre><code>npm install @materin-tech/materin-ui</code></pre>
+        <pre><code>import { createApp } from 'vue'
+import MaterinUI from '@materin-tech/materin-ui'
+import '@materin-tech/materin-ui/styles'   // 组件样式
+import '@materin-tech/materin-ui/tokens'   // 令牌表
+
+createApp(App).use(MaterinUI).mount('#app')</code></pre>
+        <p>不用 Vue 的地方（例如 Obsidian 插件）只取令牌表：</p>
+        <pre><code>&lt;link rel="stylesheet" href="https://materin-tech.github.io/materin-ui/tokens/materin-ui.css"&gt;</code></pre>
+
+        <h2>命名契约的 scope</h2>
+        <p>名字的第二段说明它属于哪儿，目前六档：<code>ui</code>（共享组件）、<code>site</code>（组织站点）、<code>docs</code>（文档站）、<code>office</code> / <code>view</code> / <code>ctx</code>（三个插件）。状态一律 <code>is-*</code> 或 ARIA 属性，布局工具用 <code>materin-u-*</code>。</p>
+
+        <h2>文档与本地开发</h2>
+        <p>组件演示、令牌实时取值与安装方式都在 <a href="/materin-ui/">文档与风格展示站点</a>。仓库里：</p>
+        <pre><code>npm install
+npm run docs:dev      # 文档站开发预览
+npm run build         # 打包组件库 + 生成类型声明
+npm run docs:build    # 构建文档站到 docs-dist/
+python3 tools/check-components.py --repo .   # 契约检查</code></pre>
+        <p>文档站由 CI 构建发布，契约检查是发布门禁：名字、清单、样式、令牌不一致就不发布。</p>
+
+        <h2>许可</h2>
+        <p>MIT。</p>
+
+        <h2>内容来源</h2>
+        <p>本页依据仓库 <code>materin-tech/materin-ui</code> 的 README 与 CHANGELOG 整理（版本 0.2.1）。以源码仓库为准。</p>
+      </div>
+
+      <!-- ============ English ============ -->
+      <div class="lang-en">
+        <h2>Overview</h2>
+        <p>Materin's work lives in several places: Obsidian plugins, the organization site, and a Vue 3 component library. If each kept its own styles, changing one colour would mean editing four repositories. Materin UI collects that in one place — <strong>tokens decide values, the contract decides names</strong> — and the plugins and the site only consume it.</p>
+
+        <h2>Four pieces</h2>
+        <ul>
+          <li><strong>Token sheet</strong> (<code>tokens/materin-ui.css</code>) — the single file to edit when the look changes. Host first, brand second: if the host theme (Obsidian's <code>--interactive-accent</code>, <code>--background-primary</code>, <code>--radius-s</code> …) defines the variable it wins, otherwise the brand fallback applies. Change the theme and the interface follows;</li>
+          <li><strong>Naming contract</strong> — <code>materin-&lt;scope&gt;-&lt;component&gt;[__part][--variant]</code>. One name per component, no aliases, so both people and tools can locate a component and its styles by name;</li>
+          <li><strong>Vue 3 component library</strong> (<code>@materin-tech/materin-ui</code>) — four components, every one of them referencing tokens only, with no hard-coded colours;</li>
+          <li><strong>Checker</strong> (<code>tools/check-components.py</code>) — verifies that names, registry, styles and tokens agree: class names not in the registry, references to tokens that do not exist, colours written past the tokens. The contract is enforced by a script, not by good intentions.</li>
+        </ul>
+
+        <h2>Components</h2>
+        <ul>
+          <li><strong>Button</strong> (<code>materin-ui-btn</code>) — primary / secondary / ghost / danger, three sizes, plus <code>loading</code>, <code>disabled</code>, <code>block</code> and an icon slot;</li>
+          <li><strong>Input</strong> (<code>materin-ui-field</code>) — label, hint, error state, clearable, prefix and suffix slots, three sizes;</li>
+          <li><strong>Tag</strong> (<code>materin-ui-tag</code>) — six semantic colours × three sizes, closable;</li>
+          <li><strong>Card</strong> (<code>materin-ui-card</code>) — default / glass / hero; the glass variant uses background blur with a specular edge and falls back to an opaque surface where <code>backdrop-filter</code> is unsupported.</li>
+        </ul>
+
+        <h2>Install and use</h2>
+        <pre><code>npm install @materin-tech/materin-ui</code></pre>
+        <pre><code>import { createApp } from 'vue'
+import MaterinUI from '@materin-tech/materin-ui'
+import '@materin-tech/materin-ui/styles'   // component styles
+import '@materin-tech/materin-ui/tokens'   // token sheet
+
+createApp(App).use(MaterinUI).mount('#app')</code></pre>
+        <p>Where there is no Vue — the Obsidian plugins, for instance — take the token sheet alone:</p>
+        <pre><code>&lt;link rel="stylesheet" href="https://materin-tech.github.io/materin-ui/tokens/materin-ui.css"&gt;</code></pre>
+
+        <h2>Scopes in the contract</h2>
+        <p>The second segment says where a name belongs; there are six: <code>ui</code> (shared components), <code>site</code> (the organization site), <code>docs</code> (the docs site), and <code>office</code> / <code>view</code> / <code>ctx</code> (the three plugins). States are <code>is-*</code> or ARIA attributes; layout utilities use <code>materin-u-*</code>.</p>
+
+        <h2>Docs and local development</h2>
+        <p>Component demos, live token values and installation are on the <a href="/materin-ui/">docs and style showcase site</a>. In the repository:</p>
+        <pre><code>npm install
+npm run docs:dev      # docs dev server
+npm run build         # build the library + type declarations
+npm run docs:build    # build the docs site into docs-dist/
+python3 tools/check-components.py --repo .   # naming contract check</code></pre>
+        <p>The docs site is built in CI, and the contract check gates the release: if names, registry, styles and tokens disagree, nothing is published.</p>
+
+        <h2>License</h2>
+        <p>MIT.</p>
+
+        <h2>Source</h2>
+        <p>This page is based on the README and CHANGELOG of <code>materin-tech/materin-ui</code> (version 0.2.1). The source repository is authoritative.</p>
+      </div>
+    </div>
+
+    <div class="materin-site-doc-nav">
+      <a href="/projects/">← <span class="lang-zh">回到内容索引</span><span class="lang-en">Back to content</span></a>
+      <span>
+        <span class="lang-zh">外部链接：</span><span class="lang-en">External:</span>
+        <a href="https://github.com/materin-tech/materin-ui" target="_blank" rel="noopener"><span class="lang-zh">源码仓库</span><span class="lang-en">Source repo</span> ↗</a>
+        ·
+        <a href="https://github.com/materin-tech/materin-ui/blob/main/CHANGELOG.md" target="_blank" rel="noopener"><span class="lang-zh">版本记录</span><span class="lang-en">Changelog</span> ↗</a>
+      </span>
+    </div>
+  </div>
+</main>
+
+<footer class="materin-site-footer">
+  <div class="materin-u-wrap materin-site-footer__inner">
+    <p>© <span id="year">2026</span> Materin · <span class="lang-zh">由 GitHub Pages 托管</span><span class="lang-en">Hosted on GitHub Pages</span></p>
+    <p class="materin-u-muted">
+      <a href="https://github.com/materin-tech/materin-ui" target="_blank" rel="noopener"><span class="lang-zh">源码仓库</span><span class="lang-en">Source</span></a>
+      ·
+      <a href="https://github.com/materin-tech/materin-ui/blob/main/README.md" target="_blank" rel="noopener"><span class="lang-zh">原始 README</span><span class="lang-en">Upstream README</span></a>
+    </p>
+  </div>
+</footer>
+
+<script src="/assets/js/main.js" defer></script>
+</body>
+</html>

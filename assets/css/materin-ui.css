@@ -21,6 +21,7 @@
   /* --- 强调色 --- */
   --materin-accent: var(--interactive-accent, #5b8cff);
   --materin-accent-soft: color-mix(in srgb, var(--materin-accent) 22%, transparent);
+  --materin-accent-border: color-mix(in srgb, var(--materin-accent) 32%, transparent);
   --materin-on-accent: var(--text-on-accent, #ffffff);
   --materin-secondary: var(--color-cyan, #6ee7d5);
 
@@ -36,19 +37,60 @@
   --materin-text: var(--text-normal, #e7ecf5);
   --materin-text-muted: var(--text-muted, #93a1bd);
 
-  /* --- 状态（语义，不写死色值） --- */
+  /* --- 语义状态 --- */
   --materin-ok: var(--color-green, #3a7d44);
   --materin-warn: var(--color-yellow, #b8860b);
   --materin-error: var(--color-red, #f93e3e);
+  --materin-info: var(--materin-accent, #5b8cff);
+  /* 语义别名：强调色强档、描边强档、更淡的文字 */
+  --materin-accent-strong: var(--interactive-accent-hover, #4a7cef);
+  --materin-border-strong: var(--background-modifier-border-hover, #23304d);
+  --materin-text-faint: var(--text-faint, #93a1bd);
+
+  /* --- 语义色的底色与描边（由语义色派生：改语义色，标签/提示条一起变） --- */
+  --materin-secondary-soft: color-mix(in srgb, var(--materin-secondary) 16%, transparent);
+  --materin-secondary-border: color-mix(in srgb, var(--materin-secondary) 32%, transparent);
+  --materin-ok-soft: color-mix(in srgb, var(--materin-ok) 18%, transparent);
+  --materin-ok-border: color-mix(in srgb, var(--materin-ok) 32%, transparent);
+  --materin-warn-soft: color-mix(in srgb, var(--materin-warn) 18%, transparent);
+  --materin-warn-border: color-mix(in srgb, var(--materin-warn) 32%, transparent);
+  --materin-error-soft: color-mix(in srgb, var(--materin-error) 16%, transparent);
+  --materin-error-border: color-mix(in srgb, var(--materin-error) 32%, transparent);
 
   /* --- 形状与间距 --- */
   --materin-radius: var(--radius-s, 6px);
   --materin-radius-lg: 14px;
+  /* --- 间距基数（4px 起步；space-6/7 供大块留白） --- */
   --materin-space-1: 4px;
   --materin-space-2: 8px;
   --materin-space-3: 12px;
   --materin-space-4: 16px;
   --materin-space-5: 24px;
+  --materin-space-6: 32px;
+  --materin-space-7: 48px;
+
+  /* --- 字阶与字重 --- */
+  --materin-font-size-display: 48px;
+  --materin-font-size-h1: 32px;
+  --materin-font-size-h2: 24px;
+  --materin-font-size-h3: 20px;
+  --materin-font-size-body: 14px;
+  --materin-font-size-small: 13px;
+  --materin-font-size-caption: 12px;
+  --materin-font-weight-regular: 400;
+  --materin-font-weight-medium: 500;
+  --materin-font-weight-bold: 700;
+  --materin-line-height-tight: 1.2;
+  --materin-line-height-normal: 1.5;
+  --materin-line-height-loose: 1.7;
+
+  /* --- 动效（时长与缓动曲线，组件不许自己写 0.3s / ease-in-out） --- */
+  --materin-duration-fast: 150ms;
+  --materin-duration-normal: 200ms;
+  --materin-duration-slow: 300ms;
+  --materin-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --materin-ease-in: cubic-bezier(0, 0, 0.2, 1);
+  --materin-ease-out: cubic-bezier(0.4, 0, 1, 1);
 
   /* --- 字体 --- */
   --materin-font-ui: var(--font-interface, inherit);

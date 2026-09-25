@@ -8,6 +8,7 @@
     "scopes": [
       "ui",
       "site",
+      "docs",
       "office",
       "view",
       "ctx"
@@ -25,7 +26,8 @@
   "registry_rules": [
     "parts / variants 用简写：parts 写全名（父名__part），variants 只写 --variant",
     "repo 字段指向组件实现所在的仓库；本站组件在 materin-tech.github.io",
-    "清单是给 tools/check-components.py 读的，不是文档：名字与实现不允许对不上"
+    "清单是给 tools/check-components.py 读的，不是文档：名字与实现不允许对不上",
+    "Vue 组件库的条目 file 指向 .vue（其 <style> 块即组件层样式）；变体只写 --variant，部件写全名"
   ],
   "pending": {
     "note": "以下仓库尚未接入契约，数值为实测（styles.css 行数 / 类名数）",
@@ -54,6 +56,304 @@
     ]
   },
   "components": [
+    {
+      "name": "materin-docs-wrap",
+      "scope": "docs",
+      "repo": "materin-ui",
+      "file": "docs/docs.scss",
+      "purpose": {
+        "zh": "文档站内容定宽居中",
+        "en": "Centred content column for the docs site"
+      },
+      "parts": [],
+      "variants": [],
+      "states": []
+    },
+    {
+      "name": "materin-docs-header",
+      "scope": "docs",
+      "repo": "materin-ui",
+      "file": "docs/docs.scss",
+      "purpose": {
+        "zh": "文档站顶栏（毛玻璃吸附）",
+        "en": "Docs top bar (sticky, frosted)"
+      },
+      "parts": [
+        "materin-docs-header__inner"
+      ],
+      "variants": [],
+      "states": []
+    },
+    {
+      "name": "materin-docs-brand",
+      "scope": "docs",
+      "repo": "materin-ui",
+      "file": "docs/docs.scss",
+      "purpose": {
+        "zh": "文档站品牌标识与版本徽标",
+        "en": "Docs brand mark and version badge"
+      },
+      "parts": [
+        "materin-docs-brand__name",
+        "materin-docs-brand__version"
+      ],
+      "variants": [],
+      "states": []
+    },
+    {
+      "name": "materin-docs-nav",
+      "scope": "docs",
+      "repo": "materin-ui",
+      "file": "docs/docs.scss",
+      "purpose": {
+        "zh": "文档站锚点导航",
+        "en": "Docs anchor navigation"
+      },
+      "parts": [],
+      "variants": [],
+      "states": []
+    },
+    {
+      "name": "materin-docs-toggle",
+      "scope": "docs",
+      "repo": "materin-ui",
+      "file": "docs/docs.scss",
+      "purpose": {
+        "zh": "语言 / 主题切换按钮",
+        "en": "Language and theme toggles"
+      },
+      "parts": [],
+      "variants": [],
+      "states": []
+    },
+    {
+      "name": "materin-docs-hero",
+      "scope": "docs",
+      "repo": "materin-ui",
+      "file": "docs/docs.scss",
+      "purpose": {
+        "zh": "文档站首屏（主张 + 主行动）",
+        "en": "Docs hero (claim and primary action)"
+      },
+      "parts": [
+        "materin-docs-hero__actions"
+      ],
+      "variants": [],
+      "states": []
+    },
+    {
+      "name": "materin-docs-section",
+      "scope": "docs",
+      "repo": "materin-ui",
+      "file": "docs/docs.scss",
+      "purpose": {
+        "zh": "文档站分区（标题 + 说明）",
+        "en": "Docs section (heading and description)"
+      },
+      "parts": [
+        "materin-docs-section__head"
+      ],
+      "variants": [],
+      "states": []
+    },
+    {
+      "name": "materin-docs-code",
+      "scope": "docs",
+      "repo": "materin-ui",
+      "file": "docs/docs.scss",
+      "purpose": {
+        "zh": "文档代码块",
+        "en": "Docs code block"
+      },
+      "parts": [],
+      "variants": [],
+      "states": []
+    },
+    {
+      "name": "materin-docs-demo",
+      "scope": "docs",
+      "repo": "materin-ui",
+      "file": "docs/docs.scss",
+      "purpose": {
+        "zh": "组件演示台（承载真实组件）",
+        "en": "Component demo stage (holds real components)"
+      },
+      "parts": [
+        "materin-docs-demo__label",
+        "materin-docs-demo__grid"
+      ],
+      "variants": [
+        "--column"
+      ],
+      "states": []
+    },
+    {
+      "name": "materin-docs-tokens",
+      "scope": "docs",
+      "repo": "materin-ui",
+      "file": "docs/docs.scss",
+      "purpose": {
+        "zh": "令牌实时取值表",
+        "en": "Live token value table"
+      },
+      "parts": [],
+      "variants": [],
+      "states": []
+    },
+    {
+      "name": "materin-docs-swatch",
+      "scope": "docs",
+      "repo": "materin-ui",
+      "file": "docs/docs.scss",
+      "purpose": {
+        "zh": "令牌色块（直接引用令牌）",
+        "en": "Token swatch (references the token directly)"
+      },
+      "parts": [],
+      "variants": [],
+      "states": []
+    },
+    {
+      "name": "materin-docs-footer",
+      "scope": "docs",
+      "repo": "materin-ui",
+      "file": "docs/docs.scss",
+      "purpose": {
+        "zh": "文档站页脚",
+        "en": "Docs footer"
+      },
+      "parts": [
+        "materin-docs-footer__inner"
+      ],
+      "variants": [],
+      "states": []
+    },
+    {
+      "name": "materin-ui-btn",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/button/Button.vue",
+      "purpose": {
+        "zh": "按钮：4 种类型 × 3 种尺寸 × loading/block",
+        "en": "Button: 4 types x 3 sizes, plus loading and block"
+      },
+      "parts": [
+        "materin-ui-btn__content",
+        "materin-ui-btn__icon"
+      ],
+      "variants": [
+        "--primary",
+        "--secondary",
+        "--ghost",
+        "--danger",
+        "--sm",
+        "--lg",
+        "--block",
+        "--loading",
+        "--disabled"
+      ],
+      "states": [
+        "is-loading"
+      ]
+    },
+    {
+      "name": "materin-ui-field",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/input/Input.vue",
+      "purpose": {
+        "zh": "输入框：label / hint / error / clearable / prefix-suffix 插槽",
+        "en": "Input: label, hint, error, clearable, prefix and suffix slots"
+      },
+      "parts": [
+        "materin-ui-field__label",
+        "materin-ui-field__required",
+        "materin-ui-field__inner",
+        "materin-ui-field__inner--has-prefix",
+        "materin-ui-field__inner--has-suffix",
+        "materin-ui-field__prefix",
+        "materin-ui-field__suffix",
+        "materin-ui-field__clear",
+        "materin-ui-field__msg",
+        "materin-ui-field__msg--error"
+      ],
+      "variants": [
+        "--sm",
+        "--md",
+        "--lg",
+        "--disabled"
+      ],
+      "states": [
+        "is-focused"
+      ]
+    },
+    {
+      "name": "materin-ui-field-wrapper",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/input/Input.vue",
+      "purpose": {
+        "zh": "输入框外层容器（承载聚焦描边，与 input 本体分离）",
+        "en": "Input wrapper (carries the focus ring, separate from the input itself)"
+      },
+      "parts": [],
+      "variants": [
+        "--focused"
+      ],
+      "states": []
+    },
+    {
+      "name": "materin-ui-tag",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/tag/Tag.vue",
+      "purpose": {
+        "zh": "标签：6 种语义色 × 3 种尺寸 × closable",
+        "en": "Tag: 6 semantic colours x 3 sizes, closable"
+      },
+      "parts": [
+        "materin-ui-tag__icon",
+        "materin-ui-tag__label",
+        "materin-ui-tag__close"
+      ],
+      "variants": [
+        "--primary",
+        "--secondary",
+        "--ok",
+        "--warn",
+        "--error",
+        "--neutral",
+        "--sm",
+        "--lg",
+        "--closable",
+        "--disabled"
+      ],
+      "states": []
+    },
+    {
+      "name": "materin-ui-card",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/card/Card.vue",
+      "purpose": {
+        "zh": "卡片：default / glass / hero 三种外观 × hoverable",
+        "en": "Card: default, glass and hero variants, plus hoverable"
+      },
+      "parts": [
+        "materin-ui-card__cover",
+        "materin-ui-card__header",
+        "materin-ui-card__title",
+        "materin-ui-card__subtitle",
+        "materin-ui-card__body",
+        "materin-ui-card__footer"
+      ],
+      "variants": [
+        "--glass",
+        "--hero",
+        "--hoverable"
+      ],
+      "states": []
+    },
     {
       "name": "materin-site-header",
       "scope": "site",
@@ -485,5 +785,11 @@
       "parts": [],
       "states": []
     }
-  ]
+  ],
+  "docs_site": {
+    "repo": "materin-ui",
+    "source": "docs/",
+    "build": "npm run docs:build → docs-dist/",
+    "url": "https://materin-tech.github.io/materin-ui/"
+  }
 }

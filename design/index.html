@@ -170,7 +170,7 @@
             <tr><td>状态</td><td><code>is-&lt;state&gt;</code>，或优先用 ARIA 属性</td><td><code>materin-site-chip[aria-pressed="true"]</code> / <code>.is-active</code></td></tr>
           </tbody>
         </table>
-        <p><code>scope</code> 只有五个：<code>ui</code>（共享件）、<code>site</code>（本站 UI）、<code>office</code>、<code>view</code>、<code>ctx</code>。名字里必须带 scope，这样在全仓库范围搜 <code>materin-ctx-</code> 就能一次拿到该插件的全部 UI。</p>
+        <p><code>scope</code> 只有六个：<code>ui</code>（共享件）、<code>site</code>（本站 UI）、<code>docs</code>（组件库文档站）、<code>office</code>、<code>view</code>、<code>ctx</code>。名字里必须带 scope，这样在全仓库范围搜 <code>materin-ctx-</code> 就能一次拿到该插件的全部 UI。</p>
         <p>不用裸类名（<code>.card</code>、<code>.btn</code> 这种），也不做「换个前缀的别名」—— 一个组件只有一个名字，否则按名查找会落空。i18n 的 <code>lang-zh</code> / <code>lang-en</code> 是系统约定，不属于组件，不参与改名。</p>
 
         <h3>实况</h3>
@@ -234,7 +234,7 @@
         </table>
 
         <h2>怎么用</h2>
-        <p><strong>正本在哪</strong>：令牌、组件清单、校验脚本的正本在仓库 <code>materin-tech/materin-ui</code>；本站与三个插件拿到的都是同步副本（本站的同步脚本把令牌、清单、校验脚本一起带过来并自动校验）。改令牌一律改正本，再同步过来。</p>
+        <p><strong>正本在哪</strong>：令牌、组件清单、校验脚本的正本在仓库 <code>materin-tech/materin-ui</code>；本站与三个插件拿到的都是同步副本（本站的同步脚本把令牌、清单、校验脚本一起带过来并自动校验）。改令牌一律改正本，再同步过来。Vue 3 组件库与它的文档站（<a href="/materin-ui/">组件演示、令牌实时取值</a>）也在这个仓库里。</p>
         <p><strong>网页</strong>：在站点自己的样式之前引入令牌表 ——</p>
         <pre><code>&lt;link rel="stylesheet" href="/assets/css/materin-ui.css"&gt;
 &lt;link rel="stylesheet" href="/assets/css/style.css"&gt;</code></pre>
@@ -352,7 +352,7 @@
             <tr><td>State</td><td><code>is-&lt;state&gt;</code>, ARIA attributes preferred</td><td><code>materin-site-chip[aria-pressed="true"]</code> / <code>.is-active</code></td></tr>
           </tbody>
         </table>
-        <p>There are five scopes: <code>ui</code> (shared), <code>site</code> (this site), <code>office</code>, <code>view</code>, <code>ctx</code>. The scope is mandatory, so grepping <code>materin-ctx-</code> across the repos returns that plugin's entire UI in one go.</p>
+        <p>There are six scopes: <code>ui</code> (shared), <code>site</code> (this site), <code>docs</code> (the component library's docs site), <code>office</code>, <code>view</code>, <code>ctx</code>. The scope is mandatory, so grepping <code>materin-ctx-</code> across the repos returns that plugin's entire UI in one go.</p>
         <p>No bare class names (<code>.card</code>, <code>.btn</code>), and no prefixed aliases either — one component, one name, otherwise a lookup by name silently misses. The i18n pair <code>lang-zh</code> / <code>lang-en</code> is a system convention, not a component, and is exempt from renaming.</p>
 
         <h3>Where things stand</h3>
@@ -416,7 +416,7 @@
         </table>
 
         <h2>How to use it</h2>
-        <p><strong>Where the source is</strong>: the tokens, the component registry and the checker live in <code>materin-tech/materin-ui</code>; this site and the three plugins hold synced copies (the site's sync script pulls tokens, registry and checker across and re-runs the checks). Change a token in the source repo, then sync.</p>
+        <p><strong>Where the source is</strong>: the tokens, the component registry and the checker live in <code>materin-tech/materin-ui</code>; this site and the three plugins hold synced copies (the site's sync script pulls tokens, registry and checker across and re-runs the checks). Change a token in the source repo, then sync. The Vue 3 component library and its docs site (<a href="/materin-ui/">component demos, live token values</a>) live in that same repository.</p>
         <p><strong>On the web</strong>: link the token sheet before the site's own styles —</p>
         <pre><code>&lt;link rel="stylesheet" href="/assets/css/materin-ui.css"&gt;
 &lt;link rel="stylesheet" href="/assets/css/style.css"&gt;</code></pre>
