@@ -1,28 +1,30 @@
 :root {
-  --bg: #0b0f19;
-  --bg-alt: #0f1524;
-  --card: #131b2e;
-  --card-hover: #18223a;
-  --border: #23304d;
-  --text: #e7ecf5;
-  --muted: #93a1bd;
-  --accent: #5b8cff;
-  --accent-2: #6ee7d5;
-  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
-  --radius: 14px;
+  /* 站点皮肤：取值全部来自 Materin UI 令牌（assets/css/materin-ui.css） */
+  --bg: var(--materin-surface);
+  --bg-alt: var(--materin-surface-2);
+  --card: var(--materin-surface-3);
+  --card-hover: var(--materin-surface-4);
+  --border: var(--materin-border);
+  --text: var(--materin-text);
+  --muted: var(--materin-text-muted);
+  --accent: var(--materin-accent);
+  --accent-2: var(--materin-secondary);
+  --shadow: var(--materin-shadow);
+  --radius: var(--materin-radius-lg);
   --wrap: 1080px;
 }
 html[data-theme="light"] {
-  --bg: #f7f9fc;
-  --bg-alt: #eef2f9;
-  --card: #ffffff;
-  --card-hover: #ffffff;
-  --border: #dbe3f0;
-  --text: #131a28;
-  --muted: #5a6884;
-  --accent: #2f5fe0;
-  --accent-2: #0f9c8a;
-  --shadow: 0 8px 24px rgba(19, 26, 40, .08);
+  /* 浅色主题：只覆盖令牌值，用法不变 */
+  --materin-surface: #f7f9fc;
+  --materin-surface-2: #eef2f9;
+  --materin-surface-3: #ffffff;
+  --materin-surface-4: #ffffff;
+  --materin-border: #dbe3f0;
+  --materin-text: #131a28;
+  --materin-text-muted: #5a6884;
+  --materin-accent: #2f5fe0;
+  --materin-secondary: #0f9c8a;
+  --materin-shadow: 0 8px 24px rgba(19, 26, 40, .08);
 }
 
 * { box-sizing: border-box; }

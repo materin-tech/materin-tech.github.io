@@ -10,7 +10,8 @@ GitHub Pages 的「组织站点」规则：仓库名必须是 `<组织名>.githu
 ```
 .
 ├── index.html                    首页：品牌（格物）+ 现在的内容，站内跳转优先
-├── about/index.html              关于 Materin（品牌 / 格物 / 结构约定 / 初始化记录），中英双语
+├── about/index.html              关于 Materin（品牌 / 格物 / 产品定位 / 结构约定 / 初始化记录）
+├── design/index.html             Materin UI 规范（令牌表 + 可交互色块 + 实测差异清单）
 ├── projects/index.html           内容索引（JSON 驱动，带标签筛选）
 ├── projects/                     内容说明页（挂载自各项目仓库 README）
 │   ├── materin-office/index.html
@@ -19,12 +20,25 @@ GitHub Pages 的「组织站点」规则：仓库名必须是 `<组织名>.githu
 ├── 404.html                      自定义 404（Pages 自动使用）
 ├── data/projects.json            项目清单（唯一需要维护的数据文件）
 ├── assets/
-│   ├── css/style.css             基础样式（CSS 变量 + 明暗双主题 + 卡片/网格）
+│   ├── css/materin-ui.css        品牌 UI 令牌 —— 唯一改风格的地方，插件也用同一份
+│   ├── css/style.css             站点皮肤（只引用令牌，不写死色值）
 │   ├── css/site.css              扩展样式（中英切换规则 + 文档页 prose/表格）
 │   ├── js/main.js                主题、语言切换、项目列表渲染与标签过滤
 │   └── img/favicon.svg           站点图标
 └── .nojekyll                     禁用 Jekyll 处理，避免下划线目录被忽略
 ```
+
+## UI 令牌（产品定位：一套 UI）
+
+Materin 的产品定位是**系列共用一套 UI**，落点就是 `assets/css/materin-ui.css`：
+
+- 取值规则：优先取宿主变量（Obsidian 的 `--interactive-accent` / `--background-primary` / `--radius-s` …），
+  取不到时才用品牌回落值 —— 用户换主题，插件与网页自动跟着变；
+- 站点皮肤 `style.css` 的 `:root` 已改成只引用 `--materin-*`，**不要在页面样式里新写色值**；
+- 新页面必须按 `materin-ui.css` → `style.css` → `site.css` 的顺序引入，否则样式取不到值；
+- 插件侧不远程 `@import`（单文件打包 + 需离线可用），改为把令牌的 `:root` 段复制进插件 `styles.css`。
+
+规范页 `/design/` 里同时记录了三个插件 `styles.css` 的实测差异（强调色语义、状态色三套写法、硬编码色值）。
 
 ## 站内优先原则（重要）
 

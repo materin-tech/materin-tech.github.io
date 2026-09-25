@@ -73,6 +73,16 @@ html[data-lang="en"] .lang-inline .lang-zh { display: none; }
   font-size: 14px;
 }
 
+/* --- 设计规范页辅助 --- */
+.sw {
+  display: inline-block; width: 14px; height: 14px; border-radius: 4px;
+  border: 1px solid var(--border); vertical-align: -2px; margin-right: 7px;
+}
+.mono { font-family: var(--materin-font-mono); font-size: 12.5px; }
+.principle { margin: 0 0 16px; }
+.principle h3 { margin: 0 0 6px; font-size: 16px; }
+.principle p { margin: 0; color: var(--muted); font-size: 14px; }
+
 /* --- 资源清单 --- */
 .assets-list { width: 100%; border-collapse: collapse; font-size: 14px; }
 .assets-list th, .assets-list td { border-bottom: 1px solid var(--border); padding: 9px 12px; text-align: left; }

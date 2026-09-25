@@ -50,6 +50,22 @@
       "updated": "2026-08"
     },
     {
+      "name": "Materin UI",
+      "slug": "design",
+      "version": "0.1",
+      "description": {
+        "zh": "系列共用的 UI 规范：颜色跟随宿主主题、形状与间距固定、变量统一。含令牌文件与三个仓库的实测差异清单。",
+        "en": "The UI spec shared by the series: colours follow the host theme, shape and spacing are fixed, variables are unified — with the token file and a measured gap list."
+      },
+      "url": null,
+      "page": "/design/",
+      "homepage": null,
+      "tags": ["design", "ui"],
+      "language": "CSS",
+      "visibility": "public",
+      "updated": "2026-09"
+    },
+    {
       "name": "materin-tech.github.io",
       "slug": "site",
       "version": null,

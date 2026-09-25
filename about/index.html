@@ -7,6 +7,7 @@
 <meta name="description" content="Materin 是什么：名字取自「格物」—— 把一件事追到底，以及这个站点是怎么搭起来的（定位、结构约定、初始化记录，中英双语）。">
 <meta name="theme-color" content="#0b0f19">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/materin-ui.css">
 <link rel="stylesheet" href="/assets/css/style.css">
 <link rel="stylesheet" href="/assets/css/site.css">
 <script>
@@ -32,6 +33,7 @@
     <nav class="nav">
       <a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a>
       <a href="/projects/"><span class="lang-zh">内容</span><span class="lang-en">Content</span></a>
+      <a href="/design/"><span class="lang-zh">设计</span><span class="lang-en">UI</span></a>
       <a href="/about/"><span class="lang-zh">关于</span><span class="lang-en">About</span></a>
       <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to English">EN</button>
       <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
@@ -63,7 +65,9 @@
         <p>内容与代码由 GitHub 组织 <code>materin-tech</code> 承载；所有内容先在这里讲清楚，出处放在最后。</p>
 
         <h2>现在发布的内容</h2>
-        <p>目前站上发布的是三个 Obsidian 插件（Materin Office / View / Ctx），每个都有一页站内说明。新的题目在写，写法和它们一样：先弄明白，再写下来。</p>
+        <p>目前站上发布的是三个 Obsidian 插件（Materin Office / View / Ctx），每个都有一页站内说明。</p>
+        <p>三个插件是同一个系列，产品定位就落在这一点上：<strong>共用一套 UI</strong> —— 颜色跟随用户主题、形状与间距固定、变量统一。规范与令牌文件见 <a href="/design/">Materin UI</a>。</p>
+        <p>新的题目在写，写法和它们一样：先弄明白，再写下来。</p>
 
         <h2>组织与载体</h2>
         <p>Materin 是一个以「<strong>静态优先</strong>、<strong>仓库自治</strong>」为组织方式的项目集合。每个项目在自己的仓库里独立演进，不互相耦合；本站统一承担门面、资源分发与说明页的职责。</p>
@@ -149,7 +153,9 @@
         <p>Content and code live under the GitHub organization <code>materin-tech</code>; everything is explained here first, sources last.</p>
 
         <h2>What's published today</h2>
-        <p>The site currently publishes three Obsidian plugins (Materin Office / View / Ctx), each with its own in-site page. New pieces are being written, following the same rule: understand it first, write it down after.</p>
+        <p>The site publishes three Obsidian plugins (Materin Office / View / Ctx), each with its own in-site page.</p>
+        <p>They are one series, and that is where the product positioning sits: <strong>one shared UI</strong> — colours follow the user's theme, shape and spacing are fixed, variables are unified. The spec and token file are at <a href="/design/">Materin UI</a>.</p>
+        <p>New pieces are being written, following the same rule: understand it first, write it down after.</p>
 
         <h2>The organization behind it</h2>
         <p>Materin is a collection of projects organized around two principles: <strong>static-first</strong> and <strong>repository autonomy</strong>. Every project evolves independently in its own repository with no cross-coupling, while this site serves as the single facade, the asset host and the home of documentation.</p>

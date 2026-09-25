@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materin UI — 一套 UI，三个插件 / One UI across the series</title>
+<meta name="description" content="Materin 的 UI 规范：颜色、形状、间距从同一个令牌文件取，插件跟随 Obsidian 主题，网页与插件共用一套变量。">
+<meta name="theme-color" content="#0b0f19">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/materin-ui.css">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<script>
+  (function () {
+    var d = document.documentElement, t = null, l = null;
+    try { t = localStorage.getItem('theme'); l = localStorage.getItem('lang'); } catch (e) {}
+    d.setAttribute('data-theme', t || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+    if (!l) { l = (navigator.language || 'zh').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'; }
+    d.setAttribute('data-lang', l);
+    d.lang = l === 'zh' ? 'zh-CN' : 'en';
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到主内容 / Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/">
+      <img src="/assets/img/favicon.svg" alt="" width="28" height="28">
+      <span class="brand-name">Materin</span>
+    </a>
+    <nav class="nav">
+      <a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a>
+      <a href="/projects/"><span class="lang-zh">内容</span><span class="lang-en">Content</span></a>
+      <a href="/design/"><span class="lang-zh">设计</span><span class="lang-en">UI</span></a>
+      <a href="/about/"><span class="lang-zh">关于</span><span class="lang-en">About</span></a>
+      <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to English">EN</button>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="doc">
+  <div class="wrap">
+    <p class="crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <span class="lang-zh">设计</span><span class="lang-en">UI</span></p>
+
+    <div class="doc-head">
+      <h1>Materin UI <span class="pill">v0.1</span></h1>
+      <p class="sub lang-zh">一套 UI，三个插件 —— 颜色、形状、间距都从同一个令牌文件里取。</p>
+      <p class="sub lang-en">One UI across three plugins — colour, shape and spacing all come from a single token file.</p>
+    </div>
+
+    <div class="btn-row">
+      <a class="btn small" href="/assets/css/materin-ui.css"><span class="lang-zh">令牌文件（本站托管）</span><span class="lang-en">Token file (hosted here)</span></a>
+      <a class="btn small" href="/projects/"><span class="lang-zh">内容索引</span><span class="lang-en">Content index</span></a>
+    </div>
+
+    <div class="doc-body">
+      <!-- ==================== 中文 ==================== -->
+      <div class="lang-zh">
+        <h2>三条原则</h2>
+        <div class="principle">
+          <h3>一、跟随宿主</h3>
+          <p>颜色、字体、圆角优先取 Obsidian 主题变量（<code>--background-primary</code>、<code>--interactive-accent</code>、<code>--radius-s</code> …）。Materin 只定义「取不到时」的回落值 —— 用户换主题，插件跟着变，代码不用动。</p>
+        </div>
+        <div class="principle">
+          <h3>二、一套变量</h3>
+          <p>所有界面只引用 <code>--materin-*</code>，不再出现散落的色值。要改风格，改一个文件。</p>
+        </div>
+        <div class="principle">
+          <h3>三、形状与间距固定</h3>
+          <p>圆角统一 <code>--materin-radius</code>（回落 <code>--radius-s</code>）；间距走 4px 基数：4 / 8 / 12 / 16 / 24。跨插件观感一致靠这两条，而不是靠各自调数值。</p>
+        </div>
+
+        <h2>令牌</h2>
+        <table>
+          <thead><tr><th>令牌</th><th>用途</th><th>取值</th></tr></thead>
+          <tbody>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-accent)"></span>--materin-accent</td><td>交互强调（按钮、选中、链接）</td><td class="mono">--interactive-accent → #5b8cff</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-secondary)"></span>--materin-secondary</td><td>次要强调</td><td class="mono">--color-cyan → #6ee7d5</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-on-accent)"></span>--materin-on-accent</td><td>强调色上的文字</td><td class="mono">--text-on-accent → #ffffff</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface)"></span>--materin-surface</td><td>主表面</td><td class="mono">--background-primary</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface-2)"></span>--materin-surface-2</td><td>次级表面（分区）</td><td class="mono">--background-secondary</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface-3)"></span>--materin-surface-3</td><td>卡片 / 浮起层</td><td class="mono">--background-secondary-alt</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface-4)"></span>--materin-surface-4</td><td>悬停态</td><td class="mono">--background-modifier-hover</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-border)"></span>--materin-border</td><td>描边 / 分隔线</td><td class="mono">--background-modifier-border</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-text)"></span>--materin-text</td><td>正文</td><td class="mono">--text-normal</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-text-muted)"></span>--materin-text-muted</td><td>次要文字</td><td class="mono">--text-muted</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-ok)"></span>--materin-ok</td><td>成功 / 已保存</td><td class="mono">--color-green → #3a7d44</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-warn)"></span>--materin-warn</td><td>警告 / 未保存</td><td class="mono">--color-yellow → #b8860b</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-error)"></span>--materin-error</td><td>错误 / 冲突</td><td class="mono">--color-red → #f93e3e</td></tr>
+            <tr><td class="mono">--materin-radius</td><td>圆角（全站与全部控件）</td><td class="mono">--radius-s → 6px</td></tr>
+            <tr><td class="mono">--materin-radius-lg</td><td>大圆角（卡片、面板）</td><td class="mono">14px</td></tr>
+            <tr><td class="mono">--materin-space-1…5</td><td>间距基数</td><td class="mono">4 / 8 / 12 / 16 / 24 px</td></tr>
+            <tr><td class="mono">--materin-font-small</td><td>小号界面文字</td><td class="mono">--font-ui-small</td></tr>
+            <tr><td class="mono">--materin-font-mono</td><td>等宽（代码、JSON、表格）</td><td class="mono">--font-monospace</td></tr>
+          </tbody>
+        </table>
+
+        <h3>HTTP 方法徽标（Materin View 专用）</h3>
+        <p>方法色是语义色（动词固定配色），不随主题变化，因此用固定值而不是宿主变量：</p>
+        <p>
+          <span class="tag"><span class="sw" style="background:var(--materin-method-get)"></span>GET</span>
+          <span class="tag"><span class="sw" style="background:var(--materin-method-post)"></span>POST</span>
+          <span class="tag"><span class="sw" style="background:var(--materin-method-put)"></span>PUT</span>
+          <span class="tag"><span class="sw" style="background:var(--materin-method-delete)"></span>DELETE</span>
+          <span class="tag"><span class="sw" style="background:var(--materin-method-patch)"></span>PATCH</span>
+          <span class="tag"><span class="sw" style="background:var(--materin-method-other)"></span>OTHER</span>
+        </p>
+
+        <h2>采用方式</h2>
+        <h3>网页</h3>
+        <pre><code>&lt;link rel="stylesheet" href="https://materin-tech.github.io/assets/css/materin-ui.css"&gt;
+&lt;link rel="stylesheet" href="&lt;站点样式&gt;"&gt;   &lt;!-- 之后只用令牌 --&gt;</code></pre>
+        <h3>插件</h3>
+        <p>把令牌文件里的 <code>:root</code> 段复制到插件 <code>styles.css</code> 顶部，此后新增样式只允许引用 <code>--materin-*</code>。</p>
+        <blockquote>不做运行时远程 <code>@import</code>：Obsidian 插件打包为单文件，且应当离线可用 —— 令牌随插件一起发布。</blockquote>
+      </div>
+
+      <!-- ==================== English ==================== -->
+      <div class="lang-en">
+        <h2>Three principles</h2>
+        <div class="principle">
+          <h3>1 · Follow the host</h3>
+          <p>Colours, fonts and radii prefer Obsidian theme variables (<code>--background-primary</code>, <code>--interactive-accent</code>, <code>--radius-s</code>, …). Materin only defines the fallback used when they are absent — users switch themes and the plugins follow, with no code change.</p>
+        </div>
+        <div class="principle">
+          <h3>2 · One set of variables</h3>
+          <p>Every surface references <code>--materin-*</code> only; no loose colour values. Changing the look means changing one file.</p>
+        </div>
+        <div class="principle">
+          <h3>3 · Fixed shape and spacing</h3>
+          <p>One radius, <code>--materin-radius</code> (falling back to <code>--radius-s</code>), and one spacing scale on a 4px base: 4 / 8 / 12 / 16 / 24. Consistency across plugins comes from these two rules, not from each plugin tuning its own numbers.</p>
+        </div>
+
+        <h2>Tokens</h2>
+        <table>
+          <thead><tr><th>Token</th><th>Purpose</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-accent)"></span>--materin-accent</td><td>Interactive emphasis (buttons, selection, links)</td><td class="mono">--interactive-accent → #5b8cff</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-secondary)"></span>--materin-secondary</td><td>Secondary emphasis</td><td class="mono">--color-cyan → #6ee7d5</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-on-accent)"></span>--materin-on-accent</td><td>Text on the accent colour</td><td class="mono">--text-on-accent → #ffffff</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface)"></span>--materin-surface</td><td>Primary surface</td><td class="mono">--background-primary</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface-2)"></span>--materin-surface-2</td><td>Secondary surface (sections)</td><td class="mono">--background-secondary</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface-3)"></span>--materin-surface-3</td><td>Cards / raised layers</td><td class="mono">--background-secondary-alt</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface-4)"></span>--materin-surface-4</td><td>Hover state</td><td class="mono">--background-modifier-hover</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-border)"></span>--materin-border</td><td>Borders / dividers</td><td class="mono">--background-modifier-border</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-text)"></span>--materin-text</td><td>Body text</td><td class="mono">--text-normal</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-text-muted)"></span>--materin-text-muted</td><td>Muted text</td><td class="mono">--text-muted</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-ok)"></span>--materin-ok</td><td>Success / saved</td><td class="mono">--color-green → #3a7d44</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-warn)"></span>--materin-warn</td><td>Warning / unsaved</td><td class="mono">--color-yellow → #b8860b</td></tr>
+            <tr><td class="mono"><span class="sw" style="background:var(--materin-error)"></span>--materin-error</td><td>Error / conflict</td><td class="mono">--color-red → #f93e3e</td></tr>
+            <tr><td class="mono">--materin-radius</td><td>Radius (site and all controls)</td><td class="mono">--radius-s → 6px</td></tr>
+            <tr><td class="mono">--materin-radius-lg</td><td>Large radius (cards, panels)</td><td class="mono">14px</td></tr>
+            <tr><td class="mono">--materin-space-1…5</td><td>Spacing scale</td><td class="mono">4 / 8 / 12 / 16 / 24 px</td></tr>
+            <tr><td class="mono">--materin-font-small</td><td>Small UI text</td><td class="mono">--font-ui-small</td></tr>
+            <tr><td class="mono">--materin-font-mono</td><td>Monospace (code, JSON, tables)</td><td class="mono">--font-monospace</td></tr>
+          </tbody>
+        </table>
+
+        <h3>HTTP method badges (Materin View only)</h3>
+        <p>Method colours are semantic — a verb always gets the same colour — so they are fixed values rather than host variables:</p>
+        <p>
+          <span class="tag"><span class="sw" style="background:var(--materin-method-get)"></span>GET</span>
+          <span class="tag"><span class="sw" style="background:var(--materin-method-post)"></span>POST</span>
+          <span class="tag"><span class="sw" style="background:var(--materin-method-put)"></span>PUT</span>
+          <span class="tag"><span class="sw" style="background:var(--materin-method-delete)"></span>DELETE</span>
+          <span class="tag"><span class="sw" style="background:var(--materin-method-patch)"></span>PATCH</span>
+          <span class="tag"><span class="sw" style="background:var(--materin-method-other)"></span>OTHER</span>
+        </p>
+
+        <h2>Adoption</h2>
+        <h3>Web</h3>
+        <pre><code>&lt;link rel="stylesheet" href="https://materin-tech.github.io/assets/css/materin-ui.css"&gt;
+&lt;link rel="stylesheet" href="&lt;site styles&gt;"&gt;   &lt;!-- tokens only, afterwards --&gt;</code></pre>
+        <h3>Plugins</h3>
+        <p>Copy the <code>:root</code> block from the token file into the top of a plugin's <code>styles.css</code>; from then on, new styles reference <code>--materin-*</code> only.</p>
+        <blockquote>No runtime remote <code>@import</code>: Obsidian plugins ship as a single file and must work offline — the tokens travel with the plugin.</blockquote>
+      </div>
+
+      <h2><span class="lang-zh">现状与待统一项（实测）</span><span class="lang-en">Current state and gaps (measured)</span></h2>
+      <div class="lang-zh">
+        <p>对三个仓库的 <code>styles.css</code> 逐条核对后（534 / 608 / 135 行），已经共用的宿主变量是：<code>--background-primary</code>、<code>--background-secondary</code>、<code>--background-modifier-border</code>、<code>--background-modifier-hover</code>、<code>--radius-s</code>、<code>--font-ui-small</code>、<code>--font-ui-smaller</code>、<code>--font-monospace</code> —— 骨架是一致的，差异集中在下面三处：</p>
+        <table>
+          <thead><tr><th>项</th><th>现状</th><th>统一为</th></tr></thead>
+          <tbody>
+            <tr><td>强调色语义</td><td>Office、View 用 <code>--color-accent</code>；Ctx 用 <code>--interactive-accent</code></td><td><code>--materin-accent</code>（其回落链以 <code>--interactive-accent</code> 为准 —— 可点击、可选中才用它）</td></tr>
+            <tr><td>状态色</td><td>Office 用 <code>--background-modifier-error/warning</code>；View 用 <code>--color-red/green</code>；Ctx 写死 <code>#3a7d44</code> / <code>#b8860b</code> / <code>#c2711d</code></td><td><code>--materin-ok</code> / <code>--materin-warn</code> / <code>--materin-error</code>（Ctx 的写死值正好是这三个色的深色变体）</td></tr>
+            <tr><td>硬编码色值</td><td>Office 的 <code>#1f1f1f</code> / <code>#ffffff</code>（表格与按钮文字）；View 的 Swagger 方法色</td><td>文字改用 <code>--materin-text</code> / <code>--materin-on-accent</code>；方法色升格为 <code>--materin-method-*</code> 令牌保留</td></tr>
+            <tr><td>圆角</td><td>三者已统一用 <code>var(--radius-s)</code></td><td>保持，纳入 <code>--materin-radius</code></td></tr>
+          </tbody>
+        </table>
+        <p>本页色块就是令牌的真实取值（本站已通过 <code>materin-ui.css</code> 引用同一套变量）。</p>
+      </div>
+      <div class="lang-en">
+        <p>After checking each repository's <code>styles.css</code> line by line (534 / 608 / 135 lines), the host variables already shared across all three are: <code>--background-primary</code>, <code>--background-secondary</code>, <code>--background-modifier-border</code>, <code>--background-modifier-hover</code>, <code>--radius-s</code>, <code>--font-ui-small</code>, <code>--font-ui-smaller</code>, <code>--font-monospace</code> — the skeleton already agrees; the variance is in three places:</p>
+        <table>
+          <thead><tr><th>Item</th><th>Today</th><th>Unify to</th></tr></thead>
+          <tbody>
+            <tr><td>Accent semantics</td><td>Office and View use <code>--color-accent</code>; Ctx uses <code>--interactive-accent</code></td><td><code>--materin-accent</code>, whose fallback chain resolves to <code>--interactive-accent</code> — that is the one meant for clickable, selectable things</td></tr>
+            <tr><td>Status colours</td><td>Office uses <code>--background-modifier-error/warning</code>; View uses <code>--color-red/green</code>; Ctx hardcodes <code>#3a7d44</code> / <code>#b8860b</code> / <code>#c2711d</code></td><td><code>--materin-ok</code> / <code>--materin-warn</code> / <code>--materin-error</code> (Ctx's hardcoded values are dark variants of exactly those three)</td></tr>
+            <tr><td>Hardcoded colours</td><td>Office: <code>#1f1f1f</code> / <code>#ffffff</code> for table and button text; View: the Swagger method palette</td><td>Text moves to <code>--materin-text</code> / <code>--materin-on-accent</code>; method colours are promoted to <code>--materin-method-*</code> tokens</td></tr>
+            <tr><td>Radius</td><td>All three already use <code>var(--radius-s)</code></td><td>Keep; folded into <code>--materin-radius</code></td></tr>
+          </tbody>
+        </table>
+        <p>The swatches on this page are the tokens' real values — this site references the same variables through <code>materin-ui.css</code>.</p>
+      </div>
+    </div>
+
+    <div class="doc-nav">
+      <a href="/projects/">← <span class="lang-zh">内容索引</span><span class="lang-en">Content index</span></a>
+      <a href="/about/"><span class="lang-zh">关于 Materin</span><span class="lang-en">About Materin</span> →</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p>© <span id="year">2026</span> Materin · <span class="lang-zh">格物致知</span><span class="lang-en">investigating things</span></p>
+    <p class="muted"><a href="/about/"><span class="lang-zh">关于本站</span><span class="lang-en">About this site</span></a></p>
+  </div>
+</footer>
+
+<script src="/assets/js/main.js" defer></script>
+</body>
+</html>
