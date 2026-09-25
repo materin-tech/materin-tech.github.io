@@ -57,6 +57,281 @@
   },
   "components": [
     {
+      "name": "materin-ui-progress__ring-bar",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/progress/Progress.vue",
+      "purpose": {
+        "zh": "进度条内部件的状态色",
+        "en": "Status colours of progress internals"
+      },
+      "parts": [],
+      "variants": [
+        "--success",
+        "--warning",
+        "--error"
+      ],
+      "states": [],
+      "batch": "E1-data"
+    },
+    {
+      "name": "materin-ui-progress__bar",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/progress/Progress.vue",
+      "purpose": {
+        "zh": "进度条内部件的状态色",
+        "en": "Status colours of progress internals"
+      },
+      "parts": [],
+      "variants": [
+        "--success",
+        "--warning",
+        "--error"
+      ],
+      "states": [],
+      "batch": "E1-data"
+    },
+    {
+      "name": "materin-ui-timeline-item",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/timeline-item/TimelineItem.vue",
+      "purpose": {
+        "zh": "时间线的单项（节点 + 时间戳 + 内容），一般放在 MiTimeline 里用",
+        "en": "A single timeline entry (node, timestamp and content), normally inside a MiTimeline"
+      },
+      "parts": [
+        "materin-ui-timeline-item__node",
+        "materin-ui-timeline-item__body",
+        "materin-ui-timeline-item__timestamp",
+        "materin-ui-timeline-item__content"
+      ],
+      "variants": [
+        "--success",
+        "--warning",
+        "--error",
+        "--muted"
+      ],
+      "states": [],
+      "batch": "E1-data"
+    },
+    {
+      "name": "materin-ui-collapse-item",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/collapse-item/CollapseItem.vue",
+      "purpose": {
+        "zh": "折叠面板的单项（标题行 + 内容区），一般放在 MiCollapse 里用",
+        "en": "A single collapse pane (title row plus content), normally inside a MiCollapse"
+      },
+      "parts": [
+        "materin-ui-collapse-item__head",
+        "materin-ui-collapse-item__title",
+        "materin-ui-collapse-item__arrow",
+        "materin-ui-collapse-item__content"
+      ],
+      "variants": [],
+      "states": [
+        "is-open"
+      ],
+      "batch": "E1-data"
+    },
+    {
+      "name": "materin-ui-image",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/image/Image.vue",
+      "purpose": {
+        "zh": "图片：加载占位扫光、失败回落、四种裁剪、可懒加载",
+        "en": "Image: loading shimmer, error fallback, four fits, optional lazy loading"
+      },
+      "parts": [
+        "materin-ui-image__img",
+        "materin-ui-image__placeholder",
+        "materin-ui-image__fallback"
+      ],
+      "variants": [
+        "--cover",
+        "--contain",
+        "--fill",
+        "--none",
+        "--rounded"
+      ],
+      "states": [
+        "is-loaded"
+      ],
+      "batch": "E1-data"
+    },
+    {
+      "name": "materin-ui-segmented",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/segmented/Segmented.vue",
+      "purpose": {
+        "zh": "分段控制：一组互斥选项，可撑满一行",
+        "en": "Segmented: mutually exclusive options, optional full width"
+      },
+      "parts": [
+        "materin-ui-segmented__option"
+      ],
+      "variants": [
+        "--sm",
+        "--block"
+      ],
+      "states": [
+        "is-active"
+      ],
+      "batch": "E1-data"
+    },
+    {
+      "name": "materin-ui-pagination",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/pagination/Pagination.vue",
+      "purpose": {
+        "zh": "分页：页码 + 省略号 + 上下页，受控可用",
+        "en": "Pagination: pagers with ellipsis and prev and next, works controlled"
+      },
+      "parts": [
+        "materin-ui-pagination__prev",
+        "materin-ui-pagination__page",
+        "materin-ui-pagination__next",
+        "materin-ui-pagination__total"
+      ],
+      "variants": [
+        "--sm"
+      ],
+      "states": [
+        "is-active",
+        "is-gap"
+      ],
+      "batch": "E1-data"
+    },
+    {
+      "name": "materin-ui-timeline",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/timeline/Timeline.vue",
+      "purpose": {
+        "zh": "时间线：节点 + 时间戳 + 内容，节点可换色",
+        "en": "Timeline: nodes with timestamps and content, colourable nodes"
+      },
+      "parts": [],
+      "variants": [],
+      "states": [],
+      "batch": "E1-data"
+    },
+    {
+      "name": "materin-ui-collapse",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/collapse/Collapse.vue",
+      "purpose": {
+        "zh": "折叠面板：多开或手风琴，受控可用",
+        "en": "Collapse: multiple or accordion, works controlled or not"
+      },
+      "parts": [],
+      "variants": [],
+      "states": [],
+      "batch": "E1-data"
+    },
+    {
+      "name": "materin-ui-result",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/result/Result.vue",
+      "purpose": {
+        "zh": "结果页：成功/失败/警告/提示四种图标 + 标题 + 说明 + 操作区",
+        "en": "Result: success, error, warning or info icon with title, copy and actions"
+      },
+      "parts": [
+        "materin-ui-result__icon",
+        "materin-ui-result__title",
+        "materin-ui-result__description",
+        "materin-ui-result__extra"
+      ],
+      "variants": [
+        "--success",
+        "--error",
+        "--warning",
+        "--info"
+      ],
+      "states": [],
+      "batch": "E1-data"
+    },
+    {
+      "name": "materin-ui-descriptions",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/descriptions/Descriptions.vue",
+      "purpose": {
+        "zh": "描述列表：标签-值成对展示，横竖两向、可带边框",
+        "en": "Descriptions: label-value pairs, horizontal or vertical, optional borders"
+      },
+      "parts": [
+        "materin-ui-descriptions__title",
+        "materin-ui-descriptions__body",
+        "materin-ui-descriptions__row",
+        "materin-ui-descriptions__label",
+        "materin-ui-descriptions__value"
+      ],
+      "variants": [
+        "--vertical",
+        "--bordered"
+      ],
+      "states": [],
+      "batch": "E1-data"
+    },
+    {
+      "name": "materin-ui-statistic",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/statistic/Statistic.vue",
+      "purpose": {
+        "zh": "统计数值：大数字 + 标题 + 前后缀，千分位与小数位可控",
+        "en": "Statistic: a big number with title, prefix and suffix, grouping and precision"
+      },
+      "parts": [
+        "materin-ui-statistic__title",
+        "materin-ui-statistic__value",
+        "materin-ui-statistic__prefix",
+        "materin-ui-statistic__suffix",
+        "materin-ui-statistic__number"
+      ],
+      "variants": [
+        "--success",
+        "--danger"
+      ],
+      "states": [],
+      "batch": "E1-data"
+    },
+    {
+      "name": "materin-ui-progress",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/progress/Progress.vue",
+      "purpose": {
+        "zh": "进度条：线性与环形两种，四种状态色，支持不确定进度",
+        "en": "Progress: line or ring, four status colours, indeterminate mode"
+      },
+      "parts": [
+        "materin-ui-progress__runway",
+        "materin-ui-progress__bar",
+        "materin-ui-progress__text",
+        "materin-ui-progress__ring-runway",
+        "materin-ui-progress__ring-bar",
+        "materin-ui-progress__ring"
+      ],
+      "variants": [
+        "--sm",
+        "--lg",
+        "--indeterminate"
+      ],
+      "states": [],
+      "batch": "E1-data"
+    },
+    {
       "name": "materin-ui-notification__item",
       "scope": "ui",
       "repo": "materin-ui",
