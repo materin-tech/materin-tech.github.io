@@ -1,37 +1,69 @@
-[
-  {
-    "name": "materin-tech.github.io",
-    "description": "组织站点本体：项目入口与静态资源托管（就是当前这个页面）。",
-    "url": "https://github.com/materin-tech/materin-tech.github.io",
-    "homepage": "https://materin-tech.github.io/",
-    "tags": ["site", "pages"],
-    "language": "HTML",
-    "visibility": "public",
-    "updated": "2026-09"
-  },
-  {
-    "name": "Materin-office",
-    "description": "Obsidian 插件：读取、编辑并保存 Office 文件（docx、xlsx、pptx、xls、doc、ppt），支持格式忠实回写。",
-    "url": "https://github.com/leapord/Materin-office",
-    "tags": ["plugin", "obsidian", "office"],
-    "language": "TypeScript",
-    "visibility": "public",
-    "updated": "2026-09"
-  },
-  {
-    "name": "Materin-view",
-    "description": "Materin 系列视图层项目。",
-    "url": "https://github.com/leapord/Materin-view",
-    "tags": ["web"],
-    "visibility": "public",
-    "updated": "2026-08"
-  },
-  {
-    "name": "Materin-ctx",
-    "description": "Materin 系列上下文/数据处理项目。",
-    "url": "https://github.com/leapord/Materin-ctx",
-    "tags": ["web", "data"],
-    "visibility": "public",
-    "updated": "2026-08"
-  }
-]
+{
+  "updated": "2026-09-25",
+  "projects": [
+    {
+      "name": "Materin Office",
+      "slug": "materin-office",
+      "version": "0.1.3",
+      "description": {
+        "zh": "在 Obsidian 中直接读取、编辑并保存 Office 文件（docx / xlsx / pptx / xls / doc / ppt），仅重写被修改的部件，格式 100% 保留。",
+        "en": "Read, edit and save Office files inside Obsidian (docx / xlsx / pptx / xls / doc / ppt) with faithful write-back — only the edited parts are rewritten."
+      },
+      "url": "https://github.com/leapord/Materin-office",
+      "page": "/projects/materin-office/",
+      "homepage": null,
+      "tags": ["obsidian", "plugin"],
+      "language": "TypeScript",
+      "visibility": "public",
+      "updated": "2026-09"
+    },
+    {
+      "name": "Materin View",
+      "slug": "materin-view",
+      "version": "0.2.1",
+      "description": {
+        "zh": "读取 OpenAPI / Swagger 规范并渲染为 knife4j 风格文档视图，支持浏览与真实请求调试（含变量替换）。",
+        "en": "Reads OpenAPI / Swagger specs and renders a knife4j-style documentation view, with browsing plus real request debugging and variable substitution."
+      },
+      "url": "https://github.com/leapord/Materin-view",
+      "page": "/projects/materin-view/",
+      "homepage": null,
+      "tags": ["obsidian", "plugin", "openapi"],
+      "language": "TypeScript",
+      "visibility": "public",
+      "updated": "2026-08"
+    },
+    {
+      "name": "Materin Ctx",
+      "slug": "materin-ctx",
+      "version": "0.1.1",
+      "description": {
+        "zh": "在 Obsidian 中打开、查看、编辑 JSON / YAML 文件：CodeMirror 6 语法高亮、折叠、搜索与保留注释的格式化。",
+        "en": "Open, view and edit JSON / YAML files in Obsidian: CodeMirror 6 highlighting, folding, search and comment-preserving formatting."
+      },
+      "url": "https://github.com/leapord/Materin-ctx",
+      "page": "/projects/materin-ctx/",
+      "homepage": null,
+      "tags": ["obsidian", "plugin", "json", "yaml"],
+      "language": "TypeScript",
+      "visibility": "public",
+      "updated": "2026-08"
+    },
+    {
+      "name": "materin-tech.github.io",
+      "slug": "site",
+      "version": null,
+      "description": {
+        "zh": "组织站点本体：项目入口、静态资源托管与介绍页宿主。纯静态、零构建、零依赖。",
+        "en": "The organization site itself: project entry point, static asset host and documentation home. Pure static, build-free, dependency-free."
+      },
+      "url": "https://github.com/materin-tech/materin-tech.github.io",
+      "page": "/about/",
+      "homepage": "https://materin-tech.github.io/",
+      "tags": ["site", "pages"],
+      "language": "HTML",
+      "visibility": "public",
+      "updated": "2026-09"
+    }
+  ]
+}

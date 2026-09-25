@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materin Office — Obsidian 中的 Office 文件读写 / Office files in Obsidian</title>
+<meta name="description" content="Materin Office：在 Obsidian 中直接读取、编辑并保存 docx / xlsx / pptx / xls / doc / ppt，格式忠实回写。">
+<meta name="theme-color" content="#0b0f19">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<script>
+  (function () {
+    var d = document.documentElement, t = null, l = null;
+    try { t = localStorage.getItem('theme'); l = localStorage.getItem('lang'); } catch (e) {}
+    d.setAttribute('data-theme', t || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+    if (!l) { l = (navigator.language || 'zh').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'; }
+    d.setAttribute('data-lang', l);
+    d.lang = l === 'zh' ? 'zh-CN' : 'en';
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到主内容 / Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/">
+      <img src="/assets/img/favicon.svg" alt="" width="28" height="28">
+      <span class="brand-name">Materin<em>Tech</em></span>
+    </a>
+    <nav class="nav">
+      <a href="/#plugins"><span class="lang-zh">插件系列</span><span class="lang-en">Plugins</span></a>
+      <a href="/#projects"><span class="lang-zh">项目</span><span class="lang-en">Projects</span></a>
+      <a href="/#assets"><span class="lang-zh">静态资源</span><span class="lang-en">Assets</span></a>
+      <a href="/about/"><span class="lang-zh">关于</span><span class="lang-en">About</span></a>
+      <a href="https://github.com/materin-tech" target="_blank" rel="noopener">GitHub ↗</a>
+      <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to English">EN</button>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="doc">
+  <div class="wrap">
+    <p class="crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <a href="/#plugins"><span class="lang-zh">插件系列</span><span class="lang-en">Plugins</span></a> / Materin Office</p>
+
+    <div class="doc-head">
+      <h1>Materin Office <span class="pill">v0.1.3</span></h1>
+      <p class="sub lang-zh">在 Obsidian 中直接读取、编辑并保存 Office 文件：<code>.docx</code>、<code>.xlsx</code>、<code>.pptx</code>、<code>.xls</code>、<code>.doc</code>、<code>.ppt</code>。</p>
+      <p class="sub lang-en">Read, edit and save Office files directly in Obsidian: <code>.docx</code>, <code>.xlsx</code>, <code>.pptx</code>, <code>.xls</code>, <code>.doc</code>, <code>.ppt</code>.</p>
+    </div>
+
+    <div class="btn-row">
+      <a class="btn primary" href="https://github.com/leapord/Materin-office" target="_blank" rel="noopener"><span class="lang-zh">源码仓库</span><span class="lang-en">Source repo</span> ↗</a>
+      <a class="btn" href="https://github.com/leapord/Materin-office/releases/latest" target="_blank" rel="noopener"><span class="lang-zh">下载 Release 0.1.3</span><span class="lang-en">Download release 0.1.3</span> ↗</a>
+      <a class="btn" href="/projects/materin-view/">Materin View →</a>
+      <a class="btn" href="/projects/materin-ctx/">Materin Ctx →</a>
+    </div>
+
+    <div class="doc-body">
+      <!-- ============ 中文 ============ -->
+      <div class="lang-zh">
+        <h2>概览</h2>
+        <p>Materin Office 让你不必离开 Obsidian 就能处理 Office 文档。打开、预览、编辑、保存都在 vault 内完成，写回时只重写被修改的部件，其余字节原样保留。</p>
+        <p>它是 Materin 系列插件之一，兄弟插件为 <a href="/projects/materin-ctx/">Materin Ctx</a>（JSON / YAML 编辑器）与 <a href="/projects/materin-view/">Materin View</a>（OpenAPI 文档与调试）。</p>
+
+        <h2>特性</h2>
+        <table>
+          <thead><tr><th>格式</th><th>能力</th></tr></thead>
+          <tbody>
+            <tr><td><code>xlsx</code></td><td>网格编辑器：单元格值编辑、公式显示、工作表切换；样式读取完整</td></tr>
+            <tr><td><code>xls</code></td><td>与 xlsx 共享网格编辑器（值级编辑；样式写回有限）</td></tr>
+            <tr><td><code>docx</code></td><td>高保真预览 + 文本级编辑（多 run 文本替换算法），原格式 100% 保留</td></tr>
+            <tr><td><code>pptx</code></td><td>幻灯片画布 + 文本框编辑；仅重写被编辑的部件，其余字节不变</td></tr>
+            <tr><td><code>doc</code></td><td>只读文本提取（word-extractor）；不可编辑，可一键用系统应用打开</td></tr>
+            <tr><td><code>ppt</code></td><td>暂不支持；规划中的外部打开入口</td></tr>
+          </tbody>
+        </table>
+        <p><strong>安全网：</strong>首次保存前自动备份原文件（可关闭）；外部修改冲突检测。</p>
+
+        <h2>安装</h2>
+        <ol>
+          <li>从 <a href="https://github.com/leapord/Materin-office/releases/latest" target="_blank" rel="noopener">Release 页</a>下载 <code>main.js</code>、<code>manifest.json</code>、<code>styles.css</code>；</li>
+          <li>放入 <code>&lt;vault&gt;/.obsidian/plugins/materin-office/</code>；</li>
+          <li>在 Obsidian 社区插件设置中启用 <strong>Materin Office</strong>。</li>
+        </ol>
+        <p class="muted">源码仓库的 README 未单列安装章节，以上为 Obsidian 插件的通用流程；Release 0.1.3 的三个产物文件与此一致。最低 Obsidian 版本 1.7.2。</p>
+
+        <h2>已知限制</h2>
+        <ul>
+          <li><code>xlsx</code> 保存通过 ExcelJS 重写整个工作簿：<strong>图表、图片与透视缓存可能丢失</strong>（打开含此类内容的文件时会显示警告条；首次保存会自动备份）。</li>
+          <li><code>xls</code>（BIFF 格式）保存仅保留单元格值，样式基本丢失 —— 建议转为 xlsx。</li>
+          <li><code>docx</code> / <code>pptx</code> 为文本级编辑：改文字、查找替换；不支持格式变更（加粗、字号等）。</li>
+          <li><code>pptx</code> 画布只覆盖 <code>p:sp</code> 文本形状：表格 / 图表中的文字尚不可编辑；无本地 <code>xfrm</code> 的占位符继承 slideLayout 几何（不再查找 slideMaster，个别母版布局的占位符可能落入“未定位文本框”区域）。</li>
+          <li>公式由 Excel 在打开文件时重算，本插件不重算公式。</li>
+        </ul>
+
+        <h2>开发</h2>
+        <pre><code>npm install
+npm run dev      # watch 模式，产物复制进 debug vault
+npm run build    # 类型检查 + 生产构建
+npm run test     # vitest
+npm run lint     # eslint（目标 0/0）</code></pre>
+        <p>调试：仓库根目录的 <code>.debug-vault</code> 是指向 <code>../debug-vault</code> 的软链，该 vault 已安装热重载插件 —— 执行 <code>npm run dev</code> 后用 Obsidian 打开该 vault，改动即热加载。</p>
+
+        <h2>许可</h2>
+        <p>MIT。</p>
+
+        <h2>内容来源</h2>
+        <p>本页同步自仓库 README（<code>leapord/Materin-office</code>，最后提交 2026-09-20，版本 0.1.3）。以源码仓库为准。</p>
+      </div>
+
+      <!-- ============ English ============ -->
+      <div class="lang-en">
+        <h2>Overview</h2>
+        <p>Materin Office handles Office documents without leaving Obsidian. Opening, previewing, editing and saving all happen inside the vault, and writes only rewrite the parts you changed — every other byte is preserved.</p>
+        <p>It is one of the Materin plugins, alongside <a href="/projects/materin-ctx/">Materin Ctx</a> (a JSON / YAML editor) and <a href="/projects/materin-view/">Materin View</a> (OpenAPI docs and debugging).</p>
+
+        <h2>Features</h2>
+        <table>
+          <thead><tr><th>Format</th><th>Capability</th></tr></thead>
+          <tbody>
+            <tr><td><code>xlsx</code></td><td>Grid editor: cell value editing, formula display, sheet switching; full style reading</td></tr>
+            <tr><td><code>xls</code></td><td>Shares the grid editor with xlsx (value-level editing; limited style write-back)</td></tr>
+            <tr><td><code>docx</code></td><td>High-fidelity preview + text-level editing (multi-run text replacement algorithm); 100% of original formatting preserved</td></tr>
+            <tr><td><code>pptx</code></td><td>Slide canvas + text box editing; only edited parts are rewritten, all other bytes untouched</td></tr>
+            <tr><td><code>doc</code></td><td>Read-only text extraction (word-extractor); not editable, with one-click open in a system app</td></tr>
+            <tr><td><code>ppt</code></td><td>Not yet supported; an external-open entry point is planned</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Safety net:</strong> automatic backup of the original file before the first save (can be disabled); external modification conflict detection.</p>
+
+        <h2>Install</h2>
+        <ol>
+          <li>Download <code>main.js</code>, <code>manifest.json</code> and <code>styles.css</code> from the <a href="https://github.com/leapord/Materin-office/releases/latest" target="_blank" rel="noopener">releases page</a>;</li>
+          <li>Put them into <code>&lt;vault&gt;/.obsidian/plugins/materin-office/</code>;</li>
+          <li>Enable <strong>Materin Office</strong> in Obsidian's community plugin settings.</li>
+        </ol>
+        <p class="muted">The source README does not list install steps; the above is the standard Obsidian plugin flow and matches the three artifacts shipped in release 0.1.3. Minimum Obsidian version: 1.7.2.</p>
+
+        <h2>Known limitations</h2>
+        <ul>
+          <li><code>xlsx</code> saving rewrites the entire workbook via ExcelJS: <strong>charts, images and pivot caches may be lost</strong> (a warning banner appears when opening files that contain them; the first save creates an automatic backup).</li>
+          <li><code>xls</code> (BIFF format) saving keeps cell values only; styles are mostly lost — converting to xlsx is recommended.</li>
+          <li><code>docx</code> / <code>pptx</code> editing is text-level: change text, find &amp; replace. Formatting changes (bold, font size, etc.) are not supported.</li>
+          <li>The <code>pptx</code> canvas only covers <code>p:sp</code> text shapes: text inside tables / charts is not yet editable; placeholders without a local <code>xfrm</code> inherit geometry from slideLayout (slideMaster is no longer searched, so placeholders of some master layouts may fall into the "unpositioned text boxes" area).</li>
+          <li>Formulas are recalculated by Excel when the file is opened; this plugin does not recalculate them.</li>
+        </ul>
+
+        <h2>Development</h2>
+        <pre><code>npm install
+npm run dev      # watch mode; output is copied into the debug vault
+npm run build    # type check + production build
+npm run test     # vitest
+npm run lint     # eslint (target: 0/0)</code></pre>
+        <p>Debugging: <code>.debug-vault</code> at the repository root is a symlink to <code>../debug-vault</code>. A hot-reload plugin is installed in that vault — after <code>npm run dev</code>, open the vault in Obsidian and changes hot-load.</p>
+
+        <h2>License</h2>
+        <p>MIT.</p>
+
+        <h2>Source</h2>
+        <p>This page is synced from the repository README (<code>leapord/Materin-office</code>, last commit 2026-09-20, version 0.1.3). The source repository is authoritative.</p>
+      </div>
+    </div>
+
+    <div class="doc-nav">
+      <a href="/#plugins">← <span class="lang-zh">插件系列</span><span class="lang-en">Plugin series</span></a>
+      <a href="/projects/materin-view/">Materin View →</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p>© <span id="year">2026</span> Materin Tech · <span class="lang-zh">由 GitHub Pages 托管</span><span class="lang-en">Hosted on GitHub Pages</span></p>
+    <p class="muted">
+      <a href="https://github.com/leapord/Materin-office" target="_blank" rel="noopener"><span class="lang-zh">源码仓库</span><span class="lang-en">Source</span></a>
+      ·
+      <a href="https://github.com/leapord/Materin-office/blob/main/README.md" target="_blank" rel="noopener"><span class="lang-zh">原始 README</span><span class="lang-en">Upstream README</span></a>
+    </p>
+  </div>
+</footer>
+
+<script src="/assets/js/main.js" defer></script>
+</body>
+</html>

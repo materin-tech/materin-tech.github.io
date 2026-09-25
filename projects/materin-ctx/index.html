@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materin Ctx — Obsidian 的 JSON / YAML 编辑器 / JSON &amp; YAML editor</title>
+<meta name="description" content="Materin Ctx：在 Obsidian 中打开、查看、编辑 JSON / YAML，CodeMirror 6 高亮、折叠、搜索与保留注释的格式化。">
+<meta name="theme-color" content="#0b0f19">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<script>
+  (function () {
+    var d = document.documentElement, t = null, l = null;
+    try { t = localStorage.getItem('theme'); l = localStorage.getItem('lang'); } catch (e) {}
+    d.setAttribute('data-theme', t || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+    if (!l) { l = (navigator.language || 'zh').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'; }
+    d.setAttribute('data-lang', l);
+    d.lang = l === 'zh' ? 'zh-CN' : 'en';
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到主内容 / Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/">
+      <img src="/assets/img/favicon.svg" alt="" width="28" height="28">
+      <span class="brand-name">Materin<em>Tech</em></span>
+    </a>
+    <nav class="nav">
+      <a href="/#plugins"><span class="lang-zh">插件系列</span><span class="lang-en">Plugins</span></a>
+      <a href="/#projects"><span class="lang-zh">项目</span><span class="lang-en">Projects</span></a>
+      <a href="/#assets"><span class="lang-zh">静态资源</span><span class="lang-en">Assets</span></a>
+      <a href="/about/"><span class="lang-zh">关于</span><span class="lang-en">About</span></a>
+      <a href="https://github.com/materin-tech" target="_blank" rel="noopener">GitHub ↗</a>
+      <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to English">EN</button>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="doc">
+  <div class="wrap">
+    <p class="crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <a href="/#plugins"><span class="lang-zh">插件系列</span><span class="lang-en">Plugins</span></a> / Materin Ctx</p>
+
+    <div class="doc-head">
+      <h1>Materin Ctx <span class="pill">v0.1.1</span></h1>
+      <p class="sub lang-zh">在 Obsidian 中直接打开、查看、编辑 JSON / YAML 文件 —— 原生手感的 CodeMirror 6 编辑器视图，支持格式化、折叠与搜索。</p>
+      <p class="sub lang-en">Open, view and edit JSON / YAML files inside Obsidian — a native-feeling CodeMirror 6 editor view with formatting, folding and search.</p>
+    </div>
+
+    <div class="btn-row">
+      <a class="btn primary" href="https://github.com/leapord/Materin-ctx" target="_blank" rel="noopener"><span class="lang-zh">源码仓库</span><span class="lang-en">Source repo</span> ↗</a>
+      <a class="btn" href="https://github.com/leapord/Materin-ctx/releases/latest" target="_blank" rel="noopener"><span class="lang-zh">下载 Release 0.1.1</span><span class="lang-en">Download release 0.1.1</span> ↗</a>
+      <a class="btn" href="/projects/materin-office/">Materin Office →</a>
+      <a class="btn" href="/projects/materin-view/">Materin View →</a>
+    </div>
+
+    <div class="doc-body">
+      <!-- ============ 中文 ============ -->
+      <div class="lang-zh">
+        <h2>概览</h2>
+        <p>点击 vault 里的 <code>.json</code> / <code>.yaml</code> / <code>.yml</code> / <code>.jsonc</code> 文件，Materin Ctx 会在 Obsidian 内以编辑器视图打开它，而不是弹出系统应用。高亮、折叠、搜索、格式化、保存一应俱全，且格式化会<strong>保留注释</strong>。</p>
+
+        <h2>功能</h2>
+        <ul>
+          <li><strong>文件接管</strong> —— 点击 vault 中的 JSON / YAML 文件，直接在 Obsidian 内打开，不再弹出系统应用；</li>
+          <li><strong>语法高亮 + 行号</strong> —— 基于 CodeMirror 6（Obsidian 内置运行时），与原生编辑器手感一致；</li>
+          <li><strong>折叠</strong> —— 点击行号槽的箭头折叠对象 / 数组 / YAML 块；支持「全部折叠 / 全部展开」按钮与命令；</li>
+          <li><strong>搜索</strong> —— <code>Ctrl/Cmd + F</code> 打开搜索面板，支持高亮全部、大小写、正则与替换；</li>
+          <li><strong>格式化</strong> —— 一键按配置重新缩进：JSON / JSONC 容错重缩进（语法有错也能排版）并保留注释；YAML 走 Document 往返、保留注释，支持行宽限制（<code>0</code> = 不限制）；</li>
+          <li><strong>编辑与保存</strong> —— 直接编辑，<code>Ctrl/Cmd + S</code> 或「保存」按钮写回文件；未保存改动以橙色圆点提示；</li>
+          <li><strong>外部修改同步</strong> —— 文件在磁盘上被其他工具修改后自动刷新；若有未保存改动，显示提示条由你决定是否重载；</li>
+          <li><strong>设置</strong> —— 缩进字符（空格 / Tab）、缩进宽度（2 / 4 / 8）、自动换行、行号、打开时折叠、YAML 行宽。</li>
+        </ul>
+
+        <h2>备注</h2>
+        <ul>
+          <li>YAML 规范禁止 Tab 缩进：设置选择 Tab 时，YAML 格式化自动回退为对应宽度的空格（编辑器缩进仍使用 Tab）；</li>
+          <li>读取文件时会剥离 BOM，保存时不回写；</li>
+          <li>文件行尾（CRLF / LF）在保存时保持原样；</li>
+          <li>JSONC：语法高亮按 JSON 处理（注释无高亮），校验与格式化按 JSONC 宽松规则（允许尾随逗号、注释）。</li>
+        </ul>
+
+        <h2>安装</h2>
+        <ol>
+          <li>从 <a href="https://github.com/leapord/Materin-ctx/releases/latest" target="_blank" rel="noopener">Release 页</a>下载 <code>main.js</code>、<code>manifest.json</code>、<code>styles.css</code>；</li>
+          <li>放入 <code>&lt;vault&gt;/.obsidian/plugins/materin-ctx/</code>；</li>
+          <li>启用插件即可。</li>
+        </ol>
+
+        <h2>开发</h2>
+        <pre><code>npm install        # 安装依赖
+npm run dev        # 开发构建（watch，自动部署到 .debug-vault）
+npm test           # vitest 单元测试
+npm run check      # tsc 类型检查
+npm run lint       # eslint（eslint-plugin-obsidianmd recommended）
+npm run build      # 生产构建（root main.js）</code></pre>
+        <p>调试 vault 位于 <code>.debug-vault/</code>（含热重载插件），<code>npm run dev</code> 后用 Obsidian 打开该 vault 即可热重载调试。示例文件：<code>sample.json</code> / <code>config.yaml</code> / <code>settings.jsonc</code>。</p>
+
+        <h2>许可</h2>
+        <p>MIT。</p>
+
+        <h2>内容来源</h2>
+        <p>本页同步自仓库 README（<code>leapord/Materin-ctx</code>，最后提交 2026-08-30，版本 0.1.1）。以源码仓库为准。</p>
+      </div>
+
+      <!-- ============ English ============ -->
+      <div class="lang-en">
+        <h2>Overview</h2>
+        <p>Click a <code>.json</code> / <code>.yaml</code> / <code>.yml</code> / <code>.jsonc</code> file in your vault and Materin Ctx opens it in an editor view inside Obsidian instead of handing it off to a system app. Highlighting, folding, search, formatting and saving are all there — and formatting <strong>preserves comments</strong>.</p>
+
+        <h2>Features</h2>
+        <ul>
+          <li><strong>Takes over the files</strong> — clicking JSON / YAML files in the vault opens them inside Obsidian, no system app popup;</li>
+          <li><strong>Syntax highlighting + line numbers</strong> — based on CodeMirror 6 (Obsidian's built-in runtime), matching the native editor feel;</li>
+          <li><strong>Folding</strong> — click the arrow in the gutter to fold objects / arrays / YAML blocks; "fold all / unfold all" buttons and commands included;</li>
+          <li><strong>Search</strong> — <code>Ctrl/Cmd + F</code> opens the search panel with highlight-all, case sensitivity, regex and replace;</li>
+          <li><strong>Formatting</strong> — re-indent according to settings in one action: JSON / JSONC is re-indented fault-tolerantly (it still formats when the syntax is broken) and keeps comments; YAML goes through a Document round-trip, keeps comments, and supports a line-width limit (<code>0</code> = unlimited);</li>
+          <li><strong>Editing and saving</strong> — edit directly, write back with <code>Ctrl/Cmd + S</code> or the save button; unsaved changes are flagged with an orange dot;</li>
+          <li><strong>External change sync</strong> — if another tool modifies the file on disk it refreshes automatically; with unsaved changes a prompt lets you decide whether to reload;</li>
+          <li><strong>Settings</strong> — indent character (spaces / tab), indent width (2 / 4 / 8), word wrap, line numbers, fold on open, YAML line width.</li>
+        </ul>
+
+        <h2>Notes</h2>
+        <ul>
+          <li>The YAML spec forbids tab indentation: when tabs are selected, YAML formatting falls back to spaces of the corresponding width (the editor still indents with tabs);</li>
+          <li>A BOM is stripped when reading and not written back on save;</li>
+          <li>Line endings (CRLF / LF) are preserved on save;</li>
+          <li>JSONC: syntax highlighting is treated as JSON (comments are not highlighted) while validation and formatting follow lenient JSONC rules (trailing commas and comments allowed).</li>
+        </ul>
+
+        <h2>Install</h2>
+        <ol>
+          <li>Download <code>main.js</code>, <code>manifest.json</code> and <code>styles.css</code> from the <a href="https://github.com/leapord/Materin-ctx/releases/latest" target="_blank" rel="noopener">releases page</a>;</li>
+          <li>Put them into <code>&lt;vault&gt;/.obsidian/plugins/materin-ctx/</code>;</li>
+          <li>Enable the plugin.</li>
+        </ol>
+
+        <h2>Development</h2>
+        <pre><code>npm install        # install dependencies
+npm run dev        # dev build (watch, auto-deploys to .debug-vault)
+npm test           # vitest unit tests
+npm run check      # tsc type check
+npm run lint       # eslint (eslint-plugin-obsidianmd recommended)
+npm run build      # production build (root main.js)</code></pre>
+        <p>The debug vault lives in <code>.debug-vault/</code> (with a hot-reload plugin): run <code>npm run dev</code>, open that vault in Obsidian and changes hot-reload. Sample files: <code>sample.json</code> / <code>config.yaml</code> / <code>settings.jsonc</code>.</p>
+
+        <h2>License</h2>
+        <p>MIT.</p>
+
+        <h2>Source</h2>
+        <p>This page is synced from the repository README (<code>leapord/Materin-ctx</code>, last commit 2026-08-30, version 0.1.1). The source repository is authoritative.</p>
+      </div>
+    </div>
+
+    <div class="doc-nav">
+      <a href="/projects/materin-view/">← Materin View</a>
+      <a href="/#plugins"><span class="lang-zh">插件系列</span><span class="lang-en">Plugin series</span> →</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p>© <span id="year">2026</span> Materin Tech · <span class="lang-zh">由 GitHub Pages 托管</span><span class="lang-en">Hosted on GitHub Pages</span></p>
+    <p class="muted">
+      <a href="https://github.com/leapord/Materin-ctx" target="_blank" rel="noopener"><span class="lang-zh">源码仓库</span><span class="lang-en">Source</span></a>
+      ·
+      <a href="https://github.com/leapord/Materin-ctx/blob/main/README.md" target="_blank" rel="noopener"><span class="lang-zh">原始 README</span><span class="lang-en">Upstream README</span></a>
+    </p>
+  </div>
+</footer>
+
+<script src="/assets/js/main.js" defer></script>
+</body>
+</html>

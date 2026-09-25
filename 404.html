@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="dark">
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>404 — 页面不存在 | Materin Tech</title>
+<title>404 — 页面不存在 / Page not found | Materin Tech</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/site.css">
 <script>
   (function () {
-    var saved = null;
-    try { saved = localStorage.getItem('theme'); } catch (e) {}
-    document.documentElement.setAttribute('data-theme',
-      saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+    var d = document.documentElement, t = null, l = null;
+    try { t = localStorage.getItem('theme'); l = localStorage.getItem('lang'); } catch (e) {}
+    d.setAttribute('data-theme', t || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+    if (!l) { l = (navigator.language || 'zh').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'; }
+    d.setAttribute('data-lang', l);
+    d.lang = l === 'zh' ? 'zh-CN' : 'en';
   })();
 </script>
 </head>
@@ -20,21 +23,34 @@
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="/"><img src="/assets/img/favicon.svg" alt="" width="28" height="28"><span class="brand-name">Materin<em>Tech</em></span></a>
-    <nav class="nav"><a href="/">返回首页</a></nav>
+    <nav class="nav">
+      <a href="/"><span class="lang-zh">返回首页</span><span class="lang-en">Home</span></a>
+      <a href="/#projects"><span class="lang-zh">项目</span><span class="lang-en">Projects</span></a>
+      <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to English">EN</button>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
+    </nav>
   </div>
 </header>
 <main id="main">
   <section class="hero">
     <div class="wrap">
       <p class="eyebrow">Error 404</p>
-      <h1>这里什么都没有</h1>
-      <p class="lede">请求的路径不存在，或者对应的仓库还没有发布 Pages。</p>
+      <div class="lang-zh">
+        <h1>这里什么都没有</h1>
+        <p class="lede">请求的路径不存在，或者对应的仓库还没有发布 GitHub Pages。</p>
+      </div>
+      <div class="lang-en">
+        <h1>Nothing here</h1>
+        <p class="lede">The requested path does not exist, or the repository behind it has not published GitHub Pages yet.</p>
+      </div>
       <div class="cta">
-        <a class="btn primary" href="/">回到站点首页</a>
-        <a class="btn" href="https://github.com/materin-tech" target="_blank" rel="noopener">组织主页</a>
+        <a class="btn primary" href="/"><span class="lang-zh">回到站点首页</span><span class="lang-en">Back to home</span></a>
+        <a class="btn" href="/#projects"><span class="lang-zh">项目列表</span><span class="lang-en">All projects</span></a>
+        <a class="btn" href="https://github.com/materin-tech" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
     </div>
   </section>
 </main>
+<script src="/assets/js/main.js" defer></script>
 </body>
 </html>

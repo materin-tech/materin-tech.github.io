@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>组织说明 · Organization — Materin Tech</title>
+<meta name="description" content="Materin Tech 组织的定位、设立初衷、结构约定与初始化记录（中英双语）。Positioning, conventions and initialization log, bilingual.">
+<meta name="theme-color" content="#0b0f19">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<script>
+  (function () {
+    var d = document.documentElement, t = null, l = null;
+    try { t = localStorage.getItem('theme'); l = localStorage.getItem('lang'); } catch (e) {}
+    d.setAttribute('data-theme', t || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+    if (!l) { l = (navigator.language || 'zh').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'; }
+    d.setAttribute('data-lang', l);
+    d.lang = l === 'zh' ? 'zh-CN' : 'en';
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到主内容 / Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/">
+      <img src="/assets/img/favicon.svg" alt="" width="28" height="28">
+      <span class="brand-name">Materin<em>Tech</em></span>
+    </a>
+    <nav class="nav">
+      <a href="/#plugins"><span class="lang-zh">插件系列</span><span class="lang-en">Plugins</span></a>
+      <a href="/#projects"><span class="lang-zh">项目</span><span class="lang-en">Projects</span></a>
+      <a href="/#assets"><span class="lang-zh">静态资源</span><span class="lang-en">Assets</span></a>
+      <a href="/about/"><span class="lang-zh">关于</span><span class="lang-en">About</span></a>
+      <a href="https://github.com/materin-tech" target="_blank" rel="noopener">GitHub ↗</a>
+      <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to English">EN</button>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="doc">
+  <div class="wrap">
+    <p class="crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <span class="lang-zh">组织说明</span><span class="lang-en">Organization</span></p>
+
+    <div class="doc-head">
+      <h1><span class="lang-zh">组织说明 · 创立与初始化</span><span class="lang-en">Organization · Founding &amp; Initialization</span></h1>
+      <p class="sub lang-zh">一个组织，一个站点，一个资源根 —— 把分散的技术项目收拢到同一域名下。</p>
+      <p class="sub lang-en">One organization, one site, one asset root — pulling scattered technical projects under a single domain.</p>
+    </div>
+
+    <div class="btn-row">
+      <a class="btn small" href="https://github.com/materin-tech" target="_blank" rel="noopener">github.com/materin-tech ↗</a>
+      <a class="btn small" href="https://materin-tech.github.io/" target="_blank" rel="noopener">materin-tech.github.io ↗</a>
+      <a class="btn small" href="https://github.com/materin-tech/.github/blob/main/profile/README.md" target="_blank" rel="noopener"><span class="lang-zh">组织主页档案</span><span class="lang-en">Profile README</span> ↗</a>
+    </div>
+
+    <div class="doc-body">
+      <!-- ============ 中文 ============ -->
+      <div class="lang-zh">
+        <h2>我们是谁</h2>
+        <p>Materin Tech 是一个以「<strong>静态优先</strong>、<strong>仓库自治</strong>」为组织方式的技术项目集合。每个项目在自己的仓库里独立演进，不互相耦合；组织站点统一承担门面、静态资源分发与项目介绍页的职责。</p>
+
+        <h2>设立初衷</h2>
+        <ul>
+          <li>项目介绍散落在各个仓库的 README 里，缺少稳定、可分享的统一入口；</li>
+          <li>图标、样式、示例文件等静态资源在各项目之间反复复制；</li>
+          <li>需要长期稳定的域名来承载项目介绍、文档与下载指引。</li>
+        </ul>
+
+        <h2>站点与资源</h2>
+        <table>
+          <thead><tr><th>用途</th><th>地址</th></tr></thead>
+          <tbody>
+            <tr><td>组织站点</td><td><a href="https://materin-tech.github.io/">https://materin-tech.github.io/</a></td></tr>
+            <tr><td>组织说明（本页）</td><td><a href="https://materin-tech.github.io/about/">https://materin-tech.github.io/about/</a></td></tr>
+            <tr><td>静态资源根</td><td>仓库根目录 = 域名根目录。例如 <code>https://materin-tech.github.io/assets/img/favicon.svg</code> 可被任意项目直接引用</td></tr>
+            <tr><td>组织主页</td><td><a href="https://github.com/materin-tech">github.com/materin-tech</a></td></tr>
+          </tbody>
+        </table>
+
+        <h2>结构约定</h2>
+        <table>
+          <thead><tr><th>约定</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>一个目录一个仓库</td><td>一个项目一个独立仓库，目录与仓库同名，互不耦合</td></tr>
+            <tr><td>静态优先</td><td>站点纯静态、零构建、零依赖，推送到 <code>main</code> 即发布</td></tr>
+            <tr><td>组织站点即资源根</td><td><code>materin-tech.github.io</code> 仓库的根目录就是域名根目录</td></tr>
+            <tr><td>介绍页与源码分离</td><td>项目介绍页挂在 <code>/projects/&lt;repo&gt;/</code>，避免与未来的项目级 Pages（<code>/&lt;repo&gt;/</code>）路径冲突</td></tr>
+            <tr><td>公开优先</td><td>免费计划下 GitHub Pages 仅支持 public 仓库</td></tr>
+            <tr><td>双语</td><td>介绍与说明同时提供中文与英文，页面右上角一键切换</td></tr>
+          </tbody>
+        </table>
+
+        <h2>初始化记录</h2>
+        <table>
+          <thead><tr><th>时间 (UTC)</th><th>事项</th></tr></thead>
+          <tbody>
+            <tr><td>2026-09-25 00:20</td><td>组织 <code>materin-tech</code> 创建，Free 计划，初始成员 <code>leapord</code>（admin）</td></tr>
+            <tr><td>2026-09-25 00:38</td><td>创建组织站点仓库 <code>materin-tech.github.io</code>（public）</td></tr>
+            <tr><td>2026-09-25 00:39</td><td>首个提交 <code>2ee6467</code> 推送，GitHub Pages 自动启用</td></tr>
+            <tr><td>2026-09-25 00:40</td><td>Pages 构建完成（20 秒内），站点上线，HTTPS 强制开启</td></tr>
+            <tr><td>2026-09-25 00:43</td><td>站点新增中英双语、本说明页，以及 Materin 插件系列介绍页</td></tr>
+            <tr><td>2026-09-25 00:48</td><td>创建组织档案仓库 <code>materin-tech/.github</code>，组织主页展示双语简介</td></tr>
+          </tbody>
+        </table>
+
+        <h2>目录布局</h2>
+        <pre><code>materin-tech/
+├── .github/                     组织档案仓库（组织主页简介）
+├── materin-tech.github.io/      组织站点仓库（本域名的全部内容）
+│   ├── index.html               首页
+│   ├── about/                   组织说明（本页）
+│   ├── projects/                项目介绍页
+│   │   ├── materin-office/
+│   │   ├── materin-view/
+│   │   └── materin-ctx/
+│   ├── data/projects.json       项目清单
+│   └── assets/                  静态资源（CSS / JS / 图标）
+└── &lt;project&gt;/                   其他项目各自独立成库</code></pre>
+
+        <h2>项目</h2>
+        <table>
+          <thead><tr><th>项目</th><th>说明</th><th>介绍页</th></tr></thead>
+          <tbody>
+            <tr><td>Materin Office</td><td>Obsidian 中读写 Office 文件（docx / xlsx / pptx / xls / doc / ppt）</td><td><a href="/projects/materin-office/">/projects/materin-office/</a></td></tr>
+            <tr><td>Materin View</td><td>OpenAPI / Swagger 的 knife4j 风格文档视图与请求调试</td><td><a href="/projects/materin-view/">/projects/materin-view/</a></td></tr>
+            <tr><td>Materin Ctx</td><td>JSON / YAML 的原生手感编辑器</td><td><a href="/projects/materin-ctx/">/projects/materin-ctx/</a></td></tr>
+          </tbody>
+        </table>
+        <p>Materin 系列插件的源码目前位于个人账号 <a href="https://github.com/leapord" target="_blank" rel="noopener">leapord</a> 下，介绍页已挂载到本组织站点；后续可按需转移仓库到组织，届时只需更新介绍页与清单中的链接。</p>
+
+        <h2>联系</h2>
+        <p>通过 <a href="https://github.com/materin-tech/materin-tech.github.io/issues/new" target="_blank" rel="noopener">站点仓库的 Issue</a> 联系。</p>
+      </div>
+
+      <!-- ============ English ============ -->
+      <div class="lang-en">
+        <h2>Who we are</h2>
+        <p>Materin Tech is a collection of technical projects organized around two principles: <strong>static-first</strong> and <strong>repository autonomy</strong>. Every project evolves independently in its own repository with no cross-coupling, while the organization site serves as the single facade, the static asset host and the home of project documentation.</p>
+
+        <h2>Why it exists</h2>
+        <ul>
+          <li>Project descriptions were scattered across individual repository READMEs, with no stable, shareable entry point;</li>
+          <li>Static assets (icons, styles, sample files) were copied between projects over and over;</li>
+          <li>A long-lived stable domain was needed to host project introductions, docs and download pointers.</li>
+        </ul>
+
+        <h2>Site and assets</h2>
+        <table>
+          <thead><tr><th>Purpose</th><th>Address</th></tr></thead>
+          <tbody>
+            <tr><td>Organization site</td><td><a href="https://materin-tech.github.io/">https://materin-tech.github.io/</a></td></tr>
+            <tr><td>About (this page)</td><td><a href="https://materin-tech.github.io/about/">https://materin-tech.github.io/about/</a></td></tr>
+            <tr><td>Static asset root</td><td>Repository root = domain root. E.g. <code>https://materin-tech.github.io/assets/img/favicon.svg</code> can be referenced by any project</td></tr>
+            <tr><td>Organization profile</td><td><a href="https://github.com/materin-tech">github.com/materin-tech</a></td></tr>
+          </tbody>
+        </table>
+
+        <h2>Conventions</h2>
+        <table>
+          <thead><tr><th>Convention</th><th>Rationale</th></tr></thead>
+          <tbody>
+            <tr><td>One directory, one repository</td><td>Each project gets its own repository named after its directory, with no cross-coupling</td></tr>
+            <tr><td>Static-first</td><td>The site is pure static, build-free and dependency-free — pushing to <code>main</code> publishes it</td></tr>
+            <tr><td>Org site is the asset root</td><td>The root of <code>materin-tech.github.io</code> is the root of the domain</td></tr>
+            <tr><td>Docs decoupled from source</td><td>Intro pages live under <code>/projects/&lt;repo&gt;/</code> to avoid colliding with future project-level Pages (<code>/&lt;repo&gt;/</code>)</td></tr>
+            <tr><td>Public-first</td><td>On the Free plan, GitHub Pages only supports public repositories</td></tr>
+            <tr><td>Bilingual</td><td>Introductions ship in Chinese and English; toggle in the top-right corner</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Initialization log</h2>
+        <table>
+          <thead><tr><th>Time (UTC)</th><th>Event</th></tr></thead>
+          <tbody>
+            <tr><td>2026-09-25 00:20</td><td>Organization <code>materin-tech</code> created — Free plan, initial member <code>leapord</code> (admin)</td></tr>
+            <tr><td>2026-09-25 00:38</td><td>Organization site repository <code>materin-tech.github.io</code> created (public)</td></tr>
+            <tr><td>2026-09-25 00:39</td><td>First commit <code>2ee6467</code> pushed; GitHub Pages enabled automatically</td></tr>
+            <tr><td>2026-09-25 00:40</td><td>Pages build finished (within 20s); site live with HTTPS enforced</td></tr>
+            <tr><td>2026-09-25 00:43</td><td>Site gained bilingual content, this About page and the Materin plugin intro pages</td></tr>
+            <tr><td>2026-09-25 00:48</td><td>Organization profile repository <code>materin-tech/.github</code> created; the org page shows the bilingual profile</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Directory layout</h2>
+        <pre><code>materin-tech/
+├── .github/                     Org profile repository (GitHub org page)
+├── materin-tech.github.io/      Org site repository (everything served here)
+│   ├── index.html               Home
+│   ├── about/                   About (this page)
+│   ├── projects/                Project intro pages
+│   │   ├── materin-office/
+│   │   ├── materin-view/
+│   │   └── materin-ctx/
+│   ├── data/projects.json       Project manifest
+│   └── assets/                  Static assets (CSS / JS / icons)
+└── &lt;project&gt;/                   Every other project lives in its own repository</code></pre>
+
+        <h2>Projects</h2>
+        <table>
+          <thead><tr><th>Project</th><th>Description</th><th>Intro page</th></tr></thead>
+          <tbody>
+            <tr><td>Materin Office</td><td>Read, edit and save Office files in Obsidian (docx / xlsx / pptx / xls / doc / ppt)</td><td><a href="/projects/materin-office/">/projects/materin-office/</a></td></tr>
+            <tr><td>Materin View</td><td>A knife4j-style documentation view and request debugger for OpenAPI / Swagger</td><td><a href="/projects/materin-view/">/projects/materin-view/</a></td></tr>
+            <tr><td>Materin Ctx</td><td>A native-feeling JSON / YAML editor</td><td><a href="/projects/materin-ctx/">/projects/materin-ctx/</a></td></tr>
+          </tbody>
+        </table>
+        <p>The Materin plugin sources currently live under the personal account <a href="https://github.com/leapord" target="_blank" rel="noopener">leapord</a>, with their intro pages hosted here. Repositories can be transferred to the organization later; only links in the intro pages and the manifest would need updating.</p>
+
+        <h2>Contact</h2>
+        <p>Reach us through <a href="https://github.com/materin-tech/materin-tech.github.io/issues/new" target="_blank" rel="noopener">an issue on the site repository</a>.</p>
+      </div>
+    </div>
+
+    <div class="doc-nav">
+      <a href="/">← <span class="lang-zh">返回首页</span><span class="lang-en">Back to home</span></a>
+      <a href="/#projects"><span class="lang-zh">项目列表</span><span class="lang-en">Project list</span> →</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p>© <span id="year">2026</span> Materin Tech · <span class="lang-zh">由 GitHub Pages 托管</span><span class="lang-en">Hosted on GitHub Pages</span></p>
+    <p class="muted">
+      <a href="https://github.com/materin-tech/materin-tech.github.io" target="_blank" rel="noopener"><span class="lang-zh">站点源码</span><span class="lang-en">Site source</span></a>
+      ·
+      <a href="https://github.com/materin-tech/.github" target="_blank" rel="noopener"><span class="lang-zh">组织档案</span><span class="lang-en">Org profile</span></a>
+    </p>
+  </div>
+</footer>
+
+<script src="/assets/js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materin View — Obsidian 的 OpenAPI 文档与调试插件 / OpenAPI docs &amp; debugger</title>
+<meta name="description" content="Materin View：在 Obsidian 中读取 OpenAPI / Swagger 规范，渲染 knife4j 风格文档视图，并直接发送请求调试。">
+<meta name="theme-color" content="#0b0f19">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<script>
+  (function () {
+    var d = document.documentElement, t = null, l = null;
+    try { t = localStorage.getItem('theme'); l = localStorage.getItem('lang'); } catch (e) {}
+    d.setAttribute('data-theme', t || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+    if (!l) { l = (navigator.language || 'zh').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'; }
+    d.setAttribute('data-lang', l);
+    d.lang = l === 'zh' ? 'zh-CN' : 'en';
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到主内容 / Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/">
+      <img src="/assets/img/favicon.svg" alt="" width="28" height="28">
+      <span class="brand-name">Materin<em>Tech</em></span>
+    </a>
+    <nav class="nav">
+      <a href="/#plugins"><span class="lang-zh">插件系列</span><span class="lang-en">Plugins</span></a>
+      <a href="/#projects"><span class="lang-zh">项目</span><span class="lang-en">Projects</span></a>
+      <a href="/#assets"><span class="lang-zh">静态资源</span><span class="lang-en">Assets</span></a>
+      <a href="/about/"><span class="lang-zh">关于</span><span class="lang-en">About</span></a>
+      <a href="https://github.com/materin-tech" target="_blank" rel="noopener">GitHub ↗</a>
+      <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to English">EN</button>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="doc">
+  <div class="wrap">
+    <p class="crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <a href="/#plugins"><span class="lang-zh">插件系列</span><span class="lang-en">Plugins</span></a> / Materin View</p>
+
+    <div class="doc-head">
+      <h1>Materin View <span class="pill">v0.2.1</span></h1>
+      <p class="sub lang-zh">读取 OpenAPI / Swagger 规范并渲染为 knife4j 风格文档视图 —— 同时支持<strong>浏览</strong>与<strong>调试</strong>（发送真实请求）。</p>
+      <p class="sub lang-en">An Obsidian plugin that reads OpenAPI / Swagger specifications and renders them as a knife4j-style documentation view — with both <strong>browsing</strong> and <strong>debugging</strong> (send real requests).</p>
+    </div>
+
+    <div class="btn-row">
+      <a class="btn primary" href="https://github.com/leapord/Materin-view" target="_blank" rel="noopener"><span class="lang-zh">源码仓库</span><span class="lang-en">Source repo</span> ↗</a>
+      <a class="btn" href="https://github.com/leapord/Materin-view/releases/latest" target="_blank" rel="noopener"><span class="lang-zh">下载 Release 0.2.1</span><span class="lang-en">Download release 0.2.1</span> ↗</a>
+      <a class="btn" href="/projects/materin-office/">Materin Office →</a>
+      <a class="btn" href="/projects/materin-ctx/">Materin Ctx →</a>
+    </div>
+
+    <div class="doc-body">
+      <!-- ============ 中文 ============ -->
+      <div class="lang-zh">
+        <h2>概览</h2>
+        <p>把 OpenAPI / Swagger 规范放进 vault，Materin View 就能在 Obsidian 内渲染出接近 knife4j 的接口文档：左侧标签树与端点列表，右侧参数表、请求体与响应 schema；需要验证接口时切到「调试」标签，直接发请求、看响应。</p>
+        <p>请求经 Obsidian 的 <code>requestUrl</code> 发出，因此不受浏览器 CORS 限制。</p>
+
+        <h2>特性</h2>
+        <ul>
+          <li><strong>多文档来源</strong>：添加 vault 内的规范文件（<code>.json</code> / <code>.yaml</code> / <code>.yml</code>）或远程 URL，每个来源渲染为一个独立可折叠的文档菜单；</li>
+          <li><strong>Markdown 内嵌规范</strong>：笔记中围栏代码块里的 OpenAPI JSON / YAML 会被提取并渲染；</li>
+          <li><strong>工作区扫描</strong>：按内容（而非文件名）识别 vault 中的 OpenAPI 文件，一键添加；</li>
+          <li><strong>右键菜单 / 命令</strong>：右键规范文件 →「Open with Materin View」，或通过命令面板扫描；</li>
+          <li><strong>knife4j 风格文档</strong>：标签树、method 徽标、参数表、请求 / 响应 schema，支持 <code>$ref</code> 解析（OpenAPI 3.x <code>components</code> 与 Swagger 2.0 <code>definitions</code>）；</li>
+          <li><strong>调试面板</strong>：每个文档可编辑 base URL，按规范生成参数表单、请求头、JSON body —— 在 Obsidian 内发请求并查看状态 / 响应头 / 响应体；</li>
+          <li><strong>变量</strong>：URL / 请求头 / body 中支持 <code>{{key}}</code> 替换，分<strong>全局</strong>与<strong>按文档</strong>两级作用域（文档级优先）。</li>
+        </ul>
+
+        <h2>安装</h2>
+        <ol>
+          <li>从 <a href="https://github.com/leapord/Materin-view/releases/latest" target="_blank" rel="noopener">Release 页</a>下载 <code>main.js</code>、<code>manifest.json</code>、<code>styles.css</code>；</li>
+          <li>放入 <code>&lt;vault&gt;/.obsidian/plugins/materin-view/</code>；</li>
+          <li>在 Obsidian 社区插件设置中启用 <strong>Materin View</strong>。</li>
+        </ol>
+
+        <h2>使用</h2>
+        <ol>
+          <li>通过 ribbon 图标（地球）或命令「打开 OpenAPI 视图」打开面板；</li>
+          <li>用「+ 添加文档」添加（手动输入路径 / URL，或工作区扫描），也可在文件浏览器中右键规范文件；</li>
+          <li>左侧选择端点：「文档」标签看规范，「调试」标签发请求。</li>
+        </ol>
+
+        <h2>开发</h2>
+        <pre><code>npm install
+npm run dev     # watch 构建
+npm run build   # 类型检查 + 生产构建 -> main.js
+npm test        # 单元测试（vitest）</code></pre>
+
+        <h2>许可</h2>
+        <p>MIT。</p>
+
+        <h2>内容来源</h2>
+        <p>本页同步自仓库 README（<code>leapord/Materin-view</code>，最后提交 2026-08-30，版本 0.2.1）。以源码仓库为准。</p>
+      </div>
+
+      <!-- ============ English ============ -->
+      <div class="lang-en">
+        <h2>Overview</h2>
+        <p>Drop an OpenAPI / Swagger specification into your vault and Materin View renders a knife4j-style API document inside Obsidian: a tag tree and endpoint list on the left, parameter tables, request bodies and response schemas on the right. Switch to the debug tab to fire real requests and inspect responses.</p>
+        <p>Requests go out through Obsidian's <code>requestUrl</code>, so there are no CORS issues.</p>
+
+        <h2>Features</h2>
+        <ul>
+          <li><strong>Multi-document sources</strong>: add spec files from your vault (<code>.json</code> / <code>.yaml</code> / <code>.yml</code>) or remote URLs — each source renders as an independent collapsible document menu;</li>
+          <li><strong>Markdown-embedded specs</strong>: OpenAPI JSON / YAML inside fenced code blocks in your notes is extracted and rendered;</li>
+          <li><strong>Workspace scan</strong>: detect OpenAPI files across the vault by content (not filename), one click to add;</li>
+          <li><strong>Context menu / commands</strong>: right-click a spec file → "Open with Materin View"; or scan via the command palette;</li>
+          <li><strong>knife4j-style docs</strong>: tag tree, method badges, parameter table, request / response schemas with <code>$ref</code> resolution (OpenAPI 3.x <code>components</code> + Swagger 2.0 <code>definitions</code>);</li>
+          <li><strong>Debug panel</strong>: editable base URL per document, parameter forms generated from the spec, request headers, JSON body — send requests from inside Obsidian and inspect status / headers / body;</li>
+          <li><strong>Variables</strong>: <code>{{key}}</code> substitution in URL / headers / body with <strong>global</strong> and <strong>per-document</strong> scopes (document scope wins).</li>
+        </ul>
+
+        <h2>Install</h2>
+        <ol>
+          <li>Download <code>main.js</code>, <code>manifest.json</code> and <code>styles.css</code> from the <a href="https://github.com/leapord/Materin-view/releases/latest" target="_blank" rel="noopener">releases page</a>;</li>
+          <li>Put them into <code>&lt;vault&gt;/.obsidian/plugins/materin-view/</code>;</li>
+          <li>Enable <strong>Materin View</strong> in Obsidian's community plugin settings.</li>
+        </ol>
+
+        <h2>Usage</h2>
+        <ol>
+          <li>Open the view from the ribbon icon (globe) or the "打开 OpenAPI 视图" command;</li>
+          <li>Add documents via "+ 添加文档" (manual path / URL or workspace scan), or right-click a spec file in the file explorer;</li>
+          <li>Pick an endpoint on the left — the "文档" tab shows the spec, the "调试" tab sends requests.</li>
+        </ol>
+
+        <h2>Development</h2>
+        <pre><code>npm install
+npm run dev     # watch build
+npm run build   # type-check + production build -> main.js
+npm test        # unit tests (vitest)</code></pre>
+
+        <h2>License</h2>
+        <p>MIT.</p>
+
+        <h2>Source</h2>
+        <p>This page is synced from the repository README (<code>leapord/Materin-view</code>, last commit 2026-08-30, version 0.2.1). The source repository is authoritative.</p>
+      </div>
+    </div>
+
+    <div class="doc-nav">
+      <a href="/projects/materin-office/">← Materin Office</a>
+      <a href="/projects/materin-ctx/">Materin Ctx →</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p>© <span id="year">2026</span> Materin Tech · <span class="lang-zh">由 GitHub Pages 托管</span><span class="lang-en">Hosted on GitHub Pages</span></p>
+    <p class="muted">
+      <a href="https://github.com/leapord/Materin-view" target="_blank" rel="noopener"><span class="lang-zh">源码仓库</span><span class="lang-en">Source</span></a>
+      ·
+      <a href="https://github.com/leapord/Materin-view/blob/main/README.md" target="_blank" rel="noopener"><span class="lang-zh">原始 README</span><span class="lang-en">Upstream README</span></a>
+    </p>
+  </div>
+</footer>
+
+<script src="/assets/js/main.js" defer></script>
+</body>
+</html>
