@@ -291,10 +291,47 @@
 }
 
 .materin-learn-section__p {
-  margin: 0;
+  margin: 0 0 10px;
   color: var(--materin-text-muted);
   font-size: 14px;
   line-height: 1.75;
+}
+
+.materin-learn-section__deep {
+  margin: 0;
+  padding-left: 12px;
+  border-left: 2px solid var(--materin-accent-border);
+  color: var(--materin-text-muted);
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+
+/* 深挖块：实例 / 误区 */
+.materin-learn-callout {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--materin-border);
+  border-left-width: 3px;
+  border-radius: 10px;
+  background: var(--materin-surface-3);
+}
+
+.materin-learn-callout--example { border-left-color: var(--materin-accent); }
+.materin-learn-callout--misconception { border-left-color: var(--materin-warn); }
+
+.materin-learn-callout__h {
+  margin: 0 0 4px;
+  color: var(--materin-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.materin-learn-callout__p {
+  margin: 0;
+  color: var(--materin-text-muted);
+  font-size: 13.5px;
+  line-height: 1.7;
 }
 
 /* --- 动手任务 / 沉淀 ------------------------------------------------ */

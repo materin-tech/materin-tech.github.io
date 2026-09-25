@@ -125,6 +125,15 @@
       var box = el('article', 'materin-learn-section');
       box.appendChild(el('h2', 'materin-learn-section__h', t(s.h)));
       box.appendChild(el('p', 'materin-learn-section__p', t(s.p)));
+      if (s.deep) box.appendChild(el('p', 'materin-learn-section__deep', t(s.deep)));
+      ['example', 'misconception'].forEach(function (k) {
+        if (s[k]) {
+          var sub = el('aside', 'materin-learn-callout materin-learn-callout--' + k);
+          sub.appendChild(el('h3', 'materin-learn-callout__h', t(s[k].h)));
+          sub.appendChild(el('p', 'materin-learn-callout__p', t(s[k].p)));
+          box.appendChild(sub);
+        }
+      });
       secs.appendChild(box);
     });
     app.appendChild(secs);
