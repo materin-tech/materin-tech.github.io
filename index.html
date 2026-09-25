@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materin Tech — 静态资源与项目展示</title>
+<meta name="description" content="Materin Tech 组织的官方站点：项目展示、静态资源托管与文档入口。">
+<meta name="theme-color" content="#0b0f19">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Materin Tech">
+<meta property="og:description" content="项目展示与静态资源托管站点">
+<meta property="og:url" content="https://materin-tech.github.io/">
+<link rel="stylesheet" href="/assets/css/style.css">
+<script>
+  // 首屏前应用主题，避免闪烁
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem('theme'); } catch (e) {}
+    var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到主内容</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/">
+      <img src="/assets/img/favicon.svg" alt="" width="28" height="28">
+      <span class="brand-name">Materin<em>Tech</em></span>
+    </a>
+    <nav class="nav">
+      <a href="#projects">项目</a>
+      <a href="#assets">静态资源</a>
+      <a href="#about">关于</a>
+      <a href="https://github.com/materin-tech" target="_blank" rel="noopener">GitHub ↗</a>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题">🌗</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">materin-tech.github.io</p>
+      <h1>把项目与静态资源<br>收拢到一个域名下</h1>
+      <p class="lede">
+        Materin Tech 组织站点。项目代码分散在各独立仓库，这里提供统一入口、
+        资源托管地址（CDN）与文档索引 —— 纯静态、零构建、零依赖。
+      </p>
+      <div class="cta">
+        <a class="btn primary" href="#projects">浏览项目</a>
+        <a class="btn" href="https://github.com/materin-tech" target="_blank" rel="noopener">组织主页</a>
+      </div>
+      <dl class="stats" id="stats">
+        <div><dt>仓库</dt><dd data-stat="repos">—</dd></div>
+        <div><dt>资源托管</dt><dd>GitHub Pages</dd></div>
+        <div><dt>构建</dt><dd>无（静态）</dd></div>
+        <div><dt>协议</dt><dd>HTTPS / HTTP2</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="projects" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>项目</h2>
+        <p>数据源：<a href="/data/projects.json" target="_blank" rel="noopener"><code>data/projects.json</code></a> — 新增项目只需改这一个文件。</p>
+      </div>
+      <div class="filters" id="filters"></div>
+      <div class="grid" id="project-grid">
+        <p class="loading">正在加载项目列表…</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="assets" class="section alt">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>静态资源托管</h2>
+        <p>本站根目录即资源根目录，可直接被其他项目引用。</p>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <h3>基础地址</h3>
+          <pre class="code"><code>https://materin-tech.github.io/</code></pre>
+          <p class="muted">任意文件放进仓库根目录（或子目录）即可通过同路径访问，CDN 由 GitHub Pages 提供。</p>
+        </div>
+        <div class="card">
+          <h3>引用示例</h3>
+          <pre class="code"><code>&lt;img src="https://materin-tech.github.io/assets/img/logo.svg"&gt;
+&lt;script src="https://materin-tech.github.io/assets/js/main.js"&gt;&lt;/script&gt;
+&lt;link rel="stylesheet"
+      href="https://materin-tech.github.io/assets/css/style.css"&gt;</code></pre>
+        </div>
+      </div>
+      <div class="note">
+        <strong>缓存提示：</strong>Pages 默认缓存约 10 分钟。需要长期缓存时，发布文件名带内容哈希（如 <code>app.3f9a1c.css</code>）。
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="section">
+    <div class="wrap">
+      <div class="section-head"><h2>关于</h2></div>
+      <div class="two-col">
+        <div>
+          <p>Materin Tech 是一个以静态站点 + 独立仓库为组织方式的技术项目集合。每个项目在自己的仓库里独立演进，本站只做统一门面与资源分发。</p>
+          <ul class="ticks">
+            <li>每个目录一个仓库，互不耦合</li>
+            <li>无构建步骤：推送即发布</li>
+            <li>资源与站点同域，省去额外 CDN 配置</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>联系方式</h3>
+          <p class="muted">通过组织仓库的 Issue 联系：</p>
+          <p><a class="btn small" href="https://github.com/materin-tech/materin-tech.github.io/issues/new" target="_blank" rel="noopener">新建 Issue</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p>© <span id="year">2026</span> Materin Tech · 由 GitHub Pages 托管</p>
+    <p class="muted"><a href="https://github.com/materin-tech/materin-tech.github.io" target="_blank" rel="noopener">站点源码</a></p>
+  </div>
+</footer>
+
+<script src="/assets/js/main.js" defer></script>
+</body>
+</html>

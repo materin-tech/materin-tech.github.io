@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 — 页面不存在 | Materin Tech</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/style.css">
+<script>
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem('theme'); } catch (e) {}
+    document.documentElement.setAttribute('data-theme',
+      saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  })();
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/"><img src="/assets/img/favicon.svg" alt="" width="28" height="28"><span class="brand-name">Materin<em>Tech</em></span></a>
+    <nav class="nav"><a href="/">返回首页</a></nav>
+  </div>
+</header>
+<main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Error 404</p>
+      <h1>这里什么都没有</h1>
+      <p class="lede">请求的路径不存在，或者对应的仓库还没有发布 Pages。</p>
+      <div class="cta">
+        <a class="btn primary" href="/">回到站点首页</a>
+        <a class="btn" href="https://github.com/materin-tech" target="_blank" rel="noopener">组织主页</a>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

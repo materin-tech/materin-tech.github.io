@@ -1,0 +1,37 @@
+[
+  {
+    "name": "materin-tech.github.io",
+    "description": "组织站点本体：项目入口与静态资源托管（就是当前这个页面）。",
+    "url": "https://github.com/materin-tech/materin-tech.github.io",
+    "homepage": "https://materin-tech.github.io/",
+    "tags": ["site", "pages"],
+    "language": "HTML",
+    "visibility": "public",
+    "updated": "2026-09"
+  },
+  {
+    "name": "Materin-office",
+    "description": "Obsidian 插件：读取、编辑并保存 Office 文件（docx、xlsx、pptx、xls、doc、ppt），支持格式忠实回写。",
+    "url": "https://github.com/leapord/Materin-office",
+    "tags": ["plugin", "obsidian", "office"],
+    "language": "TypeScript",
+    "visibility": "public",
+    "updated": "2026-09"
+  },
+  {
+    "name": "Materin-view",
+    "description": "Materin 系列视图层项目。",
+    "url": "https://github.com/leapord/Materin-view",
+    "tags": ["web"],
+    "visibility": "public",
+    "updated": "2026-08"
+  },
+  {
+    "name": "Materin-ctx",
+    "description": "Materin 系列上下文/数据处理项目。",
+    "url": "https://github.com/leapord/Materin-ctx",
+    "tags": ["web", "data"],
+    "visibility": "public",
+    "updated": "2026-08"
+  }
+]

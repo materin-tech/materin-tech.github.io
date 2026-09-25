@@ -1,0 +1,13 @@
+# 静态站点：不忽略任何文件，全部原样发布
+# （GitHub Pages 通过仓库根目录的 .nojekyll 文件禁用 Jekyll，该文件必须被提交）
+
+# 系统 / 编辑器噪音
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# 本地预览产物
+_site/
+.cache/
