@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>每日一课 · AI 原生学习路线</title>
+  <link rel="stylesheet" href="/assets/css/materin-ui.css">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="assets/learn.css">
+  <script>
+    (function () {
+      var stored = null;
+      try { stored = localStorage.getItem('lang'); } catch (e) {}
+      var lang = stored || (navigator.language || 'zh').slice(0, 2) === 'en' ? 'en' : 'zh';
+      if (stored) lang = stored;
+      document.documentElement.setAttribute('data-lang', lang);
+    })();
+    function setLang(l) {
+      document.documentElement.setAttribute('data-lang', l);
+      try { localStorage.setItem('lang', l); } catch (e) {}
+    }
+  </script>
+</head>
+<body class="materin-learn-body-day">
+  <header class="materin-learn-header">
+    <div class="materin-learn-header__inner">
+      <a class="materin-learn-brand" href="/learn/">
+        <span class="materin-learn-brand__name">AI 原生学习路线</span>
+      </a>
+      <nav class="materin-learn-header__nav">
+        <a href="/learn/"><span class="lang-zh">路线图</span><span class="lang-en">Roadmap</span></a>
+      </nav>
+      <div class="materin-learn-lang">
+        <button type="button" onclick="setLang('zh')">中</button>
+        <button type="button" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="app" class="materin-learn-main">
+    <noscript>该页面需要启用 JavaScript。</noscript>
+  </main>
+
+  <nav class="materin-learn-pager" id="pager" hidden>
+    <a id="pager-prev" href="#"><span class="lang-zh">← 前一天</span><span class="lang-en">← Previous</span></a>
+    <a id="pager-next" href="#"><span class="lang-zh">后一天 →</span><span class="lang-en">Next →</span></a>
+  </nav>
+
+  <footer class="materin-learn-footer">
+    <p>Materin · <span class="lang-zh">先把事看清，再把话说清</span><span class="lang-en">Understand it first. Then explain it plainly.</span></p>
+  </footer>
+
+  <script src="assets/days-loader.js"></script>
+  <script src="/assets/js/main.js"></script>
+  <script src="assets/learn.js"></script>
+</body>
+</html>

@@ -1,0 +1,457 @@
+/* ==========================================================================
+   AI 原生学习路线 · learn 样式层
+   --------------------------------------------------------------------------
+   命名契约：materin-learn-<component>[__part][--variant]，状态 is-*。
+   颜色一律走 --materin-* 令牌（由 /assets/css/materin-ui.css 提供），零裸色值。
+   动效卡片支持两种版式：默认桌面横版；body.is-stage 时为 1080×1920 竖屏录屏版。
+   ========================================================================== */
+
+/* --- 页面骨架 ------------------------------------------------------- */
+.materin-learn-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--materin-glass-bg);
+  backdrop-filter: var(--materin-glass-blur);
+  -webkit-backdrop-filter: var(--materin-glass-blur);
+  border-bottom: 1px solid var(--materin-border);
+}
+
+.materin-learn-header__inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 12px 24px;
+}
+
+.materin-learn-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.materin-learn-brand__name {
+  color: var(--materin-text);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.materin-learn-brand__tag {
+  padding: 1px 8px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 999px;
+  background: var(--materin-accent-soft);
+  color: var(--materin-accent);
+  font-size: 11px;
+}
+
+.materin-learn-header__nav {
+  display: flex;
+  gap: 18px;
+  margin-left: auto;
+}
+
+.materin-learn-header__nav a {
+  color: var(--materin-text-muted);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.materin-learn-header__nav a:hover { color: var(--materin-text); }
+
+.materin-learn-lang {
+  display: inline-flex;
+  border: 1px solid var(--materin-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.materin-learn-lang button {
+  padding: 3px 10px;
+  border: none;
+  background: transparent;
+  color: var(--materin-text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.materin-learn-lang button:hover { color: var(--materin-text); }
+
+.materin-learn-main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px 24px;
+}
+
+.materin-learn-footer {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+  border-top: 1px solid var(--materin-border);
+}
+
+.materin-learn-footer p {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12px;
+}
+
+/* --- 每日页头部 ----------------------------------------------------- */
+.materin-learn-dayhead { margin-bottom: 28px; }
+
+.materin-learn-dayhead__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.materin-learn-pill {
+  padding: 2px 10px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 999px;
+  background: var(--materin-accent-soft);
+  color: var(--materin-accent);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+.materin-learn-pill--stage {
+  border-color: var(--materin-border);
+  background: var(--materin-surface-3);
+  color: var(--materin-text-muted);
+}
+
+.materin-learn-dayhead__title {
+  margin: 0 0 8px;
+  color: var(--materin-text);
+  font-size: 30px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.materin-learn-dayhead__sub {
+  margin: 0;
+  max-width: 620px;
+  color: var(--materin-text-muted);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+/* --- 动效舞台 ------------------------------------------------------- */
+.materin-learn-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  min-height: 300px;
+  margin: 0 0 30px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 18px;
+  background:
+    radial-gradient(120% 90% at 20% 0%, var(--materin-accent-soft), transparent 55%),
+    var(--materin-surface-2);
+  box-shadow: var(--materin-elev-2);
+  overflow: hidden;
+  padding: 30px;
+}
+
+.materin-learn-stage__hook {
+  margin: 0;
+  color: var(--materin-text);
+  font-size: 17px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* --- 动效模板 · counter（数字滚动 / 切碎动画） ---------------------- */
+.materin-learn-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+}
+
+.materin-learn-counter__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 560px;
+}
+
+.materin-learn-counter__chip {
+  padding: 8px 12px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 10px;
+  background: var(--materin-surface-3);
+  color: var(--materin-text);
+  font-size: 17px;
+  font-weight: 550;
+  opacity: 0;
+  transform: translateY(14px) scale(0.9);
+  animation: materin-learn-pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards;
+}
+
+.materin-learn-counter__chip--en {
+  border-color: var(--materin-border);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 14px;
+}
+
+.materin-learn-counter__count {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.materin-learn-counter__num {
+  min-width: 90px;
+  color: var(--materin-accent);
+  font-size: 64px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  line-height: 1;
+}
+
+.materin-learn-counter__label {
+  color: var(--materin-text-muted);
+  font-size: 13px;
+}
+
+.materin-learn-counter__swap {
+  display: flex;
+  gap: 8px;
+}
+
+.materin-learn-counter__swap button {
+  padding: 5px 14px;
+  border: 1px solid var(--materin-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--materin-text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--materin-duration-fast) var(--materin-ease-standard);
+}
+
+.materin-learn-counter__swap button.is-active {
+  border-color: transparent;
+  background: var(--materin-accent);
+  color: var(--materin-on-accent);
+}
+
+.materin-learn-counter__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12px;
+  text-align: center;
+}
+
+@keyframes materin-learn-pop {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 循环脉冲：数字定格后轻微呼吸 */
+.materin-learn-counter__num.is-done {
+  animation: materin-learn-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes materin-learn-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.82; }
+}
+
+/* --- 讲解区 --------------------------------------------------------- */
+.materin-learn-sections {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.materin-learn-section {
+  padding: 18px 20px;
+  border: 1px solid var(--materin-border);
+  border-radius: 14px;
+  background: var(--materin-surface-2);
+}
+
+.materin-learn-section__h {
+  margin: 0 0 6px;
+  color: var(--materin-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.materin-learn-section__p {
+  margin: 0;
+  color: var(--materin-text-muted);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+/* --- 动手任务 / 沉淀 ------------------------------------------------ */
+.materin-learn-action {
+  padding: 18px 20px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 14px;
+  background: var(--materin-accent-soft);
+  margin-bottom: 16px;
+}
+
+.materin-learn-action__h,
+.materin-learn-takeaway__h {
+  margin: 0 0 6px;
+  color: var(--materin-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.materin-learn-action__p,
+.materin-learn-takeaway__p {
+  margin: 0;
+  color: var(--materin-text);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.materin-learn-takeaway {
+  padding: 18px 20px;
+  border: 1px solid var(--materin-border);
+  border-radius: 14px;
+  background: var(--materin-surface-3);
+  margin-bottom: 22px;
+}
+
+/* --- 路线图（index） ------------------------------------------------ */
+.materin-learn-map {
+  display: grid;
+  gap: 14px;
+}
+
+.materin-learn-map__stage {
+  padding: 20px 22px;
+  border: 1px solid var(--materin-border);
+  border-radius: 16px;
+  background: var(--materin-surface-2);
+}
+
+.materin-learn-map__stage-h {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 8px;
+}
+
+.materin-learn-map__stage-no {
+  color: var(--materin-accent);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-map__stage-name {
+  color: var(--materin-text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.materin-learn-map__stage-days {
+  margin-left: auto;
+  color: var(--materin-text-faint);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-map__stage-p {
+  margin: 0;
+  color: var(--materin-text-muted);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.materin-learn-map__stage.is-current {
+  border-color: var(--materin-accent-border);
+  background: color-mix(in srgb, var(--materin-accent) 6%, var(--materin-surface-2));
+}
+
+/* --- 上下页 --------------------------------------------------------- */
+.materin-learn-pager {
+  display: flex;
+  justify-content: space-between;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 8px 24px 8px;
+}
+
+.materin-learn-pager a {
+  color: var(--materin-accent);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.materin-learn-pager a:hover { text-decoration: underline; }
+
+.materin-learn-pager a[aria-disabled="true"] {
+  color: var(--materin-text-faint);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   竖屏录屏版（stage）：body.is-stage，1080×1920 录制区域居中
+   ========================================================================== */
+.materin-learn-body-day.is-stage .materin-learn-header,
+.materin-learn-body-day.is-stage .materin-learn-footer,
+.materin-learn-body-day.is-stage .materin-learn-pager {
+  display: none;
+}
+
+.materin-learn-body-day.is-stage .materin-learn-main {
+  max-width: 1080px;
+  padding: 0;
+}
+
+.materin-learn-body-day.is-stage .materin-learn-stage {
+  width: 1080px;
+  height: 1920px;
+  margin: 0 auto;
+  border: none;
+  border-radius: 0;
+  gap: 60px;
+  padding: 120px 80px;
+}
+
+.materin-learn-body-day.is-stage .materin-learn-stage__hook { font-size: 52px; }
+.materin-learn-body-day.is-stage .materin-learn-counter__chip { font-size: 44px; padding: 18px 28px; border-radius: 20px; }
+.materin-learn-body-day.is-stage .materin-learn-counter__chip--en { font-size: 36px; }
+.materin-learn-body-day.is-stage .materin-learn-counter__num { font-size: 190px; min-width: 280px; }
+.materin-learn-body-day.is-stage .materin-learn-counter__label { font-size: 32px; }
+.materin-learn-body-day.is-stage .materin-learn-counter__swap button { font-size: 28px; padding: 12px 32px; }
+.materin-learn-body-day.is-stage .materin-learn-counter__note { font-size: 26px; }
+
+.materin-learn-body-day.is-stage .materin-learn-dayhead__meta { display: none; }
+.materin-learn-body-day.is-stage .materin-learn-dayhead__title { font-size: 64px; text-align: center; }
+.materin-learn-body-day.is-stage .materin-learn-dayhead__sub { font-size: 32px; max-width: none; text-align: center; }
+
+/* 竖版只保留舞台：讲解等区块隐藏 */
+.materin-learn-body-day.is-stage .materin-learn-sections,
+.materin-learn-body-day.is-stage .materin-learn-action,
+.materin-learn-body-day.is-stage .materin-learn-takeaway { display: none; }
+
+/* 动效整体放慢 1.3 倍（录屏节奏） */
+.materin-learn-body-day.is-stage .materin-learn-counter__chip {
+  animation-duration: 0.65s;
+}
+
+/* 减少动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .materin-learn-counter__chip { animation: none; opacity: 1; transform: none; }
+  .materin-learn-counter__num.is-done { animation: none; }
+}

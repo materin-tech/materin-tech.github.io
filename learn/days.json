@@ -1,0 +1,50 @@
+{
+  "$schema": "AI 原生学习路线 · 每日数据。stage/week/day 定位，tpl 选动效模板，data 为模板入参。",
+  "meta": {
+    "total": 168,
+    "startDate": "2026-09-28",
+    "stages": [
+      { "id": 1, "zh": "AI 关键基础", "en": "Foundations", "days": [1, 28] },
+      { "id": 2, "zh": "提示工程与上下文", "en": "Prompting & Context", "days": [29, 49] },
+      { "id": 3, "zh": "Agent 与工作流", "en": "Agents & Workflows", "days": [50, 84] },
+      { "id": 4, "zh": "RAG 与知识系统", "en": "RAG & Knowledge", "days": [85, 112] },
+      { "id": 5, "zh": "AI 重塑认知", "en": "Rethinking with AI", "days": [113, 140] },
+      { "id": 6, "zh": "AI 原生领域化", "en": "Domain Practice", "days": [141, 168] }
+    ]
+  },
+  "days": [
+    {
+      "n": 1,
+      "stage": 1,
+      "week": 1,
+      "tpl": "counter",
+      "date": "2026-09-28",
+      "title": { "zh": "Token：模型眼里的世界", "en": "Tokens: how a model sees the world" },
+      "subtitle": {
+        "zh": "一句话进了模型，先被切碎再被计算——切法决定了成本、上限和怪癖。",
+        "en": "A sentence is chopped into tokens before a model reads it — the chopping drives cost, limits and quirks."
+      },
+      "sections": [
+        { "h": { "zh": "切开的单位", "en": "The chopped unit" }, "p": { "zh": "模型不读字母也不读词，读的是 token：高频词一整个 token，低频词被拆成几块。你看不见切法，但它在幕后决定一切。", "en": "Models read neither letters nor words but tokens: frequent words stay whole, rare ones split into pieces. You never see the cut, yet it drives everything." } },
+        { "h": { "zh": "为什么重要", "en": "Why it matters" }, "p": { "zh": "计价按 token、上下文上限按 token、回复速度也按 token。同一个问题换个说法，token 数可能差一倍——这就是成本差一倍。", "en": "Pricing, context limits and speed are all counted in tokens. Rephrase a question and the token count can double — so can the cost." } },
+        { "h": { "zh": "一个怪癖", "en": "A quirk" }, "p": { "zh": "让模型数字符经常出错，因为它看到的不是字符序列，是 token 序列——它得先「猜」每个 token 里有几个字母。", "en": "Models often miscount characters: they see token sequences, not letters, so they must guess how many characters hide inside each token." } }
+      ],
+      "action": {
+        "h": { "zh": "动手", "en": "Hands-on" },
+        "p": { "zh": "打开任意 tokenizer 演示页（搜 “OpenAI tokenizer”），分别输入「人工智能」「AI」「artificial intelligence」，数一数各切成几个 token——用你自己的话解释为什么。", "en": "Open any tokenizer demo (search “OpenAI tokenizer”), type in 人工智能, AI and artificial intelligence, count the tokens, and explain the difference in your own words." }
+      },
+      "takeaway": {
+        "zh": "Token 是模型的记账单位：成本、上限、怪癖都从切法来。",
+        "en": "Tokens are the model's unit of account: cost, limits and quirks all follow from the cut."
+      },
+      "anim": {
+        "tpl": "counter",
+        "hook": { "zh": "这句话值多少个 token？", "en": "How many tokens is this sentence?" },
+        "sentence": { "zh": "先把事看清，再把话说清。", "en": "Understand it first. Then explain it plainly." },
+        "tokensZh": [ "先", "把", "事", "看清", "，", "再", "把", "话", "说清", "。" ],
+        "tokensEn": [ "Under", "stand", " it", " first", ".", " Then", " explain", " it", " plain", "ly", "." ],
+        "counts": { "zh": 10, "en": 11, "chars": 12 }
+      }
+    }
+  ]
+}
