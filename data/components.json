@@ -57,6 +57,724 @@
   },
   "components": [
     {
+      "name": "materin-ui-page-header",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components",
+      "purpose": {
+        "zh": "路线图收尾组件",
+        "en": "Roadmap finishing component"
+      },
+      "parts": [
+        "materin-ui-page-header__description",
+        "materin-ui-page-header__extra",
+        "materin-ui-page-header__left",
+        "materin-ui-page-header__title"
+      ],
+      "variants": [],
+      "states": [],
+      "batch": "F2-final"
+    },
+    {
+      "name": "materin-ui-button-group",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components",
+      "purpose": {
+        "zh": "路线图收尾组件",
+        "en": "Roadmap finishing component"
+      },
+      "parts": [],
+      "variants": [
+        "--sm"
+      ],
+      "states": [],
+      "batch": "F2-final"
+    },
+    {
+      "name": "materin-ui-splitter",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components",
+      "purpose": {
+        "zh": "路线图收尾组件",
+        "en": "Roadmap finishing component"
+      },
+      "parts": [
+        "materin-ui-splitter__pane",
+        "materin-ui-splitter__handle"
+      ],
+      "variants": [
+        "--horizontal",
+        "--vertical"
+      ],
+      "states": [
+        "is-dragging"
+      ],
+      "batch": "F2-final"
+    },
+    {
+      "name": "materin-ui-mention",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components",
+      "purpose": {
+        "zh": "路线图收尾组件",
+        "en": "Roadmap finishing component"
+      },
+      "parts": [
+        "materin-ui-mention__field",
+        "materin-ui-mention__list",
+        "materin-ui-mention__option"
+      ],
+      "variants": [],
+      "states": [],
+      "batch": "F2-final"
+    },
+    {
+      "name": "materin-ui-time-select",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components",
+      "purpose": {
+        "zh": "路线图收尾组件",
+        "en": "Roadmap finishing component"
+      },
+      "parts": [
+        "materin-ui-time-select__field",
+        "materin-ui-time-select__panel",
+        "materin-ui-time-select__option"
+      ],
+      "variants": [],
+      "states": [
+        "is-open"
+      ],
+      "batch": "F2-final"
+    },
+    {
+      "name": "materin-ui-tree-select",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components",
+      "purpose": {
+        "zh": "路线图收尾组件",
+        "en": "Roadmap finishing component"
+      },
+      "parts": [
+        "materin-ui-tree-select__field",
+        "materin-ui-tree-select__panel"
+      ],
+      "variants": [],
+      "states": [
+        "is-open"
+      ],
+      "batch": "F2-final"
+    },
+    {
+      "name": "materin-ui-page-shell",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/page-shell/PageShell.vue",
+      "purpose": {
+        "zh": "页面骨架：顶栏 + 侧栏 + 主区 + 底栏的整页骨架",
+        "en": "Page shell: full-page skeleton with header, aside, main and footer"
+      },
+      "parts": [
+        "materin-ui-page-shell__aside",
+        "materin-ui-page-shell__body",
+        "materin-ui-page-shell__footer",
+        "materin-ui-page-shell__header",
+        "materin-ui-page-shell__main"
+      ],
+      "variants": [],
+      "states": [],
+      "batch": "F-extra"
+    },
+    {
+      "name": "materin-ui-glass-panel",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/glass-panel/GlassPanel.vue",
+      "purpose": {
+        "zh": "毛玻璃面板：透明令牌驱动，自动降级",
+        "en": "Glass panel: token-driven translucency with automatic fallback"
+      },
+      "parts": [],
+      "variants": [
+        "--normal",
+        "--strong",
+        "--subtle"
+      ],
+      "states": [],
+      "batch": "F-extra"
+    },
+    {
+      "name": "materin-ui-status-dot",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/status-dot/StatusDot.vue",
+      "purpose": {
+        "zh": "状态点：ok/warn/error/info 四色小圆点",
+        "en": "Status dot: four-colour dot for ok, warn, error, info"
+      },
+      "parts": [
+        "materin-ui-status-dot__pulse"
+      ],
+      "variants": [
+        "--ok",
+        "--warn",
+        "--error",
+        "--info"
+      ],
+      "states": [],
+      "batch": "F-extra"
+    },
+    {
+      "name": "materin-ui-method-tag",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/method-tag/MethodTag.vue",
+      "purpose": {
+        "zh": "HTTP 方法徽标：GET/POST/PUT/PATCH/DELETE 各自配色",
+        "en": "HTTP method badge: GET, POST, PUT, PATCH, DELETE colour-coded"
+      },
+      "parts": [],
+      "variants": [
+        "--get",
+        "--post",
+        "--put",
+        "--patch",
+        "--delete"
+      ],
+      "states": [],
+      "batch": "F-extra"
+    },
+    {
+      "name": "materin-ui-copy",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/copy/Copy.vue",
+      "purpose": {
+        "zh": "复制按钮：点一下复制文本并给反馈",
+        "en": "Copy: copies text with feedback on click"
+      },
+      "parts": [
+        "materin-ui-copy__button",
+        "materin-ui-copy__feedback"
+      ],
+      "variants": [],
+      "states": [],
+      "batch": "F-extra"
+    },
+    {
+      "name": "materin-ui-icon",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/icon/Icon.vue",
+      "purpose": {
+        "zh": "图标：内置一套线性小图标的统一入口",
+        "en": "Icon: one entry for the built-in line icon set"
+      },
+      "parts": [],
+      "variants": [
+        "--sm",
+        "--lg"
+      ],
+      "states": [],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-config-provider",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/config-provider/ConfigProvider.vue",
+      "purpose": {
+        "zh": "配置注入：向子树下发命名空间主题",
+        "en": "Config provider: injects namespace theming down the tree"
+      },
+      "parts": [],
+      "variants": [],
+      "states": [],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-scrollbar",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/scrollbar/Scrollbar.vue",
+      "purpose": {
+        "zh": "滚动条：统一样式的滚动容器",
+        "en": "Scrollbar: a scroll container with the house style"
+      },
+      "parts": [
+        "materin-ui-scrollbar__view"
+      ],
+      "variants": [
+        "--thin"
+      ],
+      "states": [],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-carousel",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/carousel/Carousel.vue",
+      "purpose": {
+        "zh": "轮播：自动播放、指示点、左右切换",
+        "en": "Carousel: autoplay, indicators, prev and next"
+      },
+      "parts": [
+        "materin-ui-carousel__indicator",
+        "materin-ui-carousel__indicators",
+        "materin-ui-carousel__nav",
+        "materin-ui-carousel__nav--next",
+        "materin-ui-carousel__nav--prev",
+        "materin-ui-carousel__slide",
+        "materin-ui-carousel__track"
+      ],
+      "variants": [],
+      "states": [
+        "is-active"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-autocomplete",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/autocomplete/Autocomplete.vue",
+      "purpose": {
+        "zh": "自动补全：输入过滤建议，键盘可选",
+        "en": "Autocomplete: filtered suggestions with keyboard navigation"
+      },
+      "parts": [
+        "materin-ui-autocomplete__field",
+        "materin-ui-autocomplete__list",
+        "materin-ui-autocomplete__option"
+      ],
+      "variants": [],
+      "states": [
+        "is-open",
+        "is-active"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-color-picker",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/color-picker/ColorPicker.vue",
+      "purpose": {
+        "zh": "颜色选择：预设色板 + 原生取色器，受控",
+        "en": "Color picker: preset swatches plus native input, controlled"
+      },
+      "parts": [
+        "materin-ui-color-picker__input",
+        "materin-ui-color-picker__swatch",
+        "materin-ui-color-picker__value"
+      ],
+      "variants": [],
+      "states": [],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-cascader",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/cascader/Cascader.vue",
+      "purpose": {
+        "zh": "级联选择：逐级展开列，受控",
+        "en": "Cascader: expanding column picker, controlled"
+      },
+      "parts": [
+        "materin-ui-cascader__arrow",
+        "materin-ui-cascader__column",
+        "materin-ui-cascader__columns",
+        "materin-ui-cascader__field",
+        "materin-ui-cascader__option"
+      ],
+      "variants": [],
+      "states": [
+        "is-open",
+        "is-active"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-transfer",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/transfer/Transfer.vue",
+      "purpose": {
+        "zh": "穿梭框：左右两栏勾选移动，可搜索",
+        "en": "Transfer: two panels with check-move, optional filter"
+      },
+      "parts": [
+        "materin-ui-transfer__actions",
+        "materin-ui-transfer__head",
+        "materin-ui-transfer__list",
+        "materin-ui-transfer__option",
+        "materin-ui-transfer__panel"
+      ],
+      "variants": [],
+      "states": [
+        "is-checked"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-upload",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/upload/Upload.vue",
+      "purpose": {
+        "zh": "上传：文件列表、进度、失败重试、多选",
+        "en": "Upload: file list, progress, retry on failure, multiple"
+      },
+      "parts": [
+        "materin-ui-upload__error",
+        "materin-ui-upload__input",
+        "materin-ui-upload__item",
+        "materin-ui-upload__list",
+        "materin-ui-upload__name",
+        "materin-ui-upload__remove",
+        "materin-ui-upload__retry",
+        "materin-ui-upload__size",
+        "materin-ui-upload__trigger"
+      ],
+      "variants": [],
+      "states": [
+        "is-error"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-time-picker",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/time-picker/TimePicker.vue",
+      "purpose": {
+        "zh": "时间选择：时分两列滚动或步进",
+        "en": "Time picker: hour and minute columns"
+      },
+      "parts": [
+        "materin-ui-time-picker__field"
+      ],
+      "variants": [],
+      "states": [
+        "is-open"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-date-picker",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/date-picker/DatePicker.vue",
+      "purpose": {
+        "zh": "日期选择：月历面板、受控、禁用过去日期",
+        "en": "Date picker: month panel, controlled, optional past disabling"
+      },
+      "parts": [
+        "materin-ui-date-picker__field",
+        "materin-ui-date-picker__grid",
+        "materin-ui-date-picker__head",
+        "materin-ui-date-picker__month",
+        "materin-ui-date-picker__nav",
+        "materin-ui-date-picker__panel"
+      ],
+      "variants": [],
+      "states": [
+        "is-open"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-affix",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/affix/Affix.vue",
+      "purpose": {
+        "zh": "固钉：滚动越过阈值后固定在视口",
+        "en": "Affix: pins to the viewport once scrolled past"
+      },
+      "parts": [
+        "materin-ui-affix__inner"
+      ],
+      "variants": [],
+      "states": [
+        "is-fixed"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-backtop__button",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/backtop/Backtop.vue",
+      "purpose": {
+        "zh": "回到顶部：滚动过阈值浮现",
+        "en": "Back to top: appears past a scroll threshold"
+      },
+      "parts": [],
+      "variants": [],
+      "states": [],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-anchor",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/anchor/Anchor.vue",
+      "purpose": {
+        "zh": "锚点：滚动监听高亮当前区块",
+        "en": "Anchor: scroll-spy highlighting of the current section"
+      },
+      "parts": [
+        "materin-ui-anchor__link"
+      ],
+      "variants": [],
+      "states": [
+        "is-active"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-dropdown",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/dropdown/Dropdown.vue",
+      "purpose": {
+        "zh": "下拉菜单：点击弹出命令列表，点外关闭",
+        "en": "Dropdown: click-triggered command list, closes on outside click"
+      },
+      "parts": [
+        "materin-ui-dropdown__button",
+        "materin-ui-dropdown__menu",
+        "materin-ui-dropdown__option",
+        "materin-ui-dropdown__trigger"
+      ],
+      "variants": [
+        "--top",
+        "--bottom"
+      ],
+      "states": [
+        "is-open"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-steps",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/steps/Steps.vue",
+      "purpose": {
+        "zh": "步骤条：横向流程，完成/进行/等待三态",
+        "en": "Steps: horizontal flow with done, current and waiting states"
+      },
+      "parts": [
+        "materin-ui-steps__item",
+        "materin-ui-steps__index",
+        "materin-ui-steps__title",
+        "materin-ui-steps__connector"
+      ],
+      "variants": [],
+      "states": [
+        "is-done",
+        "is-current"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-breadcrumb",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/breadcrumb/Breadcrumb.vue",
+      "purpose": {
+        "zh": "面包屑：层级路径与分隔符",
+        "en": "Breadcrumb: trail with separators"
+      },
+      "parts": [
+        "materin-ui-breadcrumb__item",
+        "materin-ui-breadcrumb__sep"
+      ],
+      "variants": [],
+      "states": [],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-tabs",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/tabs/Tabs.vue",
+      "purpose": {
+        "zh": "标签页：滑动切换，受控可用",
+        "en": "Tabs: switching panes, works controlled"
+      },
+      "parts": [
+        "materin-ui-tabs__list",
+        "materin-ui-tabs__tab",
+        "materin-ui-tabs__panels",
+        "materin-ui-tabs__panel"
+      ],
+      "variants": [],
+      "states": [
+        "is-active"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-menu",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/menu/Menu.vue",
+      "purpose": {
+        "zh": "菜单：垂直/水平、分组与子级、受控选中",
+        "en": "Menu: vertical or horizontal, groups and submenus, controlled selection"
+      },
+      "parts": [
+        "materin-ui-menu__group",
+        "materin-ui-menu__group-title",
+        "materin-ui-menu__item",
+        "materin-ui-menu__sub",
+        "materin-ui-menu__sub-wrap"
+      ],
+      "variants": [
+        "--horizontal"
+      ],
+      "states": [
+        "is-active",
+        "is-open"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-infinite-scroll",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/infinite-scroll/InfiniteScroll.vue",
+      "purpose": {
+        "zh": "无限滚动：触底触发 loadMore，可停",
+        "en": "Infinite scroll: fires loadMore near bottom, stoppable"
+      },
+      "parts": [
+        "materin-ui-infinite-scroll__sentinel",
+        "materin-ui-infinite-scroll__tip"
+      ],
+      "variants": [],
+      "states": [
+        "is-disabled"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-watermark",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/watermark/Watermark.vue",
+      "purpose": {
+        "zh": "水印：canvas 纹理平铺，被删改自动重画",
+        "en": "Watermark: tiled canvas texture that redraws if tampered"
+      },
+      "parts": [
+        "materin-ui-watermark__layer"
+      ],
+      "variants": [],
+      "states": [],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-qrcode",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/qrcode/QRCode.vue",
+      "purpose": {
+        "zh": "二维码：canvas 渲染、四档纠错、自动选版本",
+        "en": "QR code: canvas render, four EC levels, automatic version"
+      },
+      "parts": [
+        "materin-ui-qrcode__canvas",
+        "materin-ui-qrcode__placeholder"
+      ],
+      "variants": [
+        "--bordered"
+      ],
+      "states": [],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-calendar",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/calendar/Calendar.vue",
+      "purpose": {
+        "zh": "日历：月视图网格，可选中日期，可禁用早于今天",
+        "en": "Calendar: month grid, selectable dates, optional past disabling"
+      },
+      "parts": [
+        "materin-ui-calendar__cell",
+        "materin-ui-calendar__grid",
+        "materin-ui-calendar__head",
+        "materin-ui-calendar__month",
+        "materin-ui-calendar__nav",
+        "materin-ui-calendar__weekday"
+      ],
+      "variants": [],
+      "states": [
+        "is-selected",
+        "is-today",
+        "is-outside",
+        "is-disabled"
+      ],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-table",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/table/Table.vue",
+      "purpose": {
+        "zh": "表格：列配置驱动，斑马纹、边框、空态",
+        "en": "Table: column-driven, striped, bordered, empty state"
+      },
+      "parts": [
+        "materin-ui-table__body",
+        "materin-ui-table__empty",
+        "materin-ui-table__head",
+        "materin-ui-table__wrap"
+      ],
+      "variants": [
+        "--striped",
+        "--bordered"
+      ],
+      "states": [],
+      "batch": "F-final"
+    },
+    {
+      "name": "materin-ui-tree",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/tree/Tree.vue",
+      "purpose": {
+        "zh": "树：层级勾选、展开收起、受控可用",
+        "en": "Tree: hierarchical checks, expand and collapse, works controlled"
+      },
+      "parts": [
+        "materin-ui-tree__row",
+        "materin-ui-tree__indent",
+        "materin-ui-tree__expand",
+        "materin-ui-tree__checkbox",
+        "materin-ui-tree__label",
+        "materin-ui-tree__children"
+      ],
+      "variants": [],
+      "states": [
+        "is-expanded"
+      ],
+      "batch": "F-final"
+    },
+    {
       "name": "materin-ui-progress__ring-bar",
       "scope": "ui",
       "repo": "materin-ui",
