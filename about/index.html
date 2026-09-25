@@ -22,41 +22,41 @@
 </script>
 </head>
 <body>
-<a class="skip" href="#main">跳到主内容 / Skip to content</a>
+<a class="materin-u-skip" href="#main">跳到主内容 / Skip to content</a>
 
-<header class="site-header">
-  <div class="wrap header-inner">
-    <a class="brand" href="/">
+<header class="materin-site-header">
+  <div class="materin-u-wrap materin-site-header__inner">
+    <a class="materin-site-brand" href="/">
       <img src="/assets/img/favicon.svg" alt="" width="28" height="28">
-      <span class="brand-name">Materin</span>
+      <span class="materin-site-brand__name">Materin</span>
     </a>
-    <nav class="nav">
+    <nav class="materin-site-nav">
       <a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a>
       <a href="/projects/"><span class="lang-zh">内容</span><span class="lang-en">Content</span></a>
       <a href="/design/"><span class="lang-zh">设计</span><span class="lang-en">UI</span></a>
       <a href="/about/"><span class="lang-zh">关于</span><span class="lang-en">About</span></a>
-      <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to English">EN</button>
-      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
+      <button id="lang-toggle" class="materin-site-lang-toggle" type="button" aria-label="Switch to English">EN</button>
+      <button id="theme-toggle" class="materin-site-theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
     </nav>
   </div>
 </header>
 
-<main id="main" class="doc">
-  <div class="wrap">
-    <p class="crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <span class="lang-zh">关于 Materin</span><span class="lang-en">About Materin</span></p>
+<main id="main" class="materin-site-doc">
+  <div class="materin-u-wrap">
+    <p class="materin-site-crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <span class="lang-zh">关于 Materin</span><span class="lang-en">About Materin</span></p>
 
-    <div class="doc-head">
+    <div class="materin-site-doc__head">
       <h1><span class="lang-zh">关于 Materin</span><span class="lang-en">About Materin</span></h1>
-      <p class="sub lang-zh">名字取自「格物」：先把事看清，再把话说清。</p>
-      <p class="sub lang-en">Named after 格物 — understand it first, explain it plainly.</p>
+      <p class="materin-site-doc__sub lang-zh">名字取自「格物」：先把事看清，再把话说清。</p>
+      <p class="materin-site-doc__sub lang-en">Named after 格物 — understand it first, explain it plainly.</p>
     </div>
 
-    <div class="btn-row">
-      <a class="btn small" href="/projects/"><span class="lang-zh">内容索引</span><span class="lang-en">Content index</span></a>
-      <a class="btn small" href="/"><span class="lang-zh">返回首页</span><span class="lang-en">Home</span></a>
+    <div class="materin-site-btn-row">
+      <a class="materin-site-btn materin-site-btn--small" href="/projects/"><span class="lang-zh">内容索引</span><span class="lang-en">Content index</span></a>
+      <a class="materin-site-btn materin-site-btn--small" href="/"><span class="lang-zh">返回首页</span><span class="lang-en">Home</span></a>
     </div>
 
-    <div class="doc-body">
+    <div class="materin-site-prose">
       <!-- ============ 中文 ============ -->
       <div class="lang-zh">
         <h2>Materin 是什么</h2>
@@ -86,7 +86,7 @@
             <tr><td>组织站点</td><td><a href="https://materin-tech.github.io/">https://materin-tech.github.io/</a></td></tr>
             <tr><td>组织说明（本页）</td><td><a href="https://materin-tech.github.io/about/">https://materin-tech.github.io/about/</a></td></tr>
             <tr><td>静态资源根</td><td>仓库根目录 = 域名根目录。例如 <code>https://materin-tech.github.io/assets/img/favicon.svg</code> 可被任意项目直接引用</td></tr>
-            <tr><td>组织主页</td><td><a href="https://github.com/materin-tech">github.com/materin-tech</a></td></tr>
+            <tr><td>组织主页</td><td><a href="https://github.com/materin-tech" target="_blank" rel="noopener">github.com/materin-tech ↗</a> <span class="lang-zh">（外部链接）</span><span class="lang-en">(external)</span></td></tr>
           </tbody>
         </table>
 
@@ -234,20 +234,21 @@
       </div>
     </div>
 
-    <div class="doc-nav">
+    <div class="materin-site-doc-nav">
       <a href="/">← <span class="lang-zh">返回首页</span><span class="lang-en">Back to home</span></a>
       <a href="/projects/"><span class="lang-zh">内容索引</span><span class="lang-en">Content index</span> →</a>
     </div>
   </div>
 </main>
 
-<footer class="site-footer">
-  <div class="wrap footer-inner">
+<footer class="materin-site-footer">
+  <div class="materin-u-wrap materin-site-footer__inner">
     <p>© <span id="year">2026</span> Materin · <span class="lang-zh">由 GitHub Pages 托管</span><span class="lang-en">Hosted on GitHub Pages</span></p>
-    <p class="muted">
-      <a href="https://github.com/materin-tech/materin-tech.github.io" target="_blank" rel="noopener"><span class="lang-zh">站点源码</span><span class="lang-en">Site source</span></a>
+    <p class="materin-u-muted">
+      <span class="lang-zh">外部链接：</span><span class="lang-en">External:</span>
+      <a href="https://github.com/materin-tech/materin-tech.github.io" target="_blank" rel="noopener"><span class="lang-zh">站点源码</span><span class="lang-en">Site source</span> ↗</a>
       ·
-      <a href="https://github.com/materin-tech/.github" target="_blank" rel="noopener"><span class="lang-zh">组织档案</span><span class="lang-en">Org profile</span></a>
+      <a href="https://github.com/materin-tech/.github" target="_blank" rel="noopener"><span class="lang-zh">组织档案</span><span class="lang-en">Org profile</span> ↗</a>
     </p>
   </div>
 </footer>

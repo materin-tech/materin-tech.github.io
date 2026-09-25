@@ -64,7 +64,7 @@
 
   function cardHtml(p) {
     var t = T[LANG];
-    var tags = (p.tags || []).map(function (x) { return '<span class="tag">' + esc(x) + '</span>'; }).join('');
+    var tags = (p.tags || []).map(function (x) { return '<span class="materin-site-tag">' + esc(x) + '</span>'; }).join('');
     var title = p.page
       ? '<a href="' + esc(p.page) + '">' + esc(p.name) + '</a>'
       : '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.name) + '</a>';
@@ -77,11 +77,11 @@
     // 站内优先：卡片只指向站内说明页/站内预览，不直接跳转 GitHub
     if (p.page) links.push('<a href="' + esc(p.page) + '">' + t.details + ' →</a>');
     if (p.homepage) links.push('<a href="' + esc(p.homepage) + '" target="_blank" rel="noopener">' + t.live + ' ↗</a>');
-    return '<article class="card">' +
-      '<h3>' + title + (p.version ? ' <span class="pill neutral">v' + esc(p.version) + '</span>' : '') + '</h3>' +
-      (tags ? '<div class="tags">' + tags + '</div>' : '') +
+    return '<article class="materin-site-card">' +
+      '<h3>' + title + (p.version ? ' <span class="materin-site-pill materin-site-pill--neutral">v' + esc(p.version) + '</span>' : '') + '</h3>' +
+      (tags ? '<div class="materin-site-tags">' + tags + '</div>' : '') +
       '<p>' + esc(localized(p.description) || t.noDesc) + '</p>' +
-      '<div class="meta">' + meta + links.join('') + '</div>' +
+      '<div class="materin-site-card__meta">' + meta + links.join('') + '</div>' +
       '</article>';
   }
 
@@ -92,7 +92,7 @@
       : projects.filter(function (p) { return (p.tags || []).indexOf(activeTag) !== -1; });
     grid.innerHTML = list.length
       ? list.map(cardHtml).join('')
-      : '<p class="empty">' + esc(T[LANG].empty) + '</p>';
+      : '<p class="materin-site-empty">' + esc(T[LANG].empty) + '</p>';
   }
 
   function buildFilters() {
@@ -103,10 +103,10 @@
     });
     var keys = Object.keys(counts).sort();
     if (!keys.length) { filters.innerHTML = ''; return; }
-    var chips = ['<button class="chip" type="button" data-tag="all" aria-pressed="' +
+    var chips = ['<button class="materin-site-chip" type="button" data-tag="all" aria-pressed="' +
       (activeTag === 'all') + '">' + esc(T[LANG].all) + ' (' + projects.length + ')</button>'];
     keys.forEach(function (k) {
-      chips.push('<button class="chip" type="button" data-tag="' + esc(k) + '" aria-pressed="' +
+      chips.push('<button class="materin-site-chip" type="button" data-tag="' + esc(k) + '" aria-pressed="' +
         (activeTag === k) + '">' + esc(k) + ' (' + counts[k] + ')</button>');
     });
     filters.innerHTML = chips.join('');
@@ -157,7 +157,7 @@
         applyLang(LANG);
       })
       .catch(function (err) {
-        grid.innerHTML = '<p class="empty">' + esc(T[LANG].loadFail) + '（' + esc(err.message) + '）。' +
+        grid.innerHTML = '<p class="materin-site-empty">' + esc(T[LANG].loadFail) + '（' + esc(err.message) + '）。' +
           T[LANG].loadHint + '</p>';
       });
   } else {

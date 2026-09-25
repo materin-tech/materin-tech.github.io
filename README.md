@@ -19,6 +19,8 @@ GitHub Pages 的「组织站点」规则：仓库名必须是 `<组织名>.githu
 │   └── materin-ctx/index.html
 ├── 404.html                      自定义 404（Pages 自动使用）
 ├── data/projects.json            项目清单（唯一需要维护的数据文件）
+├── data/components.json          组件清单（命名契约的注册表，给 tools/ 读）
+├── tools/check-components.py     组件一致性校验（提交前跑，见「组件命名契约」）
 ├── assets/
 │   ├── css/materin-ui.css        品牌 UI 令牌 —— 唯一改风格的地方，插件也用同一份
 │   ├── css/style.css             站点皮肤（只引用令牌，不写死色值）
@@ -39,6 +41,22 @@ Materin 的产品定位是**系列共用一套 UI**，落点就是 `assets/css/m
 - 插件侧不远程 `@import`（单文件打包 + 需离线可用），改为把令牌的 `:root` 段复制进插件 `styles.css`。
 
 规范页 `/design/` 里同时记录了三个插件 `styles.css` 的实测差异（强调色语义、状态色三套写法、硬编码色值）。
+
+## 组件命名契约（AI-native）
+
+界面要能被「按名查找、按名维护」，所以类名本身必须是说明书：
+
+| 类型 | 模式 | 例子 |
+| --- | --- | --- |
+| 组件 | `materin-<scope>-<component>[__part][--variant]` | `materin-site-card` / `materin-site-card__meta` / `materin-site-btn--primary` |
+| 布局 / 工具 | `materin-u-<name>` | `materin-u-wrap` / `materin-u-grid` |
+| 状态 | `is-<state>`，优先用 ARIA 属性 | `materin-site-chip[aria-pressed="true"]` |
+
+- `scope` 只有五个：`ui` / `site` / `office` / `view` / `ctx`；名字里必须带 scope，插件侧沿用既有的 `materin-office-*` 等前缀。
+- 禁止裸类名（`.card`、`.btn`），也**不允许别名**：一个组件只有一个名字，否则按名查找会落空。
+- `lang-zh` / `lang-en` 是 i18n 系统约定，不属于组件，不参与改名。
+- 每个组件登记在 `data/components.json`（名字、范围、用途、部件、变体、状态、文件）。
+- **提交前必须跑** `python3 tools/check-components.py`：检查契约、存在性、注册、反向引用、组件层无裸色值五项。当前全通过（33 条组件注册 / 49 个选择器 / 48 个类名）。
 
 ## 站内优先原则（重要）
 

@@ -1,5 +1,16 @@
+/* ==========================================================================
+   Materin 组件层 · scope = site（本站 UI）
+   --------------------------------------------------------------------------
+   命名契约
+     materin-<scope>-<component>[__part][--variant]   组件
+     materin-u-<name>                                 布局 / 工具
+     is-<state>                                       状态类（配合 ARIA 使用）
+   每个组件一个小节，小节头写明：用途 / 用到的令牌 / 状态。
+   本文件不写死色值，一切取值来自 assets/css/materin-ui.css。
+   ========================================================================== */
+
 :root {
-  /* 站点皮肤：取值全部来自 Materin UI 令牌（assets/css/materin-ui.css） */
+  /* 站点皮肤别名：全部指向 Materin UI 令牌 */
   --bg: var(--materin-surface);
   --bg-alt: var(--materin-surface-2);
   --card: var(--materin-surface-3);
@@ -13,20 +24,9 @@
   --radius: var(--materin-radius-lg);
   --wrap: 1080px;
 }
-html[data-theme="light"] {
-  /* 浅色主题：只覆盖令牌值，用法不变 */
-  --materin-surface: #f7f9fc;
-  --materin-surface-2: #eef2f9;
-  --materin-surface-3: #ffffff;
-  --materin-surface-4: #ffffff;
-  --materin-border: #dbe3f0;
-  --materin-text: #131a28;
-  --materin-text-muted: #5a6884;
-  --materin-accent: #2f5fe0;
-  --materin-secondary: #0f9c8a;
-  --materin-shadow: 0 8px 24px rgba(19, 26, 40, .08);
-}
+/* 浅色主题的令牌值在 assets/css/materin-ui.css（组件层不写第二套） */
 
+/* --- base ---------------------------------------------------------------- */
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -39,106 +39,240 @@ body {
 }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
-code, pre { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
-.wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 20px; }
-.muted { color: var(--muted); }
-.skip {
-  position: absolute; left: -9999px; top: 0; background: var(--accent); color: #fff;
-  padding: 8px 14px; border-radius: 0 0 8px 0; z-index: 99;
-}
-.skip:focus { left: 0; }
+code, pre { font-family: var(--materin-font-mono); }
 
-/* header */
-.site-header {
+/* --- materin-u-* · 布局与工具（无视觉身份，可任意组合） ------------------- */
+/* u-wrap    : 内容定宽居中
+   u-grid    : 自适应卡片网格
+   u-two-col : 两列自适应
+   u-muted   : 次要文字色
+   u-mono    : 等宽文字
+   u-skip    : 跳转链接（无障碍，聚焦才出现） */
+.materin-u-wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 20px; }
+.materin-u-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 16px; }
+.materin-u-two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.materin-u-muted { color: var(--muted); }
+.materin-u-mono { font-family: var(--materin-font-mono); font-size: 12.5px; }
+.materin-u-skip {
+  position: absolute; left: -9999px; top: 0; background: var(--accent);
+  color: var(--materin-on-accent); padding: 8px 14px; border-radius: 0 0 8px 0; z-index: 99;
+}
+.materin-u-skip:focus { left: 0; }
+
+/* --- materin-site-header · 顶部栏 ----------------------------------------
+   用途：站点导航，滚动时吸附；毛玻璃让它压在内容上仍可读
+   令牌：glass-bg / glass-blur / glass-border
+   状态：无
+   ------------------------------------------------------------------------ */
+.materin-site-header {
   position: sticky; top: 0; z-index: 20;
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter: blur(10px);
+  background: var(--materin-glass-bg);
+  -webkit-backdrop-filter: var(--materin-glass-blur);
+  backdrop-filter: var(--materin-glass-blur);
+  border-bottom: 1px solid var(--materin-glass-border);
+}
+.materin-site-header__inner { display: flex; align-items: center; justify-content: space-between; height: 62px; gap: 16px; }
+.materin-site-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); }
+.materin-site-brand:hover { text-decoration: none; }
+.materin-site-brand__name { font-weight: 700; letter-spacing: .2px; }
+.materin-site-brand__name em { font-style: normal; color: var(--accent); }
+.materin-site-nav { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 14px; }
+.materin-site-nav a { color: var(--muted); }
+.materin-site-nav a:hover,
+.materin-site-nav a.is-active { color: var(--text); text-decoration: none; }
+.materin-site-theme-toggle,
+.materin-site-lang-toggle {
+  background: var(--materin-glass-bg-subtle); border: 1px solid var(--materin-glass-border);
+  color: var(--text); border-radius: 8px; padding: 4px 8px; cursor: pointer;
+  font-size: 14px; line-height: 1.4; font-weight: 600; min-width: 40px;
+}
+.materin-site-lang-toggle { font-size: 13px; }
+.materin-site-theme-toggle:hover,
+.materin-site-lang-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+/* --- materin-site-hero · 首屏 -------------------------------------------
+   用途：一句话价值主张 + 主 CTA
+   令牌：accent / accent-2 / radius-lg
+   ------------------------------------------------------------------------ */
+.materin-site-hero {
+  padding: 72px 0 56px;
   border-bottom: 1px solid var(--border);
+  background:
+    radial-gradient(900px 320px at 12% -10%, color-mix(in srgb, var(--accent) 24%, transparent), transparent),
+    radial-gradient(700px 300px at 92% 8%, color-mix(in srgb, var(--accent-2) 16%, transparent), transparent);
 }
-.header-inner { display: flex; align-items: center; justify-content: space-between; height: 62px; gap: 16px; }
-.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); }
-.brand:hover { text-decoration: none; }
-.brand-name { font-weight: 700; letter-spacing: .2px; }
-.brand-name em { font-style: normal; color: var(--accent); }
-.nav { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 14px; }
-.nav a { color: var(--muted); }
-.nav a:hover { color: var(--text); text-decoration: none; }
-.theme-toggle {
-  background: transparent; border: 1px solid var(--border); color: var(--text);
-  border-radius: 8px; padding: 4px 8px; cursor: pointer; font-size: 14px; line-height: 1;
-}
-.theme-toggle:hover { border-color: var(--accent); }
+.materin-site-hero__eyebrow { margin: 0 0 12px; color: var(--accent-2); font-size: 13px; letter-spacing: .16em; text-transform: uppercase; }
+.materin-site-hero h1 { margin: 0 0 16px; font-size: clamp(30px, 5vw, 46px); line-height: 1.18; letter-spacing: -.5px; }
+.materin-site-hero__lede { margin: 0 0 26px; max-width: 62ch; color: var(--muted); font-size: 17px; }
+.materin-site-hero__cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.materin-site-hero__stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 40px 0 0; }
+.materin-site-hero__stats > div { border-top: 1px solid var(--border); padding-top: 12px; }
+.materin-site-hero__stats dt { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+.materin-site-hero__stats dd { margin: 4px 0 0; font-size: 18px; font-weight: 700; }
 
-/* hero */
-.hero { padding: 72px 0 56px; border-bottom: 1px solid var(--border); background:
-  radial-gradient(900px 320px at 12% -10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent),
-  radial-gradient(700px 300px at 92% 8%, color-mix(in srgb, var(--accent-2) 16%, transparent), transparent); }
-.eyebrow { margin: 0 0 12px; color: var(--accent-2); font-size: 13px; letter-spacing: .16em; text-transform: uppercase; }
-.hero h1 { margin: 0 0 16px; font-size: clamp(30px, 5vw, 46px); line-height: 1.18; letter-spacing: -.5px; }
-.lede { margin: 0 0 26px; max-width: 62ch; color: var(--muted); font-size: 17px; }
-.cta { display: flex; gap: 12px; flex-wrap: wrap; }
-.btn {
-  display: inline-block; padding: 10px 18px; border-radius: 10px; border: 1px solid var(--border);
-  color: var(--text); background: var(--card); font-size: 14px; font-weight: 600; cursor: pointer;
+/* --- materin-site-btn · 按钮 --------------------------------------------
+   用途：站内动作入口（不用于外链跳转）
+   变体：--primary（实心强调）/ --small
+   令牌：glass-bg-strong / glass-border / accent / radius
+   状态：:hover 抬升 1px 并换描边
+   ------------------------------------------------------------------------ */
+.materin-site-btn {
+  display: inline-block; padding: 10px 18px; border-radius: 10px;
+  border: 1px solid var(--materin-glass-border);
+  color: var(--text); background: var(--materin-glass-bg-strong);
+  -webkit-backdrop-filter: var(--materin-glass-blur-sm);
+  backdrop-filter: var(--materin-glass-blur-sm);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
-.btn:hover { text-decoration: none; border-color: var(--accent); transform: translateY(-1px); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.btn.small { padding: 7px 13px; font-size: 13px; }
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 40px 0 0; }
-.stats > div { border-top: 1px solid var(--border); padding-top: 12px; }
-.stats dt { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
-.stats dd { margin: 4px 0 0; font-size: 18px; font-weight: 700; }
+.materin-site-btn:hover { text-decoration: none; border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--materin-elev-1); }
+.materin-site-btn.materin-site-btn--primary { background: var(--accent); border-color: var(--accent); color: var(--materin-on-accent); }
+.materin-site-btn.materin-site-btn--small { padding: 7px 13px; font-size: 13px; }
+.materin-site-btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 26px; }
 
-/* sections */
-.section { padding: 62px 0; }
-.section.alt { background: var(--bg-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-.section-head { margin-bottom: 26px; }
-.section-head h2 { margin: 0 0 8px; font-size: 24px; letter-spacing: -.3px; }
-.section-head p { margin: 0; color: var(--muted); font-size: 14px; }
+/* --- materin-site-section · 内容分区 ------------------------------------
+   变体：--alt（变色底 + 上下描边）
+   子件：__head（标题 + 说明）
+   ------------------------------------------------------------------------ */
+.materin-site-section { padding: 62px 0; }
+.materin-site-section.materin-site-section--alt { background: var(--bg-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.materin-site-section__head { margin-bottom: 26px; }
+.materin-site-section__head h2 { margin: 0 0 8px; font-size: 24px; letter-spacing: -.3px; }
+.materin-site-section__head p { margin: 0; color: var(--muted); font-size: 14px; }
 
-.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-.chip {
-  border: 1px solid var(--border); background: transparent; color: var(--muted);
-  padding: 5px 12px; border-radius: 999px; font-size: 13px; cursor: pointer;
+/* --- materin-site-card · 卡片 -------------------------------------------
+   用途：内容条目（项目、说明、条目索引都由它承载）
+   子件：__meta（底部元信息行）
+   令牌：glass-bg-subtle / glass-blur-sm / glass-border / elev-1
+   状态：:hover 抬升 3px、描边转强调色、阴影升到 elev-2
+   ------------------------------------------------------------------------ */
+.materin-site-card {
+  background: var(--materin-glass-bg-subtle);
+  background-image: linear-gradient(160deg, var(--materin-glass-highlight), transparent 44%);
+  -webkit-backdrop-filter: var(--materin-glass-blur-sm);
+  backdrop-filter: var(--materin-glass-blur-sm);
+  border: 1px solid var(--materin-glass-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--materin-elev-1);
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
-.chip[aria-pressed="true"] { color: #fff; background: var(--accent); border-color: var(--accent); }
+.materin-site-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: var(--materin-elev-2); }
+.materin-site-card h3 { margin: 0 0 8px; font-size: 17px; }
+.materin-site-card h3 a { color: var(--text); }
+.materin-site-card p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+.materin-site-card__meta { display: flex; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 16px; }
-.card {
-  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 20px; box-shadow: var(--shadow); transition: transform .15s ease, border-color .15s ease;
-}
-.card:hover { transform: translateY(-3px); border-color: var(--accent); }
-.card h3 { margin: 0 0 8px; font-size: 17px; }
-.card h3 a { color: var(--text); }
-.card p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
-.tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-.tag {
+/* --- materin-site-tags / -tag · 标签 ------------------------------------ */
+.materin-site-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.materin-site-tag {
   font-size: 11px; letter-spacing: .04em; text-transform: uppercase;
   color: var(--accent-2); border: 1px solid color-mix(in srgb, var(--accent-2) 35%, transparent);
   border-radius: 6px; padding: 2px 7px;
+  background: var(--materin-glass-bg-subtle);
 }
-.meta { display: flex; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
-.loading, .empty { color: var(--muted); font-size: 14px; }
 
-.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-.code {
-  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
-  padding: 12px 14px; overflow-x: auto; font-size: 13px; margin: 0 0 12px;
+/* --- materin-site-pill · 徽标（版本号等）-------------------------------- */
+.materin-site-pill {
+  display: inline-block; vertical-align: middle; margin-left: 10px;
+  font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  color: var(--accent-2); border: 1px solid color-mix(in srgb, var(--accent-2) 40%, transparent);
+  border-radius: 999px; padding: 3px 10px;
 }
-.note {
+.materin-site-pill.materin-site-pill--neutral { color: var(--muted); border-color: var(--border); }
+
+/* --- materin-site-filters / -chip · 筛选器 ------------------------------
+   状态：aria-pressed="true"（首选）或 is-active
+   ------------------------------------------------------------------------ */
+.materin-site-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.materin-site-chip {
+  border: 1px solid var(--materin-glass-border); background: var(--materin-glass-bg-subtle);
+  color: var(--muted); padding: 5px 12px; border-radius: 999px; font-size: 13px; cursor: pointer;
+  -webkit-backdrop-filter: var(--materin-glass-blur-sm);
+  backdrop-filter: var(--materin-glass-blur-sm);
+}
+.materin-site-chip:hover { color: var(--text); }
+.materin-site-chip[aria-pressed="true"],
+.materin-site-chip.is-active { color: var(--materin-on-accent); background: var(--accent); border-color: var(--accent); }
+
+/* --- materin-site-note · 提示条 -----------------------------------------
+   用途：补充说明、缓存提示等；左侧强调色竖线
+   令牌：glass-bg-subtle / glass-blur-sm / accent
+   ------------------------------------------------------------------------ */
+.materin-site-note {
   margin-top: 18px; padding: 12px 16px; border-left: 3px solid var(--accent);
-  background: var(--card); border-radius: 0 10px 10px 0; font-size: 14px; color: var(--muted);
+  background: var(--materin-glass-bg-subtle);
+  -webkit-backdrop-filter: var(--materin-glass-blur-sm);
+  backdrop-filter: var(--materin-glass-blur-sm);
+  border-radius: 0 10px 10px 0; font-size: 14px; color: var(--muted);
 }
-.ticks { margin: 0; padding-left: 18px; color: var(--muted); }
-.ticks li { margin-bottom: 6px; }
 
-.site-footer { padding: 28px 0; border-top: 1px solid var(--border); }
-.footer-inner { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
-.site-footer p { margin: 0; }
+/* --- materin-site-code · 代码块 -----------------------------------------
+   用途：命令与片段；用高不透明玻璃保证可读
+   ------------------------------------------------------------------------ */
+.materin-site-code {
+  background: var(--materin-glass-bg-strong); border: 1px solid var(--materin-glass-border);
+  border-radius: 10px; padding: 12px 14px; overflow-x: auto; font-size: 13px; margin: 0 0 12px;
+}
 
+/* --- materin-site-doc* · 文档型页面（关于 / 设计 / 项目说明页）-----------
+   doc     : 页面外壳（窄栏 + 大留白）
+   doc__head / __sub : 标题区
+   prose   : 正文排版（表格、列表、引用、代码）
+   doc-nav : 页脚上下页导航
+   crumb   : 面包屑
+   ------------------------------------------------------------------------ */
+.materin-site-doc { padding: 44px 0 72px; }
+.materin-site-doc__head { border-bottom: 1px solid var(--border); padding-bottom: 22px; margin-bottom: 30px; }
+.materin-site-doc__head h1 { margin: 0 0 10px; font-size: clamp(26px, 4vw, 36px); letter-spacing: -.4px; }
+.materin-site-doc__sub { margin: 0; color: var(--muted); font-size: 16px; }
+.materin-site-crumb { margin: 0 0 18px; font-size: 13px; color: var(--muted); }
+.materin-site-crumb a { color: var(--muted); }
+.materin-site-crumb a:hover { color: var(--accent); }
+.materin-site-doc-nav {
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin-top: 46px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 14px;
+}
+.materin-site-prose { max-width: 78ch; }
+.materin-site-prose h2 { margin: 40px 0 14px; padding-bottom: 8px; font-size: 21px; border-bottom: 1px solid var(--border); }
+.materin-site-prose h3 { margin: 26px 0 10px; font-size: 17px; }
+.materin-site-prose h2:first-child { margin-top: 6px; }
+.materin-site-prose p { margin: 0 0 14px; }
+.materin-site-prose ul, .materin-site-prose ol { margin: 0 0 16px; padding-left: 22px; }
+.materin-site-prose li { margin-bottom: 8px; }
+.materin-site-prose li > code, .materin-site-prose p > code {
+  background: var(--materin-glass-bg-strong); border: 1px solid var(--materin-glass-border);
+  border-radius: 5px; padding: 1px 5px; font-size: .88em;
+}
+.materin-site-prose table { width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: 14px; }
+.materin-site-prose th, .materin-site-prose td { border: 1px solid var(--materin-glass-border); padding: 9px 12px; text-align: left; vertical-align: top; }
+.materin-site-prose th { background: var(--materin-glass-bg-strong); color: var(--text); font-weight: 600; white-space: nowrap; }
+.materin-site-prose blockquote {
+  margin: 0 0 18px; padding: 12px 16px; border-left: 3px solid var(--accent);
+  background: var(--materin-glass-bg-subtle); border-radius: 0 10px 10px 0; color: var(--muted); font-size: 14px;
+}
+.materin-site-prose pre {
+  background: var(--materin-glass-bg-strong); border: 1px solid var(--materin-glass-border);
+  border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 13px; margin: 0 0 18px;
+}
+.materin-site-prose pre code { background: none; border: 0; padding: 0; }
+
+/* --- materin-site-principle / -ticks / -loading / -empty ---------------- */
+.materin-site-principle { margin: 0 0 16px; }
+.materin-site-principle h3 { margin: 0 0 6px; font-size: 16px; }
+.materin-site-principle p { margin: 0; color: var(--muted); font-size: 14px; }
+.materin-site-ticks { margin: 0; padding-left: 18px; color: var(--muted); }
+.materin-site-ticks li { margin-bottom: 6px; }
+.materin-site-loading, .materin-site-empty { color: var(--muted); font-size: 14px; }
+
+/* --- materin-site-footer · 页脚 ----------------------------------------- */
+.materin-site-footer { padding: 28px 0; border-top: 1px solid var(--materin-glass-border); background: var(--materin-glass-bg-subtle); }
+.materin-site-footer__inner { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.materin-site-footer p { margin: 0; }
+
+/* --- 响应式 ------------------------------------------------------------- */
 @media (max-width: 720px) {
-  .hero { padding: 48px 0 40px; }
-  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .nav { gap: 12px; }
+  .materin-site-hero { padding: 48px 0 40px; }
+  .materin-site-hero__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .materin-site-nav { gap: 12px; }
 }

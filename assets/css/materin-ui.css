@@ -51,6 +51,17 @@
   --materin-font-small: var(--font-ui-small, 13px);
   --materin-font-mono: var(--font-monospace, ui-monospace, SFMono-Regular, Menlo, monospace);
 
+  /* --- 透明与半透明（分层毛玻璃；透明表面靠阴影和描边分层） --- */
+  --materin-glass-bg: color-mix(in srgb, var(--background-primary, #0b0f19) 74%, transparent);
+  --materin-glass-bg-strong: color-mix(in srgb, var(--background-primary, #0b0f19) 90%, transparent);
+  --materin-glass-bg-subtle: color-mix(in srgb, var(--background-secondary, #0f1524) 66%, transparent);
+  --materin-glass-border: color-mix(in srgb, var(--background-modifier-border, #23304d) 80%, transparent);
+  --materin-glass-highlight: color-mix(in srgb, #ffffff 12%, transparent);
+  --materin-glass-blur: blur(20px) saturate(180%);
+  --materin-glass-blur-sm: blur(12px) saturate(160%);
+  --materin-elev-1: 0 1px 2px rgba(0, 0, 0, .16), 0 8px 24px rgba(0, 0, 0, .18);
+  --materin-elev-2: 0 2px 6px rgba(0, 0, 0, .20), 0 18px 48px rgba(0, 0, 0, .30);
+
   /* --- HTTP 方法徽标（Materin View 专用语义色，固定不随主题） --- */
   --materin-method-get: #61affe;
   --materin-method-post: #49cc90;
@@ -58,4 +69,48 @@
   --materin-method-delete: #f93e3e;
   --materin-method-patch: #50e3c2;
   --materin-method-other: #9012fe;
+}
+
+/* --- 浅色主题值（站点用 html[data-theme="light"]，Obsidian 用 .theme-light）---
+   只换值，不换用法：组件层不需要为浅色写任何一条规则。 */
+html[data-theme="light"],
+.theme-light {
+  --materin-surface: #f7f9fc;
+  --materin-surface-2: #eef2f9;
+  --materin-surface-3: #ffffff;
+  --materin-surface-4: #ffffff;
+  --materin-border: #dbe3f0;
+  --materin-text: #131a28;
+  --materin-text-muted: #5a6884;
+  --materin-accent: #2f5fe0;
+  --materin-on-accent: #ffffff;
+  --materin-secondary: #0f9c8a;
+  --materin-shadow: 0 8px 24px rgba(19, 26, 40, .08);
+  --materin-glass-bg: color-mix(in srgb, #f7f9fc 76%, transparent);
+  --materin-glass-bg-strong: color-mix(in srgb, #f7f9fc 92%, transparent);
+  --materin-glass-bg-subtle: color-mix(in srgb, #ffffff 68%, transparent);
+  --materin-glass-border: color-mix(in srgb, #dbe3f0 84%, transparent);
+  --materin-glass-highlight: color-mix(in srgb, #ffffff 60%, transparent);
+  --materin-elev-1: 0 1px 2px rgba(19, 26, 40, .06), 0 8px 24px rgba(19, 26, 40, .07);
+  --materin-elev-2: 0 2px 6px rgba(19, 26, 40, .08), 0 18px 48px rgba(19, 26, 40, .12);
+}
+
+/* 降级：宿主不支持毛玻璃，或用户开启「减少透明度」时，改用不透明表面 */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  :root {
+    --materin-glass-bg: var(--background-primary, #0b0f19);
+    --materin-glass-bg-strong: var(--background-primary, #0b0f19);
+    --materin-glass-bg-subtle: var(--background-secondary, #0f1524);
+    --materin-glass-border: var(--background-modifier-border, #23304d);
+    --materin-glass-highlight: transparent;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --materin-glass-bg: var(--background-primary, #0b0f19);
+    --materin-glass-bg-strong: var(--background-primary, #0b0f19);
+    --materin-glass-bg-subtle: var(--background-secondary, #0f1524);
+    --materin-glass-border: var(--background-modifier-border, #23304d);
+    --materin-glass-highlight: transparent;
+  }
 }

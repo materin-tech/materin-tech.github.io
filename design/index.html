@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Materin UI — 一套 UI，三个插件 / One UI across the series</title>
-<meta name="description" content="Materin 的 UI 规范：颜色、形状、间距从同一个令牌文件取，插件跟随 Obsidian 主题，网页与插件共用一套变量。">
+<title>Materin UI — 一套 UI，三个插件 / One UI across three plugins</title>
+<meta name="description" content="Materin UI：三个插件与本站共用的 UI 规范 —— 令牌、组件命名契约、透明与半透明视觉，附实测差异清单。">
 <meta name="theme-color" content="#0b0f19">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/css/materin-ui.css">
@@ -22,203 +22,424 @@
 </script>
 </head>
 <body>
-<a class="skip" href="#main">跳到主内容 / Skip to content</a>
+<a class="materin-u-skip" href="#main">跳到主内容 / Skip to content</a>
 
-<header class="site-header">
-  <div class="wrap header-inner">
-    <a class="brand" href="/">
+<header class="materin-site-header">
+  <div class="materin-u-wrap materin-site-header__inner">
+    <a class="materin-site-brand" href="/">
       <img src="/assets/img/favicon.svg" alt="" width="28" height="28">
-      <span class="brand-name">Materin</span>
+      <span class="materin-site-brand__name">Materin</span>
     </a>
-    <nav class="nav">
+    <nav class="materin-site-nav">
       <a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a>
       <a href="/projects/"><span class="lang-zh">内容</span><span class="lang-en">Content</span></a>
-      <a href="/design/"><span class="lang-zh">设计</span><span class="lang-en">UI</span></a>
+      <a href="/design/" class="is-active"><span class="lang-zh">设计</span><span class="lang-en">UI</span></a>
       <a href="/about/"><span class="lang-zh">关于</span><span class="lang-en">About</span></a>
-      <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to English">EN</button>
-      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
+      <button id="lang-toggle" class="materin-site-lang-toggle" type="button" aria-label="Switch to English">EN</button>
+      <button id="theme-toggle" class="materin-site-theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
     </nav>
   </div>
 </header>
 
-<main id="main" class="doc">
-  <div class="wrap">
-    <p class="crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <span class="lang-zh">设计</span><span class="lang-en">UI</span></p>
+<main id="main">
+  <div class="materin-u-wrap materin-site-doc">
+    <p class="materin-site-crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <span class="lang-zh">设计</span><span class="lang-en">UI</span></p>
 
-    <div class="doc-head">
-      <h1>Materin UI <span class="pill">v0.1</span></h1>
-      <p class="sub lang-zh">一套 UI，三个插件 —— 颜色、形状、间距都从同一个令牌文件里取。</p>
-      <p class="sub lang-en">One UI across three plugins — colour, shape and spacing all come from a single token file.</p>
+    <div class="materin-site-doc__head">
+      <h1>Materin UI <span class="materin-site-pill">v0.1</span></h1>
+      <p class="materin-site-doc__sub">
+        <span class="lang-zh">一套 UI，三个插件，一个网页 —— 颜色、形状、间距、命名都从一个文件里取。</span>
+        <span class="lang-en">One UI for three plugins and one site — colour, shape, spacing and naming all come from a single file.</span>
+      </p>
     </div>
 
-    <div class="btn-row">
-      <a class="btn small" href="/assets/css/materin-ui.css"><span class="lang-zh">令牌文件（本站托管）</span><span class="lang-en">Token file (hosted here)</span></a>
-      <a class="btn small" href="/projects/"><span class="lang-zh">内容索引</span><span class="lang-en">Content index</span></a>
+    <div class="materin-site-btn-row">
+      <a class="materin-site-btn" href="/assets/css/materin-ui.css"><span class="lang-zh">令牌文件</span><span class="lang-en">Token file</span> ↘</a>
+      <a class="materin-site-btn" href="/data/components.json"><span class="lang-zh">组件清单</span><span class="lang-en">Component registry</span> ↘</a>
+      <a class="materin-site-btn" href="/tools/check-components.py"><span class="lang-zh">校验脚本</span><span class="lang-en">Checker</span> ↘</a>
     </div>
 
-    <div class="doc-body">
-      <!-- ==================== 中文 ==================== -->
+    <div class="materin-site-prose">
+
+      <!-- ================= 中文 ================= -->
       <div class="lang-zh">
+
         <h2>三条原则</h2>
-        <div class="principle">
-          <h3>一、跟随宿主</h3>
-          <p>颜色、字体、圆角优先取 Obsidian 主题变量（<code>--background-primary</code>、<code>--interactive-accent</code>、<code>--radius-s</code> …）。Materin 只定义「取不到时」的回落值 —— 用户换主题，插件跟着变，代码不用动。</p>
-        </div>
-        <div class="principle">
-          <h3>二、一套变量</h3>
-          <p>所有界面只引用 <code>--materin-*</code>，不再出现散落的色值。要改风格，改一个文件。</p>
-        </div>
-        <div class="principle">
-          <h3>三、形状与间距固定</h3>
-          <p>圆角统一 <code>--materin-radius</code>（回落 <code>--radius-s</code>）；间距走 4px 基数：4 / 8 / 12 / 16 / 24。跨插件观感一致靠这两条，而不是靠各自调数值。</p>
+        <div class="materin-u-two-col">
+          <div class="materin-site-principle">
+            <h3>颜色跟随，形状固定</h3>
+            <p>颜色取宿主的主题变量：在 Obsidian 里换成任何主题，插件跟着变，不需要改代码；在网页里没有宿主变量，就用品牌默认值。圆角和间距反过来固定下来，谁都不许即兴发挥。</p>
+          </div>
+          <div class="materin-site-principle">
+            <h3>只有一个改风格的地方</h3>
+            <p>界面代码里不允许出现裸色值（<code>#1f1f1f</code> 这种），一律引用 <code>--materin-*</code>。改一个文件，三个插件和本站一起变。</p>
+          </div>
+          <div class="materin-site-principle">
+            <h3>组件按名定位</h3>
+            <p>每个组件有唯一的、带用途的名字，并登记在组件清单里。人和 AI 都能按名找到它、按名改它，改样式时不会改错地方、也不会漏。</p>
+          </div>
         </div>
 
         <h2>令牌</h2>
+        <p>取值规则是「先宿主、后品牌」：表中列出的是宿主变量缺失时的回落值。下面的色块直接引用令牌，所以你看到的就是当前主题下的真实取值。</p>
+
+        <h3>强调色</h3>
         <table>
-          <thead><tr><th>令牌</th><th>用途</th><th>取值</th></tr></thead>
+          <thead><tr><th>令牌</th><th>取值</th><th>实测来源</th></tr></thead>
           <tbody>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-accent)"></span>--materin-accent</td><td>交互强调（按钮、选中、链接）</td><td class="mono">--interactive-accent → #5b8cff</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-secondary)"></span>--materin-secondary</td><td>次要强调</td><td class="mono">--color-cyan → #6ee7d5</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-on-accent)"></span>--materin-on-accent</td><td>强调色上的文字</td><td class="mono">--text-on-accent → #ffffff</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface)"></span>--materin-surface</td><td>主表面</td><td class="mono">--background-primary</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface-2)"></span>--materin-surface-2</td><td>次级表面（分区）</td><td class="mono">--background-secondary</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface-3)"></span>--materin-surface-3</td><td>卡片 / 浮起层</td><td class="mono">--background-secondary-alt</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface-4)"></span>--materin-surface-4</td><td>悬停态</td><td class="mono">--background-modifier-hover</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-border)"></span>--materin-border</td><td>描边 / 分隔线</td><td class="mono">--background-modifier-border</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-text)"></span>--materin-text</td><td>正文</td><td class="mono">--text-normal</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-text-muted)"></span>--materin-text-muted</td><td>次要文字</td><td class="mono">--text-muted</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-ok)"></span>--materin-ok</td><td>成功 / 已保存</td><td class="mono">--color-green → #3a7d44</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-warn)"></span>--materin-warn</td><td>警告 / 未保存</td><td class="mono">--color-yellow → #b8860b</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-error)"></span>--materin-error</td><td>错误 / 冲突</td><td class="mono">--color-red → #f93e3e</td></tr>
-            <tr><td class="mono">--materin-radius</td><td>圆角（全站与全部控件）</td><td class="mono">--radius-s → 6px</td></tr>
-            <tr><td class="mono">--materin-radius-lg</td><td>大圆角（卡片、面板）</td><td class="mono">14px</td></tr>
-            <tr><td class="mono">--materin-space-1…5</td><td>间距基数</td><td class="mono">4 / 8 / 12 / 16 / 24 px</td></tr>
-            <tr><td class="mono">--materin-font-small</td><td>小号界面文字</td><td class="mono">--font-ui-small</td></tr>
-            <tr><td class="mono">--materin-font-mono</td><td>等宽（代码、JSON、表格）</td><td class="mono">--font-monospace</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-accent)"></span><code>--materin-accent</code></td><td><code>var(--interactive-accent, #5b8cff)</code></td><td>Office / View 用 <code>--color-accent</code>，Ctx 用 <code>--interactive-accent</code>；可点击、可选中应以 <code>--interactive-accent</code> 为准</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-accent-soft)"></span><code>--materin-accent-soft</code></td><td>强调色 22% 透明</td><td>由强调色派生，用于底纹与选中态</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-on-accent)"></span><code>--materin-on-accent</code></td><td><code>var(--text-on-accent, #ffffff)</code></td><td>实心按钮上的文字色，别的地方不用白色硬写</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-secondary)"></span><code>--materin-secondary</code></td><td><code>var(--color-cyan, #6ee7d5)</code></td><td>次要强调：标签、首屏副色</td></tr>
           </tbody>
         </table>
 
-        <h3>HTTP 方法徽标（Materin View 专用）</h3>
-        <p>方法色是语义色（动词固定配色），不随主题变化，因此用固定值而不是宿主变量：</p>
-        <p>
-          <span class="tag"><span class="sw" style="background:var(--materin-method-get)"></span>GET</span>
-          <span class="tag"><span class="sw" style="background:var(--materin-method-post)"></span>POST</span>
-          <span class="tag"><span class="sw" style="background:var(--materin-method-put)"></span>PUT</span>
-          <span class="tag"><span class="sw" style="background:var(--materin-method-delete)"></span>DELETE</span>
-          <span class="tag"><span class="sw" style="background:var(--materin-method-patch)"></span>PATCH</span>
-          <span class="tag"><span class="sw" style="background:var(--materin-method-other)"></span>OTHER</span>
-        </p>
-
-        <h2>采用方式</h2>
-        <h3>网页</h3>
-        <pre><code>&lt;link rel="stylesheet" href="https://materin-tech.github.io/assets/css/materin-ui.css"&gt;
-&lt;link rel="stylesheet" href="&lt;站点样式&gt;"&gt;   &lt;!-- 之后只用令牌 --&gt;</code></pre>
-        <h3>插件</h3>
-        <p>把令牌文件里的 <code>:root</code> 段复制到插件 <code>styles.css</code> 顶部，此后新增样式只允许引用 <code>--materin-*</code>。</p>
-        <blockquote>不做运行时远程 <code>@import</code>：Obsidian 插件打包为单文件，且应当离线可用 —— 令牌随插件一起发布。</blockquote>
-      </div>
-
-      <!-- ==================== English ==================== -->
-      <div class="lang-en">
-        <h2>Three principles</h2>
-        <div class="principle">
-          <h3>1 · Follow the host</h3>
-          <p>Colours, fonts and radii prefer Obsidian theme variables (<code>--background-primary</code>, <code>--interactive-accent</code>, <code>--radius-s</code>, …). Materin only defines the fallback used when they are absent — users switch themes and the plugins follow, with no code change.</p>
-        </div>
-        <div class="principle">
-          <h3>2 · One set of variables</h3>
-          <p>Every surface references <code>--materin-*</code> only; no loose colour values. Changing the look means changing one file.</p>
-        </div>
-        <div class="principle">
-          <h3>3 · Fixed shape and spacing</h3>
-          <p>One radius, <code>--materin-radius</code> (falling back to <code>--radius-s</code>), and one spacing scale on a 4px base: 4 / 8 / 12 / 16 / 24. Consistency across plugins comes from these two rules, not from each plugin tuning its own numbers.</p>
-        </div>
-
-        <h2>Tokens</h2>
+        <h3>表面与文字</h3>
         <table>
-          <thead><tr><th>Token</th><th>Purpose</th><th>Value</th></tr></thead>
+          <thead><tr><th>令牌</th><th>取值</th><th>实测来源</th></tr></thead>
           <tbody>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-accent)"></span>--materin-accent</td><td>Interactive emphasis (buttons, selection, links)</td><td class="mono">--interactive-accent → #5b8cff</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-secondary)"></span>--materin-secondary</td><td>Secondary emphasis</td><td class="mono">--color-cyan → #6ee7d5</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-on-accent)"></span>--materin-on-accent</td><td>Text on the accent colour</td><td class="mono">--text-on-accent → #ffffff</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface)"></span>--materin-surface</td><td>Primary surface</td><td class="mono">--background-primary</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface-2)"></span>--materin-surface-2</td><td>Secondary surface (sections)</td><td class="mono">--background-secondary</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface-3)"></span>--materin-surface-3</td><td>Cards / raised layers</td><td class="mono">--background-secondary-alt</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-surface-4)"></span>--materin-surface-4</td><td>Hover state</td><td class="mono">--background-modifier-hover</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-border)"></span>--materin-border</td><td>Borders / dividers</td><td class="mono">--background-modifier-border</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-text)"></span>--materin-text</td><td>Body text</td><td class="mono">--text-normal</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-text-muted)"></span>--materin-text-muted</td><td>Muted text</td><td class="mono">--text-muted</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-ok)"></span>--materin-ok</td><td>Success / saved</td><td class="mono">--color-green → #3a7d44</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-warn)"></span>--materin-warn</td><td>Warning / unsaved</td><td class="mono">--color-yellow → #b8860b</td></tr>
-            <tr><td class="mono"><span class="sw" style="background:var(--materin-error)"></span>--materin-error</td><td>Error / conflict</td><td class="mono">--color-red → #f93e3e</td></tr>
-            <tr><td class="mono">--materin-radius</td><td>Radius (site and all controls)</td><td class="mono">--radius-s → 6px</td></tr>
-            <tr><td class="mono">--materin-radius-lg</td><td>Large radius (cards, panels)</td><td class="mono">14px</td></tr>
-            <tr><td class="mono">--materin-space-1…5</td><td>Spacing scale</td><td class="mono">4 / 8 / 12 / 16 / 24 px</td></tr>
-            <tr><td class="mono">--materin-font-small</td><td>Small UI text</td><td class="mono">--font-ui-small</td></tr>
-            <tr><td class="mono">--materin-font-mono</td><td>Monospace (code, JSON, tables)</td><td class="mono">--font-monospace</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-surface)"></span><code>--materin-surface</code></td><td><code>var(--background-primary, #0b0f19)</code></td><td>三者一致</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-surface-2)"></span><code>--materin-surface-2</code></td><td><code>var(--background-secondary, #0f1524)</code></td><td>三者一致</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-surface-3)"></span><code>--materin-surface-3</code></td><td><code>var(--background-secondary-alt, #131b2e)</code></td><td>三者一致</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-surface-4)"></span><code>--materin-surface-4</code></td><td><code>var(--background-modifier-hover, #18223a)</code></td><td>三者一致（悬停底色）</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-border)"></span><code>--materin-border</code></td><td><code>var(--background-modifier-border, #23304d)</code></td><td>三者一致</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-text)"></span><code>--materin-text</code></td><td><code>var(--text-normal, #e7ecf5)</code></td><td>三者一致</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-text-muted)"></span><code>--materin-text-muted</code></td><td><code>var(--text-muted, #93a1bd)</code></td><td>三者一致</td></tr>
           </tbody>
         </table>
 
-        <h3>HTTP method badges (Materin View only)</h3>
-        <p>Method colours are semantic — a verb always gets the same colour — so they are fixed values rather than host variables:</p>
-        <p>
-          <span class="tag"><span class="sw" style="background:var(--materin-method-get)"></span>GET</span>
-          <span class="tag"><span class="sw" style="background:var(--materin-method-post)"></span>POST</span>
-          <span class="tag"><span class="sw" style="background:var(--materin-method-put)"></span>PUT</span>
-          <span class="tag"><span class="sw" style="background:var(--materin-method-delete)"></span>DELETE</span>
-          <span class="tag"><span class="sw" style="background:var(--materin-method-patch)"></span>PATCH</span>
-          <span class="tag"><span class="sw" style="background:var(--materin-method-other)"></span>OTHER</span>
-        </p>
+        <h3>语义状态</h3>
+        <table>
+          <thead><tr><th>令牌</th><th>取值</th><th>实测来源</th></tr></thead>
+          <tbody>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-ok)"></span><code>--materin-ok</code></td><td><code>var(--color-green, #3a7d44)</code></td><td>Office 用 <code>--background-modifier-success</code>，View 用 <code>--color-green</code>，Ctx 写死 <code>#3a7d44</code> —— 三套写法归一</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-warn)"></span><code>--materin-warn</code></td><td><code>var(--color-yellow, #b8860b)</code></td><td>同上；Ctx 写死的 <code>#b8860b</code> 正是这个语义色</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-error)"></span><code>--materin-error</code></td><td><code>var(--color-red, #f93e3e)</code></td><td>Office 用 <code>--background-modifier-error</code>，View / Ctx 用 <code>--color-red</code></td></tr>
+          </tbody>
+        </table>
 
-        <h2>Adoption</h2>
-        <h3>Web</h3>
-        <pre><code>&lt;link rel="stylesheet" href="https://materin-tech.github.io/assets/css/materin-ui.css"&gt;
-&lt;link rel="stylesheet" href="&lt;site styles&gt;"&gt;   &lt;!-- tokens only, afterwards --&gt;</code></pre>
-        <h3>Plugins</h3>
-        <p>Copy the <code>:root</code> block from the token file into the top of a plugin's <code>styles.css</code>; from then on, new styles reference <code>--materin-*</code> only.</p>
-        <blockquote>No runtime remote <code>@import</code>: Obsidian plugins ship as a single file and must work offline — the tokens travel with the plugin.</blockquote>
-      </div>
+        <h3>透明与半透明</h3>
+        <table>
+          <thead><tr><th>令牌</th><th>取值</th><th>用在哪</th></tr></thead>
+          <tbody>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-glass-bg)"></span><code>--materin-glass-bg</code></td><td>表面色 74% 透明</td><td>顶部栏：压在滚动内容上还要看得清</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-glass-bg-strong)"></span><code>--materin-glass-bg-strong</code></td><td>表面色 90% 透明</td><td>代码块、按钮、表头 —— 需要读准的地方用高不透明</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-glass-bg-subtle)"></span><code>--materin-glass-bg-subtle</code></td><td>次要表面色 66% 透明</td><td>卡片、标签、提示条、页脚</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-glass-border)"></span><code>--materin-glass-border</code></td><td>描边色 80% 透明</td><td>玻璃面的边，比实心描边更轻</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-glass-highlight)"></span><code>--materin-glass-highlight</code></td><td>白色 12% 透明</td><td>卡片斜向高光：玻璃要有「面」的质感，不能只是一块半透明</td></tr>
+            <tr><td><code>--materin-glass-blur</code></td><td><code>blur(20px) saturate(180%)</code></td><td>顶部栏、页脚</td></tr>
+            <tr><td><code>--materin-glass-blur-sm</code></td><td><code>blur(12px) saturate(160%)</code></td><td>卡片、按钮、胶囊、提示条</td></tr>
+            <tr><td><code>--materin-elev-1</code> / <code>--materin-elev-2</code></td><td>两级阴影</td><td>半透明面靠阴影分层；悬停时从 1 升到 2</td></tr>
+          </tbody>
+        </table>
 
-      <h2><span class="lang-zh">现状与待统一项（实测）</span><span class="lang-en">Current state and gaps (measured)</span></h2>
-      <div class="lang-zh">
-        <p>对三个仓库的 <code>styles.css</code> 逐条核对后（534 / 608 / 135 行），已经共用的宿主变量是：<code>--background-primary</code>、<code>--background-secondary</code>、<code>--background-modifier-border</code>、<code>--background-modifier-hover</code>、<code>--radius-s</code>、<code>--font-ui-small</code>、<code>--font-ui-smaller</code>、<code>--font-monospace</code> —— 骨架是一致的，差异集中在下面三处：</p>
+        <h3>形状、间距与字体</h3>
+        <table>
+          <thead><tr><th>令牌</th><th>取值</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td><code>--materin-radius</code></td><td><code>var(--radius-s, 6px)</code></td><td>三个插件的按钮、输入框已统一用 <code>--radius-s</code>，保留</td></tr>
+            <tr><td><code>--materin-radius-lg</code></td><td>14px</td><td>卡片、面板等大块面</td></tr>
+            <tr><td><code>--materin-space-1..5</code></td><td>4 / 8 / 12 / 16 / 24 px</td><td>间距只取这五档，不允许写 7px、13px</td></tr>
+            <tr><td><code>--materin-font-ui</code></td><td><code>var(--font-interface, inherit)</code></td><td>界面字体跟随宿主</td></tr>
+            <tr><td><code>--materin-font-small</code></td><td><code>var(--font-ui-small, 13px)</code></td><td>次要文字</td></tr>
+            <tr><td><code>--materin-font-mono</code></td><td><code>var(--font-monospace, …)</code></td><td>等宽：路径、令牌名、接口片段</td></tr>
+          </tbody>
+        </table>
+
+        <h3>HTTP 方法色（View 专用）</h3>
+        <p>Swagger 的方法色是语义色而不是装饰色 —— GET 永远是那个蓝。所以它固定不随主题变，但也必须走令牌：</p>
+        <table>
+          <thead><tr><th>令牌</th><th>值</th></tr></thead>
+          <tbody>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-method-get)"></span><code>--materin-method-get</code></td><td><code>#61affe</code></td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-method-post)"></span><code>--materin-method-post</code></td><td><code>#49cc90</code></td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-method-put)"></span><code>--materin-method-put</code></td><td><code>#fca130</code></td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-method-delete)"></span><code>--materin-method-delete</code></td><td><code>#f93e3e</code></td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-method-patch)"></span><code>--materin-method-patch</code></td><td><code>#50e3c2</code></td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-method-other)"></span><code>--materin-method-other</code></td><td><code>#9012fe</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2>组件命名契约</h2>
+        <p>界面要能被「按名查找、按名维护」，前提是名字本身就是说明书。所以只允许这几种前缀：</p>
+        <table>
+          <thead><tr><th>类型</th><th>模式</th><th>例子</th></tr></thead>
+          <tbody>
+            <tr><td>组件</td><td><code>materin-&lt;scope&gt;-&lt;component&gt;[__part][--variant]</code></td><td><code>materin-site-card</code> / <code>materin-site-card__meta</code> / <code>materin-site-btn--primary</code></td></tr>
+            <tr><td>布局 / 工具</td><td><code>materin-u-&lt;name&gt;</code></td><td><code>materin-u-wrap</code> / <code>materin-u-grid</code> / <code>materin-u-mono</code></td></tr>
+            <tr><td>状态</td><td><code>is-&lt;state&gt;</code>，或优先用 ARIA 属性</td><td><code>materin-site-chip[aria-pressed="true"]</code> / <code>.is-active</code></td></tr>
+          </tbody>
+        </table>
+        <p><code>scope</code> 只有五个：<code>ui</code>（共享件）、<code>site</code>（本站 UI）、<code>office</code>、<code>view</code>、<code>ctx</code>。名字里必须带 scope，这样在全仓库范围搜 <code>materin-ctx-</code> 就能一次拿到该插件的全部 UI。</p>
+        <p>不用裸类名（<code>.card</code>、<code>.btn</code> 这种），也不做「换个前缀的别名」—— 一个组件只有一个名字，否则按名查找会落空。i18n 的 <code>lang-zh</code> / <code>lang-en</code> 是系统约定，不属于组件，不参与改名。</p>
+
+        <h3>实况</h3>
+        <table>
+          <thead><tr><th>范围</th><th>实测</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr><td>Materin Office</td><td><code>styles.css</code> 534 行 / 76 个类名</td><td>全部已是 <code>materin-office-*</code> ✓</td></tr>
+            <tr><td>Materin View</td><td><code>styles.css</code> 608 行 / 108 个类名</td><td>多数已是 <code>materin-view-*</code>；<code>materin-chip</code>、<code>materin-doc-*</code> 缺 scope 段，待改为 <code>materin-view-*</code></td></tr>
+            <tr><td>Materin Ctx</td><td><code>styles.css</code> 135 行 / 20 个类名</td><td>全部已是 <code>materin-ctx-*</code> ✓</td></tr>
+            <tr><td>本站</td><td>48 个类名</td><td>本轮全部纳入契约，运行时扫描零遗留 ✓</td></tr>
+          </tbody>
+        </table>
+
+        <h3>清单与守门</h3>
+        <p>每个组件登记在 <a href="/data/components.json">组件清单</a>：名字、范围、用途、部件、变体、状态、所在文件。清单不是文档，是给工具读的 —— <a href="/tools/check-components.py">校验脚本</a>提交前跑一遍，五项检查：</p>
+        <ul>
+          <li>契约：所有类名符合上面的模式（裸类名直接报错）</li>
+          <li>存在：用到的组件必须在 CSS 里有定义</li>
+          <li>注册：CSS 里定义的组件必须登记进清单</li>
+          <li>反向：清单里的名字必须真的存在（防止改完名字忘了改清单）</li>
+          <li>令牌：组件层不得出现裸色值</li>
+        </ul>
+        <p>当前结果：<strong>33 条组件注册、49 个选择器、48 个类名，全部通过</strong>。这就是「按名维护」能成立的原因 —— 名字和实现不允许对不上。</p>
+
+        <h2>透明与半透明</h2>
+        <p>视觉按 macOS 一贯的透明语言做：界面分层，靠背景模糊和描边把层次交代清楚，而不是靠纯色块堆叠。分四层：</p>
+        <ul>
+          <li><strong>底色</strong>：不透明，负责整体明暗</li>
+          <li><strong>玻璃面</strong>：74%（顶栏）／66%（卡片）透明 + 背景模糊，让下层内容透出一点</li>
+          <li><strong>高光边</strong>：卡片左上到右下的一层白 12% 斜向渐变，加正视作「面」而不是「洞」</li>
+          <li><strong>阴影</strong>：半透明面必须配阴影，否则浮不起来；悬停时阴影升一级并抬升 3px</li>
+        </ul>
+        <p>透明度不是越低越好看。文字要读得清，所以实测了对比度：</p>
+        <table>
+          <thead><tr><th>主题</th><th>卡片正文</th><th>卡片标题</th><th>顶栏导航</th></tr></thead>
+          <tbody>
+            <tr><td>深色</td><td>7.13 : 1</td><td>15.65 : 1</td><td>7.36 : 1</td></tr>
+            <tr><td>浅色</td><td>5.51 : 1</td><td>17.12 : 1</td><td>5.29 : 1</td></tr>
+          </tbody>
+        </table>
+        <p>全部高于无障碍标准要求的 4.5 : 1。做法是「玻璃底 + 实色文字」：文字永远用 <code>--materin-text</code>，不给文字加透明度 —— 那是最容易把可读性做没的一步。</p>
+        <h3>降级</h3>
+        <ul>
+          <li>宿主不支持 <code>backdrop-filter</code>（老内核）：令牌自动换成不透明表面，布局、文字、层级不变</li>
+          <li>用户系统开了「减少透明度」（<code>prefers-reduced-transparency: reduce</code>）：同上，自动退回不透明</li>
+          <li>两种降级都只改令牌值，组件层不需要写任何一条额外规则 —— 这也是把透明度做成令牌的原因</li>
+        </ul>
+
+        <h2>待统一项</h2>
+        <p>下表是拉下三个仓库的 <code>styles.css</code> 逐条核对后的结果。规范已定，代码待改：</p>
         <table>
           <thead><tr><th>项</th><th>现状</th><th>统一为</th></tr></thead>
           <tbody>
-            <tr><td>强调色语义</td><td>Office、View 用 <code>--color-accent</code>；Ctx 用 <code>--interactive-accent</code></td><td><code>--materin-accent</code>（其回落链以 <code>--interactive-accent</code> 为准 —— 可点击、可选中才用它）</td></tr>
-            <tr><td>状态色</td><td>Office 用 <code>--background-modifier-error/warning</code>；View 用 <code>--color-red/green</code>；Ctx 写死 <code>#3a7d44</code> / <code>#b8860b</code> / <code>#c2711d</code></td><td><code>--materin-ok</code> / <code>--materin-warn</code> / <code>--materin-error</code>（Ctx 的写死值正好是这三个色的深色变体）</td></tr>
-            <tr><td>硬编码色值</td><td>Office 的 <code>#1f1f1f</code> / <code>#ffffff</code>（表格与按钮文字）；View 的 Swagger 方法色</td><td>文字改用 <code>--materin-text</code> / <code>--materin-on-accent</code>；方法色升格为 <code>--materin-method-*</code> 令牌保留</td></tr>
+            <tr><td>强调色语义</td><td>Office / View 用 <code>--color-accent</code>，Ctx 用 <code>--interactive-accent</code></td><td><code>--materin-accent</code></td></tr>
+            <tr><td>状态色</td><td>Office 用 <code>--background-modifier-error/warning</code>，View 用 <code>--color-red/green</code>，Ctx 写死三个色值</td><td><code>--materin-ok / warn / error</code></td></tr>
+            <tr><td>硬编码色值</td><td>Office 的 <code>#1f1f1f</code> / <code>#ffffff</code>（表格与按钮文字）</td><td><code>--materin-text</code> / <code>--materin-on-accent</code></td></tr>
+            <tr><td>方法色</td><td>View 里写死的 Swagger 六色</td><td><code>--materin-method-*</code>（值不变，改为令牌）</td></tr>
+            <tr><td>组件命名</td><td>View 的 <code>materin-chip</code> / <code>materin-doc-*</code> 缺 scope 段</td><td><code>materin-view-chip</code> / <code>materin-view-doc-*</code></td></tr>
             <tr><td>圆角</td><td>三者已统一用 <code>var(--radius-s)</code></td><td>保持，纳入 <code>--materin-radius</code></td></tr>
           </tbody>
         </table>
-        <p>本页色块就是令牌的真实取值（本站已通过 <code>materin-ui.css</code> 引用同一套变量）。</p>
+
+        <h2>怎么用</h2>
+        <p><strong>网页</strong>：在站点自己的样式之前引入令牌表 ——</p>
+        <pre><code>&lt;link rel="stylesheet" href="/assets/css/materin-ui.css"&gt;
+&lt;link rel="stylesheet" href="/assets/css/style.css"&gt;</code></pre>
+        <p><strong>插件</strong>：把令牌文件里的 <code>:root</code> 段复制到插件 <code>styles.css</code> 顶部。不做运行时远程 <code>@import</code>：Obsidian 插件打包成单文件，而且要能离线用，远程依赖只会变成新的故障点。</p>
+        <p><strong>之后新增 UI</strong>：只用 <code>--materin-*</code>；组件按契约命名并登记进清单；提交前跑一次校验脚本。三条都做到，三个插件就不会再各自漂移。</p>
+
       </div>
+
+      <!-- ================= English ================= -->
       <div class="lang-en">
-        <p>After checking each repository's <code>styles.css</code> line by line (534 / 608 / 135 lines), the host variables already shared across all three are: <code>--background-primary</code>, <code>--background-secondary</code>, <code>--background-modifier-border</code>, <code>--background-modifier-hover</code>, <code>--radius-s</code>, <code>--font-ui-small</code>, <code>--font-ui-smaller</code>, <code>--font-monospace</code> — the skeleton already agrees; the variance is in three places:</p>
+
+        <h2>Three principles</h2>
+        <div class="materin-u-two-col">
+          <div class="materin-site-principle">
+            <h3>Colours follow, shape is fixed</h3>
+            <p>Colours come from the host theme: switch themes in Obsidian and the plugins follow, with no code change; on the web there is no host variable, so brand defaults apply. Radius and spacing go the other way — fixed, no improvising.</p>
+          </div>
+          <div class="materin-site-principle">
+            <h3>One place to restyle</h3>
+            <p>No raw colour values in UI code (<code>#1f1f1f</code> and friends) — everything references <code>--materin-*</code>. Change one file and all three plugins plus this site change with it.</p>
+          </div>
+          <div class="materin-site-principle">
+            <h3>Components you can find by name</h3>
+            <p>Every component has a unique, purpose-bearing name and an entry in the registry. People and AI can both locate it and change it by name — without touching the wrong rule or missing one.</p>
+          </div>
+        </div>
+
+        <h2>Tokens</h2>
+        <p>The rule is host-first, brand-second: the value listed is the fallback used when the host variable is absent. The swatches below reference the tokens directly, so what you see is the real value in the current theme.</p>
+
+        <h3>Accent</h3>
         <table>
-          <thead><tr><th>Item</th><th>Today</th><th>Unify to</th></tr></thead>
+          <thead><tr><th>Token</th><th>Value</th><th>Where it came from</th></tr></thead>
           <tbody>
-            <tr><td>Accent semantics</td><td>Office and View use <code>--color-accent</code>; Ctx uses <code>--interactive-accent</code></td><td><code>--materin-accent</code>, whose fallback chain resolves to <code>--interactive-accent</code> — that is the one meant for clickable, selectable things</td></tr>
-            <tr><td>Status colours</td><td>Office uses <code>--background-modifier-error/warning</code>; View uses <code>--color-red/green</code>; Ctx hardcodes <code>#3a7d44</code> / <code>#b8860b</code> / <code>#c2711d</code></td><td><code>--materin-ok</code> / <code>--materin-warn</code> / <code>--materin-error</code> (Ctx's hardcoded values are dark variants of exactly those three)</td></tr>
-            <tr><td>Hardcoded colours</td><td>Office: <code>#1f1f1f</code> / <code>#ffffff</code> for table and button text; View: the Swagger method palette</td><td>Text moves to <code>--materin-text</code> / <code>--materin-on-accent</code>; method colours are promoted to <code>--materin-method-*</code> tokens</td></tr>
-            <tr><td>Radius</td><td>All three already use <code>var(--radius-s)</code></td><td>Keep; folded into <code>--materin-radius</code></td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-accent)"></span><code>--materin-accent</code></td><td><code>var(--interactive-accent, #5b8cff)</code></td><td>Office / View used <code>--color-accent</code>, Ctx used <code>--interactive-accent</code>; clickable and selectable states should follow <code>--interactive-accent</code></td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-accent-soft)"></span><code>--materin-accent-soft</code></td><td>accent at 22% alpha</td><td>Derived from the accent; tints and selected states</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-on-accent)"></span><code>--materin-on-accent</code></td><td><code>var(--text-on-accent, #ffffff)</code></td><td>Text on solid buttons — stop hardcoding white elsewhere</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-secondary)"></span><code>--materin-secondary</code></td><td><code>var(--color-cyan, #6ee7d5)</code></td><td>Secondary emphasis: tags, hero accent</td></tr>
           </tbody>
         </table>
-        <p>The swatches on this page are the tokens' real values — this site references the same variables through <code>materin-ui.css</code>.</p>
+
+        <h3>Surfaces and text</h3>
+        <table>
+          <thead><tr><th>Token</th><th>Value</th><th>Where it came from</th></tr></thead>
+          <tbody>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-surface)"></span><code>--materin-surface</code></td><td><code>var(--background-primary, #0b0f19)</code></td><td>Consistent across all three</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-surface-2)"></span><code>--materin-surface-2</code></td><td><code>var(--background-secondary, #0f1524)</code></td><td>Consistent across all three</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-surface-3)"></span><code>--materin-surface-3</code></td><td><code>var(--background-secondary-alt, #131b2e)</code></td><td>Consistent across all three</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-surface-4)"></span><code>--materin-surface-4</code></td><td><code>var(--background-modifier-hover, #18223a)</code></td><td>Consistent (hover fill)</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-border)"></span><code>--materin-border</code></td><td><code>var(--background-modifier-border, #23304d)</code></td><td>Consistent across all three</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-text)"></span><code>--materin-text</code></td><td><code>var(--text-normal, #e7ecf5)</code></td><td>Consistent across all three</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-text-muted)"></span><code>--materin-text-muted</code></td><td><code>var(--text-muted, #93a1bd)</code></td><td>Consistent across all three</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Semantic states</h3>
+        <table>
+          <thead><tr><th>Token</th><th>Value</th><th>Where it came from</th></tr></thead>
+          <tbody>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-ok)"></span><code>--materin-ok</code></td><td><code>var(--color-green, #3a7d44)</code></td><td>Office used <code>--background-modifier-success</code>, View used <code>--color-green</code>, Ctx hardcoded <code>#3a7d44</code> — three spellings, one meaning</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-warn)"></span><code>--materin-warn</code></td><td><code>var(--color-yellow, #b8860b)</code></td><td>Same story; Ctx's hardcoded <code>#b8860b</code> was exactly this semantic colour</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-error)"></span><code>--materin-error</code></td><td><code>var(--color-red, #f93e3e)</code></td><td>Office used <code>--background-modifier-error</code>, View / Ctx used <code>--color-red</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3>Transparent and translucent</h3>
+        <table>
+          <thead><tr><th>Token</th><th>Value</th><th>Where it is used</th></tr></thead>
+          <tbody>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-glass-bg)"></span><code>--materin-glass-bg</code></td><td>surface at 74% alpha</td><td>Top bar: has to stay readable while content scrolls under it</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-glass-bg-strong)"></span><code>--materin-glass-bg-strong</code></td><td>surface at 90% alpha</td><td>Code blocks, buttons, table headers — anywhere precision matters</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-glass-bg-subtle)"></span><code>--materin-glass-bg-subtle</code></td><td>secondary surface at 66% alpha</td><td>Cards, tags, callouts, footer</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-glass-border)"></span><code>--materin-glass-border</code></td><td>border at 80% alpha</td><td>Edges of glass surfaces — lighter than a solid border</td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-glass-highlight)"></span><code>--materin-glass-highlight</code></td><td>white at 12% alpha</td><td>Diagonal sheen on cards: glass should read as a surface, not just a translucent patch</td></tr>
+            <tr><td><code>--materin-glass-blur</code></td><td><code>blur(20px) saturate(180%)</code></td><td>Top bar, footer</td></tr>
+            <tr><td><code>--materin-glass-blur-sm</code></td><td><code>blur(12px) saturate(160%)</code></td><td>Cards, buttons, chips, callouts</td></tr>
+            <tr><td><code>--materin-elev-1</code> / <code>--materin-elev-2</code></td><td>two shadow levels</td><td>Translucent surfaces need shadow to layer; hover lifts level 1 to level 2</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Shape, spacing and type</h3>
+        <table>
+          <thead><tr><th>Token</th><th>Value</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><code>--materin-radius</code></td><td><code>var(--radius-s, 6px)</code></td><td>All three plugins already use <code>--radius-s</code> for buttons and inputs; kept as is</td></tr>
+            <tr><td><code>--materin-radius-lg</code></td><td>14px</td><td>Cards and panels</td></tr>
+            <tr><td><code>--materin-space-1..5</code></td><td>4 / 8 / 12 / 16 / 24 px</td><td>Spacing comes from these five steps only — no 7px, no 13px</td></tr>
+            <tr><td><code>--materin-font-ui</code></td><td><code>var(--font-interface, inherit)</code></td><td>UI font follows the host</td></tr>
+            <tr><td><code>--materin-font-small</code></td><td><code>var(--font-ui-small, 13px)</code></td><td>Secondary text</td></tr>
+            <tr><td><code>--materin-font-mono</code></td><td><code>var(--font-monospace, …)</code></td><td>Monospace: paths, token names, endpoint snippets</td></tr>
+          </tbody>
+        </table>
+
+        <h3>HTTP method colours (View only)</h3>
+        <p>Swagger's method colours are semantic, not decorative — GET is always that blue. So they stay fixed across themes, but they still go through tokens:</p>
+        <table>
+          <thead><tr><th>Token</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-method-get)"></span><code>--materin-method-get</code></td><td><code>#61affe</code></td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-method-post)"></span><code>--materin-method-post</code></td><td><code>#49cc90</code></td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-method-put)"></span><code>--materin-method-put</code></td><td><code>#fca130</code></td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-method-delete)"></span><code>--materin-method-delete</code></td><td><code>#f93e3e</code></td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-method-patch)"></span><code>--materin-method-patch</code></td><td><code>#50e3c2</code></td></tr>
+            <tr><td><span class="materin-ui-swatch" style="background: var(--materin-method-other)"></span><code>--materin-method-other</code></td><td><code>#9012fe</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2>Component naming contract</h2>
+        <p>UI that can be found and maintained by name needs names that document themselves. Only these prefixes are allowed:</p>
+        <table>
+          <thead><tr><th>Kind</th><th>Pattern</th><th>Examples</th></tr></thead>
+          <tbody>
+            <tr><td>Component</td><td><code>materin-&lt;scope&gt;-&lt;component&gt;[__part][--variant]</code></td><td><code>materin-site-card</code> / <code>materin-site-card__meta</code> / <code>materin-site-btn--primary</code></td></tr>
+            <tr><td>Layout / utility</td><td><code>materin-u-&lt;name&gt;</code></td><td><code>materin-u-wrap</code> / <code>materin-u-grid</code> / <code>materin-u-mono</code></td></tr>
+            <tr><td>State</td><td><code>is-&lt;state&gt;</code>, ARIA attributes preferred</td><td><code>materin-site-chip[aria-pressed="true"]</code> / <code>.is-active</code></td></tr>
+          </tbody>
+        </table>
+        <p>There are five scopes: <code>ui</code> (shared), <code>site</code> (this site), <code>office</code>, <code>view</code>, <code>ctx</code>. The scope is mandatory, so grepping <code>materin-ctx-</code> across the repos returns that plugin's entire UI in one go.</p>
+        <p>No bare class names (<code>.card</code>, <code>.btn</code>), and no prefixed aliases either — one component, one name, otherwise a lookup by name silently misses. The i18n pair <code>lang-zh</code> / <code>lang-en</code> is a system convention, not a component, and is exempt from renaming.</p>
+
+        <h3>Where things stand</h3>
+        <table>
+          <thead><tr><th>Scope</th><th>Measured</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Materin Office</td><td><code>styles.css</code> 534 lines / 76 class names</td><td>Already all <code>materin-office-*</code> ✓</td></tr>
+            <tr><td>Materin View</td><td><code>styles.css</code> 608 lines / 108 class names</td><td>Mostly <code>materin-view-*</code>; <code>materin-chip</code> and <code>materin-doc-*</code> lack a scope segment — to become <code>materin-view-*</code></td></tr>
+            <tr><td>Materin Ctx</td><td><code>styles.css</code> 135 lines / 20 class names</td><td>Already all <code>materin-ctx-*</code> ✓</td></tr>
+            <tr><td>This site</td><td>48 class names</td><td>All brought under the contract this round; a runtime scan finds zero leftovers ✓</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Registry and gatekeeper</h3>
+        <p>Every component is registered in the <a href="/data/components.json">component registry</a>: name, scope, purpose, parts, variants, states, file. The registry is not documentation — it is read by tooling. The <a href="/tools/check-components.py">checker</a> runs five checks before each commit:</p>
+        <ul>
+          <li>Contract: every class name matches the pattern (bare names fail)</li>
+          <li>Existence: anything used must be defined in CSS</li>
+          <li>Registration: anything defined in CSS must be in the registry</li>
+          <li>Reverse: every registry name must actually exist (catches a half-finished rename)</li>
+          <li>Tokens: no raw colour values in the component layer</li>
+        </ul>
+        <p>Current result: <strong>33 registered components, 49 selectors, 48 class names — all passing</strong>. That is what makes maintenance by name credible: a name and its implementation are not allowed to drift apart.</p>
+
+        <h2>Transparent and translucent</h2>
+        <p>The visual follows the translucency language macOS has been building for years: interface layered with background blur and light edges, rather than stacked opaque blocks. Four layers:</p>
+        <ul>
+          <li><strong>Base</strong>: opaque, sets overall lightness</li>
+          <li><strong>Glass surfaces</strong>: 74% (top bar) / 66% (cards) alpha plus background blur, so content below shows through slightly</li>
+          <li><strong>Specular edge</strong>: a diagonal white-12% gradient on cards, so they read as a surface rather than a hole</li>
+          <li><strong>Shadow</strong>: translucent surfaces need shadow or they never lift off; hover raises one level and translates 3px</li>
+        </ul>
+        <p>Lower opacity is not automatically better — text has to stay readable, so contrast was measured:</p>
+        <table>
+          <thead><tr><th>Theme</th><th>Card body</th><th>Card title</th><th>Top-bar nav</th></tr></thead>
+          <tbody>
+            <tr><td>Dark</td><td>7.13 : 1</td><td>15.65 : 1</td><td>7.36 : 1</td></tr>
+            <tr><td>Light</td><td>5.51 : 1</td><td>17.12 : 1</td><td>5.29 : 1</td></tr>
+          </tbody>
+        </table>
+        <p>All above the 4.5 : 1 accessibility floor. The trick is glass underneath, solid text on top: text always uses <code>--materin-text</code> and is never given transparency — that is the one step that quietly destroys readability.</p>
+        <h3>Fallbacks</h3>
+        <ul>
+          <li>Host without <code>backdrop-filter</code> (older engine): tokens switch to opaque surfaces — layout, text and layering unchanged</li>
+          <li>System-level "Reduce transparency" (<code>prefers-reduced-transparency: reduce</code>): same, falls back to opaque</li>
+          <li>Both fallbacks only change token values; the component layer needs no extra rules — which is exactly why translucency was made a token</li>
+        </ul>
+
+        <h2>What is still to unify</h2>
+        <p>The table below comes from reading all three repositories' <code>styles.css</code> line by line. The spec is settled; the code is not yet:</p>
+        <table>
+          <thead><tr><th>Item</th><th>Today</th><th>Should be</th></tr></thead>
+          <tbody>
+            <tr><td>Accent semantics</td><td>Office / View use <code>--color-accent</code>, Ctx uses <code>--interactive-accent</code></td><td><code>--materin-accent</code></td></tr>
+            <tr><td>State colours</td><td>Office uses <code>--background-modifier-error/warning</code>, View uses <code>--color-red/green</code>, Ctx hardcodes three values</td><td><code>--materin-ok / warn / error</code></td></tr>
+            <tr><td>Hardcoded colours</td><td>Office's <code>#1f1f1f</code> / <code>#ffffff</code> (table and button text)</td><td><code>--materin-text</code> / <code>--materin-on-accent</code></td></tr>
+            <tr><td>Method colours</td><td>View hardcodes Swagger's six colours</td><td><code>--materin-method-*</code> (same values, now tokens)</td></tr>
+            <tr><td>Component naming</td><td>View's <code>materin-chip</code> / <code>materin-doc-*</code> have no scope segment</td><td><code>materin-view-chip</code> / <code>materin-view-doc-*</code></td></tr>
+            <tr><td>Radius</td><td>All three already use <code>var(--radius-s)</code></td><td>Kept, folded into <code>--materin-radius</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2>How to use it</h2>
+        <p><strong>On the web</strong>: link the token sheet before the site's own styles —</p>
+        <pre><code>&lt;link rel="stylesheet" href="/assets/css/materin-ui.css"&gt;
+&lt;link rel="stylesheet" href="/assets/css/style.css"&gt;</code></pre>
+        <p><strong>In a plugin</strong>: copy the <code>:root</code> block from the token file to the top of the plugin's <code>styles.css</code>. No runtime remote <code>@import</code> — Obsidian plugins ship as a single bundle and must work offline; a remote dependency would just be another failure mode.</p>
+        <p><strong>For new UI</strong>: reference <code>--materin-*</code> only; name components per the contract and register them; run the checker before committing. Do those three and the plugins stop drifting apart.</p>
+
       </div>
+
     </div>
 
-    <div class="doc-nav">
-      <a href="/projects/">← <span class="lang-zh">内容索引</span><span class="lang-en">Content index</span></a>
+    <div class="materin-site-doc-nav">
+      <a href="/projects/">← <span class="lang-zh">回到内容索引</span><span class="lang-en">Back to content</span></a>
       <a href="/about/"><span class="lang-zh">关于 Materin</span><span class="lang-en">About Materin</span> →</a>
     </div>
   </div>
 </main>
 
-<footer class="site-footer">
-  <div class="wrap footer-inner">
-    <p>© <span id="year">2026</span> Materin · <span class="lang-zh">格物致知</span><span class="lang-en">investigating things</span></p>
-    <p class="muted"><a href="/about/"><span class="lang-zh">关于本站</span><span class="lang-en">About this site</span></a></p>
+<footer class="materin-site-footer">
+  <div class="materin-u-wrap materin-site-footer__inner">
+    <p>© <span id="year">2026</span> Materin · <span class="lang-zh">由 GitHub Pages 托管</span><span class="lang-en">Hosted on GitHub Pages</span></p>
+    <p class="materin-u-muted">
+      <a href="/projects/"><span class="lang-zh">内容</span><span class="lang-en">Content</span></a>
+      ·
+      <a href="/about/"><span class="lang-zh">关于</span><span class="lang-en">About</span></a>
+    </p>
   </div>
 </footer>
 

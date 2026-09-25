@@ -1,0 +1,286 @@
+{
+  "contract": {
+    "version": "0.1",
+    "pattern": "materin-<scope>-<component>[__part][--variant]",
+    "utility_pattern": "materin-u-<name>",
+    "state_pattern": "is-<state>",
+    "scopes": ["ui", "site", "office", "view", "ctx"],
+    "rules": [
+      "每个组件一个名字，名字里带 scope 和用途；不用裸类名（如 .card / .btn）",
+      "组件内部结构用 __part，变体用 --variant，状态用 is-<state> 或 ARIA 属性",
+      "组件不写死色值，只引用 --materin-* 令牌",
+      "工具类不承载视觉身份，只做布局/文字处理，前缀 materin-u-",
+      "i18n 系统类固定为 lang-zh / lang-en，不属于组件，不参与重命名"
+    ]
+  },
+  "tokens_file": "assets/css/materin-ui.css",
+  "components": [
+    {
+      "name": "materin-site-header",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "顶部导航栏，滚动吸附，毛玻璃压在内容之上", "en": "Top navigation bar, sticky on scroll, frosted glass over content" },
+      "parts": ["materin-site-header__inner"],
+      "states": []
+    },
+    {
+      "name": "materin-site-brand",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "品牌标识（图标 + 名称），始终回首页", "en": "Brand mark (icon + name), always links home" },
+      "parts": ["materin-site-brand__name"],
+      "states": []
+    },
+    {
+      "name": "materin-site-nav",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "站内导航链接组；当前页用 is-active", "en": "In-site navigation links; current page uses is-active" },
+      "parts": [],
+      "states": ["is-active"]
+    },
+    {
+      "name": "materin-site-lang-toggle",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "中英切换按钮（data-lang 由 JS 写入 html 元素）", "en": "Bilingual toggle (JS writes data-lang on the html element)" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-theme-toggle",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "明暗主题切换按钮（data-theme 由 JS 写入 html 元素）", "en": "Light/dark toggle (JS writes data-theme on the html element)" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-hero",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "首屏：主张 + 副文 + CTA + 数字条", "en": "Hero: claim, lede, CTA, stat strip" },
+      "parts": ["materin-site-hero__eyebrow", "materin-site-hero__lede", "materin-site-hero__cta", "materin-site-hero__stats"],
+      "states": []
+    },
+    {
+      "name": "materin-site-btn",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "站内动作按钮（不用于把访客送出站）", "en": "In-site action button (never used to send a visitor off-site)" },
+      "parts": [],
+      "variants": ["--primary", "--small"],
+      "states": ["is-active"]
+    },
+    {
+      "name": "materin-site-btn-row",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "按钮行容器（把并列动作排成一行）", "en": "Button row container (a line of parallel actions)" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-section",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "内容分区；--alt 为变色底 + 描边", "en": "Content section; --alt tints the background and adds edges" },
+      "parts": ["materin-site-section__head"],
+      "variants": ["--alt"],
+      "states": []
+    },
+    {
+      "name": "materin-site-card",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "内容条目卡片（项目、说明、索引共用），毛玻璃 + 高光边", "en": "Content card (projects, docs, index) with frosted glass and a specular edge" },
+      "parts": ["materin-site-card__meta"],
+      "states": []
+    },
+    {
+      "name": "materin-site-tags",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "标签组容器", "en": "Tag group container" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-tag",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "单个标签（分类、观察对象）", "en": "Single tag (category, subject)" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-pill",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "徽标：版本号、状态；--neutral 为弱化样式", "en": "Badge: version, status; --neutral is the muted style" },
+      "parts": [],
+      "variants": ["--neutral"],
+      "states": []
+    },
+    {
+      "name": "materin-site-filters",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "筛选按钮容器", "en": "Filter button container" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-chip",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "筛选胶囊；选中用 aria-pressed=\"true\"（首选）或 is-active", "en": "Filter chip; selected via aria-pressed=\"true\" (preferred) or is-active" },
+      "parts": [],
+      "states": ["is-active"]
+    },
+    {
+      "name": "materin-site-note",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "提示条：补充说明，左侧强调色竖线", "en": "Callout: supplementary note with an accent bar on the left" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-code",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "代码块（命令、片段），高不透明保证可读", "en": "Code block (commands, snippets) with high opacity for readability" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-doc",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "文档型页面外壳（关于 / 设计 / 项目说明页）", "en": "Documentation page shell (about / UI spec / project pages)" },
+      "parts": ["materin-site-doc__head", "materin-site-doc__sub", "materin-site-doc-nav"],
+      "states": []
+    },
+    {
+      "name": "materin-site-prose",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "长文中排版：标题、列表、表格、引用、代码", "en": "Long-form typography: headings, lists, tables, quotes, code" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-crumb",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "面包屑导航", "en": "Breadcrumb navigation" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-principle",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "规范页的原则条目（小标题 + 说明）", "en": "Principle entry on spec pages (heading + description)" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-ticks",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "要点列表", "en": "Bullet list of key points" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-footer",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "页脚，毛玻璃浅底", "en": "Footer with a subtle glass tint" },
+      "parts": ["materin-site-footer__inner"],
+      "states": []
+    },
+    {
+      "name": "materin-site-loading",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "内容加载中的占位文字（索引页拉 JSON 时）", "en": "Loading placeholder text (while the index page fetches JSON)" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-empty",
+      "scope": "site",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "空态文字（筛选无结果时）", "en": "Empty-state text (when a filter matches nothing)" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-ui-swatch",
+      "scope": "ui",
+      "file": "assets/css/site.css",
+      "purpose": { "zh": "规范页色块：直接引用令牌，所以色块即真实取值", "en": "Spec-page swatch: references the token directly, so the swatch is the real value" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-site-assets-list",
+      "scope": "site",
+      "file": "assets/css/site.css",
+      "purpose": { "zh": "资源清单表（文件、地址、说明三列）", "en": "Asset list table (file, URL, description)" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-u-wrap",
+      "scope": "u",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "内容定宽居中", "en": "Centred content column" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-u-grid",
+      "scope": "u",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "自适应卡片网格", "en": "Responsive card grid" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-u-two-col",
+      "scope": "u",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "两列自适应布局", "en": "Two-column responsive layout" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-u-muted",
+      "scope": "u",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "次要文字色", "en": "Muted text colour" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-u-mono",
+      "scope": "u",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "等宽文字（令牌名、选择器）", "en": "Monospace text (token names, selectors)" },
+      "parts": [],
+      "states": []
+    },
+    {
+      "name": "materin-u-skip",
+      "scope": "u",
+      "file": "assets/css/style.css",
+      "purpose": { "zh": "跳到主内容（无障碍），聚焦才出现", "en": "Skip to content (a11y), visible only on focus" },
+      "parts": [],
+      "states": []
+    }
+  ]
+}
