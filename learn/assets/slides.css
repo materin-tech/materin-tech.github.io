@@ -1,0 +1,361 @@
+/* ==========================================================================
+   AI 原生学习路线 · 16:9 图组幻灯（抖音图文用）
+   --------------------------------------------------------------------------
+   固定 1920×1080 舞台，缩放适配视口；截图导出 PNG。
+   命名契约 materin-learn-slide*，零裸色值（令牌来自 materin-ui.css）。
+   ========================================================================== */
+
+.materin-learn-body-slide {
+  margin: 0;
+  background: var(--materin-surface);
+  overflow: hidden;
+}
+
+/* --- 舞台：固定 1920×1080，JS 缩放适配窗口 -------------------------- */
+.materin-learn-slide {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  margin-bottom: 0;
+  transform-origin: top left;
+  background:
+    radial-gradient(90% 90% at 82% 8%, var(--materin-accent-soft), transparent 55%),
+    var(--materin-surface);
+  color: var(--materin-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC",
+    "PingFang SC", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* 品牌角标（每页右下） */
+.materin-learn-slide__brand {
+  position: absolute;
+  right: 56px;
+  bottom: 44px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--materin-text-muted);
+  font-size: 22px;
+  letter-spacing: 0.06em;
+}
+
+.materin-learn-slide__brand::before {
+  content: "";
+  width: 40px;
+  height: 2px;
+  background: var(--materin-accent);
+  border-radius: 1px;
+}
+
+/* 页码（每页左下） */
+.materin-learn-slide__page {
+  position: absolute;
+  left: 56px;
+  bottom: 44px;
+  color: var(--materin-text-muted);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+}
+
+/* 装饰网格线（背景质感） */
+.materin-learn-slide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--materin-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--materin-border) 1px, transparent 1px);
+  background-size: 96px 96px;
+  opacity: 0.35;
+  mask-image: radial-gradient(120% 100% at 50% 0%, black, transparent 75%);
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 0%, black, transparent 75%);
+  pointer-events: none;
+}
+
+.materin-learn-slide > * { position: relative; }
+
+.materin-learn-slide > .materin-learn-slide__brand,
+.materin-learn-slide > .materin-learn-slide__page {
+  position: absolute;
+}
+
+/* --- 封面页 ---------------------------------------------------------- */
+.materin-learn-cover {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 140px;
+  gap: 34px;
+}
+
+.materin-learn-cover__kicker {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--materin-accent);
+  font-size: 28px;
+  font-weight: 650;
+  letter-spacing: 0.14em;
+}
+
+.materin-learn-cover__kicker::before {
+  content: "";
+  width: 56px;
+  height: 3px;
+  background: var(--materin-accent);
+  border-radius: 2px;
+}
+
+.materin-learn-cover__title {
+  margin: 0;
+  font-size: 122px;
+  font-weight: 800;
+  line-height: 1.16;
+  letter-spacing: -0.01em;
+}
+
+.materin-learn-cover__sub {
+  margin: 0;
+  max-width: 1300px;
+  color: var(--materin-text-muted);
+  font-size: 40px;
+  line-height: 1.6;
+}
+
+.materin-learn-cover__chips {
+  display: flex;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.materin-learn-cover__chip {
+  padding: 14px 28px;
+  max-width: 460px;
+  text-wrap: balance;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 999px;
+  background: var(--materin-glass-bg-subtle);
+  color: var(--materin-text);
+  font-size: 30px;
+  font-weight: 550;
+}
+
+/* --- 内容页 ---------------------------------------------------------- */
+.materin-learn-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 96px 140px 130px;
+  gap: 34px;
+}
+
+.materin-learn-content__head {
+  display: flex;
+  align-items: baseline;
+  gap: 26px;
+}
+
+.materin-learn-content__no {
+  color: var(--materin-accent);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 64px;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+}
+
+.materin-learn-content__h {
+  margin: 0;
+  font-size: 58px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.materin-learn-content__body {
+  display: flex;
+  gap: 44px;
+  flex: 1;
+  min-height: 0;
+}
+
+.materin-learn-content__text {
+  flex: 1.15;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  justify-content: center;
+}
+
+.materin-learn-content__p {
+  margin: 0;
+  color: var(--materin-text-muted);
+  font-size: 31px;
+  line-height: 1.62;
+}
+
+.materin-learn-content__p strong { color: var(--materin-text); font-weight: 650; }
+.materin-learn-content__p .hl { color: var(--materin-accent); font-weight: 700; }
+
+.materin-learn-cover__sub .hl {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 52px;
+  line-height: 1.4;
+}
+
+/* 重点摘句卡 */
+.materin-learn-quote {
+  padding: 26px 32px;
+  border: 1px solid var(--materin-accent-border);
+  border-left: 6px solid var(--materin-accent);
+  border-radius: 18px;
+  background: var(--materin-glass-bg-subtle);
+  color: var(--materin-text);
+  font-size: 31px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+/* 右侧可视化板（各页不同的小图） */
+.materin-learn-viz {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  padding: 36px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 24px;
+  background: var(--materin-glass-bg-subtle);
+  box-shadow: var(--materin-shadow);
+}
+
+.materin-learn-viz__label {
+  color: var(--materin-text);
+  font-size: 24px;
+  letter-spacing: 0.08em;
+}
+
+/* token 碎块可视化 */
+.materin-learn-viz__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  max-width: 560px;
+}
+
+.materin-learn-viz__chip {
+  padding: 18px 26px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 14px;
+  background: var(--materin-glass-bg-subtle);
+  box-shadow: var(--materin-shadow);
+  font-size: 36px;
+  font-weight: 650;
+}
+
+.materin-learn-viz__chip--alt { border-color: var(--materin-border); font-family: var(--materin-font-mono, ui-monospace, monospace); font-size: 26px; }
+
+.materin-learn-viz__chip--merged {
+  border-color: var(--materin-accent);
+  background: var(--materin-accent-soft);
+  color: var(--materin-accent);
+}
+
+.hl { color: var(--materin-accent); font-weight: 700; }
+
+.materin-learn-cover__sub .hl {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 52px;
+  line-height: 1.4;
+}
+
+.materin-learn-viz__num {
+  color: var(--materin-accent);
+  font-size: 120px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-shadow: 0 0 48px var(--materin-accent-soft);
+}
+
+.materin-learn-viz__num-label { color: var(--materin-text-muted); font-size: 24px; }
+
+/* 对比条（中英 token 数） */
+.materin-learn-viz__bars { display: flex; flex-direction: column; gap: 22px; width: 100%; max-width: 520px; }
+
+.materin-learn-viz__bar-row { display: flex; align-items: center; gap: 18px; }
+
+.materin-learn-viz__bar-tag { width: 120px; color: var(--materin-text-muted); font-size: 24px; text-align: right; }
+
+.materin-learn-viz__bar-track {
+  flex: 1;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--materin-surface-3);
+  overflow: hidden;
+}
+
+.materin-learn-viz__bar {
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--materin-accent), color-mix(in srgb, var(--materin-accent) 55%, transparent));
+}
+
+.materin-learn-viz__bar--en { background: linear-gradient(90deg, var(--materin-secondary), color-mix(in srgb, var(--materin-secondary) 55%, transparent)); }
+
+.materin-learn-viz__bar-val { width: 64px; font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* --- 结尾页 ---------------------------------------------------------- */
+.materin-learn-end {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 160px;
+  gap: 36px;
+}
+
+.materin-learn-end__kicker {
+  color: var(--materin-accent);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.materin-learn-end__takeaway {
+  margin: 0;
+  max-width: 1440px;
+  font-size: 66px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.materin-learn-end__hint {
+  margin: 0;
+  color: var(--materin-text-muted);
+  font-size: 32px;
+  line-height: 1.6;
+}
+
+.materin-learn-end__next {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--materin-text-muted);
+  font-size: 26px;
+}
+
+.materin-learn-end__next::before {
+  content: "";
+  width: 44px;
+  height: 2px;
+  background: var(--materin-accent);
+  border-radius: 1px;
+}

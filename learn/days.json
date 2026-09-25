@@ -4,12 +4,60 @@
     "total": 168,
     "startDate": "2026-09-28",
     "stages": [
-      { "id": 1, "zh": "AI 关键基础", "en": "Foundations", "days": [1, 28] },
-      { "id": 2, "zh": "提示工程与上下文", "en": "Prompting & Context", "days": [29, 49] },
-      { "id": 3, "zh": "Agent 与工作流", "en": "Agents & Workflows", "days": [50, 84] },
-      { "id": 4, "zh": "RAG 与知识系统", "en": "RAG & Knowledge", "days": [85, 112] },
-      { "id": 5, "zh": "AI 重塑认知", "en": "Rethinking with AI", "days": [113, 140] },
-      { "id": 6, "zh": "AI 原生领域化", "en": "Domain Practice", "days": [141, 168] }
+      {
+        "id": 1,
+        "zh": "AI 关键基础",
+        "en": "Foundations",
+        "days": [
+          1,
+          28
+        ]
+      },
+      {
+        "id": 2,
+        "zh": "提示工程与上下文",
+        "en": "Prompting & Context",
+        "days": [
+          29,
+          49
+        ]
+      },
+      {
+        "id": 3,
+        "zh": "Agent 与工作流",
+        "en": "Agents & Workflows",
+        "days": [
+          50,
+          84
+        ]
+      },
+      {
+        "id": 4,
+        "zh": "RAG 与知识系统",
+        "en": "RAG & Knowledge",
+        "days": [
+          85,
+          112
+        ]
+      },
+      {
+        "id": 5,
+        "zh": "AI 重塑认知",
+        "en": "Rethinking with AI",
+        "days": [
+          113,
+          140
+        ]
+      },
+      {
+        "id": 6,
+        "zh": "AI 原生领域化",
+        "en": "Domain Practice",
+        "days": [
+          141,
+          168
+        ]
+      }
     ]
   },
   "days": [
@@ -19,14 +67,20 @@
       "week": 1,
       "tpl": "counter",
       "date": "2026-09-28",
-      "title": { "zh": "Token：模型眼里的世界", "en": "Tokens: how a model sees the world" },
+      "title": {
+        "zh": "Token：模型眼里的世界",
+        "en": "Tokens: how a model sees the world"
+      },
       "subtitle": {
         "zh": "一句话进了模型，先被切碎再被计算。切法不是随机的——它由一套算法决定，并悄悄决定了你的成本、上限，和模型的大部分「怪癖」。",
         "en": "A sentence is chopped into tokens before a model reads it — and the chopping is algorithmic, quietly deciding your cost, your limits, and most of the model's quirks."
       },
       "sections": [
         {
-          "h": { "zh": "从现象到机制：模型到底读到了什么", "en": "From phenomenon to mechanism" },
+          "h": {
+            "zh": "从现象到机制：模型到底读到了什么",
+            "en": "From phenomenon to mechanism"
+          },
           "p": {
             "zh": "你输入「人工智能」，模型看到的不是 4 个汉字，也不是 1 个词，而是几个 token。Token 是训练前就用 BPE（Byte Pair Encoding，字节对编码）算法从海量文本里统计出来的高频碎片：算法从单个字符开始，反复把「最常一起出现的相邻片段」合并成新条目，直到词表被填满（通常 5 万～20 万条）。",
             "en": "Type 人工智能 and the model doesn't see 4 characters or 1 word but several tokens. Tokens are frequent fragments mined by BPE (Byte Pair Encoding) before training: starting from single bytes, the algorithm repeatedly merges the most frequent adjacent pair into a new entry until the vocabulary (usually 50k–200k entries) is full."
@@ -37,13 +91,19 @@
           }
         },
         {
-          "h": { "zh": "算一笔账：token 如何变成钱和时间", "en": "The math: how tokens become money and latency" },
+          "h": {
+            "zh": "算一笔账：token 如何变成钱和时间",
+            "en": "The math: how tokens become money and latency"
+          },
           "p": {
             "zh": "三件事都按 token 记账。计价：主流模型按「每百万 token」报价，输入通常比输出便宜 3～5 倍。上限：上下文窗口（模型一次能处理的总量）也按 token 计，你的提问、贴进来的文档、历史对话、回复，全部挤占同一个窗口。速度：生成是逐 token 进行的，回复快慢直接正比于输出 token 数。",
             "en": "Three things are billed in tokens. Pricing: mainstream models quote per million tokens, with input usually 3–5x cheaper than output. Limits: the context window — everything you type, paste, and the whole conversation plus the reply — shares one token budget. Latency: generation proceeds token by token, so speed tracks output length."
           },
           "example": {
-            "h": { "zh": "实例", "en": "Worked example" },
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
             "p": {
               "zh": "把一份 8000 字的合同贴给模型问问题：中文按 1 字 ≈ 1～1.5 token 算，这份合同 ≈ 1 万 token，还没提问就吃掉约 1 万 token 输入。若输入价 $1/百万 token，单次成本约 $0.01——便宜，但如果这段对话要重复 20 轮，且每轮都重复贴合同，成本和窗口占用就放大 20 倍。省法子：把合同摘要成 500 字再贴，token 降为约 1/20。",
               "en": "Paste an 8,000-character contract into a chat: at roughly 1–1.5 tokens per Chinese character it is ≈10k tokens of input before you even ask. At $1/M input tokens that is about $0.01 per call — trivial, until the same contract rides along for 20 turns, multiplying cost and window usage 20x. Fix: summarize to 500 characters first; tokens drop to 1/20."
@@ -51,13 +111,19 @@
           }
         },
         {
-          "h": { "zh": "怪癖的根源：模型看到的不是你以为的", "en": "Why quirks happen: the model sees something else" },
+          "h": {
+            "zh": "怪癖的根源：模型看到的不是你以为的",
+            "en": "Why quirks happen: the model sees something else"
+          },
           "p": {
             "zh": "让模型数「strawberry 里有几个 r」，它常答错——不是它笨，是它看到的根本不是 s-t-r-a-w-b-e-r-r-y 这个字母序列，而是类似「str」「aw」「berry」的 token 序列。每个 token 对它是一个不可再分的编号，字母信息只在编号背后隐约存在，所以它必须「猜」每个块里有几个字母。",
             "en": "Ask a model how many r's are in strawberry and it may fail — not because it is dumb, but because it never sees s-t-r-a-w-b-e-r-r-y. It sees tokens like str / aw / berry, atomic IDs whose letters are only faintly implied, so it must guess what hides inside each chunk."
           },
           "misconception": {
-            "h": { "zh": "常见误区", "en": "Common misconception" },
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
             "p": {
               "zh": "「模型认识单词」。对模型来说没有单词，只有 token 编号序列。同理，「模型知道自己的字数上限」也不成立——它感知不到 token 边界，超限会被硬截断，而不是礼貌地告诉你。写长文时主动分段、主动要求「先列大纲再逐段写」，本质都是在帮它管理 token。",
               "en": "“The model knows words.” It doesn't — only token-ID sequences. Likewise it cannot feel its own length limit: overflow is hard truncation, not a polite warning. Asking for an outline first, then section by section, is really token management on its behalf."
@@ -65,7 +131,10 @@
           }
         },
         {
-          "h": { "zh": "延伸：这个知识点连向哪里", "en": "Where this leads" },
+          "h": {
+            "zh": "延伸：这个知识点连向哪里",
+            "en": "Where this leads"
+          },
           "p": {
             "zh": "Token 是后面几乎所有主题的地基：第 3 天的「温度与采样」发生在每个 token 的选择上；第 4 天的「上下文窗口」是 token 预算的分配问题；阶段二的「上下文工程」本质是 token 的经济学；阶段三 Agent 的工具调用输出也是一串 token。今天只需带走一句话——",
             "en": "Tokens underpin everything ahead: sampling (day 3) happens per token; the context window (day 4) is a token budget; context engineering (stage 2) is token economics; agent tool calls (stage 3) are also token streams. For today, one sentence is enough —"
@@ -73,7 +142,10 @@
         }
       ],
       "action": {
-        "h": { "zh": "动手（15 分钟）", "en": "Hands-on (15 min)" },
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
         "p": {
           "zh": "打开 tokenizer 演示页（搜 “OpenAI tokenizer”），依次输入三组内容并记录 token 数：① 「人工智能」vs「artificial intelligence」；② 你的名字；③ 一段 100 字的自我介绍。然后用一句话回答：为什么第 ③ 组的平均「每词 token 数」比第 ① 组高？（提示：词表里谁的语料多）",
           "en": "Open a tokenizer demo (search “OpenAI tokenizer”) and record token counts for: (1) 人工智能 vs artificial intelligence; (2) your name; (3) a 100-character self-intro. Then answer in one sentence: why is the tokens-per-word ratio higher in (3) than (1)? (Hint: whose corpus filled the vocabulary?)"
@@ -85,11 +157,48 @@
       },
       "anim": {
         "tpl": "counter",
-        "hook": { "zh": "这句话值多少个 token？", "en": "How many tokens is this sentence?" },
-        "sentence": { "zh": "先把事看清，再把话说清。", "en": "Understand it first. Then explain it plainly." },
-        "tokensZh": [ "先", "把", "事", "看清", "，", "再", "把", "话", "说清", "。" ],
-        "tokensEn": [ "Under", "stand", " it", " first", ".", " Then", " explain", " it", " plain", "ly", "." ],
-        "counts": { "zh": 10, "en": 11, "chars": 12 }
+        "hook": {
+          "zh": "这句话值多少个 token？",
+          "en": "How many tokens is this sentence?"
+        },
+        "sentence": {
+          "zh": "先把事看清，再把话说清。",
+          "en": "Understand it first. Then explain it plainly."
+        },
+        "tokensZh": [
+          "先",
+          "把",
+          "事",
+          "看清",
+          "，",
+          "再",
+          "把",
+          "话",
+          "说清",
+          "。"
+        ],
+        "tokensEn": [
+          "Under",
+          "stand",
+          " it",
+          " first",
+          ".",
+          " Then",
+          " explain",
+          " it",
+          " plain",
+          "ly",
+          "."
+        ],
+        "counts": {
+          "zh": 10,
+          "en": 11,
+          "chars": 12
+        },
+        "coverHook": {
+          "zh": "同样的 12 个字，中文 10 个 token，英文 11 个——账单不一样。",
+          "en": "Same 12 characters: 10 tokens in Chinese, 11 in English — and different bills."
+        }
       }
     }
   ]
