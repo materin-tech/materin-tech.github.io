@@ -74,9 +74,9 @@
       p.visibility ? '<span>' + esc(p.visibility) + '</span>' : ''
     ].join('');
     var links = [];
+    // 站内优先：卡片只指向站内说明页/站内预览，不直接跳转 GitHub
     if (p.page) links.push('<a href="' + esc(p.page) + '">' + t.details + ' →</a>');
     if (p.homepage) links.push('<a href="' + esc(p.homepage) + '" target="_blank" rel="noopener">' + t.live + ' ↗</a>');
-    if (p.url) links.push('<a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + t.source + ' ↗</a>');
     return '<article class="card">' +
       '<h3>' + title + (p.version ? ' <span class="pill neutral">v' + esc(p.version) + '</span>' : '') + '</h3>' +
       (tags ? '<div class="tags">' + tags + '</div>' : '') +

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>内容索引 — Materin</title>
+<meta name="description" content="Materin 内容索引：已发布的内容与项目，点击进入站内说明页。">
+<meta name="theme-color" content="#0b0f19">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<script>
+  (function () {
+    var d = document.documentElement, t = null, l = null;
+    try { t = localStorage.getItem('theme'); l = localStorage.getItem('lang'); } catch (e) {}
+    d.setAttribute('data-theme', t || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+    if (!l) { l = (navigator.language || 'zh').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'; }
+    d.setAttribute('data-lang', l);
+    d.lang = l === 'zh' ? 'zh-CN' : 'en';
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到主内容 / Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/">
+      <img src="/assets/img/favicon.svg" alt="" width="28" height="28">
+      <span class="brand-name">Materin<em>·</em></span>
+    </a>
+    <nav class="nav">
+      <a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a>
+      <a href="/projects/"><span class="lang-zh">内容</span><span class="lang-en">Content</span></a>
+      <a href="/about/"><span class="lang-zh">关于</span><span class="lang-en">About</span></a>
+      <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to English">EN</button>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="doc">
+  <div class="wrap">
+    <p class="crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <span class="lang-zh">内容</span><span class="lang-en">Content</span></p>
+
+    <div class="doc-head">
+      <h1><span class="lang-zh">内容</span><span class="lang-en">Content</span></h1>
+      <p class="sub lang-zh">这里是 Materin 已发布内容的索引。每一条都先进入站内说明页 —— 先讲清楚它是什么，需要看源码时再从说明页出去。</p>
+      <p class="sub lang-en">An index of everything published under Materin. Every entry opens an in-site page first: what it is, explained here — source links live inside those pages.</p>
+    </div>
+
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="project-grid">
+      <p class="loading"><span class="lang-zh">正在加载内容列表…</span><span class="lang-en">Loading…</span></p>
+    </div>
+
+    <div class="doc-nav">
+      <a href="/">← <span class="lang-zh">返回首页</span><span class="lang-en">Back to home</span></a>
+      <a href="/about/"><span class="lang-zh">关于 Materin</span><span class="lang-en">About Materin</span> →</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p>© <span id="year">2026</span> Materin · <span class="lang-zh">格物致知</span><span class="lang-en">investigating things</span></p>
+    <p class="muted"><a href="/about/"><span class="lang-zh">关于本站</span><span class="lang-en">About this site</span></a></p>
+  </div>
+</footer>
+
+<script src="/assets/js/main.js" defer></script>
+</body>
+</html>

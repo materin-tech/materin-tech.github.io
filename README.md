@@ -9,9 +9,10 @@ GitHub Pages 的「组织站点」规则：仓库名必须是 `<组织名>.githu
 
 ```
 .
-├── index.html                    首页：插件系列 + 全部项目 + 资源托管 + 关于
-├── about/index.html              组织说明（创立初衷 / 结构约定 / 初始化记录），中英双语
-├── projects/                     项目介绍页（挂载自各项目仓库 README）
+├── index.html                    首页：品牌（格物）+ 现在的内容，站内跳转优先
+├── about/index.html              关于 Materin（品牌 / 格物 / 结构约定 / 初始化记录），中英双语
+├── projects/index.html           内容索引（JSON 驱动，带标签筛选）
+├── projects/                     内容说明页（挂载自各项目仓库 README）
 │   ├── materin-office/index.html
 │   ├── materin-view/index.html
 │   └── materin-ctx/index.html
@@ -24,6 +25,15 @@ GitHub Pages 的「组织站点」规则：仓库名必须是 `<组织名>.githu
 │   └── img/favicon.svg           站点图标
 └── .nojekyll                     禁用 Jekyll 处理，避免下划线目录被忽略
 ```
+
+## 站内优先原则（重要）
+
+首页与内容索引承担「说清楚」的职责，外部站点只作为**出处**出现在最后一层：
+
+- 卡片、导航、CTA **一律指向站内页面**（`/projects/...`、`/about/`），任何位置都不把访客直接送出站；
+- GitHub 链接只出现在**内容说明页内部**，位于讲完内容之后，且按钮文字标注「（外部链接）」；
+- 首页不出现工具性内容（资源托管地址、CDN 用法、构建方式等），这些留在 README 里给维护者看；
+- 首页结构：品牌（格物）→ 现在的内容 → 关于，不堆砌条目。
 
 ## 多语言机制
 
