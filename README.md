@@ -42,6 +42,10 @@ Materin 的产品定位是**系列共用一套 UI**，落点就是 `assets/css/m
 
 规范页 `/design/` 里同时记录了三个插件 `styles.css` 的实测差异（强调色语义、状态色三套写法、硬编码色值）。
 
+> **正本在 `materin-tech/materin-ui`**（本机 `/opt/data/workspace/materin-ui`）。本仓的
+> `assets/css/materin-ui.css`、`data/components.json`、`tools/check-components.py` 都是同步副本，
+> 由 `materin-ui/tools/sync-to-site.sh` 带过来并自动校验 —— **不要在副本里直接改令牌或清单**。
+
 ## 组件命名契约（AI-native）
 
 界面要能被「按名查找、按名维护」，所以类名本身必须是说明书：

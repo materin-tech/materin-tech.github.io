@@ -234,6 +234,7 @@
         </table>
 
         <h2>怎么用</h2>
+        <p><strong>正本在哪</strong>：令牌、组件清单、校验脚本的正本在仓库 <code>materin-tech/materin-ui</code>；本站与三个插件拿到的都是同步副本（本站的同步脚本把令牌、清单、校验脚本一起带过来并自动校验）。改令牌一律改正本，再同步过来。</p>
         <p><strong>网页</strong>：在站点自己的样式之前引入令牌表 ——</p>
         <pre><code>&lt;link rel="stylesheet" href="/assets/css/materin-ui.css"&gt;
 &lt;link rel="stylesheet" href="/assets/css/style.css"&gt;</code></pre>
@@ -415,6 +416,7 @@
         </table>
 
         <h2>How to use it</h2>
+        <p><strong>Where the source is</strong>: the tokens, the component registry and the checker live in <code>materin-tech/materin-ui</code>; this site and the three plugins hold synced copies (the site's sync script pulls tokens, registry and checker across and re-runs the checks). Change a token in the source repo, then sync.</p>
         <p><strong>On the web</strong>: link the token sheet before the site's own styles —</p>
         <pre><code>&lt;link rel="stylesheet" href="/assets/css/materin-ui.css"&gt;
 &lt;link rel="stylesheet" href="/assets/css/style.css"&gt;</code></pre>
@@ -427,7 +429,12 @@
 
     <div class="materin-site-doc-nav">
       <a href="/projects/">← <span class="lang-zh">回到内容索引</span><span class="lang-en">Back to content</span></a>
-      <a href="/about/"><span class="lang-zh">关于 Materin</span><span class="lang-en">About Materin</span> →</a>
+      <span>
+        <span class="lang-zh">外部链接：</span><span class="lang-en">External:</span>
+        <a href="https://github.com/materin-tech/materin-ui" target="_blank" rel="noopener"><span class="lang-zh">UI 正本仓库</span><span class="lang-en">UI source repo</span> ↗</a>
+        ·
+        <a href="/about/"><span class="lang-zh">关于 Materin</span><span class="lang-en">About Materin</span></a>
+      </span>
     </div>
   </div>
 </main>
