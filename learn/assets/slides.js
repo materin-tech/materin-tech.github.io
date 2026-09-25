@@ -150,6 +150,66 @@
     return s;
   }
 
+  /* --- 翻页控制 --- */
+  var current = 0;
+
+  function buildNav(slides) {
+    var nav = el('div', 'materin-learn-slide-nav');
+    var prev = el('button', 'materin-learn-slide-nav__btn', '‹');
+    prev.setAttribute('aria-label', '上一页');
+    var dots = el('div', 'materin-learn-slide-nav__dots');
+    slides.forEach(function (_, i) {
+      var dot = el('button', 'materin-learn-slide-nav__dot');
+      dot.setAttribute('aria-label', '第 ' + (i + 1) + ' 页');
+      dot.addEventListener('click', function () { go(i); });
+      dots.appendChild(dot);
+    });
+    var next = el('button', 'materin-learn-slide-nav__btn', '›');
+    next.setAttribute('aria-label', '下一页');
+    prev.addEventListener('click', function () { go(current - 1); });
+    next.addEventListener('click', function () { go(current + 1); });
+    nav.appendChild(prev); nav.appendChild(dots); nav.appendChild(next);
+    document.body.appendChild(nav);
+
+    function refresh() {
+      [...dots.children].forEach(function (d, i) {
+        d.classList.toggle('is-active', i === current);
+      });
+      prev.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+      document.body.classList.toggle('is-first', current === 0);
+    }
+    nav.__refresh = refresh;
+    nav.__prev = prev; nav.__next = next; nav.__dots = dots;
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(current + 1); }
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(current - 1); }
+    });
+    nav.__refresh();
+
+    var tx = null;
+    document.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', function (e) {
+      if (tx == null) return;
+      var dx = e.changedTouches[0].clientX - tx;
+      if (Math.abs(dx) > 60) go(current + (dx < 0 ? 1 : -1));
+      tx = null;
+    }, { passive: true });
+  }
+
+  function go(i) {
+    var slides = document.querySelectorAll('.materin-learn-slide');
+    if (i < 0 || i >= slides.length) return;
+    current = i;
+    slides.forEach(function (s, k) {
+      s.classList.toggle('is-active-slide', k === i);
+    });
+    window.scrollTo(0, 0);
+    var nav = document.querySelector('.materin-learn-slide-nav');
+    if (nav && nav.__refresh) nav.__refresh();
+  }
+
   function render() {
     var n = parseInt(qs('d') || '1', 10);
     var day = (window.LEARN && window.LEARN.days) ? window.LEARN.days.find(function (d) { return d.n === n; }) : null;
@@ -162,19 +222,25 @@
     day.sections.forEach(function (sec, i) { root.appendChild(content(day, i, sec)); });
     root.appendChild(endPage(day));
     setPageNos();
+    var slides = [...document.querySelectorAll('.materin-learn-slide')];
+    if (!qs('export')) {
+      slides.forEach(function (s, k) { s.classList.toggle('is-active-slide', k === 0); });
+      buildNav(slides);
+    }
     fitScale();
     window.addEventListener('resize', fitScale);
   }
 
   /* 窗口小于 1920 时整体缩放预览；截图时按 1920×1080 布局导出 */
   function fitScale() {
-    var slide = document.querySelector('.materin-learn-slide');
+    var slide = document.querySelector('.materin-learn-slide.is-active-slide');
     if (!slide) return;
     var scale = Math.min(1, window.innerWidth / 1920);
     slide.style.transform = 'scale(' + scale + ')';
     document.body.style.height = (1080 * scale) + 'px';
   }
 
+  if (qs('export')) document.body.classList.add('is-export');
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();
 })();
