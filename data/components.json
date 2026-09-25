@@ -57,6 +57,346 @@
   },
   "components": [
     {
+      "name": "materin-ui-empty",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/empty/Empty.vue",
+      "purpose": {
+        "zh": "空状态：默认插画 + 说明 + 底部操作，可换图",
+        "en": "Empty state: default illustration, description and bottom actions, image replaceable"
+      },
+      "parts": [
+        "materin-ui-empty__image",
+        "materin-ui-empty__description",
+        "materin-ui-empty__bottom"
+      ],
+      "variants": [
+        "--sm",
+        "--md",
+        "--lg"
+      ],
+      "states": [],
+      "batch": "B-foundation"
+    },
+    {
+      "name": "materin-ui-skeleton-item",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/skeleton-item/SkeletonItem.vue",
+      "purpose": {
+        "zh": "骨架块：文本 / 标题 / 段落 / 按钮 / 图片 / 圆形 / 矩形",
+        "en": "Skeleton block: text, heading, paragraph, button, image, circle or rectangle"
+      },
+      "parts": [],
+      "variants": [
+        "--text",
+        "--caption",
+        "--h1",
+        "--h3",
+        "--h5",
+        "--paragraph",
+        "--button",
+        "--image",
+        "--circle",
+        "--rect"
+      ],
+      "states": [],
+      "batch": "B-foundation"
+    },
+    {
+      "name": "materin-ui-skeleton",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/skeleton/Skeleton.vue",
+      "purpose": {
+        "zh": "骨架屏：加载中占位，非加载态渲染真实内容",
+        "en": "Skeleton: placeholder while loading, real content when not"
+      },
+      "parts": [
+        "materin-ui-skeleton__items"
+      ],
+      "variants": [
+        "--animated"
+      ],
+      "states": [],
+      "batch": "B-foundation"
+    },
+    {
+      "name": "materin-ui-avatar",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/avatar/Avatar.vue",
+      "purpose": {
+        "zh": "头像：图片 / 文字 / 默认剪影，圆形或方形，三档尺寸",
+        "en": "Avatar: image, text or default silhouette; circle or square; three sizes"
+      },
+      "parts": [
+        "materin-ui-avatar__img",
+        "materin-ui-avatar__text",
+        "materin-ui-avatar__icon"
+      ],
+      "variants": [
+        "--circle",
+        "--square"
+      ],
+      "states": [],
+      "batch": "B-foundation"
+    },
+    {
+      "name": "materin-ui-badge",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/badge/Badge.vue",
+      "purpose": {
+        "zh": "角标：数字（超上限显示 99+）、小红点、五种语义色",
+        "en": "Badge: numbers (99+ over the max), status dot, five semantic colours"
+      },
+      "parts": [
+        "materin-ui-badge__content",
+        "materin-ui-badge__value"
+      ],
+      "variants": [
+        "--primary",
+        "--success",
+        "--warning",
+        "--danger",
+        "--info",
+        "--dot",
+        "--standalone"
+      ],
+      "states": [],
+      "batch": "B-foundation"
+    },
+    {
+      "name": "materin-ui-title",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/title/Title.vue",
+      "purpose": {
+        "zh": "标题：1–6 级（字号 + 标签同步），可套语义色",
+        "en": "Heading: levels 1–6 (size and tag together), with semantic colours"
+      },
+      "parts": [],
+      "variants": [
+        "--1",
+        "--2",
+        "--3",
+        "--4",
+        "--5",
+        "--6",
+        "--default",
+        "--primary",
+        "--secondary",
+        "--success",
+        "--warning",
+        "--danger",
+        "--info"
+      ],
+      "states": [],
+      "batch": "B-foundation"
+    },
+    {
+      "name": "materin-ui-text",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/text/Text.vue",
+      "purpose": {
+        "zh": "正文文本：语义色、三档字号、加粗斜体、单行/多行省略",
+        "en": "Body text: semantic colours, three sizes, bold or italic, single- or multi-line truncation"
+      },
+      "parts": [],
+      "variants": [
+        "--default",
+        "--primary",
+        "--secondary",
+        "--success",
+        "--warning",
+        "--danger",
+        "--info",
+        "--sm",
+        "--md",
+        "--lg",
+        "--strong",
+        "--italic",
+        "--truncated",
+        "--line-clamp"
+      ],
+      "states": [],
+      "batch": "B-foundation"
+    },
+    {
+      "name": "materin-ui-link",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/link/Link.vue",
+      "purpose": {
+        "zh": "链接：七种语义色、可选下划线、禁用态、图标插槽",
+        "en": "Link: seven semantic colours, optional underline, disabled state, icon slot"
+      },
+      "parts": [
+        "materin-ui-link__icon",
+        "materin-ui-link__content"
+      ],
+      "variants": [
+        "--default",
+        "--primary",
+        "--secondary",
+        "--success",
+        "--warning",
+        "--danger",
+        "--info",
+        "--underline",
+        "--disabled"
+      ],
+      "states": [],
+      "batch": "B-foundation"
+    },
+    {
+      "name": "materin-ui-divider",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/divider/Divider.vue",
+      "purpose": {
+        "zh": "分割线：横竖、三种线型、文字位置",
+        "en": "Divider: horizontal or vertical, three line styles, text position"
+      },
+      "parts": [
+        "materin-ui-divider__text"
+      ],
+      "variants": [
+        "--horizontal",
+        "--vertical",
+        "--solid",
+        "--dashed",
+        "--dotted",
+        "--left",
+        "--center",
+        "--right"
+      ],
+      "states": [],
+      "batch": "A-layout"
+    },
+    {
+      "name": "materin-ui-space",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/space/Space.vue",
+      "purpose": {
+        "zh": "元素间距：横竖排列、自动换行、撑满",
+        "en": "Spacing between elements: row or column, wrapping or full width"
+      },
+      "parts": [],
+      "variants": [
+        "--horizontal",
+        "--vertical",
+        "--wrap",
+        "--fill"
+      ],
+      "states": [],
+      "batch": "A-layout"
+    },
+    {
+      "name": "materin-ui-col",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/col/Col.vue",
+      "purpose": {
+        "zh": "24 栅格列：span/offset/order + xs~xl 断点覆盖",
+        "en": "24-column grid column: span / offset / order with xs–xl breakpoint overrides"
+      },
+      "parts": [],
+      "variants": [],
+      "states": [],
+      "batch": "A-layout"
+    },
+    {
+      "name": "materin-ui-row",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/row/Row.vue",
+      "purpose": {
+        "zh": "24 栅格行：下发列间距，负责主轴与交叉轴对齐",
+        "en": "24-column grid row: hands the gutter down to columns and controls alignment"
+      },
+      "parts": [],
+      "variants": [],
+      "states": [],
+      "batch": "A-layout"
+    },
+    {
+      "name": "materin-ui-footer",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/footer/Footer.vue",
+      "purpose": {
+        "zh": "容器页脚",
+        "en": "Container footer"
+      },
+      "parts": [],
+      "variants": [],
+      "states": [],
+      "batch": "A-layout"
+    },
+    {
+      "name": "materin-ui-main",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/main/Main.vue",
+      "purpose": {
+        "zh": "容器主区：占满剩余空间并独立滚动",
+        "en": "Container main region: takes the remaining space and scrolls on its own"
+      },
+      "parts": [],
+      "variants": [],
+      "states": [],
+      "batch": "A-layout"
+    },
+    {
+      "name": "materin-ui-aside",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/aside/Aside.vue",
+      "purpose": {
+        "zh": "容器侧栏：可设宽度，挂载即让父容器转为横向",
+        "en": "Container side panel: width configurable, switches its parent container to horizontal on mount"
+      },
+      "parts": [],
+      "variants": [],
+      "states": [],
+      "batch": "A-layout"
+    },
+    {
+      "name": "materin-ui-header",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/header/Header.vue",
+      "purpose": {
+        "zh": "容器顶栏：毛玻璃吸附、可设高度",
+        "en": "Container top bar: frosted, height configurable"
+      },
+      "parts": [],
+      "variants": [],
+      "states": [],
+      "batch": "A-layout"
+    },
+    {
+      "name": "materin-ui-container",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/container/Container.vue",
+      "purpose": {
+        "zh": "页面级容器：横竖方向自动判定（有侧栏则横向）",
+        "en": "Page-level container: direction resolved automatically (horizontal when an aside is present)"
+      },
+      "parts": [],
+      "variants": [
+        "--vertical",
+        "--horizontal"
+      ],
+      "states": [],
+      "batch": "A-layout"
+    },
+    {
       "name": "materin-docs-wrap",
       "scope": "docs",
       "repo": "materin-ui",
