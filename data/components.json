@@ -57,6 +57,298 @@
   },
   "components": [
     {
+      "name": "materin-ui-rate",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/rate/Rate.vue",
+      "purpose": {
+        "zh": "评分：悬停预览、点击选中、可再点取消，可显示文字",
+        "en": "Rate: hover preview, click to pick, click again to clear, optional text"
+      },
+      "parts": [
+        "materin-ui-rate__item",
+        "materin-ui-rate__text"
+      ],
+      "variants": [],
+      "states": [
+        "is-disabled",
+        "is-active"
+      ],
+      "batch": "C2-choice"
+    },
+    {
+      "name": "materin-ui-slider",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/slider/Slider.vue",
+      "purpose": {
+        "zh": "滑块：拖动、点击轨道、键盘左右键；支持双滑块区间",
+        "en": "Slider: drag, click the runway, arrow keys; supports a two-handle range"
+      },
+      "parts": [
+        "materin-ui-slider__runway",
+        "materin-ui-slider__bar",
+        "materin-ui-slider__button",
+        "materin-ui-slider__value"
+      ],
+      "variants": [],
+      "states": [
+        "is-disabled",
+        "is-range",
+        "is-dragging"
+      ],
+      "batch": "C2-choice"
+    },
+    {
+      "name": "materin-ui-select-group",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/option-group/OptionGroup.vue",
+      "purpose": {
+        "zh": "下拉选项分组：给一组选项加标题",
+        "en": "Option group: a titled block of options"
+      },
+      "parts": [
+        "materin-ui-select-group__title"
+      ],
+      "variants": [],
+      "states": [],
+      "batch": "C2-choice"
+    },
+    {
+      "name": "materin-ui-select-option",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/option/Option.vue",
+      "purpose": {
+        "zh": "下拉选项：向父级 Select 登记自己的值与文案",
+        "en": "Select option: registers its value and label with the parent select"
+      },
+      "parts": [
+        "materin-ui-select-option__label",
+        "materin-ui-select-option__check"
+      ],
+      "variants": [
+        "--entry"
+      ],
+      "states": [
+        "is-selected",
+        "is-disabled",
+        "is-active"
+      ],
+      "batch": "C2-choice"
+    },
+    {
+      "name": "materin-ui-select",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/select/Select.vue",
+      "purpose": {
+        "zh": "下拉选择：单选/多选（多选显示标签）、键盘上下与回车、点击外部关闭",
+        "en": "Select: single or multiple (multiple shows tags), arrow-key and Enter navigation, closes on outside click"
+      },
+      "parts": [
+        "materin-ui-select__trigger",
+        "materin-ui-select__value",
+        "materin-ui-select__tags",
+        "materin-ui-select__arrow",
+        "materin-ui-select__dropdown",
+        "materin-ui-select__empty"
+      ],
+      "variants": [
+        "--sm",
+        "--md",
+        "--lg"
+      ],
+      "states": [
+        "is-open",
+        "is-disabled",
+        "is-error",
+        "is-multiple"
+      ],
+      "batch": "C2-choice"
+    },
+    {
+      "name": "materin-ui-radio-group",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/radio-group/RadioGroup.vue",
+      "purpose": {
+        "zh": "单选组：同一时刻只选一个，横竖排列",
+        "en": "Radio group: one choice at a time, row or column layout"
+      },
+      "parts": [],
+      "variants": [
+        "--horizontal",
+        "--vertical"
+      ],
+      "states": [],
+      "batch": "C2-choice"
+    },
+    {
+      "name": "materin-ui-radio",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/radio/Radio.vue",
+      "purpose": {
+        "zh": "单选框：单独使用或配合单选组",
+        "en": "Radio: standalone or inside a group"
+      },
+      "parts": [
+        "materin-ui-radio__input",
+        "materin-ui-radio__dot",
+        "materin-ui-radio__label"
+      ],
+      "variants": [
+        "--sm",
+        "--md",
+        "--lg"
+      ],
+      "states": [
+        "is-checked",
+        "is-disabled"
+      ],
+      "batch": "C2-choice"
+    },
+    {
+      "name": "materin-ui-checkbox-group",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/checkbox-group/CheckboxGroup.vue",
+      "purpose": {
+        "zh": "多选组：数组值、横竖排列，统一向子项下发禁用与尺寸",
+        "en": "Checkbox group: array value, row or column layout, pushes disabled and size down to the items"
+      },
+      "parts": [],
+      "variants": [
+        "--horizontal",
+        "--vertical"
+      ],
+      "states": [],
+      "batch": "C2-choice"
+    },
+    {
+      "name": "materin-ui-checkbox",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/checkbox/Checkbox.vue",
+      "purpose": {
+        "zh": "多选框：单独使用或配合多选组，跟随表单的尺寸与禁用",
+        "en": "Checkbox: standalone or inside a group, inheriting size and disabled state from the form"
+      },
+      "parts": [
+        "materin-ui-checkbox__input",
+        "materin-ui-checkbox__box",
+        "materin-ui-checkbox__label"
+      ],
+      "variants": [
+        "--sm",
+        "--md",
+        "--lg"
+      ],
+      "states": [
+        "is-checked",
+        "is-disabled"
+      ],
+      "batch": "C2-choice"
+    },
+    {
+      "name": "materin-ui-switch",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/switch/Switch.vue",
+      "purpose": {
+        "zh": "开关：布尔或自定义值、开关文案、加载态、三档尺寸",
+        "en": "Switch: boolean or custom values, on/off text, loading state, three sizes"
+      },
+      "parts": [
+        "materin-ui-switch__handle",
+        "materin-ui-switch__label"
+      ],
+      "variants": [
+        "--sm",
+        "--md",
+        "--lg"
+      ],
+      "states": [
+        "is-checked",
+        "is-disabled",
+        "is-loading"
+      ],
+      "batch": "C1-form-core"
+    },
+    {
+      "name": "materin-ui-input-number",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/input-number/InputNumber.vue",
+      "purpose": {
+        "zh": "数字输入：步进、上下限、精度、键盘上下键、加减按钮自动禁用",
+        "en": "Number input: stepping, min and max, precision, arrow keys, buttons that disable themselves at the bounds"
+      },
+      "parts": [
+        "materin-ui-input-number__inner",
+        "materin-ui-input-number__input",
+        "materin-ui-input-number__decrease",
+        "materin-ui-input-number__increase"
+      ],
+      "variants": [
+        "--sm",
+        "--md",
+        "--lg"
+      ],
+      "states": [
+        "is-disabled",
+        "is-error"
+      ],
+      "batch": "C1-form-core"
+    },
+    {
+      "name": "materin-ui-form-item",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/form-item/FormItem.vue",
+      "purpose": {
+        "zh": "表单项：标签、必填星号、校验错误、说明文字，向子控件下发尺寸与禁用",
+        "en": "Form item: label, required asterisk, validation error, hint, and size or disabled state pushed down to the control"
+      },
+      "parts": [
+        "materin-ui-form-item__label",
+        "materin-ui-form-item__required",
+        "materin-ui-form-item__content",
+        "materin-ui-form-item__error",
+        "materin-ui-form-item__hint"
+      ],
+      "variants": [
+        "--left",
+        "--right",
+        "--top"
+      ],
+      "states": [
+        "is-error"
+      ],
+      "batch": "C1-form-core"
+    },
+    {
+      "name": "materin-ui-form",
+      "scope": "ui",
+      "repo": "materin-ui",
+      "file": "packages/components/form/Form.vue",
+      "purpose": {
+        "zh": "表单：统一校验（必填 / 类型 / 长度 / 区间 / 正则 / 自定义，支持 blur 与 change 触发）",
+        "en": "Form: one validation pipeline (required, type, length, range, pattern, custom) with blur and change triggers"
+      },
+      "parts": [],
+      "variants": [
+        "--sm",
+        "--md",
+        "--lg",
+        "--inline"
+      ],
+      "states": [],
+      "batch": "C1-form-core"
+    },
+    {
       "name": "materin-ui-empty",
       "scope": "ui",
       "repo": "materin-ui",
@@ -621,7 +913,8 @@
         "--sm",
         "--md",
         "--lg",
-        "--disabled"
+        "--disabled",
+        "--invalid"
       ],
       "states": [
         "is-focused"
