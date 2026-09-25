@@ -2,7 +2,7 @@
   "$schema": "AI 原生学习路线 · 每日数据。stage/week/day 定位，tpl 选动效模板，data 为模板入参。深度标准：机制+实例+误区+延伸，四块齐备。",
   "meta": {
     "total": 168,
-    "startDate": "2026-09-28",
+    "startDate": "2026-09-26",
     "stages": [
       {
         "id": 1,
@@ -66,7 +66,7 @@
       "stage": 1,
       "week": 1,
       "tpl": "counter",
-      "date": "2026-09-28",
+      "date": "2026-09-26",
       "title": {
         "zh": "Token：模型眼里的世界",
         "en": "Tokens: how a model sees the world"
