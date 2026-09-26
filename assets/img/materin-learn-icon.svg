@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Materin Learn · AI 原生学习路线专用图标
+  基础图标 + "学习"装饰（小光点轨迹）
+-->
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Materin Learn">
+  <defs>
+    <radialGradient id="learn-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#06B6D4" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#6366F1" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="learn-core" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#FCD34D"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 背景光晕 -->
+  <circle cx="32" cy="32" r="30" fill="url(#learn-glow)"/>
+
+  <!-- 外圈 -->
+  <circle cx="32" cy="32" r="26" fill="none"
+          stroke="#6366F1" stroke-width="1" opacity="0.3"/>
+
+  <!-- 内圈 -->
+  <circle cx="32" cy="32" r="18" fill="none"
+          stroke="#06B6D4" stroke-width="1" opacity="0.5"/>
+
+  <!-- 主路径 -->
+  <g stroke="#6366F1" stroke-width="1.5" stroke-linecap="round" fill="none">
+    <line x1="32" y1="8"  x2="32" y2="32" opacity="0.7"/>
+    <line x1="32" y1="32" x2="32" y2="56" opacity="0.7"/>
+    <line x1="8"  y1="32" x2="32" y2="32" opacity="0.7"/>
+    <line x1="32" y1="32" x2="56" y2="32" opacity="0.7"/>
+  </g>
+
+  <!-- 次路径 -->
+  <g stroke="#06B6D4" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.5">
+    <line x1="32" y1="8"  x2="56" y2="32"/>
+    <line x1="56" y1="32" x2="32" y2="56"/>
+    <line x1="32" y1="56" x2="8"  y2="32"/>
+    <line x1="8"  y1="32" x2="32" y2="8"/>
+  </g>
+
+  <!-- 四方节点 -->
+  <g fill="#6366F1">
+    <circle cx="32" cy="8"  r="2.5"/>
+    <circle cx="32" cy="56" r="2.5"/>
+    <circle cx="8"  cy="32" r="2.5"/>
+    <circle cx="56" cy="32" r="2.5"/>
+  </g>
+
+  <!-- 中心核：暖色（金色致知之光） -->
+  <circle cx="32" cy="32" r="4" fill="url(#learn-core)"/>
+
+  <!-- 光环 -->
+  <circle cx="32" cy="32" r="7" fill="none"
+          stroke="#FCD34D" stroke-width="0.5" opacity="0.7"/>
+
+  <!-- 学习轨迹小光点（外部装饰，象征"学习的轨迹"） -->
+  <g fill="#FCD34D" opacity="0.85">
+    <circle cx="50" cy="14" r="1"/>
+    <circle cx="14" cy="50" r="1"/>
+  </g>
+
+  <!-- "L" 字母暗示（学习 Learn） -->
+  <text x="32" y="40" font-family="ui-monospace, monospace" font-size="6"
+        font-weight="700" fill="#0B0F19" text-anchor="middle" opacity="0.9">L</text>
+</svg>
