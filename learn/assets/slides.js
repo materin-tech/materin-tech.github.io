@@ -246,6 +246,7 @@
     day.sections.forEach(function (sec, i) { root.appendChild(content(day, i, sec)); });
     root.appendChild(endPage(day));
     setPageNos();
+    fitText();
     var pages = [...document.querySelectorAll('.materin-learn-slide-page')];
     if (!qs('export')) {
       pages.forEach(function (p, k) { p.classList.toggle('is-active-slide', k === 0); });
@@ -262,6 +263,37 @@
     var scale = Math.min(1, window.innerWidth / 1920);
     slide.style.transform = 'scale(' + scale + ')';
     document.body.style.height = (1080 * scale) + 'px';
+  }
+
+  /* 内容页文字自适应：超出安全区（标题 190 ～ 页脚 990）时逐级缩小字号。
+     注意：文本列是 justify-content:center 的 flex，须在布局稳定后按「首个/末段元素」
+     的实际边界判断，量整列会读到空 flex 的假值。 */
+  function fitText() {
+    requestAnimationFrame(function () {
+      var pages = [...document.querySelectorAll('.materin-learn-slide-page')];
+      pages.forEach(function (p) {
+        var text = p.querySelector('.materin-learn-content__text');
+        if (!text) return;
+        var top = p.getBoundingClientRect().top;
+        var parts = [...text.querySelectorAll('.materin-learn-content__p, .materin-learn-quote')];
+        if (!parts.length) return;
+        function bounds() {
+          var lo = Infinity, hi = -Infinity;
+          parts.forEach(function (e) {
+            var r = e.getBoundingClientRect();
+            lo = Math.min(lo, r.top); hi = Math.max(hi, r.bottom);
+          });
+          return [lo - top, hi - top];
+        }
+        for (var fs = 31; fs >= 22; fs -= 1.5) {
+          parts.forEach(function (e) {
+            e.style.fontSize = (e.classList.contains('materin-learn-quote') ? fs - 2 : fs) + 'px';
+          });
+          var b = bounds();
+          if (b[1] <= 990 && b[0] >= 190) break;
+        }
+      });
+    });
   }
 
   if (qs('export')) document.body.classList.add('is-export');
