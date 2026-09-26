@@ -134,13 +134,14 @@
 
 .materin-learn-cover__chip {
   padding: 14px 28px;
-  max-width: 460px;
+  max-width: 500px;
   text-wrap: balance;
+  white-space: nowrap;
   border: 1px solid var(--materin-accent-border);
   border-radius: 999px;
   background: var(--materin-glass-bg-subtle);
   color: var(--materin-text);
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 550;
 }
 

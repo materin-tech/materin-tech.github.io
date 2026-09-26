@@ -93,6 +93,96 @@
       wrap.appendChild(chips); wrap.appendChild(count); wrap.appendChild(swap); wrap.appendChild(note);
       setTimeout(function () { show('zh'); }, 350);
       return wrap;
+    },
+
+    /* similarity：语义散点 + 余弦连线 + 相似度滚动 */
+    similarity: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-sim');
+      var field = el('div', 'materin-learn-sim__field');
+      var readout = el('div', 'materin-learn-sim__readout');
+      var pairLabel = el('div', 'materin-learn-sim__pair');
+      var pairScore = el('div', 'materin-learn-sim__score', '0.00');
+      var note = el('p', 'materin-learn-sim__note', t(a.note));
+
+      function pos(p) { return { x: p.x, y: p.y }; }
+
+      var dots = a.points.map(function (p) {
+        var d = el('div', 'materin-learn-sim__dot', t({ zh: p.w, en: p.en }));
+        d.style.left = p.x + '%';
+        d.style.top = p.y + '%';
+        d.style.animationDelay = (0.3 + Math.random() * 0.4) + 's';
+        field.appendChild(d);
+        return d;
+      });
+
+      var links = a.pairs.map(function (pr, i) {
+        var pa = a.points.find(function (p) { return p.w === pr.a; }) || a.points[0];
+        var pb = a.points.find(function (p) { return p.w === pr.b; }) || a.points[0];
+        var line = el('div', 'materin-learn-sim__link');
+        line.style.animationDelay = (0.9 + i * 0.9) + 's';
+        line.__a = pa; line.__b = pb;
+        field.appendChild(line);
+        return { line: line, pr: pr };
+      });
+
+      /* 连线几何：布局完成后按像素计算长度与角度 */
+      function layoutLinks() {
+        var W = field.offsetWidth, H = field.offsetHeight;
+        if (!W || !H) return false;
+        links.forEach(function (L) {
+          var ax = L.line.__a.x / 100 * W, ay = L.line.__a.y / 100 * H;
+          var bx = L.line.__b.x / 100 * W, by = L.line.__b.y / 100 * H;
+          var dx = bx - ax, dy = by - ay;
+          var len = Math.sqrt(dx * dx + dy * dy);
+          var ang = Math.atan2(dy, dx) * 180 / Math.PI;
+          L.line.style.left = ax + 'px';
+          L.line.style.top = ay + 'px';
+          L.line.style.width = len + 'px';
+          L.line.style.transform = 'rotate(' + ang + 'deg)';
+        });
+        return true;
+      }
+      requestAnimationFrame(function () { layoutLinks(); });
+      window.addEventListener('resize', function () { layoutLinks(); });
+
+      function linkVisible(tNow) {
+        return links.map(function (L, i) {
+          var start = 0.9 + i * 0.9, dur = 1.4;
+          var on = tNow > start ? Math.min((tNow - start) / dur, 1) : 0;
+          L.line.style.opacity = on;
+          return on > 0.55 ? L.pr : null;
+        }).filter(Boolean);
+      }
+
+      var t0 = null, done = false;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) / 1000;
+        var vis = linkVisible(tNow);
+        if (vis.length) {
+          var cur = vis[vis.length - 1];
+          pairLabel.textContent = cur.a + ' ↔ ' + cur.b;
+          var start = 0, shown = 0;
+          links.forEach(function (L) { if (L.pr === cur) start = 0.9 + links.indexOf(L) * 0.9; });
+          shown = Math.min(Math.max((tNow - start - 0.55) / 0.5, 0), 1);
+          pairScore.textContent = (cur.sim * shown).toFixed(2);
+        }
+        if (tNow < 5.5) requestAnimationFrame(step);
+        else if (!done) {
+          done = true;
+          pairLabel.textContent = a.pairs[0].a + ' ↔ ' + a.pairs[0].b;
+          pairScore.textContent = a.pairs[0].sim.toFixed(2);
+          links[0].line.classList.add('is-best');
+        }
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(field);
+      readout.appendChild(pairLabel); readout.appendChild(pairScore);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

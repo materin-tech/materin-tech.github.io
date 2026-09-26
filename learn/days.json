@@ -200,6 +200,131 @@
           "en": "Same 12 characters: 10 tokens in Chinese, 11 in English — and different bills."
         }
       }
+    },
+    {
+      "n": 2,
+      "stage": 1,
+      "week": 1,
+      "tpl": "similarity",
+      "date": "2026-09-26",
+      "title": {
+        "zh": "Embedding：词语住进坐标系",
+        "en": "Embeddings: words move into a coordinate system"
+      },
+      "subtitle": {
+        "zh": "Token 编号只是门牌号。真正让模型「懂意思」的，是门牌后面那张坐标表：每个 token 对应一串数字，意思相近的词在空间里挨得近——语义从此可以做几何运算。",
+        "en": "A token ID is just a house number. What lets a model \"understand\" is the table behind it: every token maps to a vector, similar meanings sit close together, and meaning becomes geometry you can compute on."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：每个 token 领到一串坐标",
+            "en": "Mechanism: every token gets a vector"
+          },
+          "p": {
+            "zh": "模型里有一张「嵌入表」（embedding table）：行数等于词表大小（比如 20 万行），每行是一个稠密向量（常见 768～4096 维，如 GPT 系小模型 768 维、嵌入服务常见 1536 维）。Token 进模型的第一步就是拿自己的编号去查表，把 ID 换成一个向量。「意思相近」用余弦相似度衡量：两个向量夹角越小（方向越一致），分数越接近 1。这张表不是人编的——训练开始时全是随机数，随着模型不断预测下一个词，相关词的向量被反复一起挪动，几千维的空间自己长出结构。",
+            "en": "Inside the model sits an embedding table: one row per vocabulary entry (say 200k rows), each row a dense vector (commonly 768–4096 dimensions; embedding APIs often use 1536). A token's first step in the model is to look up its ID and become that vector. \"Similar meaning\" is measured by cosine similarity: the smaller the angle between two vectors, the closer the score is to 1. Nobody writes this table — it starts random, and as the model practices predicting the next word, related tokens get nudged together until geometry emerges."
+          },
+          "deep": {
+            "zh": "为什么必须用向量，不能直接用编号？因为神经网络只会算数。编号 200 和 201 在数学上毫无关系，20 万维的 one-hot 编码也互相等距——「猫」和「狗」的距离和「猫」和「量子」一样远，语义信息量是零。稠密向量把 20 万个互相孤立的门牌压进两千维、远近有序的空间，这又是压缩经济学：几何结构就是学到的统计规律。「国王 − 男人 + 女人 ≈ 女王」这类经典结果说明，语义关系真的以「方向」的形式存在于这个空间里。",
+            "en": "Why vectors instead of raw IDs? Because networks only compute numbers. IDs 200 and 201 share nothing mathematically, and one-hot encodings are all equidistant — \"cat\" is as far from \"dog\" as from \"quantum\". Dense vectors compress 200k isolated labels into a ~2k-dimensional space with structure, again compression economics: the geometry IS the learned statistics. Classic results like king − man + woman ≈ queen show semantic relations really exist as directions in this space."
+          }
+        },
+        {
+          "h": {
+            "zh": "实例：把整个知识库变成坐标，不到一杯咖啡钱",
+            "en": "Worked example: embedding a whole knowledge base for pocket change"
+          },
+          "p": {
+            "zh": "假设你有 1 万条 FAQ，每条平均 60 token，想把它们变成可检索的知识库：用嵌入 API 全部向量化，共 60 万 token。按主流嵌入模型约 $0.02/百万 token 计价，成本约 $0.012——一次付清，之后不用再算。之后每次用户提问，只把问题本身（约 20 token）向量化，再在 1 万个向量里找余弦最近的几条。检索不是逐条「读」，而是先算 1 万次点积再排序——向量化之后，找相似从「阅读理解」变成了「量距离」。",
+            "en": "Say you have 10,000 FAQ entries averaging 60 tokens and want them searchable: embed them all via an embedding API — 600k tokens total. At roughly $0.02 per million tokens that is about $0.012, paid once. Each user question afterwards embeds just itself (~20 tokens), then you find the few nearest entries by cosine similarity. Retrieval is no longer \"reading\" 10k entries — it is computing 10k dot products and sorting: similarity search turns comprehension into measuring distance."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "同样的 1 万条 FAQ，如果不用向量：让模型每次把全部条目读一遍再回答，60 万 token × 每次提问都付一遍，问 100 次就是 6000 万 token 的输入费；向量化方案同样的 100 次提问只多花 100 × 20 = 2000 token 的嵌入费。差距约 3 万倍——这就是「先向量化、再检索」存在的理由。",
+              "en": "Without vectors, a model would reread all 600k tokens on every question; 100 questions cost 60M input tokens. The vector route embeds 100 × 20 = 2k tokens for the same 100 questions — a gap of roughly 30,000x. That is why \"embed first, retrieve second\" exists."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：距离近 ≠ 意思相同",
+            "en": "Misconception: close in space ≠ same in meaning"
+          },
+          "p": {
+            "zh": "余弦相似度是统计关系，不是同义词判断。「好评」和「差评」语义相反，却常常出现在几乎相同的语境里（都跟「商品」「体验」「推荐」搭配），所以向量可能挨得很近——嵌入模型分不清褒贬，只认语境分布。反过来，同一个词在不同语境里其实「该」有不同坐标，早期静态嵌入给一个词只留一行，一词多义就被压扁了（后来的动态/上下文化嵌入为此而生）。",
+            "en": "Cosine similarity captures statistical co-occurrence, not synonymy. \"Great review\" and \"terrible review\" are opposites yet live in nearly identical contexts (products, experiences, recommendations), so their embeddings can sit close — the model knows distribution, not sentiment. And one word in different contexts deserves different coordinates; static embeddings give each word one row, flattening polysemy (contextualized embeddings exist to fix this)."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「向量维度越高越好」。维度高只是容量大：300 维的词向量早已能表达大部分语义关系，1536 维相对 768 维的提升是边际的，代价却是存储和检索成本翻倍。选嵌入模型看的是检索质量基准和你的预算，不是维度数字。另外，嵌入只是「把意思变成坐标」，它不记忆任何事实——知识库本身还是存在你那边的普通文本里。",
+              "en": "\"More dimensions are always better.\" Dimension is capacity, not quality: 300-dim vectors already capture most semantic relations; 1536 vs 768 is marginal while storage and search costs double. Pick embedding models by retrieval benchmarks and budget, not dimension counts. And remember: an embedding stores coordinates, not facts — your knowledge base still lives as plain text on your side."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：向量是后面 166 天的底座",
+            "en": "Where this leads"
+          },
+          "p": {
+            "zh": "Embedding 是后面几乎所有主题的承重墙：第 3 天的「温度与采样」发生在向量穿过几十层网络之后的输出分布上；阶段四 RAG 的核心动作「检索」就是余弦相似度排序，今天算过的账就是它的成本模型；阶段三 Agent 的长期记忆，本质是把历史对话存成向量、用得着的时候再按距离取回。今天带走一句话——",
+            "en": "Embeddings carry almost everything ahead: sampling (day 3) happens on the output distribution after vectors pass through dozens of layers; RAG (stage 4) is cosine-similarity ranking, and today's math is its cost model; agent long-term memory (stage 3) stores past dialogue as vectors and recalls by distance. One sentence for today —"
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "找一个嵌入演示（搜 “OpenAI embeddings” 或 TensorFlow Embedding Projector），把三组词向量化并记录余弦相似度：① 「猫」和「狗」；② 「猫」和「汽车」；③ 「国王」「男人」「女人」「女王」，算一算 国王−男人+女人 是否最接近女王。然后回答：为什么 ① 的分数高不奇怪，而 ③ 能成立才真正说明向量学到了「关系」？（提示：②是「词与词」的距离，③是「方向与方向」的对齐——差向量画在纸上，看它们是否平行。）",
+          "en": "Open an embedding demo (search \"OpenAI embeddings\" or TensorFlow Embedding Projector) and record cosine similarities for: (1) cat/dog; (2) cat/car; (3) king, man, woman, queen — check whether king − man + woman lands nearest queen. Then answer: why is (1) unsurprising, while (3) working is the real evidence vectors learned relations? (Hint: (2) is word-to-word distance, (3) is direction-to-direction alignment — sketch the difference vectors and check whether they run parallel.)"
+        }
+      },
+      "takeaway": {
+        "zh": "向量把「意思」变成几何：模型不认识词，它只是把语料里的统计关系摆进了一个几千维的空间。",
+        "en": "Embeddings turn meaning into geometry: the model doesn't know words — it arranges corpus statistics inside a few-thousand-dimensional space."
+      },
+      "anim": {
+        "tpl": "similarity",
+        "hook": {
+          "zh": "在模型眼里，猫和狗离得多近？",
+          "en": "How close are cat and dog, inside the model?"
+        },
+        "sentence": {
+          "zh": "意思相近的词，坐标也相近。",
+          "en": "Similar meanings, nearby coordinates."
+        },
+        "points": [
+          { "w": "猫", "en": "cat", "x": 68, "y": 28 },
+          { "w": "狗", "en": "dog", "x": 58, "y": 42 },
+          { "w": "汽车", "en": "car", "x": 22, "y": 74 },
+          { "w": "苹果", "en": "apple", "x": 40, "y": 86 }
+        ],
+        "pairs": [
+          { "a": "猫", "b": "狗", "sim": 0.86 },
+          { "a": "狗", "b": "汽车", "sim": 0.34 },
+          { "a": "猫", "b": "苹果", "sim": 0.19 }
+        ],
+        "note": {
+          "zh": "余弦相似度（示意数值）：越接近 1，两个词的语境分布越接近。",
+          "en": "Cosine similarity (illustrative): the closer to 1, the closer the two words' contexts."
+        },
+        "coverHook": {
+          "zh": "「猫」在模型里是 1536 个数字：跟狗 0.86，跟苹果只有 0.19。",
+          "en": "\"Cat\" is 1,536 numbers inside the model: 0.86 to dog, only 0.19 to apple."
+        }
+      }
     }
   ]
 }

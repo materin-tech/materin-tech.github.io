@@ -93,7 +93,7 @@
     return s;
   }
 
-  /* 可视化板：counter 模板专用的 token 可视化；其他模板给通用摘句板 */
+  /* 可视化板：counter → token 切分；similarity → 语义坐标；其他给通用摘句板 */
   function vizBoard(day, idx) {
     var v = el('div', 'materin-learn-viz');
     if (day.anim && day.anim.tpl === 'counter') {
@@ -127,6 +127,30 @@
         });
         v.appendChild(bars);
         v.appendChild(el('div', 'materin-learn-viz__label', '同一句话的 token 数（' + day.anim.counts.chars + ' 个字）'));
+      }
+    } else if (day.anim && day.anim.tpl === 'similarity') {
+      if (idx === 0) {
+        var dots = el('div', 'materin-learn-viz__chips');
+        day.anim.points.forEach(function (p) {
+          dots.appendChild(el('span', 'materin-learn-viz__chip', p.w));
+        });
+        v.appendChild(dots);
+        v.appendChild(el('div', 'materin-learn-viz__label', '同一个语义空间里的坐标（示意）'));
+      } else {
+        var bars = el('div', 'materin-learn-viz__bars');
+        day.anim.pairs.forEach(function (pr) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', pr.a + '·' + pr.b));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar');
+          bar.style.width = (pr.sim * 100) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', pr.sim.toFixed(2)));
+          bars.appendChild(row);
+        });
+        v.appendChild(bars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '余弦相似度（示意数值）'));
       }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));

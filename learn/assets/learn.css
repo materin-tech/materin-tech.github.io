@@ -283,6 +283,86 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* --- 动效模板 · similarity ------------------------------------------ */
+.materin-learn-sim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  width: 100%;
+}
+
+.materin-learn-sim__field {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--materin-border);
+  border-radius: 18px;
+  background:
+    radial-gradient(90% 110% at 80% 10%, var(--materin-accent-soft), transparent 60%),
+    var(--materin-surface-3);
+  overflow: hidden;
+}
+
+.materin-learn-sim__dot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 7px 14px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 999px;
+  background: var(--materin-surface-2);
+  box-shadow: var(--materin-shadow);
+  color: var(--materin-text);
+  font-size: 15px;
+  font-weight: 600;
+  opacity: 0;
+  animation: materin-learn-pop 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.25) forwards;
+}
+
+.materin-learn-sim__link {
+  position: absolute;
+  height: 1.5px;
+  transform-origin: 0 0;
+  background: linear-gradient(90deg, var(--materin-accent), color-mix(in srgb, var(--materin-accent) 25%, transparent));
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.materin-learn-sim__link.is-best {
+  background: linear-gradient(90deg, var(--materin-accent), var(--materin-accent));
+  height: 2.5px;
+}
+
+.materin-learn-sim__readout {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.materin-learn-sim__pair {
+  color: var(--materin-text);
+  font-size: 19px;
+  font-weight: 650;
+}
+
+.materin-learn-sim__score {
+  min-width: 108px;
+  color: var(--materin-accent);
+  font-size: 52px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-shadow: 0 0 32px var(--materin-accent-soft);
+}
+
+.materin-learn-sim__note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+
 .materin-learn-counter__num.is-done {
   animation: materin-learn-breathe 2.6s ease-in-out infinite;
 }
@@ -537,6 +617,13 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-body-day.is-stage .materin-learn-counter__swap button { font-size: 30px; padding: 14px 36px; }
 .materin-learn-body-day.is-stage .materin-learn-counter__note { font-size: 28px; max-width: 840px; }
 
+.materin-learn-body-day.is-stage .materin-learn-sim { gap: 56px; }
+.materin-learn-body-day.is-stage .materin-learn-sim__field { max-width: 900px; border-radius: 30px; }
+.materin-learn-body-day.is-stage .materin-learn-sim__dot { font-size: 34px; padding: 14px 30px; }
+.materin-learn-body-day.is-stage .materin-learn-sim__pair { font-size: 40px; }
+.materin-learn-body-day.is-stage .materin-learn-sim__score { font-size: 110px; min-width: 240px; }
+.materin-learn-body-day.is-stage .materin-learn-sim__note { font-size: 28px; max-width: 840px; }
+
 .materin-learn-body-day.is-stage .materin-learn-dayhead { display: none; }
 .materin-learn-body-day.is-stage .materin-learn-sections,
 .materin-learn-body-day.is-stage .materin-learn-action,
@@ -547,4 +634,6 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 @media (prefers-reduced-motion: reduce) {
   .materin-learn-counter__chip { animation: none; opacity: 1; transform: none; }
   .materin-learn-counter__num.is-done { animation: none; }
+  .materin-learn-sim__dot { animation: none; opacity: 1; transform: translate(-50%, -50%); }
+  .materin-learn-sim__link { opacity: 1; transition: none; }
 }
