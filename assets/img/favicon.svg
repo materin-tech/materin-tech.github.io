@@ -1,14 +1,82 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Materin Tech">
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Materin · 格物致知 品牌图标 · 完整版
+  设计：晶格 + 神经网络 + 数据流动
+  核心：探究（格物）→ 洞察（致知）
+  AI 特色：节点连接 + 渐变光晕
+-->
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Materin">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#5b8cff"/>
-      <stop offset="100%" stop-color="#6ee7d5"/>
+    <!-- 外圈光晕渐变（AI 科技感） -->
+    <radialGradient id="materin-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#06B6D4" stop-opacity="0.4"/>
+      <stop offset="60%" stop-color="#6366F1" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#6366F1" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 中心核渐变 -->
+    <radialGradient id="materin-core" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#67E8F9"/>
+      <stop offset="50%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </radialGradient>
+
+    <!-- 节点渐变 -->
+    <radialGradient id="materin-node" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#A5B4FC"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </radialGradient>
+
+    <!-- 文字渐变 -->
+    <linearGradient id="materin-text" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#67E8F9"/>
+      <stop offset="100%" stop-color="#818CF8"/>
     </linearGradient>
   </defs>
-  <rect x="2" y="2" width="60" height="60" rx="15" fill="#0b0f19"/>
-  <rect x="2" y="2" width="60" height="60" rx="15" fill="none" stroke="url(#g)" stroke-width="3"/>
-  <path d="M15 45V20l9.5 13L34 20v25" fill="none" stroke="url(#g)" stroke-width="5"
-        stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M42 20v25M42 45h9" fill="none" stroke="#e7ecf5" stroke-width="5"
-        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- 背景光晕（AI 辐射场） -->
+  <circle cx="32" cy="32" r="30" fill="url(#materin-glow)"/>
+
+  <!-- 外圈：探究边界 -->
+  <circle cx="32" cy="32" r="26" fill="none"
+          stroke="url(#materin-text)" stroke-width="1"
+          opacity="0.3"/>
+
+  <!-- 内圈：致知核心 -->
+  <circle cx="32" cy="32" r="18" fill="none"
+          stroke="#6366F1" stroke-width="1"
+          opacity="0.5"/>
+
+  <!-- 主路径：四方到中心（探究路径） -->
+  <g stroke="#6366F1" stroke-width="1.5" stroke-linecap="round" fill="none">
+    <line x1="32" y1="8"  x2="32" y2="32" opacity="0.7"/>
+    <line x1="32" y1="32" x2="32" y2="56" opacity="0.7"/>
+    <line x1="8"  y1="32" x2="32" y2="32" opacity="0.7"/>
+    <line x1="32" y1="32" x2="56" y2="32" opacity="0.7"/>
+  </g>
+
+  <!-- 次路径：对角连线（横向关联洞察） -->
+  <g stroke="#06B6D4" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.5">
+    <line x1="32" y1="8"  x2="56" y2="32"/>
+    <line x1="56" y1="32" x2="32" y2="56"/>
+    <line x1="32" y1="56" x2="8"  y2="32"/>
+    <line x1="8"  y1="32" x2="32" y2="8"/>
+  </g>
+
+  <!-- 四方节点（事物的面向） -->
+  <g>
+    <circle cx="32" cy="8"  r="2.5" fill="url(#materin-node)"/>
+    <circle cx="32" cy="56" r="2.5" fill="url(#materin-node)"/>
+    <circle cx="8"  cy="32" r="2.5" fill="url(#materin-node)"/>
+    <circle cx="56" cy="32" r="2.5" fill="url(#materin-node)"/>
+  </g>
+
+  <!-- 中心核：致知之光 -->
+  <circle cx="32" cy="32" r="4" fill="url(#materin-core)"/>
+
+  <!-- 中心核光环（致知辐射） -->
+  <circle cx="32" cy="32" r="7" fill="none"
+          stroke="#67E8F9" stroke-width="0.5" opacity="0.6"/>
+  <circle cx="32" cy="32" r="10" fill="none"
+          stroke="#06B6D4" stroke-width="0.3" opacity="0.4"/>
 </svg>
