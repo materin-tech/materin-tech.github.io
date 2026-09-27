@@ -2,6 +2,28 @@
   "updated": "2026-09-25",
   "projects": [
     {
+      "name": "AI 原生学习路线",
+      "slug": "ai-learn",
+      "version": "Day 1+",
+      "description": {
+        "zh": "168 天的 AI 原生领域化路线：从 Token 与上下文，到 Agent 与 RAG，再到 AI 重塑认知。每日一课，配套动手与小结。中英双语。",
+        "en": "168-day AI-native path: tokens & context, agents & RAG, then AI reshaping cognition. One lesson a day with hands-on and a takeaway. Bilingual."
+      },
+      "url": "https://github.com/materin-tech/materin-tech.github.io/tree/main/learn",
+      "page": "/learn/",
+      "homepage": "https://materin-tech.github.io/learn/",
+      "tags": [
+        "ai-native",
+        "学习",
+        "learn",
+        "路线",
+        "roadmap"
+      ],
+      "language": "JavaScript / HTML",
+      "visibility": "public",
+      "updated": "2026-09"
+    },
+    {
       "name": "Materin Office",
       "slug": "materin-office",
       "version": "0.1.3",
