@@ -46,6 +46,10 @@
 
   var grid = document.getElementById('project-grid');
   var filters = document.getElementById('filters');
+  var nowGrid = document.getElementById('now-grid');  // 首页「现在的内容」区
+  var nowEmpty = document.getElementById('now-empty');
+  var nowEmptyEn = document.getElementById('now-empty-en');
+  var NOW_LIMIT = 6;  // 首页最多显示多少个项目卡片
   var statRepos = document.querySelector('[data-stat="repos"]');
   var projects = [];
   var activeTag = 'all';
@@ -85,6 +89,35 @@
       '</article>';
   }
 
+  // 按 updated 倒序排序（最新在前）
+  function sortByUpdatedDesc(arr) {
+    return arr.slice().sort(function (a, b) {
+      var ua = String(a.updated || '');
+      var ub = String(b.updated || '');
+      if (ub !== ua) return ub < ua ? -1 : 1;
+      // 同时间则按 name 稳定排序
+      return String(a.name || '').localeCompare(String(b.name || ''));
+    });
+  }
+
+  // 首页「现在的内容」区渲染：按时间倒序，取前 N 个
+  function renderNow() {
+    if (!nowGrid) return;
+    var sorted = sortByUpdatedDesc(projects);
+    var top = sorted.slice(0, NOW_LIMIT);
+    if (top.length) {
+      nowGrid.innerHTML = top.map(cardHtml).join('');
+      nowGrid.removeAttribute('aria-busy');
+      if (nowEmpty) nowEmpty.hidden = true;
+      if (nowEmptyEn) nowEmptyEn.hidden = true;
+    } else {
+      nowGrid.innerHTML = '';
+      nowGrid.removeAttribute('aria-busy');
+      if (nowEmpty) nowEmpty.hidden = false;
+      if (nowEmptyEn) nowEmptyEn.hidden = false;
+    }
+  }
+
   function render() {
     if (!grid) return;
     var list = activeTag === 'all'
@@ -93,6 +126,7 @@
     grid.innerHTML = list.length
       ? list.map(cardHtml).join('')
       : '<p class="materin-site-empty">' + esc(T[LANG].empty) + '</p>';
+    renderNow();  // 同步刷新首页「现在的内容」
   }
 
   function buildFilters() {
@@ -154,6 +188,8 @@
       .then(function (data) {
         projects = Array.isArray(data) ? data : (data.projects || []);
         if (statRepos) statRepos.textContent = String(projects.length);
+        // 首页「现在的内容」独立渲染（不依赖 /projects/ 页面是否在场）
+        renderNow();
         applyLang(LANG);
       })
       .catch(function (err) {
