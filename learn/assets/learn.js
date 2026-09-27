@@ -336,16 +336,41 @@
 
   function renderHome() {
     var meta = window.LEARN.meta;
+    var days = window.LEARN.days;
+    var todayN = days.length ? Math.max.apply(null, days.map(function (d) { return d.n; })) : 0;
+
     var head = el('header', 'materin-learn-dayhead');
     head.appendChild(el('h1', 'materin-learn-dayhead__title', lang() === 'en' ? 'AI-Native Learning Roadmap' : 'AI 原生学习路线'));
     head.appendChild(el('p', 'materin-learn-dayhead__sub', lang() === 'en'
       ? 'Foundations, then agents, then a reshaped way of thinking — ' + meta.total + ' days, one page a day.'
       : '从关键基础到 Agent，再到认知重塑——' + meta.total + ' 天，每天一页。'));
+
+    /* 总进度：已完成 X/168 + 进度条 + 今日卡 */
+    var prog = el('div', 'materin-learn-progress');
+    var label = el('div', 'materin-learn-progress__label');
+    label.appendChild(el('span', null, (lang() === 'en' ? 'Progress ' : '进度 ')));
+    label.appendChild(el('strong', 'materin-learn-progress__num', todayN + ' / ' + meta.total));
+    prog.appendChild(label);
+    var track = el('div', 'materin-learn-progress__track');
+    var bar = el('div', 'materin-learn-progress__bar');
+    bar.style.width = Math.min(100, todayN / meta.total * 100) + '%';
+    track.appendChild(bar);
+    prog.appendChild(track);
+    head.appendChild(prog);
+
+    /* 今日卡：跳当天 */
+    var today = days.find(function (d) { return d.n === todayN; });
+    if (today) {
+      var card = el('a', 'materin-learn-today');
+      card.href = 'day.html?d=' + today.n;
+      card.appendChild(el('span', 'materin-learn-today__kicker', lang() === 'en' ? 'Latest' : '最新一课 · 第 ' + today.n + ' 天'));
+      card.appendChild(el('span', 'materin-learn-today__title', t(today.title)));
+      card.appendChild(el('span', 'materin-learn-today__go', lang() === 'en' ? 'Read →' : '去读 →'));
+      head.appendChild(card);
+    }
     app.appendChild(head);
 
     var map = el('div', 'materin-learn-map');
-    var published = window.LEARN.days.map(function (d) { return d.n; });
-    var todayN = published.length ? Math.max.apply(null, published) : 1;
     meta.stages.forEach(function (st) {
       var box = el('article', 'materin-learn-map__stage' +
         (todayN >= st.days[0] && todayN <= st.days[1] ? ' is-current' : ''));
@@ -354,13 +379,28 @@
       h.appendChild(el('span', 'materin-learn-map__stage-name', t({ zh: st.zh, en: st.en })));
       h.appendChild(el('span', 'materin-learn-map__stage-days', 'D' + st.days[0] + '–' + st.days[1]));
       box.appendChild(h);
-      var first = window.LEARN.days.find(function (d) { return d.stage === st.id; });
-      if (first) {
-        var link = el('a', 'materin-learn-map__stage-p');
-        link.href = 'day.html?d=' + first.n;
-        link.textContent = lang() === 'en' ? 'Start: ' + t(first.title) : '开篇：' + t(first.title);
-        link.style.color = '';
-        box.appendChild(link);
+
+      /* 已发布的该阶段天数，倒序列最近 3 课（可点） */
+      var stageDays = days.filter(function (d) { return d.stage === st.id; }).sort(function (a, b) { return b.n - a.n; });
+      if (stageDays.length) {
+        stageDays.slice(0, 3).forEach(function (d) {
+          var link = el('a', 'materin-learn-map__day');
+          link.href = 'day.html?d=' + d.n;
+          var tag = el('span', 'materin-learn-map__day-no', 'D' + d.n);
+          var txt = el('span', 'materin-learn-map__day-title', t(d.title));
+          link.appendChild(tag); link.appendChild(txt);
+          box.appendChild(link);
+        });
+        if (stageDays.length > 3) {
+          box.appendChild(el('p', 'materin-learn-map__more', (lang() === 'en'
+            ? '+' + (stageDays.length - 3) + ' earlier days'
+            : '前 ' + (stageDays.length - 3) + ' 天见每日页存档')));
+        }
+      } else {
+        var first = days.find(function (d) { return d.stage === st.id; });
+        box.appendChild(el('p', 'materin-learn-map__stage-p', lang() === 'en'
+          ? 'Coming at D' + st.days[0]
+          : '第 ' + st.days[0] + ' 天开讲'));
       }
       map.appendChild(box);
     });
