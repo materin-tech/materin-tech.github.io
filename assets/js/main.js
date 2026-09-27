@@ -179,7 +179,7 @@
   }
 
   // ---------- 数据 ----------
-  if (grid) {
+  if (grid || nowGrid) {
     fetch('/data/projects.json', { cache: 'no-cache' })
       .then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
