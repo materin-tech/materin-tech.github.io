@@ -380,10 +380,10 @@
       h.appendChild(el('span', 'materin-learn-map__stage-days', 'D' + st.days[0] + '–' + st.days[1]));
       box.appendChild(h);
 
-      /* 已发布的该阶段天数，倒序列最近 3 课（可点） */
-      var stageDays = days.filter(function (d) { return d.stage === st.id; }).sort(function (a, b) { return b.n - a.n; });
+      /* 已发布的该阶段天数，按序号正序列最近 3 课（可点） */
+      var stageDays = days.filter(function (d) { return d.stage === st.id; }).sort(function (a, b) { return a.n - b.n; });
       if (stageDays.length) {
-        stageDays.slice(0, 3).forEach(function (d) {
+        stageDays.slice(-3).forEach(function (d) {
           var link = el('a', 'materin-learn-map__day');
           link.href = 'day.html?d=' + d.n;
           var tag = el('span', 'materin-learn-map__day-no', 'D' + d.n);
