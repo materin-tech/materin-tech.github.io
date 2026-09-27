@@ -183,6 +183,84 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* spectrum：温度旋钮 + softmax 概率谱 + 逐帧采样闪烁 */
+    spectrum: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-spectrum');
+      var dial = el('div', 'materin-learn-spectrum__dial');
+      var phrase = el('div', 'materin-learn-spectrum__phrase');
+      var bars = el('div', 'materin-learn-spectrum__bars');
+      var note = el('p', 'materin-learn-spectrum__note', t(a.note));
+      var temps = a.temperatures;
+      var cur = null;
+      var barNodes = [];
+
+      a.candidates.forEach(function (c) {
+        var row = el('div', 'materin-learn-spectrum__row');
+        var word = el('span', 'materin-learn-spectrum__word', lang() === 'en' ? c.en : c.w);
+        var track = el('div', 'materin-learn-spectrum__track');
+        var bar = el('div', 'materin-learn-spectrum__bar');
+        bar.style.width = '0%';
+        var val = el('span', 'materin-learn-spectrum__val', '');
+        track.appendChild(bar);
+        row.appendChild(word); row.appendChild(track); row.appendChild(val);
+        bars.appendChild(row);
+        barNodes.push({ c: c, bar: bar, val: val, row: row });
+      });
+
+      function pickTemp() {
+        /* 按温度权重循环：低温出现更久，高温尾部也轮到 */
+        var idx = temps.indexOf(cur);
+        var next = (idx + 1) % temps.length;
+        return temps[next];
+      }
+
+      var rollTimer = null;
+      function roll() {
+        /* 采样闪烁：按当前概率随机点亮候选行 */
+        var r = Math.random() * 100, acc = 0, hit = barNodes[0];
+        for (var i = 0; i < barNodes.length; i++) {
+          acc += cur.probs[i];
+          if (r <= acc) { hit = barNodes[i]; break; }
+        }
+        barNodes.forEach(function (b) { b.row.classList.remove('is-hit'); });
+        hit.row.classList.add('is-hit');
+        phrase.textContent = (lang() === 'en' ? a.sentence.en.replace('___', '') : a.sentence.zh.replace('＿', '')) +
+          (lang() === 'en' ? hit.c.en : hit.c.w);
+      }
+
+      function show(temp) {
+        cur = temp;
+        barNodes.forEach(function (b, i) {
+          var p = temp.probs[i];
+          b.bar.style.width = p + '%';
+          b.val.textContent = p.toFixed(1) + '%';
+        });
+        roll();
+        if (rollTimer) clearInterval(rollTimer);
+        rollTimer = setInterval(roll, 1100);
+      }
+
+      temps.forEach(function (temp) {
+        var btn = el('button', null, 'T=' + temp.t);
+        btn.addEventListener('click', function () {
+          dial.querySelectorAll('button').forEach(function (x) { x.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+          show(temp);
+        });
+        dial.appendChild(btn);
+      });
+      dial.children[0].classList.add('is-active');
+
+      phrase.classList.add('is-head');
+      wrap.appendChild(phrase);
+      wrap.appendChild(bars);
+      wrap.appendChild(dial);
+      wrap.appendChild(note);
+      setTimeout(function () { show(temps[0]); }, 350);
+      return wrap;
     }
   };
 

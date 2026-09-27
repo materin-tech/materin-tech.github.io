@@ -363,6 +363,121 @@
   text-align: center;
 }
 
+/* --- 动效模板 · spectrum（温度与采样） ------------------------------- */
+.materin-learn-spectrum {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 620px;
+}
+
+.materin-learn-spectrum__phrase {
+  padding: 10px 26px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 999px;
+  background: var(--materin-glass-bg-subtle, var(--materin-surface-3));
+  box-shadow: var(--materin-shadow);
+  color: var(--materin-text);
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  transition: background var(--materin-duration-fast, 0.15s) ease;
+}
+
+.materin-learn-spectrum__phrase.is-hit {
+  background: var(--materin-accent-soft);
+}
+
+.materin-learn-spectrum__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.materin-learn-spectrum__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  transition: background var(--materin-duration-fast, 0.15s) ease;
+}
+
+.materin-learn-spectrum__row.is-hit {
+  background: var(--materin-surface-3);
+}
+
+.materin-learn-spectrum__word {
+  min-width: 58px;
+  color: var(--materin-text);
+  font-size: 17px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.materin-learn-spectrum__track {
+  flex: 1;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--materin-surface-3);
+  overflow: hidden;
+}
+
+.materin-learn-spectrum__bar {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--materin-accent), color-mix(in srgb, var(--materin-accent) 55%, transparent));
+  transition: width 0.7s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.materin-learn-spectrum__val {
+  min-width: 56px;
+  color: var(--materin-text-muted);
+  font-family: var(--materin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-spectrum__dial {
+  display: flex;
+  gap: 10px;
+}
+
+.materin-learn-spectrum__dial button {
+  padding: 6px 16px;
+  border: 1px solid var(--materin-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--materin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: all var(--materin-duration-fast, 0.15s) var(--materin-ease-standard, ease);
+}
+
+.materin-learn-spectrum__dial button:hover {
+  border-color: var(--materin-accent-border);
+  color: var(--materin-text);
+}
+
+.materin-learn-spectrum__dial button.is-active {
+  border-color: transparent;
+  background: var(--materin-accent);
+  color: var(--materin-on-accent);
+  font-weight: 600;
+}
+
+.materin-learn-spectrum__note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+
 .materin-learn-counter__num.is-done {
   animation: materin-learn-breathe 2.6s ease-in-out infinite;
 }
@@ -624,6 +739,16 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-body-day.is-stage .materin-learn-sim__score { font-size: 110px; min-width: 240px; }
 .materin-learn-body-day.is-stage .materin-learn-sim__note { font-size: 28px; max-width: 840px; }
 
+.materin-learn-body-day.is-stage .materin-learn-spectrum { gap: 52px; }
+.materin-learn-body-day.is-stage .materin-learn-spectrum__phrase { font-size: 54px; padding: 22px 56px; border-radius: 999px; }
+.materin-learn-body-day.is-stage .materin-learn-spectrum__bars { gap: 26px; }
+.materin-learn-body-day.is-stage .materin-learn-spectrum__row { gap: 26px; padding: 6px 22px; }
+.materin-learn-body-day.is-stage .materin-learn-spectrum__word { font-size: 38px; min-width: 130px; }
+.materin-learn-body-day.is-stage .materin-learn-spectrum__track { height: 34px; }
+.materin-learn-body-day.is-stage .materin-learn-spectrum__val { font-size: 28px; min-width: 120px; }
+.materin-learn-body-day.is-stage .materin-learn-spectrum__dial button { font-size: 30px; padding: 14px 36px; }
+.materin-learn-body-day.is-stage .materin-learn-spectrum__note { font-size: 28px; max-width: 840px; }
+
 .materin-learn-body-day.is-stage .materin-learn-dayhead { display: none; }
 .materin-learn-body-day.is-stage .materin-learn-sections,
 .materin-learn-body-day.is-stage .materin-learn-action,
@@ -636,4 +761,5 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
   .materin-learn-counter__num.is-done { animation: none; }
   .materin-learn-sim__dot { animation: none; opacity: 1; transform: translate(-50%, -50%); }
   .materin-learn-sim__link { opacity: 1; transition: none; }
+  .materin-learn-spectrum__bar { transition: none; }
 }

@@ -306,15 +306,47 @@
           "en": "Similar meanings, nearby coordinates."
         },
         "points": [
-          { "w": "猫", "en": "cat", "x": 68, "y": 28 },
-          { "w": "狗", "en": "dog", "x": 58, "y": 42 },
-          { "w": "汽车", "en": "car", "x": 22, "y": 74 },
-          { "w": "苹果", "en": "apple", "x": 40, "y": 86 }
+          {
+            "w": "猫",
+            "en": "cat",
+            "x": 68,
+            "y": 28
+          },
+          {
+            "w": "狗",
+            "en": "dog",
+            "x": 58,
+            "y": 42
+          },
+          {
+            "w": "汽车",
+            "en": "car",
+            "x": 22,
+            "y": 74
+          },
+          {
+            "w": "苹果",
+            "en": "apple",
+            "x": 40,
+            "y": 86
+          }
         ],
         "pairs": [
-          { "a": "猫", "b": "狗", "sim": 0.86 },
-          { "a": "狗", "b": "汽车", "sim": 0.34 },
-          { "a": "猫", "b": "苹果", "sim": 0.19 }
+          {
+            "a": "猫",
+            "b": "狗",
+            "sim": 0.86
+          },
+          {
+            "a": "狗",
+            "b": "汽车",
+            "sim": 0.34
+          },
+          {
+            "a": "猫",
+            "b": "苹果",
+            "sim": 0.19
+          }
         ],
         "note": {
           "zh": "余弦相似度（示意数值）：越接近 1，两个词的语境分布越接近。",
@@ -323,6 +355,185 @@
         "coverHook": {
           "zh": "「猫」在模型里是 1536 个数字：跟狗 0.86，跟苹果只有 0.19。",
           "en": "\"Cat\" is 1,536 numbers inside the model: 0.86 to dog, only 0.19 to apple."
+        }
+      }
+    },
+    {
+      "n": 3,
+      "stage": 1,
+      "week": 1,
+      "tpl": "spectrum",
+      "date": "2026-09-27",
+      "title": {
+        "zh": "温度与采样：模型怎么决定下一个词",
+        "en": "Temperature & sampling: how the next word gets picked"
+      },
+      "subtitle": {
+        "zh": "模型每写一个字都要掷一次骰子，而骰子不是均匀的——logits 加温度决定每一面的概率。这根旋钮不花一分钱，却同时管着稳定的下限和胡说的上限。",
+        "en": "Every token is one roll of a loaded die: logits plus temperature set each face's odds. The dial costs nothing, yet it governs both the floor of reliability and the ceiling of nonsense."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：softmax 与温度",
+            "en": "Mechanism: softmax and temperature"
+          },
+          "p": {
+            "zh": "模型写每个字之前，先给词表里 20 万个候选各打一个分（logit，可正可负），再跑一遍 softmax：把每个分数变成 e 的幂（全变正数、不改变大小顺序），除以总和归一化成概率，最后按概率掷骰子选出一个。温度只做一件事——取指数之前把所有 logit 除以 T。T<1 把分差放大，概率向头部集中；T>1 把分差压平，尾部词被抬高。关键在概率比：两个候选的概率比是 e^((a−b)/T)，0.6 的分差在 T=1 时对应 1.8 倍，在 T=2 时只剩 1.35 倍——温度就是「分差换概率」的汇率。",
+            "en": "Before writing each token, the model scores all ~200k vocabulary candidates with a logit (positive or negative), then runs softmax: exponentiate each score (all positive, order preserved), normalize into probabilities, and sample one. Temperature does exactly one thing — divide every logit by T before the exponent. T<1 widens the gaps and piles probability onto the head; T>1 flattens them and lifts the tail. The key is the probability ratio: e^((a−b)/T). A 0.6-logit gap means 1.8x odds at T=1 but only 1.35x at T=2 — temperature is the exchange rate between score gaps and probability."
+          },
+          "deep": {
+            "zh": "为什么用 e 的幂而不直接归一化？logit 有正有负，直接归一化会出负概率；exp 既保正又保序，还让「分差」以乘法方式进入概率比，数学上最干净。而温度放进分母而不是另设一套参数，意味着它不需要重新训练——同一组 logit，拧一下 T 就得到从保守到放飞的一整族分布。这正是它被做成「旋钮」而不是「开关」的原因：连续可调，且与训练解耦。",
+            "en": "Why exponentiate instead of normalizing directly? Logits go negative; a plain normalization would produce negative probabilities. exp is positive, order-preserving, and lets score gaps enter the probability ratio multiplicatively — mathematically the cleanest choice. And because temperature sits in the denominator rather than being a trained parameter, it needs no retraining: one set of logits, one turn of T, a whole family of distributions from cautious to wild. That is why it ships as a dial, not a switch."
+          }
+        },
+        {
+          "h": {
+            "zh": "实例：三种温度三张账单",
+            "en": "Worked example: three temperatures, three bills"
+          },
+          "p": {
+            "zh": "让模型补「今天天气真＿」，设候选 logit 为：热 5.2、不错 4.6、好 4.4、差 3.8、蓝 3.0（ softmax 实算）。T=0.5：「热」63.4%，生成 100 次约 63 次是它，「蓝」只有 0.8%；T=1：「热」42.5%，「蓝」升到 4.7%；T=2：「热」只剩 30.9%，「蓝」翻到 10.3%——每 10 次就有 1 次说出「天气真蓝」。注意成本一分未变：温度改变的是「选哪个 token」，不是「选多少 token」，账单只看 token 数。",
+            "en": "Complete “今天天气真＿” with logits 热 5.2, 不错 4.6, 好 4.4, 差 3.8, 蓝 3.0 (real softmax). T=0.5: “热” takes 63.4% — about 63 of 100 runs — and “蓝” just 0.8%. T=1: “热” 42.5%, “蓝” 4.7%. T=2: “热” down to 30.9% while “蓝” climbs to 10.3% — “really blue” appears once every 10 draws. The bill never changes: temperature alters which token gets picked, not how many — you pay per token either way."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "翻译成产品决策：代码补全要可预测，团队普遍压到 T=0～0.3，同样的输入给出稳定输出、可写进测试；客服问答取 T≈0.7，稳中带一点自然；头脑风暴开到 T≥1.0。同一个模型，价格相同，性格由这根旋钮决定——所以「换个模型试试」之前，先拧温度，它是免费的。",
+              "en": "As a product decision: code completion wants predictability, so teams run T=0–0.3 — same input, stable output, testable; customer-facing chat sits near T=0.7; brainstorming opens at T≥1.0. Same model, same price, different personality — so before “try another model”, turn the dial; it's free."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：高温不等于高创造力",
+            "en": "Misconception: higher heat ≠ more creativity"
+          },
+          "p": {
+            "zh": "最常见的误读是「温度越高越有创造力」。温度不提供任何新知识，它只决定采样时往概率分布的尾部走多远，而尾部堆的大多不是妙语，是语法垃圾和事实错误。创造力的上限来自模型学到的分布本身：分布里没有的联想，拧到 T=3 也拧不出来；分布里有的好东西，低温度照样能选中。越过临界点后，多出来的不是创意，是幻觉率。",
+            "en": "The most common misreading: “higher temperature = more creativity.” Temperature adds no knowledge; it only sets how far into the distribution's tail you sample — and the tail holds mostly grammatical debris and factual errors, not brilliance. The ceiling of creativity comes from the distribution the model learned: an association absent from it won't appear at T=3, and good ones get picked at low T anyway. Past the tipping point, what rises isn't creativity — it's the hallucination rate."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「模型想好了再写」。其实没有想好这回事——每个 token 都是一次独立掷骰，包括它「计划」要写的那些字本身，所谓规划也只是被采样出来的 token。同理，「温度 0 就绝对确定」也不严谨：贪心采样消除了采样随机性，但 GPU 并行计算的浮点误差仍可能让两次运行结果不同。",
+              "en": "“The model plans, then writes.” There is no planning step — every token is an independent roll of the die, including the tokens that look like a plan. And “temperature 0 is fully deterministic” is also too strong: greedy sampling removes sampling randomness, but floating-point nondeterminism in GPU parallel math can still make two runs differ."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：旋钮后面还有一排开关",
+            "en": "Where this leads"
+          },
+          "p": {
+            "zh": "温度是采样家族里最基础的一个。下一步是 top-p / top-k：先按概率截断候选池、把尾部物理切除，再在剩下的池子里采样，与温度配合使用——温度调「形状」，截断管「下限」。往后看：阶段二的提示工程会把温度当作提示词之外的第一根控制杆；阶段三 Agent 调用工具几乎总用低温，工具参数写错了没有「创意」可言；阶段四 RAG 的回答要贴着检索到的事实，同样压低温度。今天带走一句话——",
+            "en": "Temperature is the most basic member of the sampling family. Next come top-p / top-k: cut the candidate pool by probability first — physically removing the tail — then sample what's left, combined with temperature: the dial shapes the distribution, the cut guards the floor. Ahead: stage 2 treats temperature as the first control beyond the prompt; stage 3 agents call tools almost always at low temperature — wrong tool arguments have no “creativity” to offer; stage 4 RAG answers must stick to retrieved facts, so temperature stays low. One sentence for today —"
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "打开任意带温度参数的 playground 或 API 调试台，用提示「今天天气真＿」在 T=0.2、T=1.0、T=1.8 各生成 10 次，记录每次补出的词。回答：为什么 T=0.2 的 10 次几乎全同，而 T=1.8 出现了「蓝」？（提示：0.6 的 logit 分差在 T=0.2 时对应 e³≈20 倍的概率比，在 T=1.8 时只剩 1.4 倍——尾部的词被放大了多少？）",
+          "en": "Open any playground with a temperature slider and complete “今天天气真＿” 10 times each at T=0.2, T=1.0 and T=1.8, recording every completion. Then answer: why are the T=0.2 runs nearly identical while T=1.8 produces “蓝”? (Hint: a 0.6-logit gap maps to a ~20x probability ratio at T=0.2 but only ~1.4x at T=1.8 — how much did the tail get amplified?)"
+        }
+      },
+      "takeaway": {
+        "zh": "模型每写一个字都掷一次骰子，温度决定骰子的形状：它放大或抹平分差，给不了新知识，只决定你离分布的头部多远。",
+        "en": "Every token is a roll of a weighted die, and temperature shapes the die: it widens or flattens the gaps, adds no knowledge — it only sets how far from the top of the distribution you land."
+      },
+      "anim": {
+        "tpl": "spectrum",
+        "hook": {
+          "zh": "同一个模型，拧一下温度，就换了性格。",
+          "en": "Same model, one turn of the temperature dial — a new personality."
+        },
+        "sentence": {
+          "zh": "今天天气真＿",
+          "en": "The weather today is really ___"
+        },
+        "candidates": [
+          {
+            "w": "热",
+            "en": "hot",
+            "logit": 5.2
+          },
+          {
+            "w": "不错",
+            "en": "not bad",
+            "logit": 4.6
+          },
+          {
+            "w": "好",
+            "en": "good",
+            "logit": 4.4
+          },
+          {
+            "w": "差",
+            "en": "bad",
+            "logit": 3.8
+          },
+          {
+            "w": "蓝",
+            "en": "blue",
+            "logit": 3.0
+          }
+        ],
+        "temperatures": [
+          {
+            "t": 0.5,
+            "probs": [
+              63.4,
+              19.1,
+              12.8,
+              3.9,
+              0.8
+            ],
+            "noteZh": "T=0.5：分差被放大，概率向头部集中——保守、可复现。",
+            "noteEn": "T=0.5: gaps amplified, probability piles onto the head — conservative, reproducible."
+          },
+          {
+            "t": 1.0,
+            "probs": [
+              42.5,
+              23.3,
+              19.1,
+              10.5,
+              4.7
+            ],
+            "noteZh": "T=1：softmax 的原始输出，模型出厂时的默认性格。",
+            "noteEn": "T=1: the raw softmax output — the model's factory-default personality."
+          },
+          {
+            "t": 2.0,
+            "probs": [
+              30.9,
+              22.9,
+              20.7,
+              15.3,
+              10.3
+            ],
+            "noteZh": "T=2：尾部被抬高，「天气真蓝」每 10 次出现 1 次。",
+            "noteEn": "T=2: the tail is lifted — “really blue” shows up once every 10 draws."
+          }
+        ],
+        "note": {
+          "zh": "概率由真实 softmax 计算得出：logit 除以温度后归一化。",
+          "en": "Probabilities computed by a real softmax: divide logits by temperature, then normalize."
+        },
+        "coverHook": {
+          "zh": "同一句话，T=0.5 时「热」占 63%，T=2 时只剩 31%。",
+          "en": "Same sentence: “hot” takes 63% at T=0.5, only 31% at T=2."
         }
       }
     }

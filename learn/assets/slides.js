@@ -152,6 +152,41 @@
         v.appendChild(bars);
         v.appendChild(el('div', 'materin-learn-viz__label', '余弦相似度（示意数值）'));
       }
+    } else if (day.anim && day.anim.tpl === 'spectrum') {
+      if (idx === 0) {
+        var src = el('div', 'materin-learn-viz__label', '待补全：' + t(day.anim.sentence));
+        v.appendChild(src);
+        var rows = el('div', 'materin-learn-viz__bars');
+        day.anim.candidates.forEach(function (c, ci) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', c.w));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar');
+          bar.style.width = day.anim.temperatures[0].probs[ci] + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', day.anim.temperatures[0].probs[ci].toFixed(1) + '%'));
+          rows.appendChild(row);
+        });
+        v.appendChild(rows);
+        v.appendChild(el('div', 'materin-learn-viz__label', '候选概率（T=0.5，真实 softmax）'));
+      } else {
+        var bars = el('div', 'materin-learn-viz__bars');
+        var tagZh = { 0.5: '保守', 1.0: '默认', 2.0: '放飞' };
+        day.anim.temperatures.forEach(function (tp) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', 'T=' + tp.t));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar');
+          bar.style.width = tp.probs[0] + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', '「热」' + tp.probs[0].toFixed(1) + '%'));
+          bars.appendChild(row);
+        });
+        v.appendChild(bars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '同一候选「热」在不同温度下的概率'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));
