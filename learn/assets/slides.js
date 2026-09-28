@@ -187,6 +187,62 @@
         v.appendChild(bars);
         v.appendChild(el('div', 'materin-learn-viz__label', '同一候选「热」在不同温度下的概率'));
       }
+    } else if (day.anim && day.anim.tpl === 'windowfill') {
+      if (idx === 0) {
+        /* 第 1 轮的静态预算格：与动效页同一套窗口格 */
+        var grid = el('div', 'materin-learn-winfill__grid');
+        day.anim.blocks.forEach(function (b) {
+          for (var i = 0; i < b.n; i++) {
+            grid.appendChild(el('div', 'materin-learn-winfill__cell materin-learn-winfill__cell--' + b.k));
+          }
+        });
+        var used = day.anim.blocks.reduce(function (s, b) { return s + b.n; }, 0);
+        for (var f = used; f < day.anim.budget; f++) {
+          grid.appendChild(el('div', 'materin-learn-winfill__cell materin-learn-winfill__cell--free'));
+        }
+        v.appendChild(grid);
+        v.appendChild(el('div', 'materin-learn-viz__label',
+          '第 1 轮：' + used + '/' + day.anim.budget + ' 格，历史每轮继续增长'));
+      } else if (idx === 1) {
+        var bars = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '整本硬塞', val: 240, cls: ' materin-learn-viz__bar--en', txt: '240%' },
+          { tag: '摘要两遍', val: 15, cls: '', txt: '≈15%' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.min(r.val, 100) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars.appendChild(row);
+        });
+        v.appendChild(bars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '400 页 PDF 的窗口占用（128K = 100%）'));
+      } else if (idx === 2) {
+        var bars2 = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '首尾内容', val: 95, cls: '', txt: '≈95%' },
+          { tag: '中段内容', val: 65, cls: ' materin-learn-viz__bar--en', txt: '≈65%' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars2.appendChild(row);
+        });
+        v.appendChild(bars2);
+        v.appendChild(el('div', 'materin-learn-viz__label', '关键信息的召回率（大海捞针类测试，示意）'));
+      } else {
+        v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
+        v.appendChild(el('div', 'materin-learn-viz__label', '窗口经济学：后面 164 天的成本模型'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

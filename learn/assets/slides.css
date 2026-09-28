@@ -439,3 +439,7 @@ body.is-export .materin-learn-slide-nav { display: none; }
 /* 导出模式：动效元素直接落位，避免截图截到动画中间帧 */
 body.is-export .materin-learn-winfill__cell,
 body.is-export .materin-learn-winfill__cut-cell { animation: none; transform: none; }
+
+/* 图组内的窗口预算格：放大一档适配右侧可视化板 */
+.materin-learn-viz .materin-learn-winfill__grid { grid-template-columns: repeat(8, 56px); gap: 10px; }
+.materin-learn-viz .materin-learn-winfill__cell { width: 56px; height: 56px; border-radius: 12px; }
