@@ -541,109 +541,133 @@
       "n": 4,
       "stage": 1,
       "week": 1,
-      "tpl": "window",
+      "tpl": "windowfill",
       "date": "2026-09-28",
       "title": {
-        "zh": "上下文窗口：模型为什么只能读这么点",
-        "en": "The context window: why AI can only read so much"
+        "zh": "上下文窗口：128K 到底装得下什么",
+        "en": "The context window: what 128K actually holds"
       },
       "subtitle": {
-        "zh": "AI 不是真的「忘了」——是窗口满了。让它读 5 万字就像让它背一张 5 万字的考卷去答题；你给它 5 万字，它只能记下离答案最近的那部分。",
-        "en": "AI doesn't really forget — its window fills up. Hand it 50,000 characters and it can only hold whatever sits closest to the answer."
+        "zh": "上下文窗口是一个按 token 记账的硬预算：你的提问、贴进来的文档、全部历史对话和模型的回复，挤占同一笔额度。写满了不会得到提醒，只会被从头上悄悄截断。",
+        "en": "The context window is a hard budget measured in tokens: your question, the pasted documents, the whole conversation history and the reply all draw from one pool. When it runs out you get no warning — the head is silently truncated."
       },
       "sections": [
         {
           "h": {
-            "zh": "从现象到机制：什么是上下文窗口",
-            "en": "What the context window actually is"
+            "zh": "机制：同一笔预算里的四笔开销",
+            "en": "Mechanism: four expenses out of one budget"
           },
           "p": {
-            "zh": "上下文窗口是 LLM 一次能「同时看见」的 token 总数——你的提问、贴进来的文档、历史对话、模型的回复，全部挤占同一个窗口。GPT-4 是 128K token（约 9 万中文字），Claude 3.5 是 200K，Llama 3.1 上限 128K。这个数字是模型的「视力范围」，由训练时的注意力机制复杂度决定：注意力是 O(n²) 复杂度，窗口越大算得越慢、显存越贵。",
-            "en": "The context window is the total tokens the model can 'see' at once: your question, pasted documents, history, and its own reply all share it. GPT-4 sits at 128K (~90K Chinese chars), Claude 3.5 at 200K, Llama 3.1 at 128K. This number is the model's vision range — bounded by attention's O(n²) cost: bigger window = slower and more memory."
+            "zh": "所谓「上下文」，是模型一次能读到的全部文本：系统提示、你的提问、贴进去的文档、之前每一轮对话、以及它自己要生成的回复——四样东西拼接成一个 token 序列，共享同一个窗口上限。窗口不是记忆，是工作台：这一轮结束后，桌面上的一切都会被撤走，下一轮原样重新摆一遍，这就是为什么长对话越到后面越慢（每轮都要重读全部历史）、也越贵（按全部历史付输入费）。窗口大小从 8K 到 128K，再到 1M token 不等——但无论多大，游戏规则相同。",
+            "en": "\"Context\" is everything the model reads in one shot: system prompt, your question, pasted documents, every earlier turn, and the reply it must generate — spliced into one token sequence sharing a single ceiling. The window is not memory; it is a workbench. After each turn the bench is cleared and rebuilt from scratch next turn — which is why long chats get slower (the whole history is reread every turn) and pricier (input is billed on the entire history). Windows run from 8K to 128K to 1M tokens — but the rules of the game never change."
           },
           "deep": {
-            "zh": "为什么是 O(n²)？注意力要让每个 token 看一遍其他所有 token——n 个 token 要算 n² 次关系。128K 窗口 = 1.6 万亿次运算。这就是为什么「百万 token 上下文」现在还做不到——不是不能加，而是加了之后单次推理慢到没人用得起。",
-            "en": "Why O(n²)? Attention compares each token against every other one — n tokens → n² relations. 128K window = 1.6 trillion ops per call. That's why 'million-token context' isn't here yet: it's not impossible, just unusably slow."
+            "zh": "为什么满了是从头上截断？模型没有「文件系统」可以回翻——它一次只能看到当前送进来的序列，序列超长，最省事也最常用的做法就是把最旧的部分切掉。这带来一个反直觉的后果：对话开头的约定、贴过的关键文档，恰恰是最先消失的部分。模型不是「忘了」，是压根没被喂到——它对被截断这件事零感知，不会告诉你「我没看到那个文件」，只会基于剩下的内容一本正经地继续。",
+            "en": "Why does the head get cut? The model has no filesystem to page back through — it only sees the sequence it is fed this turn, and when that sequence overflows, dropping the oldest chunk is the cheapest, most common fix. The counterintuitive result: the opening agreements and key documents from early in a chat are the first to vanish. The model didn't \"forget\" — it was never fed them. It has zero awareness of the truncation, never says \"I can't see that file\", and simply carries on, confidently, on what remains."
           }
         },
         {
           "h": {
-            "zh": "算一笔账：窗口满了会怎样",
-            "en": "What happens when the window fills up"
+            "zh": "实例：一份 400 页 PDF 塞不塞得进 128K？",
+            "en": "Worked example: does a 400-page PDF fit in 128K?"
           },
           "p": {
-            "zh": "满了不会报错——只是被截断。三种处理方式：1) 最早消息被切掉（OpenAI 默认），早期上下文丢失；2) 中间被切掉（Anthropic），但模型对中段最不敏感所以代价小；3) 自动摘要压缩旧对话（RAG 常用），但摘要会失真。无论哪种，你贴进去的内容越多，离答案远的部分就越「失忆」。",
-            "en": "When full, it silently truncates. Three strategies: (1) cut from the oldest message (OpenAI default), losing early context; (2) cut from the middle (Anthropic), cheapest since LLMs care least about middle; (3) summarize old turns (RAG default), but summaries drift. Whichever you pick, the further a fact sits from the answer, the more 'forgotten' it gets."
+            "zh": "128K 窗口 ≈ 131,072 token。英文按 1 token ≈ 0.75 词算，约 9.8 万词；400 页学术 PDF 平均每页 600 词，共 24 万词——超窗口 2.4 倍，整本塞不进去。中文更吃亏：1 汉字 ≈ 1～1.5 token，128K 只装 8 万～12 万字，相当于 160～240 页。这笔账的结论不是「窗口没用」，而是「窗口是配给制」：整本塞不进，就先分段——每段让模型做 500 字摘要，40 段摘要共 2 万 token，轻松进窗口，再让模型基于摘要回答。两遍读法（map-reduce）用 1/12 的 token 覆盖了同样的内容。",
+            "en": "A 128K window is ≈131,072 tokens. At 1 token ≈ 0.75 English words that is about 98k words; a 400-page academic PDF averages 600 words per page — 240k words total, 2.4x over the ceiling. Chinese fares worse: 1 character ≈ 1–1.5 tokens, so 128K holds only 80k–120k characters, roughly 160–240 pages. The lesson isn't \"windows are useless\" but \"windows are rationing\": since the whole book won't fit, chunk it first — have the model summarize each chunk to 500 characters, 40 summaries ≈ 20k tokens, easily inside the window, then answer from the summaries. The two-pass (map-reduce) read covers the same content on 1/12 the tokens."
           },
-          "deep": {
-            "zh": "Lost in the Middle：研究证明 LLM 对窗口开头和结尾的内容记得最清，中间部分准确率显著下降。所以「贴一大段让 AI 自己看」其实没你以为的那么好——重要的内容要主动放在开头或结尾，或者用 RAG 把它检索到「靠近问题」的位置。",
-            "en": "Lost in the Middle: research shows LLMs recall window start and end best; middle accuracy drops sharply. So 'paste a wall of text and let AI figure it out' isn't nearly as useful as it looks — put critical content near the start or end, or use RAG to surface it close to the question."
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "把窗口当钱包算一笔对话账：系统提示 500 token + 每轮你的问题 100 token + 回复 400 token。第 1 轮付输入 600，第 2 轮付 1,100（上一轮也在场）……第 50 轮输入涨到 25,100，50 轮累计输入费 63.9 万 token——占掉半个 128K 窗口。省法子是定期开新对话并把结论粘过去：20 轮一切换，同样的 50 轮只要 4.7 万 token，省 26%。",
+              "en": "Treat the window like a wallet: system prompt 500 tokens + 100 per question + 400 per reply. Turn 1 bills 600 input tokens, turn 2 bills 1,100 (the previous turn is still on the bench)… turn 50 bills 25,100; 50 turns total ≈ 639k input tokens — half a 128K window. The fix: start a fresh chat every ~20 turns carrying conclusions over; the same 50 turns cost ≈ 47k tokens, a 26% saving."
+            }
           }
         },
         {
           "h": {
-            "zh": "怪癖的根源：上下文太长还会失忆",
-            "en": "Long context can still forget"
+            "zh": "误区：窗口大 ≠ 记性好",
+            "en": "Misconception: a big window ≠ a good memory"
           },
           "p": {
-            "zh": "「百万 token 上下文」是营销话术——真实测试发现，给 GPT-4 128K 文档让它找第 50000 token 处的一个事实，准确率只有 60% 左右。所以 128K 不是真上限，实际「能稳定记住」的部分常常只有 32K-64K。这也是为什么 RAG 不是被上下文窗口取代，而是补充。",
-            "en": "'Million-token context' is marketing. Real tests on a 128K doc show ~60% accuracy finding a fact at the 50,000th token. So 128K isn't the real ceiling — the reliably-recalled slice is more like 32K–64K. That's why RAG complements context windows, doesn't replace them."
+            "zh": "厂商把窗口从 8K 卷到 1M，很多人随之相信「能装下就能用好」。真实情况有两条裂缝：其一，有效窗口往往小于标称窗口——「大海捞针」类测试显示，就算关键信息明明躺在窗口深处，模型对中段内容的召回率也明显低于首尾（位置偏差，中间内容被注意力稀释）；其二，装满的窗口又慢又贵：128K 全满的一次调用，输入费是 4K 调用的 32 倍，首 token 延迟也明显拉长。窗口是货架面积，不是记忆能力——货架再大，管理库存的仍然是你。",
+            "en": "As vendors raced from 8K to 1M, many concluded \"if it fits, it works.\" Two cracks in that belief: first, the effective window is often smaller than the advertised one — needle-in-a-haystack tests show recall clearly drops for content buried in the middle even when it sits well inside the window (positional bias: middle content gets diluted by attention); second, a full window is slow and expensive — one 128K-full call bills 32x the input of a 4K call, with visibly longer time-to-first-token. The window is shelf space, not memory — however big the shelf, you are still the inventory manager."
           },
-          "deep": {
-            "zh": "「大海捞针」测试（Needle in a Haystack）：把一个无关事实随机插入超长上下文的任意位置，看模型能否找到。研究显示即使是 GPT-4，128K 窗口中段位置的召回率也只能到 70% 左右。所以上下文不是「越大越好」，是「越精准越好」。",
-            "en": "Needle-in-a-Haystack tests drop an unrelated fact at a random position in long context and check recall. Even GPT-4 only hits ~70% recall in the middle of a 128K window. So context isn't 'the bigger the better' — it's 'the more focused the better'."
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「窗口越大，模型就越聪明」。窗口只决定「一次能看多少」，不改变「看懂多少」：把 1M token 一次倒进去，推理能力没有增加，反而因为关键信息稀释在噪声里更容易答错。同理，「新对话开在同一个会话里就继承了记忆」也不成立——每个会话的窗口从零开始装，跨会话的记忆要靠你显式粘贴或外部存储（这连向阶段三 Agent 的记忆系统）。",
+              "en": "\"A bigger window makes the model smarter.\" The window sets how much it sees at once, not how well it reasons: dumping 1M tokens in at once adds no reasoning power and makes errors more likely as the signal drowns in noise. And \"a new chat in the same session inherits memory\" is also false — every conversation fills its window from zero; cross-session memory needs explicit pasting or external storage (leading to stage 3's agent memory)."
+            }
           }
         },
         {
           "h": {
-            "zh": "延伸：怎么把上下文用得聪明",
-            "en": "How to use context wisely"
+            "zh": "延伸：窗口经济学贯穿后面 164 天",
+            "en": "Where this leads"
           },
           "p": {
-            "zh": "三条铁律：1) 重要的内容放开头和结尾（Lost in the Middle），中间放次要的；2) 尽量小而非尽量大——贴 5K 精准文档比贴 50K 全量文档更准；3) 用 RAG 让 AI 自己检索——把 50 万文档变成 50 个相关的 token 喂进去。下一步看 Stage 2 的提示工程怎么精打细算地用窗口；Stage 4 的 RAG 怎么把窗口变成「无限」的。",
-            "en": "Three rules: (1) put critical content at the start and end (Lost in the Middle); (2) prefer smaller and tighter over larger and noisier — 5K precise beats 50K messy; (3) let AI retrieve via RAG — turn 500K docs into 50 relevant tokens. Stage 2 covers squeezing value out of the window; Stage 4 covers RAG as 'infinite' context."
+            "zh": "上下文窗口是后面所有主题的成本模型：阶段二的「上下文工程」就是把有限窗口留给最高价值 token 的排兵布阵；阶段三 Agent 要处理「工具输出爆炸」——一次网页抓取 1 万 token，几轮就把窗口吃穿，需要摘要与丢弃策略；阶段四 RAG 存在的合法性直接来自今天：既然窗口装不下整个知识库，就把「最相关的几段」在每次提问时现场搬进窗口——检索本质上是为窗口选料。今天带走一句话——",
+            "en": "The context window is the cost model for everything ahead: stage 2's context engineering is the art of allocating the finite window to the highest-value tokens; stage 3 agents face tool-output explosions — one web scrape is 10k tokens, a few turns gut the window, so summaries and eviction policies are needed; stage 4 RAG exists precisely because of today: since no window holds a whole knowledge base, retrieval fetches the most relevant few passages into the window on demand — retrieval is ingredient selection for the window. One sentence for today —"
           }
         }
       ],
       "action": {
         "h": {
-          "zh": "动手（20 分钟）",
-          "en": "Hands-on (20 min)"
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
         },
         "p": {
-          "zh": "打开任意带 128K 上下文的模型（如 GPT-4 或 Claude），先给它一段 5 万字的文档，让它在第 1 万字和第 4 万字各找一个具体数字（比如某年的销售额）。第一次提示放最前面问，第二次把问题放在最末尾问。回答：放前面的检索准确率高还是放末尾？为什么？",
-          "en": "Open any model with a 128K window (e.g. GPT-4 or Claude). Give it a 50K-character document, then ask it to find a specific number (say, a sales figure) at the 10,000th and 40,000th character. First ask the question at the very start; then ask it at the very end. Which placement gives higher recall? Why?"
+          "zh": "找一个显示 token 计数的聊天界面（多数 playground 有），连续就同一主题追问 10 轮，记录每轮显示的上下文 token 数。回答：为什么第 10 轮的计数远大于你 10 个问题的字数总和？（提示：窗口里还坐着谁——系统提示、每一轮的回复、可能贴过的材料，全都在按 token 计房租。）",
+          "en": "Open a chat UI that shows token counts (most playgrounds do) and ask follow-ups on one topic for 10 straight turns, recording the context token count each turn. Then answer: why is turn 10's count far larger than the sum of your 10 questions' characters? (Hint: who else sits in the window — the system prompt, every reply so far, any pasted material — all paying rent in tokens.)"
         }
       },
       "takeaway": {
-        "zh": "上下文窗口不是越大越好——是越精准越好。128K 窗口的真实有效记忆只有 32K-64K，剩下的内容 AI 是「看不见」的。",
-        "en": "Context window: bigger isn't better, sharper is. A 128K window only really remembers 32K–64K; the rest, the AI can't actually see."
+        "zh": "上下文窗口是按 token 记账的硬预算，不是记忆：写满从头上截断，装满又贵又钝——管理这笔预算的人是你。",
+        "en": "The context window is a hard token budget, not memory: overflow silently truncates from the head, and a full window is slow and expensive — you are the budget's manager."
       },
       "anim": {
-        "tpl": "window",
+        "tpl": "windowfill",
         "hook": {
-          "zh": "这一坨 token 里，AI 真正'看见'的是哪一段？",
-          "en": "Of all these tokens, which part does the AI actually 'see'?"
+          "zh": "窗口写满时，没有人会提醒你。",
+          "en": "When the window fills, nobody warns you."
         },
-        "input": "把一段 5 万字的合同/论文/书丢进 128K 上下文模型",
-        "zones": {
-          "strong": {
-            "start": 0,
-            "end": 0.05,
-            "label": "开头 · 强记忆"
+        "sentence": {
+          "zh": "同一笔 token 预算，四笔开销。",
+          "en": "One token budget, four expenses."
+        },
+        "budget": 16,
+        "blocks": [
+          {
+            "k": "sys",
+            "n": 2
           },
-          "mid": {
-            "start": 0.05,
-            "end": 0.95,
-            "label": "中段 · 弱记忆"
+          {
+            "k": "doc",
+            "n": 4
           },
-          "tail": {
-            "start": 0.95,
-            "end": 1.0,
-            "label": "结尾 · 强记忆"
+          {
+            "k": "hist",
+            "n": 3
+          },
+          {
+            "k": "reply",
+            "n": 2
           }
+        ],
+        "note": {
+          "zh": "示意：窗口 16 格。历史逐轮增长，第 3 轮起超出预算——最旧的历史格先被截断，且不会提醒你。",
+          "en": "Illustrative: a 16-cell window. History grows every turn; from turn 3 it overflows — the oldest cells are truncated first, with no warning."
         },
-        "stat": "实测：128K 中段准确率约 60-70%"
+        "coverHook": {
+          "zh": "400 页 PDF 塞不进 128K 窗口：超了 2.4 倍，写满也不会有提醒。",
+          "en": "A 400-page PDF doesn't fit in 128K: 2.4x over — and no warning when it fills."
+        }
       }
     }
   ]

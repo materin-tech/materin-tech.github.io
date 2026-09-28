@@ -261,6 +261,95 @@
       wrap.appendChild(note);
       setTimeout(function () { show(temps[0]); }, 350);
       return wrap;
+    },
+
+    /* windowfill：上下文窗口预算条——四类块按序入格，历史逐轮增长，超出预算的最旧块灰出截断 */
+    windowfill: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-winfill');
+      var grid = el('div', 'materin-learn-winfill__grid');
+      var cutRow = el('div', 'materin-learn-winfill__cutrow');
+      var readout = el('div', 'materin-learn-winfill__readout');
+      var note = el('p', 'materin-learn-winfill__note', t(a.note));
+      var turnLabel = el('div', 'materin-learn-winfill__turn');
+
+      var budget = a.budget || 16;
+      var NAMES = {
+        sys: { zh: '系统提示', en: 'System' },
+        doc: { zh: '贴进文档', en: 'Docs' },
+        hist: { zh: '对话历史', en: 'History' },
+        reply: { zh: '回复空间', en: 'Reply' }
+      };
+
+      var histCells = a.blocks.filter(function (b) { return b.k === 'hist'; })[0] || { n: 1 };
+      var sysN = (a.blocks.filter(function (b) { return b.k === 'sys'; })[0] || { n: 0 }).n;
+      var docN = (a.blocks.filter(function (b) { return b.k === 'doc'; })[0] || { n: 0 }).n;
+      var repN = (a.blocks.filter(function (b) { return b.k === 'reply'; })[0] || { n: 0 }).n;
+      var histRoom = budget - sysN - docN - repN;
+      var turns = Math.max(2, Math.min(6, Math.floor(histRoom / histCells.n) + 3));
+
+      function pushCells(k, count, dropped, delayBase) {
+        for (var i = 0; i < count; i++) {
+          var cell = el('div', 'materin-learn-winfill__cell materin-learn-winfill__cell--' + k +
+            (dropped ? ' is-dropped' : ''));
+          cell.style.animationDelay = (delayBase + i * 0.04) + 's';
+          grid.appendChild(cell);
+        }
+        return count;
+      }
+
+      function build(turn) {
+        grid.innerHTML = '';
+        cutRow.innerHTML = '';
+        var need = histCells.n * turn;
+        var over = Math.max(need - histRoom, 0);
+        var live = need - over;
+        var d = 0;
+        d += pushCells('sys', sysN, false, d);
+        d += pushCells('doc', docN, false, d);
+        d += pushCells('hist', live, false, d);     /* 窗口内还活着的历史 */
+        d += pushCells('reply', repN, false, d);
+        var free = budget - d;
+        for (var f = 0; f < free; f++) {
+          grid.appendChild(el('div', 'materin-learn-winfill__cell materin-learn-winfill__cell--free'));
+        }
+        /* 被截断的最旧历史：窗口之外的幽灵格 */
+        for (var o = 0; o < over; o++) {
+          cutRow.appendChild(el('div', 'materin-learn-winfill__cut-cell'));
+        }
+        cutRow.appendChild(el('span', 'materin-learn-winfill__cut-label',
+          lang() === 'en' ? (over > 0 ? '← oldest ' + over + ' truncated' : '') : (over > 0 ? '← 最旧 ' + over + ' 格被截断' : '')));
+        var used = budget - free;
+        return { used: used, over: over };
+      }
+
+      var turn = 1;
+      function show() {
+        var r = build(turn);
+        turnLabel.textContent = '';
+        turnLabel.appendChild(el('strong', 'materin-learn-winfill__turn-no',
+          (lang() === 'en' ? 'Turn ' : '第 ') + turn + (lang() === 'en' ? '' : ' 轮')));
+        turnLabel.appendChild(el('span', null,
+          lang() === 'en'
+            ? '  ' + r.used + '/' + budget + ' in window'
+            : '  窗口内 ' + r.used + '/' + budget));
+        turn = turn >= turns ? 1 : turn + 1;
+      }
+
+      var nameRow = el('div', 'materin-learn-winfill__legend');
+      ['sys', 'doc', 'hist', 'reply'].forEach(function (k) {
+        nameRow.appendChild(el('span', 'materin-learn-winfill__legend-item materin-learn-winfill__legend-item--' + k, t(NAMES[k])));
+      });
+
+      readout.appendChild(turnLabel);
+      wrap.appendChild(nameRow);
+      wrap.appendChild(grid);
+      wrap.appendChild(cutRow);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      setTimeout(show, 350);
+      setInterval(show, 2200);
+      return wrap;
     }
   };
 
