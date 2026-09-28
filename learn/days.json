@@ -536,6 +536,115 @@
           "en": "Same sentence: “hot” takes 63% at T=0.5, only 31% at T=2."
         }
       }
+    },
+    {
+      "n": 4,
+      "stage": 1,
+      "week": 1,
+      "tpl": "window",
+      "date": "2026-09-28",
+      "title": {
+        "zh": "上下文窗口：模型为什么只能读这么点",
+        "en": "The context window: why AI can only read so much"
+      },
+      "subtitle": {
+        "zh": "AI 不是真的「忘了」——是窗口满了。让它读 5 万字就像让它背一张 5 万字的考卷去答题；你给它 5 万字，它只能记下离答案最近的那部分。",
+        "en": "AI doesn't really forget — its window fills up. Hand it 50,000 characters and it can only hold whatever sits closest to the answer."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "从现象到机制：什么是上下文窗口",
+            "en": "What the context window actually is"
+          },
+          "p": {
+            "zh": "上下文窗口是 LLM 一次能「同时看见」的 token 总数——你的提问、贴进来的文档、历史对话、模型的回复，全部挤占同一个窗口。GPT-4 是 128K token（约 9 万中文字），Claude 3.5 是 200K，Llama 3.1 上限 128K。这个数字是模型的「视力范围」，由训练时的注意力机制复杂度决定：注意力是 O(n²) 复杂度，窗口越大算得越慢、显存越贵。",
+            "en": "The context window is the total tokens the model can 'see' at once: your question, pasted documents, history, and its own reply all share it. GPT-4 sits at 128K (~90K Chinese chars), Claude 3.5 at 200K, Llama 3.1 at 128K. This number is the model's vision range — bounded by attention's O(n²) cost: bigger window = slower and more memory."
+          },
+          "deep": {
+            "zh": "为什么是 O(n²)？注意力要让每个 token 看一遍其他所有 token——n 个 token 要算 n² 次关系。128K 窗口 = 1.6 万亿次运算。这就是为什么「百万 token 上下文」现在还做不到——不是不能加，而是加了之后单次推理慢到没人用得起。",
+            "en": "Why O(n²)? Attention compares each token against every other one — n tokens → n² relations. 128K window = 1.6 trillion ops per call. That's why 'million-token context' isn't here yet: it's not impossible, just unusably slow."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：窗口满了会怎样",
+            "en": "What happens when the window fills up"
+          },
+          "p": {
+            "zh": "满了不会报错——只是被截断。三种处理方式：1) 最早消息被切掉（OpenAI 默认），早期上下文丢失；2) 中间被切掉（Anthropic），但模型对中段最不敏感所以代价小；3) 自动摘要压缩旧对话（RAG 常用），但摘要会失真。无论哪种，你贴进去的内容越多，离答案远的部分就越「失忆」。",
+            "en": "When full, it silently truncates. Three strategies: (1) cut from the oldest message (OpenAI default), losing early context; (2) cut from the middle (Anthropic), cheapest since LLMs care least about middle; (3) summarize old turns (RAG default), but summaries drift. Whichever you pick, the further a fact sits from the answer, the more 'forgotten' it gets."
+          },
+          "deep": {
+            "zh": "Lost in the Middle：研究证明 LLM 对窗口开头和结尾的内容记得最清，中间部分准确率显著下降。所以「贴一大段让 AI 自己看」其实没你以为的那么好——重要的内容要主动放在开头或结尾，或者用 RAG 把它检索到「靠近问题」的位置。",
+            "en": "Lost in the Middle: research shows LLMs recall window start and end best; middle accuracy drops sharply. So 'paste a wall of text and let AI figure it out' isn't nearly as useful as it looks — put critical content near the start or end, or use RAG to surface it close to the question."
+          }
+        },
+        {
+          "h": {
+            "zh": "怪癖的根源：上下文太长还会失忆",
+            "en": "Long context can still forget"
+          },
+          "p": {
+            "zh": "「百万 token 上下文」是营销话术——真实测试发现，给 GPT-4 128K 文档让它找第 50000 token 处的一个事实，准确率只有 60% 左右。所以 128K 不是真上限，实际「能稳定记住」的部分常常只有 32K-64K。这也是为什么 RAG 不是被上下文窗口取代，而是补充。",
+            "en": "'Million-token context' is marketing. Real tests on a 128K doc show ~60% accuracy finding a fact at the 50,000th token. So 128K isn't the real ceiling — the reliably-recalled slice is more like 32K–64K. That's why RAG complements context windows, doesn't replace them."
+          },
+          "deep": {
+            "zh": "「大海捞针」测试（Needle in a Haystack）：把一个无关事实随机插入超长上下文的任意位置，看模型能否找到。研究显示即使是 GPT-4，128K 窗口中段位置的召回率也只能到 70% 左右。所以上下文不是「越大越好」，是「越精准越好」。",
+            "en": "Needle-in-a-Haystack tests drop an unrelated fact at a random position in long context and check recall. Even GPT-4 only hits ~70% recall in the middle of a 128K window. So context isn't 'the bigger the better' — it's 'the more focused the better'."
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：怎么把上下文用得聪明",
+            "en": "How to use context wisely"
+          },
+          "p": {
+            "zh": "三条铁律：1) 重要的内容放开头和结尾（Lost in the Middle），中间放次要的；2) 尽量小而非尽量大——贴 5K 精准文档比贴 50K 全量文档更准；3) 用 RAG 让 AI 自己检索——把 50 万文档变成 50 个相关的 token 喂进去。下一步看 Stage 2 的提示工程怎么精打细算地用窗口；Stage 4 的 RAG 怎么把窗口变成「无限」的。",
+            "en": "Three rules: (1) put critical content at the start and end (Lost in the Middle); (2) prefer smaller and tighter over larger and noisier — 5K precise beats 50K messy; (3) let AI retrieve via RAG — turn 500K docs into 50 relevant tokens. Stage 2 covers squeezing value out of the window; Stage 4 covers RAG as 'infinite' context."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（20 分钟）",
+          "en": "Hands-on (20 min)"
+        },
+        "p": {
+          "zh": "打开任意带 128K 上下文的模型（如 GPT-4 或 Claude），先给它一段 5 万字的文档，让它在第 1 万字和第 4 万字各找一个具体数字（比如某年的销售额）。第一次提示放最前面问，第二次把问题放在最末尾问。回答：放前面的检索准确率高还是放末尾？为什么？",
+          "en": "Open any model with a 128K window (e.g. GPT-4 or Claude). Give it a 50K-character document, then ask it to find a specific number (say, a sales figure) at the 10,000th and 40,000th character. First ask the question at the very start; then ask it at the very end. Which placement gives higher recall? Why?"
+        }
+      },
+      "takeaway": {
+        "zh": "上下文窗口不是越大越好——是越精准越好。128K 窗口的真实有效记忆只有 32K-64K，剩下的内容 AI 是「看不见」的。",
+        "en": "Context window: bigger isn't better, sharper is. A 128K window only really remembers 32K–64K; the rest, the AI can't actually see."
+      },
+      "anim": {
+        "tpl": "window",
+        "hook": {
+          "zh": "这一坨 token 里，AI 真正'看见'的是哪一段？",
+          "en": "Of all these tokens, which part does the AI actually 'see'?"
+        },
+        "input": "把一段 5 万字的合同/论文/书丢进 128K 上下文模型",
+        "zones": {
+          "strong": {
+            "start": 0,
+            "end": 0.05,
+            "label": "开头 · 强记忆"
+          },
+          "mid": {
+            "start": 0.05,
+            "end": 0.95,
+            "label": "中段 · 弱记忆"
+          },
+          "tail": {
+            "start": 0.95,
+            "end": 1.0,
+            "label": "结尾 · 强记忆"
+          }
+        },
+        "stat": "实测：128K 中段准确率约 60-70%"
+      }
     }
   ]
 }
