@@ -556,12 +556,7 @@
           link.appendChild(tag); link.appendChild(txt);
           box.appendChild(link);
         });
-        if (stageDays.length > 3) {
-          box.appendChild(el('p', 'materin-learn-map__more', (lang() === 'en'
-            ? '+' + (stageDays.length - 3) + ' earlier days'
-            : '前 ' + (stageDays.length - 3) + ' 天见每日页存档')));
-        }
-      } else {
+          } else {
         var first = days.find(function (d) { return d.stage === st.id; });
         box.appendChild(el('p', 'materin-learn-map__stage-p', lang() === 'en'
           ? 'Coming at D' + st.days[0]
