@@ -548,7 +548,7 @@
       /* 已发布的该阶段天数，按序号正序列最近 3 课（可点） */
       var stageDays = days.filter(function (d) { return d.stage === st.id; }).sort(function (a, b) { return a.n - b.n; });
       if (stageDays.length) {
-        stageDays.slice(-3).forEach(function (d) {
+        stageDays.forEach(function (d) {
           var link = el('a', 'materin-learn-map__day');
           link.href = 'day.html?d=' + d.n;
           var tag = el('span', 'materin-learn-map__day-no', 'D' + d.n);
