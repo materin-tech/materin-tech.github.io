@@ -610,6 +610,94 @@
   max-width: 560px;
 }
 
+/* --- 动效模板 · descent（损失曲线下坡） -------------------------------- */
+.materin-learn-descent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  width: 100%;
+  max-width: 640px;
+}
+
+.materin-learn-descent__field {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: var(--materin-radius-lg);
+  background: var(--materin-glass-bg-subtle);
+  box-shadow: var(--materin-shadow);
+  overflow: hidden;
+}
+
+.materin-learn-descent__plot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.materin-learn-descent__axis {
+  stroke: var(--materin-border-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.materin-learn-descent__curve {
+  fill: none;
+  stroke: var(--materin-accent);
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.materin-learn-descent__ball {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  background: var(--materin-accent);
+  box-shadow: var(--materin-shadow), 0 0 12px var(--materin-accent-soft);
+}
+
+.materin-learn-descent__readout {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--materin-text-muted);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.materin-learn-descent__epoch {
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-descent__loss {
+  color: var(--materin-text);
+  font-size: 30px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 76px;
+  text-align: right;
+}
+
+.materin-learn-descent__loss-tag {
+  color: var(--materin-text-muted);
+  font-size: 12.5px;
+}
+
+.materin-learn-descent__note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-align: center;
+  max-width: 560px;
+}
+
 /* --- 讲解区：编号卡片 ------------------------------------------------ */
 .materin-learn-sections {
   display: grid;

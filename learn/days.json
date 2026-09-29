@@ -669,6 +669,179 @@
           "en": "A 400-page PDF doesn't fit in 128K: 2.4x over — and no warning when it fills."
         }
       }
+    },
+    {
+      "n": 5,
+      "stage": 1,
+      "week": 1,
+      "tpl": "descent",
+      "date": "2026-09-29",
+      "title": {
+        "zh": "梯度下降：模型是怎么学会的",
+        "en": "Gradient descent: how a model actually learns"
+      },
+      "subtitle": {
+        "zh": "模型不是背会的，是改错的：预测 → 量化误差（损失）→ 沿坡最陡方向微调参数 → 亿万次重复。看懂这条下坡曲线，就看懂了所有训练的骨架。",
+        "en": "A model doesn't memorize — it corrects: predict, measure the error (loss), nudge every parameter down the steepest slope, repeat billions of times. Read this downhill curve and you've read the skeleton of all training."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：误差在哪里，坡就朝哪里",
+            "en": "Mechanism: the error points downhill"
+          },
+          "p": {
+            "zh": "训练循环只有三步。① 预测：参数当前的值给出一个答案；② 损失：拿答案和标准答案算一个误差分数（loss），比如交叉熵——第 3 天算过的 softmax 概率，正是交叉熵的输入；③ 更新：对每个参数求「损失对它的导数」（梯度），它告诉你这个参数往哪个方向动一点、误差会变大还是变小。梯度下降就做一件事：每个参数往梯度的反方向挪一小步。挪动量 = 学习率 × 梯度，步长由学习率决定——它是训练里最重要的那根旋钮。",
+            "en": "The training loop is three steps. 1) Predict: current parameters produce an answer. 2) Loss: score the answer against ground truth (for example cross-entropy — the softmax probabilities you computed on day 3 are exactly its input). 3) Update: take the derivative of loss with respect to each parameter (the gradient), which tells you which direction a nudge makes the error worse. Gradient descent does one thing: move every parameter a small step in the opposite direction. Step size = learning rate × gradient — the learning rate is the single most important dial in training."
+          },
+          "deep": {
+            "zh": "为什么是「反方向的一小步」，而不是直接解出最优参数？因为参数量太大——现代模型几十亿个参数联立，方程解不出来；但「每个参数在当前位置的坡度」算得出（微积分链式法则，工程名叫反向传播）。所以训练从求解问题退化为导航问题：不知道谷底在哪，但每一步都能摸清脚下朝哪最陡，就顺着下坡走。这条曲线刻画的就是「误差随训练步数下降」——前几百步陡降，之后越来越平：容易的规律先学会（语法、高频搭配），剩下的误差越来越难榨。",
+            "en": "Why a small step opposite the gradient instead of solving for the optimum directly? Scale: modern models couple billions of parameters — no closed-form solution exists. But the slope at the current position is computable (calculus chain rule, known in engineering as backpropagation). Training thus degrades from solving to navigating: you never know where the valley floor is, but you can always feel the steepest direction underfoot. The curve plots loss over training steps: a steep early drop, then flattening — easy regularities (grammar, frequent pairings) get learned first; what remains is progressively harder to squeeze out."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：一次「学习」要付多少算力",
+            "en": "Worked example: the compute bill of one training run"
+          },
+          "p": {
+            "zh": "把数字摆出来才知道训练有多贵。一次训练要把整个语料过很多遍（每遍叫一个 epoch）。假设一个 7B 参数的小模型、1 万亿 token 语料：业界经验公式（Chinchilla）建议至少约 20 倍参数量的 token，即 1400 亿 token 起步；按训练每参数每 token 约 6 次浮点运算估算，共 7×10⁹ × 1.4×10¹¹ × 6 ≈ 5.9×10²⁰ 次运算。一张 RTX 4090 每秒约 8×10¹⁴ 次有效运算，单卡要跑 20 多年——所以真实训练是几千张卡并行几周到几个月。这就是大模型经济学的前提：预训练贵到只有少数人做得起，推理便宜到人人可分摊。",
+            "en": "Put numbers on it. One pass over the corpus is an epoch; a real run does many. Take a 7B-parameter model on a 1-trillion-token corpus: the Chinchilla rule of thumb suggests at least ~20 tokens per parameter — 140B tokens; at ~6 FLOPs per parameter per token that is 7×10⁹ × 1.4×10¹¹ × 6 ≈ 5.9×10²⁰ operations. An RTX 4090 delivers ~8×10¹⁴ effective FLOP/s — a single card would need 20+ years. Real training runs thousands of GPUs in parallel for weeks to months. That is the premise of LLM economics: pretraining is so expensive only a few can do it, while inference is cheap enough for everyone to share."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "学习率怎么毁掉一次训练，用一条一维曲线就能看清：设损失 f(w)=(w−3)²，最优解 w=3。学习率 0.8：从 w=0 出发，第一步跳到 4.8（过头），第二步跳回 1.44……来回震荡、幅度越来越小，最终收敛；学习率 2.0：第一步跳到 9（过头一倍），第二步跳到 −3，越跳越远——发散，损失不降反升。同一模型、同一数据，唯一差别是一根旋钮。",
+              "en": "Watch the learning rate destroy a run on a one-dimensional curve: f(w)=(w−3)², optimum at w=3. With lr=0.8 starting at w=0: step to 4.8 (overshoot), back to 1.44… oscillating with shrinking amplitude, converging. With lr=2.0: step to 9 (double overshoot), then −3 — diverging, loss rising. Same model, same data, one dial."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：模型不是「越来越聪明」，是在「降损失」",
+            "en": "Misconception: the model isn't getting smarter — it's lowering a number"
+          },
+          "p": {
+            "zh": "最流行的误解是把训练想象成「喂养知识」：喂语料、模型变聪明。真实发生的只是：调整几千亿个旋钮，让「预测下一个 token」这个单一目标的分数下降。所有你以为的「智能」，都是这个单一优化目标的副产品。这解释了两件事：其一，为什么模型会一本正经地编造事实（幻觉）——「说个听起来对的下一句」在统计上得分很高，损失函数从不检查真假；其二，为什么模型的知识冻结在训练截止日——之后的世界它没见过，没有梯度，就没有学习。",
+            "en": "The most popular misreading is training as feeding knowledge: pour in the corpus, the model gets smart. What actually happens: thousands of knobs are tuned to lower one score — the loss of predicting the next token. Everything you recognize as intelligence is a byproduct of that single objective. This explains two things: why models invent facts with total confidence (hallucination) — a plausible-sounding next token scores well statistically, and the loss never checks truth; and why knowledge freezes at the training cutoff — the world after it produced no gradients, hence no learning."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「损失越低，模型越好用」。不一定。损失降到 3.2 后继续磨到 3.1，多半只是把语料背得更熟，通用能力未必提升，过拟合风险反而涨——训练曲线漂亮不等于下游好用，业界判断模型好不好要另跑基准测试。同理，「训练完了模型就定型」也不准确：预训练之后的对齐微调（SFT/RLHF）是另一段训练，它用人类反馈构造新的损失函数，把「会接话」的模型掰成「愿意配合、说人话」的助手——那是第 8 天的主题。",
+              "en": "Lower loss means a better model — not necessarily. Grinding from 3.2 to 3.1 often just memorizes the corpus harder: general capability may not move while overfitting risk rises. A pretty training curve is not downstream quality, which is why benchmarks exist. And the model is fixed after training — also wrong: alignment fine-tuning (SFT/RLHF) after pretraining is another training run, constructing a new loss from human feedback that reshapes a next-line predictor into a helpful, plain-speaking assistant — day 8's topic."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：这条曲线贯穿后面 163 天",
+            "en": "Where this leads"
+          },
+          "p": {
+            "zh": "梯度下降是后面所有主题的发动机：第 8 天的「对齐与 RLHF」是把损失函数换成人类偏好，坡的方向随之改变；阶段二的提示工程之所以有效，是因为它不动参数、只挪输入——便宜的「推理时引导」；阶段三 Agent 的微调（fine-tuning）就是在自己的数据上继续走这条下坡；阶段四 RAG 完全绕开训练，用检索补知识，恰恰因为再走一次预训练的下坡贵到不合理。今天带走一句话——",
+            "en": "Gradient descent powers everything ahead: alignment and RLHF (day 8) swap in a human-preference loss, changing where downhill points; prompting (stage 2) works because it steers the input without touching parameters — cheap inference-time guidance; fine-tuning (stage 3) walks the same downhill on your own data; RAG (stage 4) skips training entirely, retrieving knowledge instead — precisely because another pretraining descent is absurdly expensive. One sentence for today —"
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "不需要 GPU，一支笔一张纸：目标函数 f(w)=(w−3)²，从 w=0 出发手动迭代 w ← w − 学习率 × 2×(w−3)，分别用学习率 0.8 和 2.0 各迭代 5 步，把每步的 w 和 f(w) 记成表格。然后回答：为什么 0.8 的表格收敛到 3 附近，而 2.0 的表格越走越远？（提示：f 在 w 处的坡度是 2×(w−3)，当每步跳过的距离超过谷宽的两倍时，会跳到坡的另一边且落点更高。）",
+          "en": "No GPU needed — pen and paper: for f(w)=(w−3)², iterate w ← w − lr × 2×(w−3) from w=0, five steps each at lr=0.8 and lr=2.0, tabulating w and f(w). Then answer: why does the 0.8 table converge toward 3 while the 2.0 table runs away? (Hint: the slope is 2×(w−3); when each step leaps more than twice the valley width, you land on the other slope, higher than before.)"
+        }
+      },
+      "takeaway": {
+        "zh": "训练 = 沿损失曲线下坡：模型没有变聪明，只是几千亿个旋钮被误差信号同步拧向「预测更准」的方向——所有智能都是这个目标的副产品。",
+        "en": "Training is a walk downhill on the loss curve: the model never got smarter — billions of knobs were nudged, in sync, toward better next-token prediction. All intelligence is a byproduct of that one goal."
+      },
+      "anim": {
+        "tpl": "descent",
+        "hook": {
+          "zh": "模型不是背会的，是改错改会的。",
+          "en": "Models don't memorize — they correct."
+        },
+        "sentence": {
+          "zh": "预测、量误差、朝坡下走一小步。",
+          "en": "Predict. Measure. Step downhill."
+        },
+        "points": [
+          {
+            "x": 6,
+            "y": 10
+          },
+          {
+            "x": 18,
+            "y": 24
+          },
+          {
+            "x": 32,
+            "y": 38
+          },
+          {
+            "x": 48,
+            "y": 50
+          },
+          {
+            "x": 64,
+            "y": 58
+          },
+          {
+            "x": 80,
+            "y": 63
+          },
+          {
+            "x": 96,
+            "y": 66
+          }
+        ],
+        "samples": [
+          {
+            "l": 10.8
+          },
+          {
+            "l": 8.8
+          },
+          {
+            "l": 7.2
+          },
+          {
+            "l": 6.0
+          },
+          {
+            "l": 5.1
+          },
+          {
+            "l": 4.4
+          },
+          {
+            "l": 3.9
+          },
+          {
+            "l": 3.5
+          },
+          {
+            "l": 3.2
+          }
+        ],
+        "note": {
+          "zh": "示意：损失随训练步数下降——前几百步陡降，之后越来越平：容易的规律先学会，剩下的误差越来越难榨。",
+          "en": "Illustrative: loss falls with training steps — steep early, then flattening as the easy patterns are learned first."
+        },
+        "coverHook": {
+          "zh": "训练一次 ≈ 5.9×10²⁰ 次运算：单张 4090 要跑 20 年。",
+          "en": "One training run ≈ 5.9×10²⁰ operations: 20+ years on a single RTX 4090."
+        }
+      }
     }
   ]
 }

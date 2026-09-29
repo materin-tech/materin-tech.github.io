@@ -350,6 +350,82 @@
       setTimeout(show, 350);
       setInterval(show, 2200);
       return wrap;
+    },
+
+    /* descent：损失曲线下坡——小球沿曲线滚动、loss 数字同步下降，整循环自动重播 */
+    descent: function (day) {
+      var a = day.anim;
+      var NS = 'http://www.w3.org/2000/svg';
+      var wrap = el('div', 'materin-learn-descent');
+      var field = el('div', 'materin-learn-descent__field');
+      var plot = document.createElementNS(NS, 'svg');
+      plot.setAttribute('viewBox', '0 0 100 100');
+      plot.setAttribute('preserveAspectRatio', 'none');
+      plot.classList.add('materin-learn-descent__plot');
+
+      function line(cls, x1, y1, x2, y2) {
+        var ln = document.createElementNS(NS, 'line');
+        ln.setAttribute('x1', x1); ln.setAttribute('y1', y1);
+        ln.setAttribute('x2', x2); ln.setAttribute('y2', y2);
+        ln.classList.add(cls);
+        plot.appendChild(ln);
+      }
+      line('materin-learn-descent__axis', 4, 8, 4, 95);
+      line('materin-learn-descent__axis', 4, 95, 97, 95);
+
+      var curve = document.createElementNS(NS, 'polyline');
+      curve.setAttribute('points', a.points.map(function (p) { return p.x + ',' + p.y; }).join(' '));
+      curve.classList.add('materin-learn-descent__curve');
+      plot.appendChild(curve);
+      field.appendChild(plot);
+
+      var ball = el('div', 'materin-learn-descent__ball');
+      field.appendChild(ball);
+
+      var readout = el('div', 'materin-learn-descent__readout');
+      var epoch = el('span', 'materin-learn-descent__epoch');
+      var lossTag = el('span', 'materin-learn-descent__loss-tag', lang() === 'en' ? 'loss' : '损失');
+      var loss = el('span', 'materin-learn-descent__loss', '10.8');
+
+      function lerp(p, q, f) { return p + (q - p) * f; }
+      function posAt(t01) {
+        var pts = a.points;
+        var x = pts[0].x + (pts[pts.length - 1].x - pts[0].x) * t01;
+        var i = 0;
+        while (i < pts.length - 2 && pts[i + 1].x < x) i++;
+        var f = (x - pts[i].x) / (pts[i + 1].x - pts[i].x);
+        return { x: x, y: lerp(pts[i].y, pts[i + 1].y, f) };
+      }
+      function lossAt(t01) {
+        var s = a.samples;
+        var idx = t01 * (s.length - 1);
+        var i = Math.min(Math.floor(idx), s.length - 2);
+        return lerp(s[i].l, s[i + 1].l, idx - i);
+      }
+
+      var t0 = null, DUR = 6000, HOLD = 1100;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = ts - t0;
+        if (tNow > DUR + HOLD) { t0 = ts; tNow = 0; }
+        var t01 = Math.min(tNow / DUR, 1);
+        var p = posAt(t01);
+        ball.style.left = p.x + '%';
+        ball.style.top = p.y + '%';
+        loss.textContent = lossAt(t01).toFixed(1);
+        epoch.textContent = (lang() === 'en' ? 'step ' : '第 ') +
+          Math.round(t01 * (a.samples.length - 1)) + (lang() === 'en' ? '' : ' 步');
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(field);
+      readout.appendChild(epoch);
+      readout.appendChild(lossTag);
+      readout.appendChild(loss);
+      wrap.appendChild(readout);
+      wrap.appendChild(el('p', 'materin-learn-descent__note', t(a.note)));
+      return wrap;
     }
   };
 
