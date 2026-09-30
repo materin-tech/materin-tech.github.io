@@ -426,6 +426,75 @@
       wrap.appendChild(readout);
       wrap.appendChild(el('p', 'materin-learn-descent__note', t(a.note)));
       return wrap;
+    },
+
+    /* attn：注意力权重分配——查询 token 高亮，全句评分条按 softmax 权重依次充满，循环重播 */
+    attn: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-attn');
+      var tokensRow = el('div', 'materin-learn-attn__tokens');
+      var rowsBox = el('div', 'materin-learn-attn__rows');
+      var readout = el('div', 'materin-learn-attn__readout');
+      var qTag = el('span', 'materin-learn-attn__q');
+      var score = el('span', 'materin-learn-attn__score', '0%');
+      var note = el('p', 'materin-learn-attn__note', t(a.note));
+
+      var isEn = lang() === 'en';
+      var names = isEn ? a.tokensEn : a.tokens;
+      var qi = a.qi || 0;
+      var maxW = Math.max.apply(null, a.weights);
+
+      var bars = names.map(function (name, i) {
+        var token = el('span', 'materin-learn-attn__token' + (i === qi ? ' materin-learn-attn__token--q' : ''), name);
+        tokensRow.appendChild(token);
+        var col = el('div', 'materin-learn-attn__col');
+        col.appendChild(el('span', 'materin-learn-attn__token' + (i === qi ? ' materin-learn-attn__token--q' : ''), name));
+        var track = el('div', 'materin-learn-attn__track');
+        var bar = el('div', 'materin-learn-attn__bar');
+        bar.style.width = '0%';
+        track.appendChild(bar);
+        col.appendChild(track);
+        var val = el('span', 'materin-learn-attn__val', '');
+        col.appendChild(val);
+        rowsBox.appendChild(col);
+        return { token: token, col: col, bar: bar, val: val, w: a.weights[i] };
+      });
+
+      var top = bars.reduce(function (m, b) { return b.w > m.w ? b : m; }, bars[0]);
+      qTag.textContent = (isEn ? 'query ' : '查询 ') + names[qi];
+
+      var t0 = null, DUR = 5000, HOLD = 1300;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = ts - t0;
+        if (tNow > DUR + HOLD) { t0 = ts; tNow = 0; }
+        var t01 = Math.min(tNow / DUR, 1);
+        bars.forEach(function (b, i) {
+          /* 每根条在自己的时间片内充满；JSON 不再读旧字段，权重来自 weights */
+          var start = i * 0.11, dur = 0.34;
+          var f = Math.min(Math.max((t01 - start) / dur, 0), 1);
+          var eased = 1 - Math.pow(1 - f, 3);
+          b.bar.style.width = (b.w * eased) + '%';
+          b.val.textContent = f > 0 ? (b.w * eased).toFixed(1) + '%' : '';
+        });
+        if (t01 >= 1) {
+          bars.forEach(function (b) { b.bar.classList.toggle('is-top', b === top); });
+          score.textContent = (isEn ? top.w.toFixed(1) + '%' : names[qi] + ' ← ' + top.token.textContent + ' ' + top.w.toFixed(1) + '%');
+        } else {
+          bars.forEach(function (b) { b.bar.classList.remove('is-top'); });
+          score.textContent = Math.min(99.9, a.weights.reduce(function (s, w) { return s; }, 0) + t01 * maxW).toFixed(1) + '%';
+        }
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(tokensRow);
+      wrap.appendChild(rowsBox);
+      readout.appendChild(qTag);
+      readout.appendChild(score);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

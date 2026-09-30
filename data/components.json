@@ -2732,6 +2732,19 @@
         "materin-learn-action",
         "materin-learn-action__h",
         "materin-learn-action__p",
+        "materin-learn-attn",
+        "materin-learn-attn__bar",
+        "materin-learn-attn__col",
+        "materin-learn-attn__note",
+        "materin-learn-attn__q",
+        "materin-learn-attn__readout",
+        "materin-learn-attn__rows",
+        "materin-learn-attn__score",
+        "materin-learn-attn__token",
+        "materin-learn-attn__token--q",
+        "materin-learn-attn__tokens",
+        "materin-learn-attn__track",
+        "materin-learn-attn__val",
         "materin-learn-body-day",
         "materin-learn-body-slide",
         "materin-learn-brand",
@@ -2890,7 +2903,8 @@
         "is-active",
         "is-current",
         "is-done",
-        "is-stage"
+        "is-stage",
+        "is-top"
       ],
       "batch": "learn"
     }

@@ -842,6 +842,157 @@
           "en": "One training run ≈ 5.9×10²⁰ operations: 20+ years on a single RTX 4090."
         }
       }
+    },
+    {
+      "n": 6,
+      "stage": 1,
+      "week": 1,
+      "tpl": "attn",
+      "date": "2026-09-30",
+      "title": {
+        "zh": "注意力：模型怎么决定「看哪里」",
+        "en": "Attention: how the model decides where to look"
+      },
+      "subtitle": {
+        "zh": "预测下一个词靠的不是记住全文，而是每一步都在「回头看」：每个 token 给所有 token 打分、按分配额取用信息。这一步是 Transformer 的心脏，也是窗口越长越贵的根源。",
+        "en": "Predicting the next word isn't about memorizing the text — it's about looking back: every token scores every token and borrows information by quota. This is the heart of the Transformer, and the reason longer windows cost more."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：每个 token 都在问「谁和我有关」",
+            "en": "Mechanism: every token asks \"who here relates to me?\""
+          },
+          "p": {
+            "zh": "处理「小猫追球，因为它累了」时，模型怎么知道「它」指小猫？靠注意力。每个 token 发出三个向量：查询（Query，我在找什么）、键（Key，我这里有什么）、值（Value，我的实际内容）。拿「它」的查询和句中每个词的键做点积——方向越一致分越高——除以 √d 缩放后跑一遍第 3 天讲过的 softmax，得到一组总和为 100% 的权重；再把所有词的值向量按权重加权求和，「它」的新表示里就掺进了约九成「小猫」的信息。",
+            "en": "In \"The cat chased the ball because it was tired\", how does the model know \"it\" means the cat? Attention. Every token emits three vectors: a Query (what I'm looking for), a Key (what I offer), and a Value (my actual content). Dot the query of \"it\" with every token's key — aligned directions score higher — scale by √d, run the softmax from day 3, and you get weights summing to 100%; the weighted sum of all value vectors then folds about 90% of \"cat\" into the new representation of \"it\"."
+          },
+          "deep": {
+            "zh": "为什么是「点积 + softmax」这套组合？点积直接复用第 2 天的几何：query 和 key 是同一种「语义坐标」，夹角小即相关，不必另造相似度算法；softmax（第 3 天）把任意分数压成总和固定的分配比例，保证「取用的信息总量守恒」；除以 √d 是工程补丁——维度越高点积方差越大，不缩放的话 softmax 会饱和成 one-hot，梯度消失、训练不动。而整套设计最大的动机是并行：RNN 要逐词递归，注意力一步看全句——Transformer 能吃下海量数据，全靠这一点。",
+            "en": "Why dot product plus softmax? The dot product reuses day 2's geometry: query and key live in the same semantic space, small angle means relevant — no separate similarity algorithm needed. Softmax (day 3) squashes arbitrary scores into shares with a fixed total, keeping the borrowed-information budget constant; dividing by √d is an engineering patch — higher dimensions inflate dot-product variance, and unscaled softmax saturates into one-hot, killing gradients. And the biggest design motive is parallelism: RNNs recurse word by word, attention sees the whole sentence in one step — that is exactly what lets Transformers swallow massive data."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：窗口越长，评分表平方级爆炸",
+            "en": "The math: longer windows, quadratically exploding score tables"
+          },
+          "p": {
+            "zh": "注意力要对「每个位置 × 每个位置」打分——n 个 token 就是 n² 对。128K 窗口约 131,072 个 token：单层单头要算 131,072² ≈ 171.8 亿对；乘上 32 个头、80 层，一次调用约 44 万亿对评分。同一个模型把窗口从 4K 开到 128K，token 数 32 倍，评分量 1,024 倍——平方级。这就是第 4 天「窗口越大越慢越贵」的机制根源：贵的不是读，是每一层都要重打一遍全对全的评分表。",
+            "en": "Attention scores every position against every position — n tokens mean n² pairs. A 128K window is ≈131,072 tokens: 131,072² ≈ 17.2 billion pairs per head per layer; times 32 heads and 80 layers, about 44 trillion pairs per call. Stretching the same model from 4K to 128K grows tokens 32x but score pairs 1,024x — quadratic. That is the mechanism behind day 4's \"bigger windows are slower and pricier\": the cost isn't reading, it's re-scoring the full all-pairs table at every layer."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "一个真实规模的头（示意数值，softmax 实算）：查询「它」，对句中 7 个词打分——「小猫」0.55 → 89.5%、「球」0.25 → 8.1%、「累了」0.0 → 1.1%、「，」−1.2 → 0.0%。softmax 之后每个词分到的权重就是它向「它」输送信息的配额：九成给小猫，其余词几乎分不到。这一个头管「指代」，另一批头各管语法、位置、搭配——多头就是把几十种「关注模式」并联起来。",
+              "en": "One real-scale head (illustrative values, actual softmax): query \"it\", scoring all 7 tokens — \"cat\" 0.55 → 89.5%, \"ball\" 0.25 → 8.1%, \"tired\" 0.0 → 1.1%, \",\" −1.2 → 0.0%. After softmax, each weight is that token's quota of information flowing into \"it\": ~90% to the cat, the rest nearly nothing. This head handles reference; other heads handle syntax, position, collocations — multi-head is dozens of attention patterns wired in parallel."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：注意力权重 ≠ 模型的「解释」",
+            "en": "Misconception: attention weights ≠ the model's explanation"
+          },
+          "p": {
+            "zh": "把注意力热力图当「模型推理过程的透视」很诱人，但站不住：一是层数——几十层叠起来，第 5 层的权重图解释不了第 40 层的决策；二是多头——几十个头各看各的模式，单独拎出一个头的连线只是盲人摸象；三是权重只是「信息流动的记录」，不是「决策的理由」。同理，「模型像人一样通读并重读全文」也不成立：每个 token 一视同仁、一步并行打分，没有先后和回看——中段信息被稀释（第 4 天的位置偏差），根源正在这里。",
+            "en": "Reading attention heatmaps as an x-ray of the model's reasoning is tempting but doesn't hold: layers — dozens stack up, a layer-5 heatmap can't explain a layer-40 decision; heads — dozens of heads each track their own pattern, one head's lines are a partial glimpse at best; and weights record where information flows, not why a decision was made. Likewise \"the model reads like a person, back and forth\" is wrong: every token is scored in parallel, no order, no rereading — which is exactly why mid-window content gets diluted (day 4's positional bias)."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「注意力 = 人类的注意力」。只借了名字：人的注意是主动筛选视野，模型的注意力是一次全对全的加权平均运算——它从不「忽略」任何词，只是给每个词分配 0～1 的输送配额，多数词的配额接近 0。所以说「模型只关注了重点」是误导：它把所有词都算了一遍，只是算完几乎没用上大部分。",
+              "en": "\"Attention = human attention.\" Only the name is borrowed: human attention actively filters the field of view, while model attention is one all-pairs weighted averaging — it never ignores a word, it just assigns each a 0–1 quota, and most quotas are near zero. Saying \"the model focused on the key part\" misleads: it computed everything, and most of it barely mattered."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：注意力是后面 162 天的舞台",
+            "en": "Where this leads"
+          },
+          "p": {
+            "zh": "注意力是后面所有主题的共同舞台：阶段二的「上下文工程」本质是给注意力喂料——把最该被打高分的 token 摆进窗口，结构化、去噪声、放首尾；阶段三 Agent 的工具输出要精简，因为几十 KB 的 JSON 会稀释关键信息的权重；阶段四 RAG 是在窗口外先做一次预筛选，只让最相关的段落进赛场；第 8 天的对齐训练改的也是同一台机器——用人类偏好调整注意力与输出模式。今天带走一句话——",
+            "en": "Attention is the shared stage for everything ahead: stage 2's context engineering is feeding it — putting the tokens that should score high into the window, structured, denoised, near the edges; stage 3 agents keep tool outputs lean, because tens of KB of JSON dilute the weights of what matters; stage 4 RAG pre-screens outside the window, letting only the most relevant passages into the arena; and day 8's alignment tunes this same machine with human preferences. One sentence for today —"
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "不用写代码，一张纸：给「小猫追球，因为它累了」里的查询词「它」手工建一张评分表——给其余 6 个词各打一个 −2～2 的分（越高越相关），自己算或用计算器跑一遍 softmax（取 e 的幂、求和、逐个相除），把权重写成总和 100%。然后回答：为什么「它→小猫」的分差只要拉开一点，权重就会一边倒？（提示：softmax 是指数放大器——分差 0.6 时概率比已是 e^0.6 ≈ 1.8 倍，分差 2 时是 e² ≈ 7.4 倍。）",
+          "en": "No code needed — one sheet of paper: for the query \"it\" in \"The cat chased the ball because it was tired\", hand-build a score table — rate the other 6 words from −2 to 2 (higher = more relevant), run softmax yourself (exponentiate, sum, divide), and write the weights as a total of 100%. Then answer: why does even a small score gap tip the weights overwhelmingly toward one word? (Hint: softmax is an exponential amplifier — a 0.6 gap already means a e^0.6 ≈ 1.8x probability ratio; a gap of 2 means e² ≈ 7.4x.)"
+        }
+      },
+      "takeaway": {
+        "zh": "注意力 = 每个位置向全部位置打分、按分配额取信息：「理解」不是通读并记住，而是每一步动态决定「从谁那里借多少」——代价是一张平方级膨胀的评分表。",
+        "en": "Attention = every position scoring all positions and borrowing information by quota: \"understanding\" isn't reading and memorizing — it's dynamically deciding whom to borrow from at every step, at the price of a quadratically growing score table."
+      },
+      "anim": {
+        "tpl": "attn",
+        "hook": {
+          "zh": "「它」指的是谁？模型每处理一个词都要回答一次这个问题。",
+          "en": "Who is \"it\"? The model answers this for every single word."
+        },
+        "sentence": {
+          "zh": "小猫追球，因为它累了",
+          "en": "The cat chased the ball because it was tired"
+        },
+        "tokens": [
+          "小猫",
+          "追",
+          "球",
+          "，",
+          "因为",
+          "它",
+          "累了"
+        ],
+        "tokensEn": [
+          "The cat",
+          "chased",
+          "the ball",
+          ",",
+          "because",
+          "it",
+          "was tired"
+        ],
+        "qi": 5,
+        "scores": [
+          0.55,
+          -0.1,
+          0.25,
+          -1.2,
+          -0.05,
+          -0.9,
+          0.0
+        ],
+        "weights": [
+          89.5,
+          0.5,
+          8.1,
+          0.0,
+          0.7,
+          0.0,
+          1.1
+        ],
+        "note": {
+          "zh": "查询 =「它」：对句中每个词打分后经 softmax 归一化，权重总和恒为 100%（示意数值，真实 softmax 计算）。权重最高的词是信息的主要来源。",
+          "en": "Query = \"it\": every token is scored, then softmax normalizes — weights always sum to 100% (illustrative values, real softmax). The top-weighted word is the main information source."
+        },
+        "coverHook": {
+          "zh": "「它」指谁？128K 窗口单层要打 171 亿对分，整次调用 44 万亿对。",
+          "en": "Who is \"it\"? A 128K window scores 17.1B pairs in one layer — 44 trillion per call."
+        }
+      }
     }
   ]
 }
