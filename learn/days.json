@@ -993,6 +993,162 @@
           "en": "Who is \"it\"? A 128K window scores 17.1B pairs in one layer — 44 trillion per call."
         }
       }
+    },
+    {
+      "n": 7,
+      "stage": 1,
+      "week": 1,
+      "tpl": "flow",
+      "date": "2026-10-01",
+      "title": {
+        "zh": "预训练：从万亿 token 到一个模型",
+        "en": "Pretraining: from trillions of tokens to one model"
+      },
+      "subtitle": {
+        "zh": "互联网进去，一个模型出来：清洗、切 token、走几万步梯度下降——预训练不是存储，是有损压缩，把万亿 token 压成一台「只会续写」的预测机器。它是所有大模型应用的毛坯，也是贵到只有少数人付得起的一步。",
+        "en": "The internet goes in, one model comes out: clean, tokenize, descend for tens of thousands of steps — pretraining is lossy compression, squeezing trillions of tokens into a machine that only knows how to continue. It is the blank slate behind every LLM app, and the one step few can afford."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：流水线四步，每一步都在筛选",
+            "en": "Mechanism: a four-step pipeline that filters at every stage"
+          },
+          "p": {
+            "zh": "预训练是一条流水线。① 收集：从网页、书籍、代码里抓来数万亿 token 的原始语料——先有原料，第 1 天的 BPE 词表这时还没上场；② 清洗去重：给每篇文档算指纹，重复段落只留一份——重复文本会让模型死记硬背而不是学规律，低质内容会直接污染参数；③ 切 token：用 BPE 词表把全部文本变成统一的数字序列（第 1 天）；④ 训练：按第 5 天的梯度下降循环，对每个位置预测下一个 token（第 6 天的注意力负责「看哪里」），误差回传、参数更新，重复几万到几十万步。",
+            "en": "Pretraining is a pipeline. 1) Collect: scrape trillions of tokens of raw corpus from web pages, books, and code — raw material first; the BPE vocabulary of day 1 hasn't entered yet. 2) Clean and dedupe: fingerprint each document, keep one copy of duplicates — repeated text teaches memorization instead of patterns, and low-quality content poisons parameters directly. 3) Tokenize: convert all text into uniform number sequences with the BPE vocabulary (day 1). 4) Train: run the gradient-descent loop from day 5 — predict the next token at every position (day 6's attention decides where to look), backpropagate, update, repeat for tens of thousands of steps."
+          },
+          "deep": {
+            "zh": "为什么整个大厦只押「预测下一个 token」这一个目标？因为它是唯一不需要人工标注的自监督信号——互联网上每段文字自带标准答案（下一个词是什么），数据量上不封顶；而「完形填空」式的目标只见过局部上下文，学不到长程生成。选目标本质是压缩经济学：下一词预测拿到的数据最多，恰好也是生成任务本身的形状——这就是 GPT 路线胜出的设计动机，其余一切能力都是这个单一目标的副产品。",
+            "en": "Why bet the entire edifice on one objective, next-token prediction? Because it is the only self-supervised signal that needs no human labels — every passage on the internet carries its own ground truth (the next word), so the data supply is unbounded; cloze-style objectives see only local context and never learn long-range generation. Choosing the objective is compression economics: next-token prediction gets the most data and happens to mirror the generation task itself — the design motive behind GPT's win. Everything else is a byproduct of this single target."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：15 万亿 token 是什么概念",
+            "en": "The math: what 15 trillion tokens actually means"
+          },
+          "p": {
+            "zh": "把 15T token 换算成能感知的量：一本 300 页的书约 20 万字 ≈ 13 万 token，15T token 相当于约 1,150 万本这样的书。算力按第 5 天的公式（6×N×D）估：405B 参数 × 15T token × 6 ≈ 3.6×10²⁵ 次运算。一张 H100 每秒约 4×10¹⁴ 次有效运算，单卡要跑 2,800 多年；Meta 用约 1.6 万张 H100 并行，才把这次运算压进两个月。预训练贵就贵在这里：一次性把人类公开文本整体走一遍梯度下降。",
+            "en": "Convert 15T tokens into something you can feel: a 300-page book is ~200k characters ≈ 130k tokens, so 15T tokens ≈ 11.5 million such books. Compute by day 5's formula (6×N×D): 405B params × 15T tokens × 6 ≈ 3.6×10²⁵ operations. One H100 delivers ~4×10¹⁴ effective FLOP/s — a single card would need 2,800+ years; Meta ran ~16,000 H100s in parallel to squeeze it into two months. That is what pretraining costs: one full pass of gradient descent over humanity's public text."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "人类对照：一个人以每秒 5 个 token 的速度不间断阅读 80 年——5 × 3,150 万秒/年 × 80 ≈ 126 亿 token——连 LLaMA 3 训练量（15T）的千分之一都不到。模型在两个月里「读完」了一个人一千多辈子读不完的文本；而前提是这些文本先被清洗到可用——这正是流水线前半段存在的理由。",
+              "en": "The human comparison: reading nonstop at 5 tokens/second for 80 years — 5 × 31.5M s/yr × 80 ≈ 12.6 billion tokens — is not even a thousandth of LLaMA 3's training set (15T). In two months the model reads what one person could not finish in a thousand lifetimes; and that presumes the text was cleaned into usable form first — the very reason the pipeline's front half exists."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：预训练不是「把互联网存进硬盘」",
+            "en": "Misconception: pretraining is not \"saving the internet to disk\""
+          },
+          "p": {
+            "zh": "把预训练想象成下载互联网，是方向性错误。模型 405B 参数按每个 2 字节存约 800GB，而 15T token 的原文有 30TB 起——参数文件不到原文的 3%。它不是存储，是有损压缩：参数里留下的是规律——语法、事实的统计倾向、推理模式——而不是原文本身。代价：压缩必然丢细节，冷门事实被平均掉，所以模型对热门知识对答如流、对冷门事实张冠李戴（幻觉的结构性来源之一）；收益：压出来的规律能泛化到没见过的组合——这是「智能感」的来源。存储与压缩的差别，就是背诵与理解的差别。",
+            "en": "Imagining pretraining as downloading the internet misses the point. A 405B-parameter model stores ~2 bytes per parameter ≈ 800GB, while 15T tokens of raw text run 30TB+ — the parameter file is under 3% of the original. It is not storage but lossy compression: what the parameters keep are patterns — grammar, statistical leanings of facts, reasoning modes — not the text itself. The cost: compression drops detail and averages away obscure facts, which is why models ace popular knowledge and fumble the obscure (one structural source of hallucination). The payoff: the compressed patterns generalize to unseen combinations — the source of the \"intelligence\" feel. The difference between storage and compression is the difference between memorizing and understanding."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「语料越多，模型一定越好」。堆数据解决不了质量与配比：重复的低质文本教会模型复读而不是推理；语言与领域的配比决定模型擅长什么——中英配比失衡的模型中文必然吃亏。LLaMA 3 的做法不是「有多少用多少」，而是清洗分级后，在训练后期对高质量数据加重采样。真实项目里，数据工程（清洗、去重、配比）占用的时间与算力不比训练本身少。",
+              "en": "\"More corpus always means a better model.\" Piling up data cannot fix quality or mix: duplicated low-grade text teaches parroting, not reasoning, and the language/domain mix decides what the model is good at — a skewed Chinese-English ratio caps Chinese performance for sure. LLaMA 3's approach isn't \"use everything we have\" but grade after cleaning, then upsample high-quality data late in training. In real projects, data engineering (cleaning, dedup, mixing) eats as much time and compute as the training itself."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：预训练只造了毛坯",
+            "en": "Where this leads: pretraining only builds the blank slate"
+          },
+          "p": {
+            "zh": "流水线的产物叫「基座模型」，它只会续写、不认识指令——你问「法国的首都是哪」，它可能接着写「德国的首都是哪」：在语料里这确实是下一句最可能的形状。把它变成助手还差一步：第 8 天的对齐训练（SFT/RLHF）用人类示例和反馈再走一轮梯度下降，教它听指令、说人话。再往后：阶段二的提示工程教你不动模型就能引导基座；阶段三的微调是在自己的数据上重跑这条流水线；阶段四 RAG 给这台压缩机器外接一个可随时更新的知识库，补上有损压缩丢掉的事实。今天带走一句话——",
+            "en": "The pipeline's output is a base model: it continues text and doesn't follow instructions — ask \"What is the capital of France?\" and it may continue \"What is the capital of Germany?\", because in the corpus that is literally the likeliest next sentence. One step is missing before it becomes an assistant: day 8's alignment (SFT/RLHF) runs another round of gradient descent on human demonstrations and feedback, teaching it to follow instructions and speak plainly. Then: stage 2's prompting steers the base model without touching it; stage 3's fine-tuning reruns this pipeline on your own data; stage 4's RAG bolts a live-updatable knowledge base onto the compression machine, restoring the facts it dropped. One sentence for today —"
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "不用写代码，用一张纸做「压缩实验」：写一段 60 字左右的话，把它压缩到 15 字以内，再在摘要基础上连压两轮。然后回答两个问题：① 哪类信息最先被你丢掉？（提示：对比专有名词和连接词的存活率——模型的参数也做了同样的取舍，这就是冷门事实更容易出错的机制。）② 压到第三轮，原文还能被还原吗？——不能。这就是有损压缩和「存进硬盘」的本质区别。",
+          "en": "No code — run a \"compression experiment\" on paper: write ~60 characters of text, compress it to under 15, then compress the summary twice more. Answer two questions: 1) Which kind of information do you drop first? (Hint: compare the survival rate of proper nouns versus connectives — the model's parameters make the same trade, which is exactly why obscure facts fail first.) 2) After three rounds, can the original be restored? No — that is the difference between lossy compression and saving to disk."
+        }
+      },
+      "takeaway": {
+        "zh": "预训练是一次有损压缩：自监督的「下一词预测」把万亿 token 的规律压进参数——原文留不下，规律留得下；数据规模决定能力上限，清洗质量决定下限，而刚出厂的这台压缩机器，只会续写。",
+        "en": "Pretraining is lossy compression: self-supervised next-token prediction squeezes the patterns of trillions of tokens into parameters — the text won't fit, the patterns do; data scale sets the ceiling, cleaning quality the floor, and the machine ships knowing only how to continue."
+      },
+      "anim": {
+        "tpl": "flow",
+        "hook": {
+          "zh": "互联网进去，一个模型出来——中间发生了什么？",
+          "en": "The internet goes in, one model comes out — what happens in between?"
+        },
+        "sentence": {
+          "zh": "清洗 → 切 token → 梯度下降，几万步后收敛。",
+          "en": "Clean, tokenize, descend — converging after tens of thousands of steps."
+        },
+        "steps": [
+          {
+            "k": "corpus",
+            "n": 12,
+            "zh": "原始语料",
+            "en": "Raw corpus",
+            "numZh": "15T token",
+            "numEn": "15T tokens"
+          },
+          {
+            "k": "clean",
+            "n": 8,
+            "zh": "清洗去重",
+            "en": "Clean & dedupe",
+            "numZh": "≈10T",
+            "numEn": "≈10T"
+          },
+          {
+            "k": "tok",
+            "n": 8,
+            "zh": "切 token（BPE）",
+            "en": "Tokenize (BPE)",
+            "numZh": "10T",
+            "numEn": "10T"
+          },
+          {
+            "k": "train",
+            "n": 4,
+            "zh": "梯度下降",
+            "en": "Gradient descent",
+            "numZh": "3 万步",
+            "numEn": "30k steps"
+          },
+          {
+            "k": "base",
+            "n": 1,
+            "zh": "基座模型",
+            "en": "Base model",
+            "numZh": "1 个",
+            "numEn": "1"
+          }
+        ],
+        "note": {
+          "zh": "示意：原始语料经清洗去重、BPE 切分后进入梯度下降（第 5 天）——几万步后收敛成一个基座模型。每一步都在筛选与压缩：数据越纯，有效信息密度越高。",
+          "en": "Illustrative: raw corpus is cleaned, deduped, and tokenized via BPE, then enters gradient descent (day 5) — converging into one base model after tens of thousands of steps. Every stage filters and compresses: purer data, denser signal."
+        },
+        "coverHook": {
+          "zh": "15T token 进，800GB 出：预训练丢掉原文、留下规律——1.6 万张 H100 跑两个月才压得完。",
+          "en": "15T tokens in, 800GB out: pretraining keeps the patterns and discards the text — 16,000 H100s, two months of compression."
+        }
+      }
     }
   ]
 }

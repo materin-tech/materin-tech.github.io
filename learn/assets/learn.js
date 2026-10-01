@@ -495,6 +495,55 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* flow：预训练流水线——语料格逐级收缩（清洗→切 token→训练→基座），循环重播。
+       入场只动 transform，不碰 opacity（导出/采样不会停在透明第一帧）。 */
+    flow: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-flow');
+      var rowsBox = el('div', 'materin-learn-flow__rows');
+      var note = el('p', 'materin-learn-flow__note', t(a.note));
+      var DUR = 6400, HOLD = 1500;
+      var phases = [];
+
+      a.steps.forEach(function (st, i) {
+        var row = el('div', 'materin-learn-flow__row materin-learn-flow__row--' + st.k);
+        row.style.setProperty('--flow-n', String(st.n));
+        row.appendChild(el('span', 'materin-learn-flow__tag', t({ zh: st.zh, en: st.en })));
+        var cells = el('div', 'materin-learn-flow__cells');
+        for (var c = 0; c < st.n; c++) {
+          var cell = el('span', 'materin-learn-flow__cell');
+          cell.style.animationDelay = (0.2 + i * 0.9 + c * 0.05) + 's';
+          cells.appendChild(cell);
+        }
+        row.appendChild(cells);
+        row.appendChild(el('span', 'materin-learn-flow__num', t({ zh: st.numZh, en: st.numEn })));
+        rowsBox.appendChild(row);
+        phases.push(row);
+      });
+
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = ts - t0;
+        if (tNow > DUR + HOLD) { t0 = ts; tNow = 0; }
+        var t01 = Math.min(tNow / DUR, 1);
+        /* 每级在其时间片内从满宽收缩到 --flow-n/12 的份额（CSS 端按 --flow-p 插值宽度） */
+        phases.forEach(function (row, i) {
+          var start = 0.14 + i * 0.22, dur = 0.5;
+          var f = Math.min(Math.max((t01 - start) / dur, 0), 1);
+          var eased = 1 - Math.pow(1 - f, 3);
+          row.style.setProperty('--flow-p', eased.toFixed(3));
+          row.classList.toggle('is-done', f >= 1);
+        });
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(rowsBox);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 
