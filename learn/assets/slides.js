@@ -243,6 +243,63 @@
         v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
         v.appendChild(el('div', 'materin-learn-viz__label', '窗口经济学：后面 164 天的成本模型'));
       }
+    } else if (day.anim && day.anim.tpl === 'flow') {
+      if (idx === 0) {
+        /* 流水线各级：格子数与动效页一致（筛选漏斗） */
+        var rows = el('div', 'materin-learn-viz__bars');
+        day.anim.steps.forEach(function (st) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', t({ zh: st.zh, en: st.en })));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar');
+          bar.style.width = Math.max(6, st.n / 12 * 100) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', t({ zh: st.numZh, en: st.numEn })));
+          rows.appendChild(row);
+        });
+        v.appendChild(rows);
+        v.appendChild(el('div', 'materin-learn-viz__label', '流水线各级的量级（每级都在筛掉杂质）'));
+      } else if (idx === 1) {
+        var bars = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '单人读 80 年', val: 1, cls: '', txt: '≈126 亿 token（0.1%）' },
+          { tag: 'LLaMA 3 语料', val: 100, cls: ' materin-learn-viz__bar--en', txt: '15T token（100%）' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars.appendChild(row);
+        });
+        v.appendChild(bars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '人类阅读量 vs 预训练语料（对数示意）'));
+      } else if (idx === 2) {
+        var bars2 = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '参数文件', val: 3, cls: '', txt: '≈800GB（<3%）' },
+          { tag: '原始文本', val: 100, cls: ' materin-learn-viz__bar--en', txt: '30TB+（100%）' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars2.appendChild(row);
+        });
+        v.appendChild(bars2);
+        v.appendChild(el('div', 'materin-learn-viz__label', '不是存储，是有损压缩：97% 的原文没有进参数'));
+      } else {
+        v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
+        v.appendChild(el('div', 'materin-learn-viz__label', '毛坯只是起点：第 8 天讲对齐'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));
