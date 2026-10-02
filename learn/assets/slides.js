@@ -50,12 +50,12 @@
     var chips = el('div', 'materin-learn-cover__chips');
     day.sections.slice(0, 3).forEach(function (sec) {
       var h = t(sec.h);
-      /* 胶囊取「：」或「——」后的短后缀；都没有则截到 12 字，避免整句塞爆胶囊互相压字 */
+      /* 胶囊取「：」或「——」后的短后缀；都没有则截到 14 字，避免整句塞爆胶囊互相压字 */
       var m = h.split('：');
       var txt = m.length > 1 ? m[1] : h;
       m = txt.split('——');
       if (m.length > 1) txt = m[1];
-      if (txt.length > 12) txt = txt.slice(0, 12);
+      if (txt.length > 14) txt = txt.slice(0, 14);
       chips.appendChild(el('span', 'materin-learn-cover__chip', txt));
     });
     c.appendChild(chips);
