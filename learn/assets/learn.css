@@ -1316,3 +1316,122 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
   color: var(--muted);
   font-size: 12px;
 }
+
+/* duel：偏好对决（第 8 天 RLHF）——左右两个回答，人类点亮胜者，胜率爬升 */
+.materin-learn-duel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.materin-learn-duel__prompt {
+  padding: 8px 18px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 999px;
+  background: var(--materin-glass-bg-subtle);
+  color: var(--materin-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.materin-learn-duel__rounds {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.materin-learn-duel__round {
+  display: grid;
+  grid-template-columns: 34px 1fr 1fr;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.materin-learn-duel__round-no {
+  align-self: center;
+  color: var(--materin-text-faint);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-duel__card {
+  padding: 12px 14px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 10px;
+  background: var(--materin-glass-bg-subtle);
+  color: var(--materin-text-muted);
+  font-size: 13.5px;
+  line-height: var(--materin-line-height-normal);
+  box-shadow: var(--materin-shadow);
+  transform: translateY(0) scale(1);
+  transition: border-color var(--materin-duration-normal) ease,
+    background var(--materin-duration-normal) ease,
+    color var(--materin-duration-normal) ease;
+  animation: materin-learn-duel-pop 0.3s var(--materin-ease-standard, ease) backwards;
+}
+
+@keyframes materin-learn-duel-pop {
+  from { transform: translateY(8px) scale(0.96); }
+  to { transform: translateY(0) scale(1); }
+}
+
+/* 人类点亮胜者：亮边 + 语气变化；败者按下去 */
+.materin-learn-duel__round.is-picked .materin-learn-duel__card--b {
+  border-color: var(--materin-ok-border);
+  background: var(--materin-ok-soft);
+  color: var(--materin-text);
+}
+
+.materin-learn-duel__round.is-picked .materin-learn-duel__card--a {
+  opacity: 0.55;
+  transform: scale(0.97);
+}
+
+.materin-learn-duel__meter {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.materin-learn-duel__num {
+  color: var(--materin-accent);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-duel__track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--materin-surface-3);
+  overflow: hidden;
+}
+
+.materin-learn-duel__bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--materin-accent), color-mix(in srgb, var(--materin-accent) 55%, transparent));
+  transition: width 0.6s var(--materin-ease-standard, ease);
+}
+
+.materin-learn-duel__meter-label {
+  color: var(--materin-text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.materin-learn-duel__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+}

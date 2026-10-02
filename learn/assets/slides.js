@@ -243,6 +243,59 @@
         v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
         v.appendChild(el('div', 'materin-learn-viz__label', '窗口经济学：后面 164 天的成本模型'));
       }
+    } else if (day.anim && day.anim.tpl === 'duel') {
+      if (idx === 0) {
+        /* 对决页：与动效页同一套左右对决卡（第 1 轮） */
+        var r0 = day.anim.rounds[0];
+        var duel = el('div', 'materin-learn-duel');
+        var round = el('div', 'materin-learn-duel__round is-picked');
+        ['a', 'b'].forEach(function (side) {
+          round.appendChild(el('div', 'materin-learn-duel__card materin-learn-duel__card--' + side, t(r0[side])));
+        });
+        duel.appendChild(round);
+        v.appendChild(duel);
+        v.appendChild(el('div', 'materin-learn-viz__label', '同一问题、两个回答——人类挑出更好的那个'));
+      } else if (idx === 1) {
+        var bars = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: 'SFT 示范', val: 13, cls: '', txt: '≈1.3 万条' },
+          { tag: 'RM 比较', val: 33, cls: '', txt: '≈3.3 万次' },
+          { tag: 'PPO 比较', val: 31, cls: '', txt: '≈3.1 万次' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = (r.val / 33 * 100) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars.appendChild(row);
+        });
+        v.appendChild(bars);
+        v.appendChild(el('div', 'materin-learn-viz__label', 'InstructGPT 的人类操作量：合计约 7.7 万次'));
+      } else if (idx === 2) {
+        var bars2 = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '预训练 token', val: 100, cls: ' materin-learn-viz__bar--en', txt: '15T' },
+          { tag: '对齐人类数据', val: 3, cls: '', txt: '≈7.7 万条（<0.001%）' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars2.appendChild(row);
+        });
+        v.appendChild(bars2);
+        v.appendChild(el('div', 'materin-learn-viz__label', '极小的数据量，决定产品成败的一步'));
+      } else {
+        v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
+        v.appendChild(el('div', 'materin-learn-viz__label', '对齐教它配合，治不好幻觉——第 9 天'));
+      }
     } else if (day.anim && day.anim.tpl === 'flow') {
       if (idx === 0) {
         /* 流水线各级：格子数与动效页一致（筛选漏斗） */

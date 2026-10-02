@@ -544,6 +544,68 @@
       wrap.appendChild(rowsBox);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* duel：偏好对决——同一问题的两个回答左右对决，人类点亮胜者，胜率爬升 */
+    duel: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-duel');
+      var prompt = el('div', 'materin-learn-duel__prompt', t(a.prompt));
+      var roundsBox = el('div', 'materin-learn-duel__rounds');
+      var meter = el('div', 'materin-learn-duel__meter');
+      var meterTrack = el('div', 'materin-learn-duel__track');
+      var meterBar = el('div', 'materin-learn-duel__bar');
+      var meterNum = el('span', 'materin-learn-duel__num', '50%');
+      var meterLabel = el('span', 'materin-learn-duel__meter-label',
+        lang() === 'en' ? 'preference win rate' : '偏好胜率');
+      var note = el('p', 'materin-learn-duel__note', t(a.note));
+
+      meterTrack.appendChild(meterBar);
+      meter.appendChild(meterNum);
+      meter.appendChild(meterTrack);
+      meter.appendChild(meterLabel);
+      meterBar.style.width = '50%';
+
+      a.rounds.forEach(function (r, i) {
+        var round = el('div', 'materin-learn-duel__round');
+        round.appendChild(el('span', 'materin-learn-duel__round-no', '#' + (i + 1)));
+        ['a', 'b'].forEach(function (side, si) {
+          var card = el('div', 'materin-learn-duel__card materin-learn-duel__card--' + side, t(r[side]));
+          card.style.animationDelay = (0.3 + i * 2.4 + si * 0.3) + 's';
+          round.appendChild(card);
+        });
+        roundsBox.appendChild(round);
+      });
+
+      var t0 = null;
+      var ROUND = 2400, HOLD = 700, TOTAL = a.rounds.length * ROUND + HOLD;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % TOTAL;
+        /* 每轮在其时间片后 40% 处点亮胜者 */
+        a.rounds.forEach(function (r, i) {
+          var round = roundsBox.children[i];
+          var f = tNow > i * ROUND + ROUND * 0.4;
+          round.classList.toggle('is-picked', f);
+        });
+        /* 胜率按轮数阶梯爬升 */
+        var stage = 0;
+        a.rounds.forEach(function (_, i) {
+          if (tNow > i * ROUND + ROUND * 0.4) stage = i + 1;
+        });
+        var wr = a.winrates[Math.min(stage, a.winrates.length - 1)];
+        meterBar.style.width = wr + '%';
+        meterNum.textContent = wr + '%';
+        meter.classList.toggle('is-climbed', stage >= a.rounds.length);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(prompt);
+      wrap.appendChild(roundsBox);
+      wrap.appendChild(meter);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

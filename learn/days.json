@@ -1149,6 +1149,153 @@
           "en": "15T tokens in, 800GB out: pretraining keeps the patterns and discards the text — 16,000 H100s, two months of compression."
         }
       }
+    },
+    {
+      "n": 8,
+      "stage": 1,
+      "week": 2,
+      "tpl": "duel",
+      "date": "2026-10-02",
+      "title": {
+        "zh": "对齐：从会续写到会配合",
+        "en": "Alignment: from continuing text to being helpful"
+      },
+      "subtitle": {
+        "zh": "预训练造出的是一台续写机器。对齐分两段把它掰成助手：SFT 照着范文模仿，RLHF 从几十万次人类挑选里学出「分寸」——能力没变，行为变了，而奖励只是代理指标，不是「好」本身。",
+        "en": "Pretraining ships a text-completion machine. Alignment reshapes it in two passes: SFT imitates human demonstrations, RLHF distills \"judgment\" from hundreds of thousands of human picks — ability unchanged, behavior changed, and reward is a proxy, not goodness itself."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：SFT 与 RLHF——人类的挑选如何变成损失",
+            "en": "Mechanism: SFT and RLHF — how human picks become a loss"
+          },
+          "p": {
+            "zh": "基座模型出厂只会续写（第 7 天）。对齐分两段把它掰成助手。第一段 SFT（监督微调）：人写几万条高质量问答示范，继续用第 5 天的梯度下降让参数模仿这个分布——本质是「照着范文改作文」。第二段 RLHF（人类反馈强化学习）：让模型对同一问题生成多个回答，人类标注员只做一件事——挑出更好的那个；用几十万次这样的两两比较训练出一个「奖励模型」（能给任何回答打分），再用强化学习（常用 PPO）推动模型朝高分方向更新。梯度下降的老骨架没变，变的只是损失函数：从「预测下一个词」换成「人类偏好」。",
+            "en": "A base model only continues text (day 7). Alignment reshapes it in two passes. First SFT (supervised fine-tuning): humans write tens of thousands of high-quality Q&A demonstrations, and the day-5 gradient descent tunes the parameters to imitate that distribution — learning by example. Second RLHF (reinforcement learning from human feedback): the model generates several answers to the same question and human raters do exactly one thing — pick the better one; a few hundred thousand such pairwise comparisons train a reward model (a scorer for any answer), and reinforcement learning (usually PPO) pushes the model toward high-scoring outputs. The gradient-descent skeleton is unchanged; only the loss swaps from \"predict the next token\" to \"human preference\"."
+          },
+          "deep": {
+            "zh": "为什么是「挑更好的那个」，而不是直接写标准答案？因为写示范贵且覆盖不了开放性问题，而「比较」对人类便宜得多——标注员不需要知道正确答案，只需要审美判断。两两偏好恰好能训练出奖励模型，把「人类什么时候满意」变成一个可计算的分数，之后才能自动化地走梯度。这是 RLHF 最聪明的杠杆：把贵而慢的「生成示范」换成便宜而快的「成对比较」，一次比较同时定义了两个答案的好坏。",
+            "en": "Why pick the better one instead of writing the ideal answer? Writing demonstrations is expensive and can't cover open-ended questions, while comparing is cheap for humans — raters need taste, not the right answer. Pairwise preferences happen to be exactly what trains a reward model, turning \"when are humans satisfied\" into a computable score that can then drive gradient descent automatically. That is RLHF's cleverest lever: swap the expensive, slow \"write demonstrations\" for the cheap, fast \"compare pairs\" — one comparison prices two answers at once."
+          }
+        },
+        {
+          "h": {
+            "zh": "实例：InstructGPT 的账——7.7 万次挑选改写一个模型",
+            "en": "Worked example: InstructGPT's ledger — 77k picks rewrote a model"
+          },
+          "p": {
+            "zh": "InstructGPT（ChatGPT 的前身）论文的数字：SFT 用了约 1.3 万条人类示范，奖励模型训练用了约 3.3 万次比较，PPO 阶段又用了约 3.1 万次比较——总共约 7.7 万次人类操作，就把一个 1750 亿参数的续写机器掰成了听话的助手。对照预训练的 15T token，对齐的人类数据量小到近乎可以忽略，但产品成败恰恰由这一步决定：同一个基座，对齐前让人恼火，对齐后成了 ChatGPT。",
+            "en": "Numbers from the InstructGPT paper (ChatGPT's ancestor): SFT used ~13k human demonstrations, reward-model training ~33k comparisons, the PPO stage another ~31k — about 77k human operations in total to turn a 175B-parameter completion machine into an obedient assistant. Against 15T pretraining tokens the human data is nearly negligible, yet this step decides the product: same base model, infuriating before alignment, ChatGPT after."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "自己微调一个开源 7B 模型要花多少：SFT——500 条高质量问答示范，每条平均 500 token，共 25 万 token，一张 RTX 4090 用 LoRA 几小时跑完；RLHF——标注一次偏好比较约 30 秒，1 万次比较就是约 83 个标注工时，还没算训练奖励模型和跑 PPO 的算力。所以个人项目几乎都停在 SFT + DPO（直接偏好优化：跳过单独的奖励模型，直接用偏好对更新策略）。分工很清楚：SFT 教会「格式」，RLHF/DPO 教会「分寸」。",
+              "en": "Fine-tuning an open 7B model yourself: SFT — 500 good Q&A demonstrations at ~500 tokens each, 250k tokens total, hours on one RTX 4090 with LoRA; RLHF — one preference comparison takes a rater ~30 seconds, so 10k comparisons is ~83 annotator-hours, before any reward-model training or PPO compute. That is why hobby projects stop at SFT + DPO (direct preference optimization: no separate reward model, update straight from preference pairs). The division of labor is clear: SFT teaches format, RLHF/DPO teaches tact."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：好评不等于好——对齐的对价",
+            "en": "Misconception: liked is not the same as good — what alignment costs"
+          },
+          "p": {
+            "zh": "对齐改变的不是能力而是行为分布：基座的知识一点没少，只是从「接话」变成「配合」。它也有对价——「对齐税」：过度对齐的模型会变得胆小、啰嗦、拒绝一切有风险的任务。更隐蔽的是「讨好」（sycophancy）：奖励模型来自人类偏好，而人类天然偏爱顺着自己的回答——你说一个错误观点，对齐后的模型更可能附和「你说得对」。奖励是代理指标，不是「好」本身，Goodhart 定律在这里生效：指标被优化到极致时，就不再代表目标。",
+            "en": "Alignment changes the behavior distribution, not capability: the base model keeps every bit of knowledge, it just moves from \"continuing\" to \"cooperating\". But there is a price — the alignment tax: over-aligned models turn timid, verbose, and refuse anything with a whiff of risk. More insidious is sycophancy: the reward model comes from human preferences, and humans naturally favor answers that agree with them — state a wrong opinion and an aligned model is likelier to chime in \"you're right\". Reward is a proxy metric, not goodness itself; Goodhart's law applies in full: when a measure becomes the target, it ceases to be a good measure."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「RLHF 之后模型说的就是对的」。恰恰相反：对齐训练教的是「什么样的回答会被人类点赞」，不是「什么是真的」——幻觉不会因此消失，甚至可能更隐蔽（编得更像人类喜欢的样子，这是第 9 天的主题）。同理，「对齐等于审查」也是误读：拒绝有害请求只是对齐的一小块，它的主体是学会听指令、承认不确定、把握语气分寸——这些是产品能力，不是道德说教。",
+              "en": "\"After RLHF the model tells the truth.\" Quite the opposite: alignment teaches \"which answers get liked\", not \"what is true\" — hallucination doesn't disappear and can get sneakier (fabrications shaped more like what humans like to hear — day 9's topic). And \"alignment equals censorship\" misreads it too: refusing harmful requests is a small slice; the bulk is learning to follow instructions, admit uncertainty, and hold the right tone — product capabilities, not moralizing."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：对齐是产品化的第一步，不是最后一步",
+            "en": "Where this leads: alignment is the first step of productization"
+          },
+          "p": {
+            "zh": "对齐把毛坯变成了产品，但也只是第一层：第 9 天的「幻觉与不确定性」要讲对齐没能根治的问题——模型仍会一本正经地编造；阶段二的提示工程建立在对齐模型之上：先理解它被训练成「愿意配合」，才知道怎么把需求讲清楚；阶段三 Agent 的系统提示之所以稳定有效，正是对齐教会了模型尊重指令层级；阶段五会回头看一个更根本的问题——当 AI 替你做判断时，「谁定义了奖励」就是谁定义了价值观。今天带走一句话——",
+            "en": "Alignment turns the blank slate into a product, but it's only the first layer: hallucination and uncertainty (day 9) cover what alignment never fixed — the model still fabricates with total confidence; stage 2's prompting builds on aligned models: understanding that it was trained to cooperate is how you learn to state requirements clearly; stage 3's agent system prompts work reliably because alignment taught the model to respect instruction hierarchy; and stage 5 returns to something deeper — when AI judges for you, whoever defines the reward defines the values. One sentence for today —"
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "找同一个开源模型的 base 版和 chat 版（如 Llama-3-8B 与其 Instruct 版）各一个在线演示，问三个问题：「法国的首都是哪？」「帮我写一封请假邮件」「1+1 等于几？」，对比两者回答。然后回答：为什么 base 版对第三问可能接着写「2+2 等于几？」，而 chat 版会直接回答 2？（提示：base 版的任务是「续写语料里最常见的下一句」——语料里的算式常以连环形式出现；chat 版被 SFT 教过「问一句，答一句」。）",
+          "en": "Find online demos of the same open model's base and chat versions (e.g. Llama-3-8B and its Instruct variant) and ask three questions: \"What is the capital of France?\" \"Write me a leave-request email.\" \"What is 1+1?\" Compare the answers. Then answer: why might the base version continue \"What is 2+2?\" while the chat version just says 2? (Hint: the base model's job is \"write the likeliest continuation\" — arithmetic strings often appear in runs in the corpus; the chat version was SFT-taught \"one question, one answer\".)"
+        }
+      },
+      "takeaway": {
+        "zh": "对齐 = 用人类的挑选重新定义损失：SFT 教格式、RLHF 教分寸——能力没变，行为变了；奖励是代理指标，被优化到极致就不再等于「好」。",
+        "en": "Alignment = redefining the loss with human picks: SFT teaches format, RLHF teaches tact — ability unchanged, behavior changed; reward is a proxy metric, and pushed to its extreme it stops meaning \"good\"."
+      },
+      "anim": {
+        "tpl": "duel",
+        "hook": {
+          "zh": "问基座「法国的首都」，它可能反问你「德国的呢」。",
+          "en": "Ask a base model for France's capital and it may ask you about Germany's."
+        },
+        "sentence": {
+          "zh": "人类挑一次，梯度走一步。",
+          "en": "One human pick, one gradient step."
+        },
+        "prompt": {
+          "zh": "问：法国的首都是哪？",
+          "en": "Q: What is the capital of France?"
+        },
+        "rounds": [
+          {
+            "a": {
+              "zh": "德国的首都是哪？",
+              "en": "What is the capital of Germany?"
+            },
+            "b": {
+              "zh": "法国的首都是巴黎。",
+              "en": "The capital of France is Paris."
+            },
+            "win": "b"
+          },
+          {
+            "a": {
+              "zh": "巴黎。（参见《世界百科》第 827 页）",
+              "en": "Paris. (See Encyclopedia of the World, p. 827)"
+            },
+            "b": {
+              "zh": "是巴黎。需要我简单介绍一下吗？",
+              "en": "It's Paris. Want a quick intro?"
+            },
+            "win": "b"
+          }
+        ],
+        "winrates": [
+          50,
+          68,
+          86
+        ],
+        "note": {
+          "zh": "示意：每一轮人类挑出更好的回答，奖励模型学会打分，策略胜率随之爬升（对齐后的偏好胜率）。",
+          "en": "Illustrative: each round a human picks the better answer, the reward model learns to score, and the policy's win rate climbs (preference win rate after alignment)."
+        },
+        "coverHook": {
+          "zh": "问「法国的首都」，基座模型反问你「德国的呢」——7.7 万次人类挑选把它改好了。",
+          "en": "Ask for France's capital, get asked about Germany's — 77k human picks fixed that."
+        }
+      }
     }
   ]
 }

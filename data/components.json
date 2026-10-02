@@ -2792,6 +2792,20 @@
         "materin-learn-descent__note",
         "materin-learn-descent__plot",
         "materin-learn-descent__readout",
+        "materin-learn-duel",
+        "materin-learn-duel__bar",
+        "materin-learn-duel__card",
+        "materin-learn-duel__card--a",
+        "materin-learn-duel__card--b",
+        "materin-learn-duel__meter",
+        "materin-learn-duel__meter-label",
+        "materin-learn-duel__note",
+        "materin-learn-duel__num",
+        "materin-learn-duel__prompt",
+        "materin-learn-duel__round",
+        "materin-learn-duel__round-no",
+        "materin-learn-duel__rounds",
+        "materin-learn-duel__track",
         "materin-learn-end",
         "materin-learn-end__hint",
         "materin-learn-end__kicker",
@@ -2914,7 +2928,9 @@
         "is-current",
         "is-done",
         "is-stage",
-        "is-top"
+        "is-top",
+        "is-picked",
+        "is-climbed"
       ],
       "batch": "learn"
     }
