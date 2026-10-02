@@ -435,6 +435,8 @@
 /* 导出模式：全部页纵向排列（?export=1） */
 body.is-export .materin-learn-slide-page { display: block; }
 body.is-export .materin-learn-slide-nav { display: none; }
+/* 导出模式：舞台容器放行纵向堆叠——固定 1080 高 + overflow:hidden 会把第 2 页起全部裁空 */
+body.is-export .materin-learn-slide { height: auto; overflow: visible; }
 
 /* 导出模式：动效元素直接落位，避免截图截到动画中间帧 */
 body.is-export .materin-learn-winfill__cell,
