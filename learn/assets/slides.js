@@ -358,6 +358,61 @@
         v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
         v.appendChild(el('div', 'materin-learn-viz__label', '毛坯只是起点：第 8 天讲对齐'));
       }
+    } else if (day.anim && day.anim.tpl === 'fabricate') {
+      if (idx === 0) {
+        /* 判定页：与动效页同一套判定卡（第 1 轮：编造） */
+        var r0 = day.anim.rounds[0];
+        var fab = el('div', 'materin-learn-fab');
+        var round0 = el('div', 'materin-learn-fab__round materin-learn-fab__round--' + r0.verdict + ' is-revealed');
+        round0.appendChild(el('div', 'materin-learn-fab__q', t(r0.q)));
+        var row0 = el('div', 'materin-learn-fab__row');
+        row0.appendChild(el('span', 'materin-learn-fab__mark', r0.verdictZh));
+        row0.appendChild(el('div', 'materin-learn-fab__card', t(r0.a)));
+        round0.appendChild(row0);
+        fab.appendChild(round0);
+        v.appendChild(fab);
+        v.appendChild(el('div', 'materin-learn-viz__label', '语料里没有的事实 → 联想补全交卷'));
+      } else if (idx === 1) {
+        /* Mata 案：引文「形状」为何完美——法律引用模式在语料里的相对体量 */
+        var bars = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '格式模式', val: 100, cls: ' materin-learn-viz__bar--en', txt: '百万次' },
+          { tag: '具体判例', val: 6, cls: '', txt: '极稀疏' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars.appendChild(row);
+        });
+        v.appendChild(bars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '引用的「形」百万次重复，「实」稀疏长尾——形易学，实无处学'));
+      } else if (idx === 2) {
+        var bars2 = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '编造/绕开', val: 88, cls: '', txt: '88%' },
+          { tag: '说不知道', val: 12, cls: ' materin-learn-viz__bar--en', txt: '12%' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars2.appendChild(row);
+        });
+        v.appendChild(bars2);
+        v.appendChild(el('div', 'materin-learn-viz__label', '长尾问题回答形态示意：语料里「不确定」句式稀有（20 问实测）'));
+      } else {
+        v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
+        v.appendChild(el('div', 'materin-learn-viz__label', '治不好，但能圈住：RAG 的第一理由（第 85 天）'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

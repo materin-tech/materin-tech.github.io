@@ -606,6 +606,47 @@
       wrap.appendChild(meter);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* fabricate：同一台打分机面对三类问题的不同结局——事实编造 / 事实答对 / 创作无妨 */
+    fabricate: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-fab');
+      var qline = el('div', 'materin-learn-fab__question', t(a.question));
+      var roundsBox = el('div', 'materin-learn-fab__rounds');
+      var note = el('p', 'materin-learn-fab__note', t(a.note));
+
+      a.rounds.forEach(function (r, i) {
+        var round = el('div', 'materin-learn-fab__round materin-learn-fab__round--' + r.verdict);
+        round.appendChild(el('div', 'materin-learn-fab__q', t(r.q)));
+        var row = el('div', 'materin-learn-fab__row');
+        row.appendChild(el('span', 'materin-learn-fab__mark',
+          lang() === 'en' ? r.verdictEn : r.verdictZh));
+        var card = el('div', 'materin-learn-fab__card', t(r.a));
+        card.style.animationDelay = (0.3 + i * 2.0) + 's';
+        row.appendChild(card);
+        round.appendChild(row);
+        round.appendChild(el('div', 'materin-learn-fab__label', t(r.label)));
+        roundsBox.appendChild(round);
+      });
+
+      var t0 = null;
+      var STEP = 2000, HOLD = 800, TOTAL = a.rounds.length * STEP + HOLD;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % TOTAL;
+        a.rounds.forEach(function (_, i) {
+          var round = roundsBox.children[i];
+          round.classList.toggle('is-revealed', tNow > i * STEP + STEP * 0.35);
+        });
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(qline);
+      wrap.appendChild(roundsBox);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

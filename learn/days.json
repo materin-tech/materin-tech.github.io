@@ -1296,6 +1296,169 @@
           "en": "Ask for France's capital, get asked about Germany's — 77k human picks fixed that."
         }
       }
+    },
+    {
+      "n": 9,
+      "stage": 1,
+      "week": 2,
+      "tpl": "fabricate",
+      "date": "2026-10-03",
+      "title": {
+        "zh": "幻觉：编造与正确出自同一条流水线",
+        "en": "Hallucination: fabrication and correctness off the same pipeline"
+      },
+      "subtitle": {
+        "zh": "语言模型的目标函数里没有「真/假」这一项——它只优化「像不像语料」。幻觉不是故障而是推论：问它语料里没有的事实，联想补全会交给你一个语法完美的假答案；能做的是圈住它，不是根治它。",
+        "en": "The language-model objective has no true/false term — it only optimizes \"does this sound like the corpus\". Hallucination is not a glitch but a corollary: ask for a fact absent from the corpus and associative completion hands you a grammatically perfect fiction. The fix is containment, not cure."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：只对「像」打分的世界里，没有「真」这个开关",
+            "en": "Mechanism: in a world scored only on plausibility, there is no truth switch"
+          },
+          "p": {
+            "zh": "幻觉的根源写在训练目标里（第 3、5 天）：模型学的是「给定前文，哪个 token 最可能出现」，梯度只奖励「像语料」，从不奖励「真」。追问「为什么 1994 年……」这类问题，最像答案的开头恰恰是自信的陈述句——对模型来说，写出「根据统计……」和写出「我不知道」的区别只是概率的区别。更机制的一层：模型把「事实」存成参数里的统计关联，不是带索引的记录——问它一个事实，它做的是联想补全。当事实在语料里出现太少、或你的措辞对不上它见过的高频模式时，关联就会「滑」到相邻的模式上，产出一条语法完美、事实虚构的答案。",
+            "en": "The root of hallucination is written into the training objective (days 3 and 5): the model learns \"given the preceding text, which token is most likely\", and the gradient rewards only corpus-likeness, never truth. For questions like \"why did X happen in 1994...\", the most answer-shaped opening is precisely a confident declarative — to the model, \"according to statistics...\" versus \"I don't know\" differ only in probability. One layer deeper: the model stores facts as statistical associations in parameters, not as indexed records — asked for a fact, it performs associative completion. When a fact appears too rarely in the corpus, or your wording misses a pattern it has seen often, the association slides to the nearest high-frequency mode and out comes a sentence with perfect grammar and invented facts."
+          },
+          "deep": {
+            "zh": "为什么模型不「知道自己不知道」？信号其实存在——多项研究表明，隐藏层激活里携带可提取的不确定性信息（语义熵、内部状态探针都能部分预测哪些回答会错）。但默认输出不经过这个通道：解码直接取最高分的 token，不查内部置信度。所谓「校准」，就是把「内部犹豫」翻译到输出层——要么让模型说出「不确定」，要么给答案附上可信度分数。模型不是没有自知，是自知没有接到嘴上。",
+            "en": "Why doesn't the model \"know that it doesn't know\"? The signal exists — studies show hidden-layer activations carry extractable uncertainty (semantic entropy and internal-state probes partly predict which answers will be wrong). But the default output never passes through that channel: decoding takes the highest-scoring token without consulting internal confidence. Calibration means translating \"internal hesitation\" to the output layer — either the model says \"not sure\", or each answer carries a confidence score. The model isn't lacking self-knowledge; its self-knowledge isn't wired to its mouth."
+          }
+        },
+        {
+          "h": {
+            "zh": "实例：6 个不存在的判例——幻觉的真实账单",
+            "en": "Worked example: six nonexistent precedents — hallucination's real bill"
+          },
+          "p": {
+            "zh": "2023 年 Mata 案（纽约南区法院）：律师用 ChatGPT 起草辩护状，引用了 6 个案例支持论点，法官逐条核查——全部不存在，两名律师各被罚款 5000 美元。为什么编得这么像？法律文书在语料里占比极高，「See also: Smith v. United States, 451 F.2d 931」这类引用模式出现百万次——模型能完美生成引用的「形状」：卷宗号格式对、法院缩写对、年份区间合理，唯独这个案子不存在。同年 Air Canada 案：官网聊天机器人向乘客「保证」丧亲票价可事后补退，仲裁庭驳回其「机器人是独立法律实体」的抗辩，判赔约 650 加元。两案的共同账本：幻觉的成本不是「再问一次」，而是真金白银和职业声誉。",
+            "en": "Mata v. Avianca, 2023 (SDNY): a lawyer used ChatGPT to draft a brief citing six cases in support; the judge checked them one by one — none existed, and each of two lawyers was fined $5,000. Why did the fabrications look so right? Legal writing dominates the corpus, and citation patterns like \"See also: Smith v. United States, 451 F.2d 931\" appear millions of times — the model generates the shape of a citation perfectly: docket-number format correct, court abbreviations correct, plausible year range — except the case does not exist. Same year, Air Canada: its website chatbot \"promised\" a passenger that bereavement fares could be refunded after booking; the tribunal rejected the airline's \"the chatbot is a separate legal entity\" defense and awarded about CAD 650. The shared ledger of both cases: hallucination's cost is not \"asking again\" — it is real money and professional reputation."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "测一测幻觉率有多依赖「数据覆盖度」：挑 20 个你确知答案、但网上几乎没有文字记录的细节（你家小区 2019 年的物业费、你大学某门课的期末题型），逐个问模型，把回答记成三类——A 编一个具体值；B 承认不知道；C 用模糊措辞绕开（「通常物业费在每平米 2–4 元」）。你会发现热门问题几乎不翻车，长尾问题 A 类陡增。结论：幻觉率是「训练语料覆盖度」的函数，不是「模型聪明程度」的函数——同一个模型，换个领域就从学霸变成惯犯。",
+              "en": "Test how much hallucination depends on \"coverage\": pick 20 details you know but the internet has barely written down (your building's 2019 HOA fee, the exam format of one of your college courses), ask the model each one, and classify the replies: A — invents a specific value; B — admits it doesn't know; C — dodges with vague wording (\"fees usually run 2–4 per square meter\"). Popular questions almost never fail; on long-tail questions, type A spikes. Conclusion: hallucination rate is a function of corpus coverage, not of model cleverness — the same model flips from star pupil to repeat offender when you change domains."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：模型在说谎？不——它在做联想补全",
+            "en": "Misconception: the model is lying? No — it's doing associative completion"
+          },
+          "p": {
+            "zh": "两个流行误读。其一：「幻觉说明模型在撒谎」。撒谎需要意图，模型没有——它答错时做的事和答对时一模一样：对上下文逐 token 打分、取高分。编造与正确出自同一条流水线，区别只在训练数据里有没有那条事实。其二：「温度调到 0 就没有幻觉」。温度只影响从同一个概率分布里抽哪个 token（第 3 天），不改变分布本身——top-1 的答案照样可以是编造的。另一个反直觉的事实：更大的模型未必幻觉更少，可能编得更可信——语法更顺、细节更密、核查成本更高。",
+            "en": "Two popular misreads. First: \"hallucination means the model is lying.\" Lying takes intent; the model has none — it does exactly the same thing when wrong as when right: score tokens against context, take the top. Fabrication and correctness come off the same pipeline; the only difference is whether the corpus contained that fact. Second: \"set temperature to 0 and hallucination goes away.\" Temperature only affects which token gets drawn from the same distribution (day 3); it doesn't change the distribution — the top-1 answer can still be fabricated. A further counterintuitive fact: bigger models don't necessarily hallucinate less, and may fabricate more convincingly — smoother grammar, denser detail, costlier fact-checking."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「让它发誓就不会编了」。实测：「我确定」「根据可靠资料」这类自我保证与准确率几乎无关——模型对自己编造内容的自信评估并不可靠（这正是校准研究要解决的问题）。真正有效的是让输出变得可核查：要求给可点开的引用、把长回答拆成可独立验证的小步、把事实类问题交给检索（第 85 天起的 RAG），以及在提示里明确允许「不知道」这个选项。",
+              "en": "\"Make it swear an oath and it won't fabricate.\" In tests, self-assurances like \"I'm certain\" or \"according to reliable sources\" barely correlate with accuracy — the model's self-assessed confidence in its fabrications is unreliable (exactly what calibration research addresses). What actually works is making outputs checkable: demand openable citations, split long answers into independently verifiable steps, route factual questions to retrieval (RAG, from day 85), and explicitly allow \"I don't know\" as an answer in the prompt."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：幻觉是 RAG 存在的第一理由",
+            "en": "Where this leads: hallucination is reason #1 that RAG exists"
+          },
+          "p": {
+            "zh": "今天治不好幻觉，但可以学会圈住它——这条思路通向后面一整段路线：阶段四（RAG 与知识系统，第 85 天起）的第一动机就是它——与其赌模型参数里「有没有」那个事实，不如把事实放进上下文窗口（第 4 天），让模型只做「读材料、照着答」；阶段二（提示工程）里最便宜的一招是明说「如果不确定就直说」——对齐模型被训练过遵守这类指令（第 8 天的 RLHF）；而第 3 天的采样机制会一直提醒你：输出的每个 token 都是高分猜测。一路带走的能力不是「消灭幻觉」，而是「识别它、圈住它、兜住它」。",
+            "en": "You won't cure hallucination today, but you can learn to contain it — and that thread runs through the coming stages: stage 4 (RAG & Knowledge, from day 85) exists first of all because of it — instead of betting on whether the fact lives in the parameters, put the fact into the context window (day 4) and let the model just \"read the material and answer from it\"; in stage 2 (prompting), the cheapest move is to say explicitly \"if unsure, say so\" — aligned models were trained to follow such instructions (day 8's RLHF); and day 3's sampling mechanism keeps reminding you: every output token is a high-scoring guess. The capability to carry forward is not \"eliminate hallucination\" but \"spot it, fence it, and catch it when it jumps the fence\"."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "打开任意一个对齐后的模型，问它一个你非常熟悉、但互联网上很少有文字记录的细节——比如「你家小区 2019 年的物业费是多少」。记录它的回答形态：是编一个具体数字、承认不知道，还是用「通常物业费在……范围」绕开？再追问一次「你确定吗？」看它会不会改口。思考：模型在「编具体的」和「承认不知道」之间做选择时，依据的是什么？（提示：看这两类回答在训练语料里的相对频率——人们写下的「不确定」句式，远少于写下的确定句式。）",
+          "en": "Ask any aligned model a detail you know well but the internet has barely recorded — for example \"what was your building's HOA fee in 2019\". Record its response shape: does it invent a specific number, admit it doesn't know, or dodge with \"fees typically range from...\"? Then ask \"Are you sure?\" and see if it flips. Consider: when the model chooses between \"invent something specific\" and \"admit ignorance\", what does it base that on? (Hint: the relative frequency of the two answer types in the training corpus — sentences of uncertainty are far rarer than confident assertions.)"
+        }
+      },
+      "takeaway": {
+        "zh": "幻觉 = 预训练目标的直接推论：模型只对「像不像」打分，不对「真不真」负责——编造与正确出自同一条打分流水线；温度调 0 和让它发誓都治不了它，能做的是校准、可核查的输出和检索圈养。",
+        "en": "Hallucination = the direct corollary of the pretraining objective: the model scores only plausibility, never truth — fabrications and correct answers come off the same scoring pipeline; temperature 0 and sworn oaths don't fix it. What works: calibration, checkable outputs, and retrieval fencing."
+      },
+      "anim": {
+        "tpl": "fabricate",
+        "question": {
+          "zh": "三个问题，同一台打分机器：",
+          "en": "Three questions, one scoring machine:"
+        },
+        "rounds": [
+          {
+            "q": {
+              "zh": "问：我们公司 2019 年的报销截止日是哪天？",
+              "en": "Q: What was our company's expense deadline in 2019?"
+            },
+            "a": {
+              "zh": "是每年 12 月 31 日，需在财务系统内提交。",
+              "en": "December 31 every year — submit it in the finance system."
+            },
+            "verdict": "fab",
+            "verdictZh": "编造",
+            "verdictEn": "FABRICATED",
+            "label": {
+              "zh": "语料里没有这个事实 → 联想补全",
+              "en": "The fact isn't in the corpus → associative completion"
+            }
+          },
+          {
+            "q": {
+              "zh": "问：《民法典》是什么时候开始施行的？",
+              "en": "Q: When did the Civil Code take effect?"
+            },
+            "a": {
+              "zh": "2021 年 1 月 1 日起施行。",
+              "en": "It took effect on January 1, 2021."
+            },
+            "verdict": "ok",
+            "verdictZh": "答对",
+            "verdictEn": "CORRECT",
+            "label": {
+              "zh": "语料里反复出现 → 高分关联",
+              "en": "Repeated across the corpus → high-scoring association"
+            }
+          },
+          {
+            "q": {
+              "zh": "问：写一句关于秋天的诗。",
+              "en": "Q: Write one line of poetry about autumn."
+            },
+            "a": {
+              "zh": "秋风把梧桐叶折成一封未寄出的信。",
+              "en": "The autumn wind folds plane leaves into an unsent letter."
+            },
+            "verdict": "art",
+            "verdictZh": "编造·无妨",
+            "verdictEn": "INVENTED, FINE",
+            "label": {
+              "zh": "创作任务 → 编造正是本领",
+              "en": "A creative task → invention is the point"
+            }
+          }
+        ],
+        "note": {
+          "zh": "示意：同一套逐 token 打分——语料里有的问对了，没有的编圆了；创作任务里「编造」恰恰是能力。",
+          "en": "Illustrative: the same token-by-token scoring — facts present in the corpus come out right, absent ones come out polished, and in creative tasks invention is the skill."
+        },
+        "coverHook": {
+          "zh": "法官逐条核查 6 个案例引用——全部不存在，律师被罚 5000 美元。",
+          "en": "The judge checked 6 citations one by one — none existed; the lawyer was fined $5,000."
+        }
+      }
     }
   ]
 }

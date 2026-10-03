@@ -2811,6 +2811,19 @@
         "materin-learn-end__kicker",
         "materin-learn-end__next",
         "materin-learn-end__takeaway",
+        "materin-learn-fab",
+        "materin-learn-fab__card",
+        "materin-learn-fab__label",
+        "materin-learn-fab__mark",
+        "materin-learn-fab__note",
+        "materin-learn-fab__q",
+        "materin-learn-fab__question",
+        "materin-learn-fab__round",
+        "materin-learn-fab__round--art",
+        "materin-learn-fab__round--fab",
+        "materin-learn-fab__round--ok",
+        "materin-learn-fab__rounds",
+        "materin-learn-fab__row",
         "materin-learn-flow",
         "materin-learn-flow__cell",
         "materin-learn-flow__cells",
@@ -2930,7 +2943,8 @@
         "is-stage",
         "is-top",
         "is-picked",
-        "is-climbed"
+        "is-climbed",
+        "is-revealed"
       ],
       "batch": "learn"
     }

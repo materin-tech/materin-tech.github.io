@@ -1435,3 +1435,132 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
   font-size: 12.5px;
   text-align: center;
 }
+
+/* fabricate：幻觉——同一台打分机，三种结局 */
+.materin-learn-fab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.materin-learn-fab__question {
+  padding: 8px 18px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 999px;
+  background: var(--materin-glass-bg-subtle);
+  color: var(--materin-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.materin-learn-fab__rounds {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.materin-learn-fab__round {
+  padding: 12px 14px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-glass-bg-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.materin-learn-fab__q {
+  color: var(--materin-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.materin-learn-fab__row {
+  display: grid;
+  grid-template-columns: 86px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.materin-learn-fab__mark {
+  padding: 4px 0;
+  border: 1px solid var(--materin-border);
+  border-radius: 8px;
+  color: var(--materin-text-muted);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+  transform: scale(0.9);
+  transition: transform var(--materin-duration-normal) var(--materin-ease-standard, ease),
+    border-color var(--materin-duration-normal) ease,
+    background var(--materin-duration-normal) ease,
+    color var(--materin-duration-normal) ease;
+}
+
+.materin-learn-fab__card {
+  padding: 10px 12px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 10px;
+  background: var(--materin-glass-bg-subtle);
+  color: var(--materin-text-muted);
+  font-size: 13.5px;
+  line-height: var(--materin-line-height-normal);
+  box-shadow: var(--materin-shadow);
+  transform: translateY(0) scale(1);
+  animation: materin-learn-fab-pop 0.3s var(--materin-ease-standard, ease) backwards;
+}
+
+@keyframes materin-learn-fab-pop {
+  from { transform: translateY(8px) scale(0.96); }
+  to { transform: translateY(0) scale(1); }
+}
+
+.materin-learn-fab__label {
+  color: var(--materin-text-faint);
+  font-size: 12px;
+}
+
+/* 判定揭示：编造走警示色，答对走认可色，创作走中性强调 */
+.materin-learn-fab__round.is-revealed .materin-learn-fab__mark {
+  transform: scale(1);
+}
+
+.materin-learn-fab__round--fab.is-revealed .materin-learn-fab__mark {
+  border-color: var(--materin-warn-border);
+  background: var(--materin-warn-soft);
+  color: var(--materin-warn);
+}
+
+.materin-learn-fab__round--ok.is-revealed .materin-learn-fab__mark {
+  border-color: var(--materin-ok-border);
+  background: var(--materin-ok-soft);
+  color: var(--materin-ok);
+}
+
+.materin-learn-fab__round--art.is-revealed .materin-learn-fab__mark {
+  border-color: var(--materin-accent-border);
+  background: var(--materin-accent-soft);
+  color: var(--materin-accent);
+}
+
+.materin-learn-fab__round--fab.is-revealed .materin-learn-fab__card {
+  border-color: var(--materin-warn-border);
+  color: var(--materin-text);
+}
+
+.materin-learn-fab__round--ok.is-revealed .materin-learn-fab__card {
+  border-color: var(--materin-ok-border);
+  color: var(--materin-text);
+}
+
+.materin-learn-fab__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+}
