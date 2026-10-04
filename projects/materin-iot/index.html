@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materin IoT — 物模型驱动的开源 IoT 平台 / Thing-model-driven open IoT platform</title>
+<meta name="description" content="Materin IoT：物模型驱动的通用 IoT 平台。RBAC、产品/物模型/设备/MQTT 接入/时序存储/开发者中心；前后端 + 部署编排单仓库，支持私有化部署。">
+<meta name="theme-color" content="#0b0f19">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/materin-ui.css">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<script>
+  (function () {
+    var d = document.documentElement, t = null, l = null;
+    try { t = localStorage.getItem('theme'); l = localStorage.getItem('lang'); } catch (e) {}
+    d.setAttribute('data-theme', t || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+    if (!l) { l = (navigator.language || 'zh').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'; }
+    d.setAttribute('data-lang', l);
+    d.lang = l === 'zh' ? 'zh-CN' : 'en';
+  })();
+</script>
+</head>
+<body>
+<a class="materin-u-skip" href="#main">跳到主内容 / Skip to content</a>
+
+<header class="materin-site-header">
+  <div class="materin-u-wrap materin-site-header__inner">
+    <a class="materin-site-brand" href="/">
+      <img src="/assets/img/favicon.svg" alt="" width="28" height="28">
+      <span class="materin-site-brand__name">Materin</span>
+    </a>
+    <nav class="materin-site-nav">
+      <a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a>
+      <a href="/projects/"><span class="lang-zh">内容</span><span class="lang-en">Content</span></a>
+      <a href="/design/"><span class="lang-zh">设计</span><span class="lang-en">UI</span></a>
+      <a href="/about/"><span class="lang-zh">关于</span><span class="lang-en">About</span></a>
+      <button id="lang-toggle" class="materin-site-lang-toggle" type="button" aria-label="Switch to English">EN</button>
+      <button id="theme-toggle" class="materin-site-theme-toggle" type="button" aria-label="切换主题 / Toggle theme">🌗</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="materin-site-doc">
+  <div class="materin-u-wrap">
+    <p class="materin-site-crumb"><a href="/"><span class="lang-zh">首页</span><span class="lang-en">Home</span></a> / <a href="/projects/"><span class="lang-zh">内容</span><span class="lang-en">Content</span></a> / Materin IoT</p>
+
+    <div class="materin-site-doc__head">
+      <h1>Materin IoT <span class="materin-site-pill">v0.1.0</span></h1>
+      <p class="materin-site-doc__sub lang-zh">物模型驱动的通用 IoT 平台（第一版）。前后端 + 部署编排单仓库交付，支持私有化部署与多实例水平扩展。</p>
+      <p class="materin-site-doc__sub lang-en">An open IoT platform driven by thing-models. Frontend + backend + deployment orchestration in one repo; supports private deployment and multi-instance horizontal scaling.</p>
+      <p class="materin-site-doc__sub" style="margin-top:10px"><span class="lang-zh">与系列共用同一套 UI 规范：<a href="/design/">Materin UI</a></span><span class="lang-en">Shares one UI spec with the series: <a href="/design/">Materin UI</a></span></p>
+    </div>
+
+    <div class="materin-site-btn-row">
+      <a class="materin-site-btn" href="/projects/"><span class="lang-zh">全部内容</span><span class="lang-en">All content</span></a>
+    </div>
+
+    <div class="materin-site-prose">
+      <!-- ============ 中文 ============ -->
+      <div class="lang-zh">
+        <h2>概览</h2>
+        <p>Materin IoT 是一套物模型驱动的通用 IoT 平台：设备通过产品/物模型描述能力，平台负责接入、指令、时序存储、规则与开放 API。当前为第一版，覆盖私有化部署所需的最小完整链路。</p>
+        <p>它与系列其他项目共用同一套 UI 规范与命名契约：颜色跟随用户主题，形状与间距固定，改一个令牌全体生效。</p>
+
+        <h2>平台能力</h2>
+        <table>
+          <thead><tr><th>能力</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>RBAC 与认证</td><td>用户/角色/菜单/部门；JWT 登录态外置 Redis（可吊销、轮换、失败限流）；权限码控制</td></tr>
+            <tr><td>产品管理</td><td>productKey 自动生成；品类/协议/发布状态；设备接入计数</td></tr>
+            <tr><td>物模型</td><td>属性/方法/事件三要素 JSON 存储；版本与发布状态管理</td></tr>
+            <tr><td>设备管理</td><td>设备密钥一机一密；批量导入；在线状态（滑动 TTL）；最近在线</td></tr>
+            <tr><td>MQTT 接入</td><td>EMQX 双实例：内部（设备 secret + per-device topic ACL）+ 开发者（AK/SK，<code>open/</code> 命名空间），规则 + Sink 消息互通</td></tr>
+            <tr><td>指令下发</td><td>requestId + Redis 信箱跨实例回传；同步等待设备应答（超时 504）；大报文引用传递</td></tr>
+            <tr><td>时序存储</td><td>Apache IoTDB 2.0（standalone）</td></tr>
+            <tr><td>开发者中心</td><td>应用（AK/SK）管理；swagger 接口清单同步；接口勾选授权；接入指引</td></tr>
+            <tr><td>API 文档</td><td>knife4j（<code>/doc.html</code>）；OpenAPI v3 全量接口/参数/出入参/权限说明</td></tr>
+          </tbody>
+        </table>
+
+        <h2>MQTT Topic 规范</h2>
+        <p>统一前缀 <code>materin/{productKey}/{deviceKey}/</code>：</p>
+        <table>
+          <thead><tr><th>Topic</th><th>方向</th><th>用途</th></tr></thead>
+          <tbody>
+            <tr><td><code>.../report</code></td><td>设备→平台</td><td>数据上报</td></tr>
+            <tr><td><code>.../event</code></td><td>设备→平台</td><td>事件/告警上报</td></tr>
+            <tr><td><code>.../reply</code></td><td>设备→平台</td><td>指令响应（回带 requestId）</td></tr>
+            <tr><td><code>.../cmd</code></td><td>平台→设备</td><td>指令下发</td></tr>
+          </tbody>
+        </table>
+        <p class="materin-u-muted">完整设计（鉴权链路 / ACL / 共享订阅 / 容量治理）见 <a href="https://github.com/materin-tech/materin-iot/blob/main/backend/docs/mqtt-design.md" target="_blank" rel="noopener">backend/docs/mqtt-design.md</a>。</p>
+
+        <h2>仓库结构</h2>
+        <pre><code>materin-iot/
+├── backend/                       # 纯 Spring Boot 模块化单体（Java 21，无 Spring Cloud）
+│   ├── server/                    # 启动入口：装配全部模块，API 统一前缀 /api/v1
+│   ├── common/                    # 共享内核：R/异常/分页、Redis keys、跨模块 SPI、Topic 常量
+│   ├── system/                    # 系统板块
+│   │   ├── system-rbac/           #   用户/角色/菜单/部门 + JWT 认证
+│   │   └── system-openapi/        #   开发者中心：应用(AK/SK)、接口清单、接口授权
+│   └── component/                 # 功能组件板块
+│       ├── device-component/      #   设备/告警/规则/命令下发
+│       ├── product-component/     #   产品/物模型
+│       └── network-component/      #   MQTT 接入 + EMQX 配置
+├── frontend/                      # 前端（TypeScript）
+├── deploy/                        # 部署编排（docker-compose / 初始化脚本）
+└── docs/                          # 文档</code></pre>
+
+        <h2>部署</h2>
+        <p>使用 <code>docker-compose</code> 启动：</p>
+        <pre><code>cd deploy
+docker compose up -d
+# 服务端口：
+#  后端 API：8080
+#  knife4j 文档：8080/doc.html
+#  EMQX 控制台：18083
+#  IoTDB：6667
+#  前端：8081</code></pre>
+
+        <h2>许可</h2>
+        <p>MIT。</p>
+
+        <h2>内容来源</h2>
+        <p>本页同步自仓库 README（<code>materin-tech/materin-iot</code>，最后提交 2026-10-03，版本 0.1.0）。以源码仓库为准。</p>
+      </div>
+
+      <!-- ============ English ============ -->
+      <div class="lang-en">
+        <h2>Overview</h2>
+        <p>Materin IoT is an open IoT platform driven by thing-models: devices describe their capabilities through products and thing-models, while the platform handles onboarding, command dispatch, time-series storage, rules and the open API surface. This is the first release, covering the minimum complete path needed for private deployment.</p>
+        <p>It shares one UI spec and naming contract with the rest of the series: colours follow the user's theme, shape and spacing are fixed, one file changes all of them.</p>
+
+        <h2>Platform capabilities</h2>
+        <table>
+          <thead><tr><th>Capability</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>RBAC &amp; auth</td><td>Users / roles / menus / departments; JWT in Redis (revocable, rotatable, fail-rate-limited); permission-code control</td></tr>
+            <tr><td>Products</td><td>Auto-generated productKey; category / protocol / release status; device count</td></tr>
+            <tr><td>Thing-model</td><td>Properties / services / events as JSON with version and release state</td></tr>
+            <tr><td>Devices</td><td>One secret per device; batch import; online status (sliding TTL); last-seen</td></tr>
+            <tr><td>MQTT onboarding</td><td>Two EMQX instances: internal (device secret + per-device topic ACL) and developer (AK/SK, <code>open/</code> namespace); rule + Sink interconnects them</td></tr>
+            <tr><td>Command dispatch</td><td>requestId + Redis mailbox across instances; synchronous wait for device reply (504 on timeout); reference passing for large payloads</td></tr>
+            <tr><td>Time-series storage</td><td>Apache IoTDB 2.0 (standalone)</td></tr>
+            <tr><td>Developer portal</td><td>Apps (AK/SK); swagger spec sync; per-API authorization; onboarding guide</td></tr>
+            <tr><td>API docs</td><td>knife4j (<code>/doc.html</code>); full OpenAPI v3 spec with params, payloads and permissions</td></tr>
+          </tbody>
+        </table>
+
+        <h2>MQTT topic convention</h2>
+        <p>Uniform prefix <code>materin/{productKey}/{deviceKey}/</code>:</p>
+        <table>
+          <thead><tr><th>Topic</th><th>Direction</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>.../report</code></td><td>device → platform</td><td>data reporting</td></tr>
+            <tr><td><code>.../event</code></td><td>device → platform</td><td>events / alerts</td></tr>
+            <tr><td><code>.../reply</code></td><td>device → platform</td><td>command reply (carries requestId)</td></tr>
+            <tr><td><code>.../cmd</code></td><td>platform → device</td><td>command dispatch</td></tr>
+          </tbody>
+        </table>
+        <p class="materin-u-muted">Full design (auth chain / ACL / shared subscriptions / capacity governance) lives in <a href="https://github.com/materin-tech/materin-iot/blob/main/backend/docs/mqtt-design.md" target="_blank" rel="noopener">backend/docs/mqtt-design.md</a>.</p>
+
+        <h2>Repository layout</h2>
+        <pre><code>materin-iot/
+├── backend/                       # Pure Spring Boot modular monolith (Java 21, no Spring Cloud)
+│   ├── server/                    # Boot entry; assembles all modules; unified /api/v1 prefix
+│   ├── common/                    # Shared kernel: R / exception / paging, Redis keys, cross-module SPI, topic constants
+│   ├── system/                    # System layer
+│   │   ├── system-rbac/           #   users / roles / menus / departments + JWT auth
+│   │   └── system-openapi/        #   developer portal: apps (AK/SK), spec sync, per-API auth
+│   └── component/                 # Feature components
+│       ├── device-component/      #   devices / alerts / rules / command dispatch
+│       ├── product-component/     #   products / thing-models
+│       └── network-component/      #   MQTT onboarding + EMQX configuration
+├── frontend/                      # Frontend (TypeScript)
+├── deploy/                        # Deployment orchestration (docker-compose / init scripts)
+└── docs/                          # Documentation</code></pre>
+
+        <h2>Deploy</h2>
+        <p>Use <code>docker-compose</code>:</p>
+        <pre><code>cd deploy
+docker compose up -d
+# Service ports:
+#  backend API:        8080
+#  knife4j docs:       8080/doc.html
+#  EMQX console:       18083
+#  IoTDB:              6667
+#  frontend:           8081</code></pre>
+
+        <h2>License</h2>
+        <p>MIT.</p>
+
+        <h2>Source</h2>
+        <p>This page is synced from the repository README (<code>materin-tech/materin-iot</code>, last commit 2026-10-03, version 0.1.0). The source repository is authoritative.</p>
+      </div>
+    </div>
+
+    <div class="materin-site-doc-nav">
+      <a href="/projects/">← <span class="lang-zh">回到内容索引</span><span class="lang-en">Back to content</span></a>
+      <span>
+        <span class="lang-zh">外部链接：</span><span class="lang-en">External:</span>
+        <a href="https://github.com/materin-tech/materin-iot" target="_blank" rel="noopener"><span class="lang-zh">源码仓库</span><span class="lang-en">Source repo</span> ↗</a>
+        ·
+        <a href="https://github.com/materin-tech/materin-iot/blob/main/README.md" target="_blank" rel="noopener"><span class="lang-zh">原始 README</span><span class="lang-en">Upstream README</span></a>
+      </span>
+    </div>
+  </div>
+</main>
+
+<footer class="materin-site-footer">
+  <div class="materin-u-wrap materin-site-footer__inner">
+    <p>© <span id="year">2026</span> Materin · <span class="lang-zh">由 GitHub Pages 托管</span><span class="lang-en">Hosted on GitHub Pages</span></p>
+    <p class="materin-u-muted">
+      <a href="https://github.com/materin-tech/materin-iot" target="_blank" rel="noopener"><span class="lang-zh">源码仓库</span><span class="lang-en">Source</span></a>
+      ·
+      <a href="https://github.com/materin-tech/materin-iot/blob/main/README.md" target="_blank" rel="noopener"><span class="lang-zh">原始 README</span><span class="lang-en">Upstream README</span></a>
+    </p>
+  </div>
+</footer>
+
+<script src="/assets/js/main.js" defer></script>
+</body>
+</html>
