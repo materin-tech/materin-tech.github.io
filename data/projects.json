@@ -1,6 +1,28 @@
 {
-  "updated": "2026-09-25",
+  "updated": "2026-10-03",
   "projects": [
+    {
+      "name": "Materin IoT",
+      "slug": "materin-iot",
+      "version": "v0.1.0",
+      "description": {
+        "zh": "物模型驱动的通用 IoT 平台：产品/物模型/设备/RBAC/MQTT 接入/时序存储/开发者中心。Spring Boot 模块化单体，前后端 + 部署编排单仓库，支持私有化部署。",
+        "en": "An open IoT platform driven by thing-models: products/models/devices/RBAC/MQTT/time-series/developer portal. Spring Boot modular monolith, single-repo for frontend + backend + deployment, supports private deployment."
+      },
+      "url": "https://github.com/materin-tech/materin-iot",
+      "page": "/projects/materin-iot/",
+      "homepage": "https://github.com/materin-tech/materin-iot",
+      "tags": [
+        "iot",
+        "platform",
+        "spring-boot",
+        "mqtt",
+        "时序"
+      ],
+      "language": "Java / TypeScript",
+      "visibility": "public",
+      "updated": "2026-10"
+    },
     {
       "name": "AI 原生学习路线",
       "slug": "ai-learn",
