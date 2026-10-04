@@ -647,6 +647,69 @@
       wrap.appendChild(roundsBox);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* lora：冻结权重墙 + 挂载的 LoRA 小矩阵逐轮点亮——梯度只流向批注层，循环重播 */
+    lora: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-lora');
+      var wall = el('div', 'materin-learn-lora__wall');
+      var patch = el('div', 'materin-learn-lora__patch');
+      var readout = el('div', 'materin-learn-lora__readout');
+      var pct = el('span', 'materin-learn-lora__pct', '0%');
+      var pctLabel = el('span', 'materin-learn-lora__pct-label',
+        lang() === 'en' ? ' trainable' : ' 可训练');
+      var patchTag = el('div', 'materin-learn-lora__patch-tag',
+        lang() === 'en' ? 'LoRA B·A (trainable)' : 'LoRA B·A（参与训练）');
+      var wallTag = el('div', 'materin-learn-lora__wall-tag',
+        lang() === 'en' ? 'pretrained weights W (frozen)' : '预训练权重 W（冻结）');
+      var note = el('p', 'materin-learn-lora__note', t(a.note));
+
+      /* 冻结墙：每格是确定性排布的深色块，入场用 transform，不用 opacity */
+      a.blocks.forEach(function (b) {
+        for (var i = 0; i < b.n; i++) {
+          var cell = el('div', 'materin-learn-lora__cell materin-learn-lora__cell--' + b.k);
+          cell.style.animationDelay = (0.2 + i * 0.06) + 's';
+          wall.appendChild(cell);
+        }
+      });
+
+      /* LoRA 补丁：瘦矩阵 A → B 的两列小块，逐轮点亮 */
+      var laneA = el('div', 'materin-learn-lora__lane');
+      var laneB = el('div', 'materin-learn-lora__lane');
+      var LANE_N = 4;
+      for (var i = 0; i < LANE_N; i++) {
+        var ca = el('div', 'materin-learn-lora__mini materin-learn-lora__mini--a');
+        var cb = el('div', 'materin-learn-lora__mini materin-learn-lora__mini--b');
+        ca.style.animationDelay = (0.8 + i * 0.12) + 's';
+        cb.style.animationDelay = (1.4 + i * 0.12) + 's';
+        laneA.appendChild(ca);
+        laneB.appendChild(cb);
+      }
+      patch.appendChild(laneA);
+      patch.appendChild(laneB);
+
+      var t0 = null, DUR = 4800, HOLD = 1400, CYCLE = DUR + HOLD;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        var t01 = Math.min(tNow / DUR, 1);
+        var eased = 1 - Math.pow(1 - t01, 3);
+        pct.textContent = (a.pct * eased).toFixed(1) + '%';
+        patch.classList.toggle('is-live', tNow > DUR);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      readout.appendChild(pct);
+      readout.appendChild(pctLabel);
+      wrap.appendChild(wallTag);
+      wrap.appendChild(wall);
+      wrap.appendChild(patchTag);
+      wrap.appendChild(patch);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

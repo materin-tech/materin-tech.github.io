@@ -1197,6 +1197,25 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-body-day.is-stage .materin-learn-winfill__cut-cell { width: 64px; height: 48px; border-radius: 14px; }
 .materin-learn-body-day.is-stage .materin-learn-winfill__cut-label { font-size: 30px; margin-left: 18px; }
 
+.materin-learn-body-day.is-stage .materin-learn-fab { gap: 40px; max-width: 900px; }
+.materin-learn-body-day.is-stage .materin-learn-fab__question { font-size: 30px; }
+.materin-learn-body-day.is-stage .materin-learn-fab__round { gap: 12px; }
+.materin-learn-body-day.is-stage .materin-learn-fab__q { font-size: 26px; }
+.materin-learn-body-day.is-stage .materin-learn-fab__row { grid-template-columns: 220px 1fr; }
+.materin-learn-body-day.is-stage .materin-learn-fab__card { font-size: 26px; }
+.materin-learn-body-day.is-stage .materin-learn-fab__note { font-size: 28px; max-width: 840px; }
+
+.materin-learn-body-day.is-stage .materin-learn-lora { gap: 34px; max-width: 900px; }
+.materin-learn-body-day.is-stage .materin-learn-lora__wall { gap: 8px; padding: 26px; border-radius: 26px; }
+.materin-learn-body-day.is-stage .materin-learn-lora__cell { height: 30px; border-radius: 8px; animation-duration: 0.05s; }
+.materin-learn-body-day.is-stage .materin-learn-lora__wall-tag,
+.materin-learn-body-day.is-stage .materin-learn-lora__patch-tag { font-size: 28px; }
+.materin-learn-body-day.is-stage .materin-learn-lora__patch { padding: 20px 34px; gap: 26px; border-radius: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-lora__mini { width: 40px; height: 68px; border-radius: 12px; animation-duration: 0.7s; }
+.materin-learn-body-day.is-stage .materin-learn-lora__pct { font-size: 96px; }
+.materin-learn-body-day.is-stage .materin-learn-lora__pct-label { font-size: 30px; }
+.materin-learn-body-day.is-stage .materin-learn-lora__note { font-size: 28px; max-width: 840px; }
+
 .materin-learn-body-day.is-stage .materin-learn-dayhead { display: none; }
 .materin-learn-body-day.is-stage .materin-learn-sections,
 .materin-learn-body-day.is-stage .materin-learn-action,
@@ -1563,4 +1582,136 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
   color: var(--materin-text-faint);
   font-size: 12.5px;
   text-align: center;
+}
+
+/* lora：冻结权重墙 + 可训练 LoRA 补丁（第 10 天）。入场只动 transform，不依赖 opacity。 */
+.materin-learn-lora {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 620px;
+}
+
+.materin-learn-lora__wall-tag,
+.materin-learn-lora__patch-tag {
+  color: var(--materin-text-faint);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.materin-learn-lora__wall {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 4px;
+  width: 100%;
+  max-width: 560px;
+  padding: 14px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 16px;
+  background: var(--materin-glass-bg-subtle);
+  box-shadow: var(--materin-shadow);
+}
+
+.materin-learn-lora__cell {
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--materin-border);
+  background: var(--materin-surface-2);
+  transform: translateY(0) scale(1);
+  animation: materin-learn-lora-cell 0.4s var(--materin-ease-standard, ease) backwards;
+}
+
+.materin-learn-lora__cell--frozen {
+  border-color: var(--materin-border);
+  background: var(--materin-surface-3);
+  opacity: 0.55;
+}
+
+.materin-learn-lora__cell--train {
+  border-color: var(--materin-accent-border);
+  background: var(--materin-accent-soft);
+}
+
+@keyframes materin-learn-lora-cell {
+  from { transform: translateY(8px) scale(0.9); }
+  to { transform: translateY(0) scale(1); }
+}
+
+.materin-learn-lora__patch {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 14px;
+  background: var(--materin-glass-bg-subtle);
+  box-shadow: var(--materin-shadow);
+  transition: border-color var(--materin-duration-normal) ease,
+    background var(--materin-duration-normal) ease;
+}
+
+.materin-learn-lora__lane {
+  display: flex;
+  gap: 6px;
+}
+
+.materin-learn-lora__mini {
+  width: 18px;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid var(--materin-accent-border);
+  background: var(--materin-accent-soft);
+  transform: translateY(0) scale(1);
+  animation: materin-learn-lora-mini 0.4s var(--materin-ease-standard, ease) backwards;
+}
+
+.materin-learn-lora__mini--a { border-radius: 6px 12px 6px 6px; }
+.materin-learn-lora__mini--b { border-radius: 12px 6px 6px 6px; }
+
+@keyframes materin-learn-lora-mini {
+  from { transform: translateY(6px) scale(0.85); }
+  to { transform: translateY(0) scale(1); }
+}
+
+.materin-learn-lora__patch.is-live {
+  border-color: var(--materin-accent);
+  background: var(--materin-accent-soft);
+}
+
+.materin-learn-lora__patch.is-live .materin-learn-lora__mini {
+  border-color: var(--materin-accent);
+}
+
+.materin-learn-lora__readout {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.materin-learn-lora__pct {
+  color: var(--materin-accent);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 34px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-lora__pct-label {
+  color: var(--materin-text-muted);
+  font-size: 13px;
+}
+
+.materin-learn-lora__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materin-learn-lora__cell,
+  .materin-learn-lora__mini { animation: none; transform: none; }
 }

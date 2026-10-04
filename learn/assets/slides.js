@@ -50,12 +50,19 @@
     var chips = el('div', 'materin-learn-cover__chips');
     day.sections.slice(0, 3).forEach(function (sec) {
       var h = t(sec.h);
-      /* 胶囊取「：」或「——」后的短后缀；都没有则截到 14 字，避免整句塞爆胶囊互相压字 */
+      /* 胶囊取「：」或「——」后的短后缀；超长则截到 14 字——截断点找最近的
+         空格/标点回退，避免断在词中间（D8/D9 硬截断曾收在「接着」「不」上） */
       var m = h.split('：');
       var txt = m.length > 1 ? m[1] : h;
       m = txt.split('——');
       if (m.length > 1) txt = m[1];
-      if (txt.length > 14) txt = txt.slice(0, 14);
+      if (txt.length > 14) {
+        txt = txt.slice(0, 14);
+        var cut = Math.max(txt.lastIndexOf(' '), Math.max(
+          txt.lastIndexOf('？'), Math.max(
+          txt.lastIndexOf('，'), txt.lastIndexOf('、'))));
+        if (cut >= 6) txt = txt.slice(0, cut);
+      }
       chips.appendChild(el('span', 'materin-learn-cover__chip', txt));
     });
     c.appendChild(chips);
@@ -412,6 +419,77 @@
       } else {
         v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
         v.appendChild(el('div', 'materin-learn-viz__label', '治不好，但能圈住：RAG 的第一理由（第 85 天）'));
+      }
+    } else if (day.anim && day.anim.tpl === 'lora') {
+      if (idx === 0) {
+        /* 与动效页同一套冻结墙 + LoRA 补丁（静态、全点亮） */
+        var lora = el('div', 'materin-learn-lora');
+        var wallTag = el('div', 'materin-learn-lora__wall-tag',
+          lang() === 'en' ? 'pretrained weights W (frozen)' : '预训练权重 W（冻结）');
+        var wall = el('div', 'materin-learn-lora__wall');
+        day.anim.blocks.forEach(function (b) {
+          for (var i = 0; i < b.n; i++) {
+            wall.appendChild(el('div', 'materin-learn-lora__cell materin-learn-lora__cell--' + b.k));
+          }
+        });
+        var patchTag = el('div', 'materin-learn-lora__patch-tag',
+          lang() === 'en' ? 'LoRA B·A (trainable)' : 'LoRA B·A（参与训练）');
+        var patch = el('div', 'materin-learn-lora__patch is-live');
+        var laneA = el('div', 'materin-learn-lora__lane');
+        var laneB = el('div', 'materin-learn-lora__lane');
+        for (var m = 0; m < 4; m++) {
+          laneA.appendChild(el('div', 'materin-learn-lora__mini materin-learn-lora__mini--a'));
+          laneB.appendChild(el('div', 'materin-learn-lora__mini materin-learn-lora__mini--b'));
+        }
+        patch.appendChild(laneA);
+        patch.appendChild(laneB);
+        var pct = el('div', 'materin-learn-lora__pct', day.anim.pct.toFixed(1) + '%');
+        lora.appendChild(wallTag);
+        lora.appendChild(wall);
+        lora.appendChild(patchTag);
+        lora.appendChild(patch);
+        lora.appendChild(pct);
+        v.appendChild(lora);
+        v.appendChild(el('div', 'materin-learn-viz__label', '100 格权重里 0.4% 参与训练，梯度只流向批注层'));
+      } else if (idx === 1) {
+        var lbars = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '全量微调', val: 100, cls: '', txt: '≈1TB' },
+          { tag: 'LoRA', val: 2, cls: ' materin-learn-viz__bar--en', txt: '≈4GB' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          lbars.appendChild(row);
+        });
+        v.appendChild(lbars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '微调 70B 的显存账本（Adam，示意）'));
+      } else if (idx === 2) {
+        var lbars2 = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '微调=知识库', val: 88, cls: '', txt: '长尾细节多会编' },
+          { tag: '知识放外部', val: 12, cls: ' materin-learn-viz__bar--en', txt: '窗口+检索' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          lbars2.appendChild(row);
+        });
+        v.appendChild(lbars2);
+        v.appendChild(el('div', 'materin-learn-viz__label', '正确分工：微调塑「口音」，知识交给窗口与检索'));
+      } else {
+        v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
+        v.appendChild(el('div', 'materin-learn-viz__label', '底座 + 补丁：领域化的标准架构（第 141 天）'));
       }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));

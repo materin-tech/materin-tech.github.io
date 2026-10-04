@@ -311,7 +311,7 @@
 
 .materin-learn-viz__bar--en { background: linear-gradient(90deg, var(--materin-secondary), color-mix(in srgb, var(--materin-secondary) 55%, transparent)); }
 
-.materin-learn-viz__bar-val { width: 64px; font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.materin-learn-viz__bar-val { min-width: 64px; max-width: 220px; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* --- 结尾页 ---------------------------------------------------------- */
 .materin-learn-end {

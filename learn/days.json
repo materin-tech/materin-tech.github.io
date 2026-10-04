@@ -1459,6 +1459,125 @@
           "en": "The judge checked 6 citations one by one — none existed; the lawyer was fined $5,000."
         }
       }
+    },
+    {
+      "n": 10,
+      "stage": 1,
+      "week": 2,
+      "tpl": "lora",
+      "date": "2026-10-04",
+      "title": {
+        "zh": "微调与 LoRA：不动原作，只加批注",
+        "en": "Fine-tuning and LoRA: leave the original untouched, add annotations"
+      },
+      "subtitle": {
+        "zh": "微调是在预训练权重上继续梯度下降，全参数动一次 70B 模型要 1TB 级显存；LoRA 的思路是冻结原作、在旁边加一对低秩小矩阵——可训练参数降到 0.4%，效果却常常接近全量。学的是同一套梯度，省的是绝大多数旋钮。",
+        "en": "Fine-tuning is gradient descent continued on pretrained weights; a full pass over a 70B model takes terabyte-scale memory. LoRA freezes the original and adds a pair of low-rank matrices beside it — trainable parameters drop to 0.4% while results often approach full fine-tuning. Same gradients, a tiny fraction of the knobs."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：在预训练的终点，接着下坡",
+            "en": "Mechanism: fine-tuning = continuing the downhill from pretraining"
+          },
+          "p": {
+            "zh": "第 5 天的梯度下降没有「毕业」一说——预训练跑完，损失曲线上还有一个更陡的新坡可以下：拿几万条你领域的问答对，照同样的「预测、量误差、拧旋钮」流程再跑一遍，只是数据从万亿 token 换成你的小数据集。全量微调的问题不在算法在内存：更新 W 里每个权重，都要先算它的梯度，而梯度和优化器状态是权重的两到四倍——Adam 优化器下，7B 模型全量微调约需 60GB 以上，70B 就是 TB 级，单机放不下。更麻烦的是每次任务一份全量副本：客服一个模型、法务一个模型，存储和切换成本线性膨胀。",
+            "en": "Gradient descent from day 5 has no graduation — when pretraining ends there is a fresh, steeper slope: take tens of thousands of Q&A pairs from your domain and rerun the same predict-measure-adjust loop, only with your small dataset instead of trillions of tokens. The problem with full fine-tuning isn't the algorithm, it's memory: updating every weight in W requires its gradient first, and gradients plus optimizer state run 2–4x the weights — under Adam, full fine-tuning of a 7B model takes 60GB+ and 70B takes terabytes: it doesn't fit on one machine. Worse, each task wants its own full copy: one model for support, one for legal — storage and switching costs grow linearly."
+          },
+          "deep": {
+            "zh": "为什么「只加一小块」就够？LoRA 的赌注是一个矩阵性质：预训练权重在微调时的「变化量」ΔW 本质上是低秩的——任务适配只需要很少的独立方向。数学上，把 ΔW 分解成两个瘦矩阵的乘积 B·A（d×d 的大表 = d×r 乘 r×d，r 通常取 8～64，只有 d 的百分之一）。训练时 W 冻结，前向变成 W·x + B·A·x，梯度只流向 A 和 B。论据：LoRA 论文实测，GPT-3 上把可训练参数压到万分之一量级，GLUE 等基准仍能追平或超过全量微调——低秩假设在真实任务上基本成立。",
+            "en": "Why is \"a small patch\" enough? LoRA bets on a matrix property: the update ΔW that fine-tuning applies to pretrained weights is intrinsically low-rank — task adaptation needs only a handful of independent directions. Mathematically, factor ΔW into two skinny matrices, B·A (a d×d table = d×r times r×d, with r typically 8–64, about 1% of d). During training W is frozen; the forward pass becomes W·x + B·A·x, and gradients flow only into A and B. Evidence: the LoRA paper showed that shrinking trainable parameters to the ~0.01% level on GPT-3 still matches or beats full fine-tuning on GLUE-style benchmarks — the low-rank assumption largely holds in practice."
+          }
+        },
+        {
+          "h": {
+            "zh": "实例：70B 模型的账本——1.28TB 对 4GB",
+            "en": "Worked example: a 70B model's ledger — 1.28TB vs 4GB"
+          },
+          "p": {
+            "zh": "算一笔账（数字量级来自公开社区实测，如 qlora 项目）。70B 参数按 16-bit 存权重约 140GB；全量微调加梯度和 Adam 状态（每参数额外 2 份 fp16 梯度类数据 + fp32 优化器副本，约 12～16 字节/参数），合计约 1TB 上下——单张 A100 80GB 放不下 1/10。换 LoRA（r=16，只挂在注意力层）：可训练参数约 70B×0.4%≈2.8 亿个，B·A 两个矩阵加梯度和优化器状态不到 4GB；权重本体 140GB 仍是只读的，量化到 4-bit 后约 35GB，一张 A100 就能跑。更关键的账是「部署」：底座一份 + 每任务一个 2GB 的 LoRA 补丁，切换任务 = 换一张小卡片，几百毫秒热插拔。",
+            "en": "Run the numbers (orders of magnitude from public community measurements, e.g. the QLoRA project). A 70B model in 16-bit weights is ~140GB; full fine-tuning adds gradients and Adam state (roughly 12–16 bytes per parameter on top), landing around 1TB — a single 80GB A100 holds less than a tenth of that. Switch to LoRA (r=16 on attention layers): trainable parameters are about 70B × 0.4% ≈ 280M, and the B·A matrices with gradients and optimizer state come to under 4GB; the read-only weights still take 140GB, or ~35GB quantized to 4-bit — one A100 runs it. The decisive line item is deployment: one base model plus a ~2GB LoRA patch per task; switching tasks means swapping a small card in a few hundred milliseconds."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "验一下「秩」有多小：把同一个基座按 r=4、16、64 各训一份小任务适配器，对比验证集成绩。多数任务的规律是 r=8～16 就饱和，64 相对 16 的提升常常不到 1%——参数却多 4 倍。这说明 ΔW 里真正被用到的「方向」极少：任务适配像用几种笔迹在原文上批注，不需要重写全书。",
+              "en": "Check how small the rank really is: train adapters on the same base at r=4, 16, and 64 for one small task and compare validation scores. On most tasks r=8–16 saturates; r=64 over 16 often buys under 1% for 4x the parameters. The truly used directions in ΔW are few — task adaptation is annotating the original in a couple of handwritings, not rewriting the book."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：微调是灌知识的泵？它塑形，不存储",
+            "en": "Misconception: fine-tuning pumps in knowledge? It shapes, it doesn't store"
+          },
+          "p": {
+            "zh": "最常见的错位期待：「我们公司 3 万页文档，微调一个懂我们的模型」。微调改的是行为分布——语气、格式、输出结构、任务套路——它不是数据库，塞进去的事实以统计关联的形式松散存在，追问细节就滑向第 9 天的幻觉。正确分工：知识放外部（第 4 天的窗口 + 第 85 天起的 RAG），微调只负责「口音」——让它稳定按你的格式、你的流程、你的语气说话。第二个误区：「微调需要海量数据」。塑形类任务几千条高质量样本往往就够，反而是低质量数据会把好口音带歪。",
+            "en": "The most common misalignment: \"we have 30,000 pages of company docs — fine-tune a model that knows us.\" Fine-tuning reshapes the behavior distribution — tone, format, output structure, task patterns — it is not a database; facts stuffed in live as loose statistical associations, and probing details slides into day 9's hallucination. The right division of labor: knowledge lives outside (day 4's window plus RAG from day 85), fine-tuning owns the \"accent\" — speaking in your format, your process, your voice, reliably. Second misconception: \"fine-tuning needs mountains of data.\" For shaping tasks, a few thousand high-quality samples usually suffice; low-quality data is what warps the accent."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「r 越大效果越好，所以直接上 r=256」。秩是容量不是质量：r 过大不仅参数暴涨，还会开始复刻全量微调的过拟合倾向——把训练集的措辞背下来而不是学规律。选 r 的实用做法是从 8～16 起步，看验证集曲线是否已经平台化，再决定加不加。",
+              "en": "\"Bigger r is always better, so just use r=256.\" Rank is capacity, not quality: an oversized r inflates parameters and starts to reproduce full fine-tuning's overfitting — memorizing the training set's wording instead of its patterns. Practical selection: start at r=8–16, check whether the validation curve has plateaued, and only then consider raising it."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：LoRA 是个人开发者时代的入场券",
+            "en": "Where this leads: LoRA is the indie developer's ticket"
+          },
+          "p": {
+            "zh": "这条路通向后面两段：阶段三的 Agent 需要模型稳定执行固定流程——先用 LoRA 把「输出格式永远合法」驯出来，再谈工具调用（第 50 天起）；阶段六的领域化（第 141 天起）里，「一个通用底座 + 一摞领域补丁」正是标准架构——法律、医疗、客服各挂各的适配器，共享同一个底座。下一阶段（第 29 天起的提示工程）则回答另一面：很多「想微调解决」的问题，先问问提示词写得够不够好——塑形的第一层工具其实免费。",
+            "en": "This path runs into the next two stages: stage 3's agents need a model that executes fixed procedures reliably — use LoRA first to tame \"output is always well-formed\", then talk about tool calling (from day 50); in stage 6's domain practice (from day 141), \"one general base plus a stack of domain patches\" is the standard architecture — legal, medical, and support each carry their own adapter over a shared base. Stage 2 (prompting, from day 29) answers the flip side: many problems you're tempted to fine-tune away, ask first whether the prompt is good enough — the first shaping tool is free."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "打开 Hugging Face，找一个 1B～3B 的小模型 + 它的某个 LoRA 适配器（搜索模型页里的 adapter_config.json，看里面的 r 字段和 target_modules 列表）。问题：① 这个适配器的可训练参数占底座参数的百分之几？（提示：r×(d_in+d_out)×挂载层数 ÷ 总参数量，config 里都有。）② target_modules 为什么几乎总是注意力和全连接层，而不是嵌入层？（提示：哪类矩阵在处理「新任务」时需要的变化方向最多，哪类只是查表？）",
+          "en": "Open Hugging Face, find a 1B–3B model plus one of its LoRA adapters (look at adapter_config.json on the model page: the r field and the target_modules list). Questions: (1) What percent of the base's parameters is this adapter trainable? (Hint: r×(d_in+d_out)×attached layers ÷ total parameters — it's all in the config.) (2) Why do target_modules almost always list attention and feed-forward layers, not the embedding layer? (Hint: which matrix families need the most new directions when adapting to a new task, and which are just a lookup table?)"
+        }
+      },
+      "takeaway": {
+        "zh": "微调 = 在预训练权重上继续梯度下降，全量动一次 70B 要 TB 级内存；LoRA 赌「任务适配的变化量是低秩的」，冻结原作、只训一对小矩阵——0.4% 的参数、4GB 的补丁、几百毫秒热插拔。它塑形不存储：知识走窗口和检索，口音才归微调。",
+        "en": "Fine-tuning = gradient descent continued on pretrained weights; a full pass on 70B takes terabytes. LoRA bets that task adaptation is low-rank: freeze the original, train a small pair of matrices — 0.4% of parameters, a 4GB patch, hot-swappable in milliseconds. It shapes, it doesn't store: knowledge belongs to windows and retrieval; only the accent belongs to fine-tuning."
+      },
+      "anim": {
+        "tpl": "lora",
+        "hook": {
+          "zh": "不改原作，只加批注。",
+          "en": "Don't rewrite the book — annotate it."
+        },
+        "sentence": {
+          "zh": "0.4% 的参数，塑出任务口音。",
+          "en": "0.4% of parameters shape the task."
+        },
+        "blocks": [
+          { "k": "frozen", "n": 99 },
+          { "k": "train", "n": 1 }
+        ],
+        "pct": 0.4,
+        "note": {
+          "zh": "示意：100 格权重里 99.6% 冻结（深色），只有挂载的 LoRA 小矩阵参与训练并逐轮点亮——梯度只流向批注层。",
+          "en": "Illustrative: of 100 weight cells, 99.6% stay frozen (dimmed); only the attached LoRA matrices train and light up round by round — gradients flow to the annotations only."
+        },
+        "coverHook": {
+          "zh": "全量微调 70B：约 1TB 显存。LoRA：4GB 补丁，几百毫秒热插拔。",
+          "en": "Full fine-tuning of 70B: ~1TB of memory. LoRA: a 4GB patch, hot-swapped in milliseconds."
+        }
+      }
     }
   ]
 }
