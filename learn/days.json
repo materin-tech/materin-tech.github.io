@@ -1578,6 +1578,147 @@
           "en": "Full fine-tuning of 70B: ~1TB of memory. LoRA: a 4GB patch, hot-swapped in milliseconds."
         }
       }
+    },
+    {
+      "n": 11,
+      "stage": 1,
+      "week": 2,
+      "tpl": "quant",
+      "date": "2026-10-05",
+      "title": {
+        "zh": "量化：把模型从 140GB 压到 35GB",
+        "en": "Quantization: shrinking 140GB to 35GB"
+      },
+      "subtitle": {
+        "zh": "模型里的每个权重只是个数字，存法却有很大的省法——16-bit 降到 4-bit，体积缩 4 倍，能力掉得比想象少。量化省的是显存与带宽，不是算力，更不添加知识。",
+        "en": "Every weight is just a number, and numbers have cheaper ways to be stored — 16-bit down to 4-bit, 4x smaller, losing less than you'd expect. Quantization saves memory and bandwidth, not compute, and adds no knowledge."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：权重是数字，数字可以换更省的存法",
+            "en": "Mechanism: weights are numbers, and numbers can be stored more cheaply"
+          },
+          "p": {
+            "zh": "模型里的每个权重是一个浮点数（第 5 天被梯度反复拧动的旋钮），出厂默认用 FP16/BF16 存储：每个数 2 字节，70B 参数就是 140GB。量化做的事：把连续的浮点数映射到更粗的网格上——以 INT4 为例，把权重按组（如每 64 个一组）统计最大绝对值作 scale，组内每个权重只记一个 0～15 的整数索引；推理时用 scale × 索引 现场还原近似值。存储从每权重 2 字节降到 0.5 字节，误差被控制在网格间距的一半以内。",
+            "en": "Every weight in the model is a float (one of the knobs gradient descent keeps turning on day 5), stored at birth in FP16/BF16: 2 bytes per number, so a 70B model is 140GB. Quantization maps those continuous floats onto a coarser grid — for INT4, weights are grouped (say 64 per group), each group's max absolute value becomes a scale factor, and each weight keeps only an integer index 0–15; at inference the approximate value is restored on the fly as scale × index. Storage drops from 2 bytes to 0.5 bytes per weight, with error bounded by half the grid spacing."
+          },
+          "deep": {
+            "zh": "为什么粗网格不毁掉模型？两个原因。其一，权重分布高度集中在 0 附近、覆盖范围很小，16 级网格的间距相对权重自身的波动是细粒度的；其二，神经网络本来就靠「平均大量微弱信号」工作，单点误差在求和里被稀释——量化误差近似一种已知的小噪声，而这种噪声鲁棒性在训练时就被练出来了。真正的麻烦是离群值（outlier）：个别通道的数值特别大，一组 scale 罩不住，所以现代量化方案会把少数敏感通道保留在高精度（混合精度）——工程上没有免费午餐，只有精打细算。",
+            "en": "Why doesn't the coarse grid wreck the model? Two reasons. First, weights concentrate tightly around zero with a small dynamic range, so a 16-level grid is fine-grained relative to the weights' own spread. Second, neural networks already work by averaging many weak signals — single-point errors dilute in the sum, and quantization error behaves like known small noise, the kind of noise-robustness training itself instills. The real trouble is outliers: a few channels carry unusually large values that one group scale can't cover, so modern schemes keep a handful of sensitive channels in high precision (mixed precision). No free lunch in engineering — just careful accounting."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：70B 模型的三档体积",
+            "en": "The math: a 70B model at three sizes"
+          },
+          "p": {
+            "zh": "用第 10 天的 70B 模型算三档：FP16 出厂态 140GB——两张 A100 80GB 才装得下，推理门槛直接劝退个人；INT8 每权重 1 字节，70GB——一张 A100 装下，社区实测能力保留约 99%，几乎无损；INT4 每权重 0.5 字节，35GB——一张 A100 装下还有富余，能力约保留 97%。另有一笔速度账：推理生成逐 token 进行，瓶颈在「把权重从显存搬进计算单元」的带宽——权重小一半，搬运就快，首 token 延迟明显改善；但每个 token 该做的运算一次不少，量化省的是「住店面积」，不是「干活时间」。",
+            "en": "Take the 70B model from day 10 at three tiers: FP16 as-shipped is 140GB — two 80GB A100s just to load it, a wall for individuals; INT8 is 1 byte per weight, 70GB — one A100, with community measurements showing ~99% capability retained, near-lossless; INT4 is 0.5 bytes per weight, 35GB — one A100 with room to spare, ~97% retained. There is also a speed ledger: generation proceeds token by token and the bottleneck is the bandwidth that hauls weights into the compute units — half the weights, faster hauling, visibly better time-to-first-token. But the arithmetic per token doesn't shrink: quantization cuts the hotel room, not the workload."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "本地部署对照：13B 模型 FP16 要 26GB（消费级显卡装不下），INT4 只要约 6.5GB——一张 RTX 4090（24GB）装下还有余量跑 33B 的 INT4 版（约 17GB）。这正是过去两年「笔记本上跑大模型」从口号变成现实的原因：量化把「需要数据中心」变成「需要一张好显卡」。代价同样真实：INT4 版在冷门长尾问题上的细节丢失率先升高——热门知识几乎无感，越偏越见真章。",
+              "en": "Local deployment in numbers: a 13B model at FP16 needs 26GB (no consumer GPU), at INT4 about 6.5GB — one RTX 4090 (24GB) fits it with room left for a 33B INT4 build (~17GB). That is why \"run an LLM on your laptop\" went from slogan to reality in two years: quantization turned \"needs a datacenter\" into \"needs a good GPU card\". The cost is just as real: INT4 loses long-tail detail first — popular knowledge barely notices, obscure facts show the damage."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：量化是「无损压缩」吗？",
+            "en": "Misconception: is quantization lossless?"
+          },
+          "p": {
+            "zh": "常见误读有三层。其一「量化=免费缩体积」：INT8 接近无损是实测结论，但 INT4 已经是折中——先受损的是长尾能力（冷门事实、多步推理链），热门任务几乎看不出来，所以「试了三个问题都正常」不等于没有损失。其二「量化省算力」：省的是显存和显存带宽，每 token 的计算照做——按 token 计费一分不少。其三反过来「低精度=低质量」：这是过时印象，INT8 的 99% 意味着绝大多数场景你分不出区别——该问的不是「能不能量化」，而是「这个任务在 INT4 下还剩多少」。",
+            "en": "Three layers of misreading. First, \"quantization = free size cut\": INT8 being near-lossless is a measured result, but INT4 is already a compromise — long-tail abilities (obscure facts, multi-step reasoning chains) degrade first while popular tasks look fine, so \"three test questions all passed\" proves nothing. Second, \"quantization saves compute\": it saves memory and bandwidth; the per-token math happens anyway — the bill doesn't shrink. Third, the reverse \"low precision = low quality\": an outdated impression — INT8's 99% means most scenarios are indistinguishable. The right question isn't \"can we quantize\" but \"how much of this task survives at INT4\"."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「量化后的模型更高效，所以更适合 Agent/生产」。跑分要分清维度：量化改善了「单位显存的模型体积」与「加载/搬运速度」，但没有改变模型的知识与推理上限——而且 4-bit 推理需要额外的反量化计算，某些框架里吞吐反而略降。选型时用真实任务基准对比量化前后的输出质量，别只看体积数字。",
+              "en": "\"Quantized models are more efficient, so better for agents/production.\" Read benchmarks by dimension: quantization improves model size per GB of memory and load/transfer speed, but not the model's knowledge or reasoning ceiling — and 4-bit inference adds dequantization work, so throughput can even dip slightly in some frameworks. Compare output quality on your real task before and after; don't decide by the size number alone."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：变小有两条路，这是第一条",
+            "en": "Where this leads: two roads to smaller, this is the first"
+          },
+          "p": {
+            "zh": "把模型变小有两条独立的路：量化是把「同一个模型」的存法变省（今天），蒸馏是把「模型本身」变小——让小模型模仿大模型的行为（第 12 天）。再往后：阶段三的 Agent 要跑在本地设备上，量化是前置条件；阶段六领域化的边缘部署（手机、车载）同样建立在 INT4/INT8 生态上。今天带走一句话——",
+            "en": "There are two independent roads to a smaller model: quantization stores the same model more cheaply (today); distillation makes the model itself smaller — a small model imitating a large one (day 12). Ahead: stage 3's agents running on local devices presuppose quantization; stage 6's edge deployment (phones, cars) is built on the same INT4/INT8 ecosystem. One sentence for today —"
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "打开 Hugging Face（或本机 ollama list），找同一个开源模型的两个精度版本（例如 Llama-3-8B 的 fp16 版与 GGUF Q4_K_M 版），记录两者的下载体积。回答两个问题：① Q4 版为什么不是 fp16 的 1/4，而是略多一点？（提示：哪些东西没法按 4-bit 压——scale 元数据、嵌入表、部分保留高精度的层。）② 如果只能试三个问题来判断量化损失，该挑什么类型？（提示：热门常识测不出损失，要挑冷门细节和多步推理。）",
+          "en": "Open Hugging Face (or run ollama list locally) and find two precision variants of the same open model (say Llama-3-8B fp16 vs its GGUF Q4_K_M build), recording both download sizes. Answer two questions: (1) Why is the Q4 build slightly more than 1/4 of fp16, not exactly? (Hint: what can't be squeezed to 4 bits — scale metadata, the embedding table, layers kept in high precision.) (2) If you could ask only three questions to detect quantization loss, what kind should they be? (Hint: popular facts can't reveal it — pick obscure details and multi-step reasoning.)"
+        }
+      },
+      "takeaway": {
+        "zh": "量化 = 给权重换更粗的存法：70B 从 140GB 压到 35GB，INT8 几乎无损、INT4 是折中——省的是显存与带宽，不省运算，也不添加知识；长尾能力最先感知损失。",
+        "en": "Quantization = a coarser way to store the same weights: 70B shrinks from 140GB to 35GB, INT8 near-lossless, INT4 a compromise — it saves memory and bandwidth, not compute, adds no knowledge, and long-tail abilities feel the loss first."
+      },
+      "anim": {
+        "tpl": "quant",
+        "hook": {
+          "zh": "140GB 的模型，怎么塞进一张 35GB 的卡？",
+          "en": "How does a 140GB model fit on a 35GB card?"
+        },
+        "sentence": {
+          "zh": "同一组权重，换一种存法。",
+          "en": "Same weights, a cheaper way to store them."
+        },
+        "levels": [
+          {
+            "k": "fp16",
+            "tagZh": "FP16",
+            "tagEn": "FP16",
+            "cellBytes": 2,
+            "gb": 140,
+            "q": 100
+          },
+          {
+            "k": "int8",
+            "tagZh": "INT8",
+            "tagEn": "INT8",
+            "cellBytes": 1,
+            "gb": 70,
+            "q": 99
+          },
+          {
+            "k": "int4",
+            "tagZh": "INT4",
+            "tagEn": "INT4",
+            "cellBytes": 1,
+            "gb": 35,
+            "q": 97
+          }
+        ],
+        "weights": 8,
+        "note": {
+          "zh": "示意：同一组 8 个权重在三种精度下的存储——INT4 每个权重只占半字节（另存 scale 元数据），70B 模型因此从 140GB 压到 35GB。右列为能力保留率（社区实测）。",
+          "en": "Illustrative: the same 8 weights at three precisions — an INT4 weight is half a byte (plus scale metadata), shrinking a 70B model from 140GB to 35GB. Right column: capability retained (community measurements)."
+        },
+        "coverHook": {
+          "zh": "70B 模型：FP16 要 140GB，INT4 只要 35GB——一张卡就能装下。",
+          "en": "A 70B model: 140GB in FP16, just 35GB in INT4 — one card fits it."
+        }
+      }
     }
   ]
 }

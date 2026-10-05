@@ -1216,6 +1216,17 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-body-day.is-stage .materin-learn-lora__pct-label { font-size: 30px; }
 .materin-learn-body-day.is-stage .materin-learn-lora__note { font-size: 28px; max-width: 840px; }
 
+.materin-learn-body-day.is-stage .materin-learn-quant { gap: 56px; max-width: 960px; }
+.materin-learn-body-day.is-stage .materin-learn-quant__rows { gap: 40px; }
+.materin-learn-body-day.is-stage .materin-learn-quant__row { gap: 30px; }
+.materin-learn-body-day.is-stage .materin-learn-quant__tag { font-size: 44px; min-width: 190px; }
+.materin-learn-body-day.is-stage .materin-learn-quant__cell { height: 52px; border-radius: 12px; animation-duration: 0.05s; }
+.materin-learn-body-day.is-stage .materin-learn-quant__gb-tag { font-size: 44px; min-width: 240px; }
+.materin-learn-body-day.is-stage .materin-learn-quant__q { font-size: 40px; min-width: 170px; }
+.materin-learn-body-day.is-stage .materin-learn-quant__gb { font-size: 120px; }
+.materin-learn-body-day.is-stage .materin-learn-quant__gb-label { font-size: 40px; }
+.materin-learn-body-day.is-stage .materin-learn-quant__note { font-size: 28px; max-width: 840px; }
+
 .materin-learn-body-day.is-stage .materin-learn-dayhead { display: none; }
 .materin-learn-body-day.is-stage .materin-learn-sections,
 .materin-learn-body-day.is-stage .materin-learn-action,
@@ -1714,4 +1725,124 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 @media (prefers-reduced-motion: reduce) {
   .materin-learn-lora__cell,
   .materin-learn-lora__mini { animation: none; transform: none; }
+}
+
+/* quant：同一组权重的三种精度存储（第 11 天）。入场只动 transform，不依赖 opacity。 */.materin-learn-quant {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.materin-learn-quant__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.materin-learn-quant__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.materin-learn-quant__tag {
+  min-width: 64px;
+  color: var(--materin-text-muted);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.materin-learn-quant__row--int4 .materin-learn-quant__tag { color: var(--materin-accent); }
+
+/* 三档各自的视觉身份：FP16 完整精度、INT8 过渡、INT4 目标档 */
+.materin-learn-quant__row--fp16 .materin-learn-quant__gb-tag { color: var(--materin-text-muted); }
+.materin-learn-quant__row--int8 .materin-learn-quant__gb-tag { color: var(--materin-text); }
+.materin-learn-quant__row--int4 .materin-learn-quant__gb-tag { color: var(--materin-accent); }
+
+.materin-learn-quant__cells {
+  --quant-bytes: 2;
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  justify-content: flex-start;
+}
+
+.materin-learn-quant__cell {
+  width: calc(44px * var(--quant-bytes) / 2);
+  height: 20px;
+  border-radius: 5px;
+  border: 1px solid var(--materin-border);
+  background: var(--materin-surface-3);
+  transform: translateY(0) scale(1);
+  animation: materin-learn-quant-cell 0.4s var(--materin-ease-standard, ease) backwards;
+}
+
+.materin-learn-quant__row--fp16 .materin-learn-quant__cell {
+  border-color: var(--materin-accent-border);
+  background: var(--materin-accent-soft);
+}
+
+.materin-learn-quant__row--int4.is-done .materin-learn-quant__cell {
+  border-color: var(--materin-accent);
+}
+
+@keyframes materin-learn-quant-cell {
+  from { transform: translateY(6px) scale(0.85); }
+  to { transform: translateY(0) scale(1); }
+}
+
+.materin-learn-quant__gb-tag {
+  min-width: 72px;
+  text-align: right;
+  color: var(--materin-text);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-quant__q {
+  min-width: 56px;
+  text-align: right;
+  color: var(--materin-text-faint);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-quant__readout {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.materin-learn-quant__gb {
+  color: var(--materin-accent);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 34px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-quant__gb.is-done { color: var(--materin-accent); }
+
+.materin-learn-quant__gb-label {
+  color: var(--materin-text-muted);
+  font-size: 13px;
+}
+
+.materin-learn-quant__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+  max-width: 640px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materin-learn-quant__cell { animation: none; transform: none; }
 }

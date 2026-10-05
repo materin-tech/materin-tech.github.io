@@ -491,6 +491,69 @@
         v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
         v.appendChild(el('div', 'materin-learn-viz__label', '底座 + 补丁：领域化的标准架构（第 141 天）'));
       }
+    } else if (day.anim && day.anim.tpl === 'quant') {
+      if (idx === 0) {
+        /* 与动效页同一套三档存储（静态、全部就位） */
+        var quant = el('div', 'materin-learn-quant');
+        var qrows = el('div', 'materin-learn-quant__rows');
+        day.anim.levels.forEach(function (lv) {
+          var row = el('div', 'materin-learn-quant__row materin-learn-quant__row--' + lv.k + ' is-done');
+          row.appendChild(el('span', 'materin-learn-quant__tag', lv.tagZh));
+          var cells = el('div', 'materin-learn-quant__cells');
+          cells.style.setProperty('--quant-bytes', String(lv.cellBytes));
+          for (var c = 0; c < day.anim.weights; c++) {
+            cells.appendChild(el('span', 'materin-learn-quant__cell'));
+          }
+          row.appendChild(cells);
+          row.appendChild(el('span', 'materin-learn-quant__gb-tag', lv.gb + ' GB'));
+          var q = el('span', 'materin-learn-quant__q', lv.q >= 100 ? '100%' : '≈' + lv.q + '%');
+          row.appendChild(q);
+          qrows.appendChild(row);
+        });
+        quant.appendChild(qrows);
+        v.appendChild(quant);
+        v.appendChild(el('div', 'materin-learn-viz__label', '同一组权重的三种存法：格宽 = 每权重字节数'));
+      } else if (idx === 1) {
+        var qbars = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: 'FP16 两个 A100', val: 100, cls: ' materin-learn-viz__bar--en', txt: '140GB' },
+          { tag: 'INT8 一张 A100', val: 50, cls: '', txt: '70GB（≈99%）' },
+          { tag: 'INT4 一张 A100 有余', val: 25, cls: '', txt: '35GB（≈97%）' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          qbars.appendChild(row);
+        });
+        v.appendChild(qbars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '70B 模型的三档体积（右为能力保留率）'));
+      } else if (idx === 2) {
+        var qbars2 = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '热门知识', val: 96, cls: '', txt: '几乎无感' },
+          { tag: '长尾细节', val: 30, cls: ' materin-learn-viz__bar--en', txt: 'INT4 先受损' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          qbars2.appendChild(row);
+        });
+        v.appendChild(qbars2);
+        v.appendChild(el('div', 'materin-learn-viz__label', '量化损失先落在哪（示意）：越冷门越见真章'));
+      } else {
+        v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
+        v.appendChild(el('div', 'materin-learn-viz__label', '变小有两条路：量化之外，明天讲蒸馏（第 12 天）'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

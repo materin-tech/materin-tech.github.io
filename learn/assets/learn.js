@@ -710,6 +710,69 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* quant：同一组权重在三种精度下的存储——格宽按字节数收缩，GB 数字同步滚动，循环重播。
+       入场只动 transform，不碰 opacity（导出/采样不会停在透明第一帧）。 */
+    quant: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-quant');
+      var rowsBox = el('div', 'materin-learn-quant__rows');
+      var readout = el('div', 'materin-learn-quant__readout');
+      var gbNum = el('span', 'materin-learn-quant__gb', '0');
+      var gbLabel = el('span', 'materin-learn-quant__gb-label',
+        lang() === 'en' ? 'GB to load' : 'GB 要装进显存');
+      var note = el('p', 'materin-learn-quant__note', t(a.note));
+
+      var isEn = lang() === 'en';
+      var rows = a.levels.map(function (lv, i) {
+        var row = el('div', 'materin-learn-quant__row materin-learn-quant__row--' + lv.k);
+        row.appendChild(el('span', 'materin-learn-quant__tag', isEn ? lv.tagEn : lv.tagZh));
+        var cells = el('div', 'materin-learn-quant__cells');
+        for (var c = 0; c < a.weights; c++) {
+          var cell = el('span', 'materin-learn-quant__cell');
+          cell.style.animationDelay = (0.2 + i * 0.55 + c * 0.06) + 's';
+          cells.appendChild(cell);
+        }
+        cells.style.setProperty('--quant-bytes', String(lv.cellBytes));
+        row.appendChild(cells);
+        row.appendChild(el('span', 'materin-learn-quant__gb-tag', lv.gb + ' GB'));
+        var q = el('span', 'materin-learn-quant__q', '');
+        q.textContent = lv.q >= 100 ? '100%' : '≈' + lv.q + '%';
+        row.appendChild(q);
+        rowsBox.appendChild(row);
+        return { row: row, lv: lv };
+      });
+
+      var t0 = null;
+      var DUR = 5200, HOLD = 1500, CYCLE = DUR + HOLD;
+      var MAXGB = a.levels[a.levels.length - 1].gb;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        var t01 = Math.min(tNow / DUR, 1);
+        rows.forEach(function (r, i) {
+          var start = 0.1 + i * 0.3, dur = 0.32;
+          var f = Math.min(Math.max((t01 - start) / dur, 0), 1);
+          var eased = 1 - Math.pow(1 - f, 3);
+          r.row.classList.toggle('is-done', f >= 1);
+          /* 数字滚动跟随最后一行（INT4）的完成度：140GB → 35GB */
+          if (i === rows.length - 1) {
+            var v = Math.round(a.levels[0].gb + (MAXGB - a.levels[0].gb) * eased);
+            gbNum.textContent = String(v);
+            gbNum.classList.toggle('is-done', f >= 1);
+          }
+        });
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      readout.appendChild(gbNum);
+      readout.appendChild(gbLabel);
+      wrap.appendChild(rowsBox);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

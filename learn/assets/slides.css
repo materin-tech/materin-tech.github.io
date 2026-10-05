@@ -444,6 +444,15 @@ body.is-export .materin-learn-winfill__cell,
 body.is-export .materin-learn-winfill__cut-cell,
 body.is-export .materin-learn-duel__card { animation: none; transform: none; }
 body.is-export .materin-learn-fab__card { animation: none; transform: none; }
+body.is-export .materin-learn-quant__cell { animation: none; transform: none; }
+
+/* 图组内的 quant 表：继承暗色/亮色令牌，格宽照字节数收缩 */
+.materin-learn-viz .materin-learn-quant { max-width: 640px; gap: 12px; }
+.materin-learn-viz .materin-learn-quant__rows { gap: 10px; }
+.materin-learn-viz .materin-learn-quant__tag { min-width: 58px; font-size: 15px; }
+.materin-learn-viz .materin-learn-quant__cell { height: 16px; }
+.materin-learn-viz .materin-learn-quant__gb-tag { min-width: 84px; font-size: 15px; }
+.materin-learn-viz .materin-learn-quant__q { font-size: 14px; }
 
 /* 图组内的窗口预算格：放大一档适配右侧可视化板 */
 .materin-learn-viz .materin-learn-winfill__grid { grid-template-columns: repeat(8, 56px); gap: 10px; }
