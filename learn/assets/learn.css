@@ -1846,3 +1846,139 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 @media (prefers-reduced-motion: reduce) {
   .materin-learn-quant__cell { animation: none; transform: none; }
 }
+
+/* distill：老师软分布 → 学生软分布（第 12 天）。入场只动 transform，不依赖 opacity。 */
+.materin-learn-distill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.materin-learn-distill__q {
+  padding: 8px 18px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 999px;
+  background: var(--materin-glass-bg-subtle);
+  color: var(--materin-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.materin-learn-distill__panel {
+  width: 100%;
+  padding: 18px 20px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 16px;
+  background: var(--materin-glass-bg-subtle);
+  box-shadow: var(--materin-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.materin-learn-distill__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.materin-learn-distill__row {
+  display: grid;
+  grid-template-columns: 92px 1fr 56px;
+  align-items: center;
+  gap: 12px;
+}
+
+.materin-learn-distill__word {
+  color: var(--materin-text-muted);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.materin-learn-distill__track {
+  height: 26px;
+  border-radius: 8px;
+  background: var(--materin-surface-3);
+  overflow: hidden;
+}
+
+.materin-learn-distill__bar {
+  height: 100%;
+  border-radius: 8px;
+  background: var(--materin-surface-2);
+  transform: translateX(0) scaleX(1);
+  transform-origin: left center;
+  animation: materin-learn-distill-bar 0.4s var(--materin-ease-standard, ease) backwards;
+  transition: background var(--materin-duration-normal) ease;
+}
+
+/* 老师标尺：常规强调色；切到学生后条形回落、暗知识条转为警示色叙事 */
+.materin-learn-distill__row.is-teacher .materin-learn-distill__bar {
+  background: linear-gradient(90deg, var(--materin-accent), color-mix(in srgb, var(--materin-accent) 55%, transparent));
+}
+
+.materin-learn-distill__row--dark .materin-learn-distill__word { color: var(--materin-text); }
+
+@keyframes materin-learn-distill-bar {
+  from { transform: translateX(-6px) scaleX(0.9); }
+  to { transform: translateX(0) scaleX(1); }
+}
+
+.materin-learn-distill__num {
+  color: var(--materin-text);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.materin-learn-distill__readout {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.materin-learn-distill__who {
+  padding: 4px 14px;
+  border: 1px solid var(--materin-border);
+  border-radius: 999px;
+  color: var(--materin-accent);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.materin-learn-distill.is-student .materin-learn-distill__who {
+  border-color: var(--materin-accent-border);
+  background: var(--materin-accent-soft);
+}
+
+.materin-learn-distill__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+  max-width: 640px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materin-learn-distill__bar { animation: none; transform: none; }
+}
+
+/* 竖版舞台（?stage=1）：distill 放大 */
+.materin-learn-body-day.is-stage .materin-learn-distill { gap: 56px; max-width: 960px; }
+.materin-learn-body-day.is-stage .materin-learn-distill__q { font-size: 30px; }
+.materin-learn-body-day.is-stage .materin-learn-distill__bars { gap: 34px; }
+.materin-learn-body-day.is-stage .materin-learn-distill__row { grid-template-columns: 220px 1fr 150px; gap: 26px; }
+.materin-learn-body-day.is-stage .materin-learn-distill__word { font-size: 34px; }
+.materin-learn-body-day.is-stage .materin-learn-distill__track { height: 48px; border-radius: 14px; }
+.materin-learn-body-day.is-stage .materin-learn-distill__num { font-size: 34px; min-width: 130px; }
+.materin-learn-body-day.is-stage .materin-learn-distill__who { font-size: 28px; padding: 10px 32px; }
+.materin-learn-body-day.is-stage .materin-learn-distill__note { font-size: 28px; max-width: 840px; }

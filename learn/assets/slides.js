@@ -554,6 +554,70 @@
         v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
         v.appendChild(el('div', 'materin-learn-viz__label', '变小有两条路：量化之外，明天讲蒸馏（第 12 天）'));
       }
+    } else if (day.anim && day.anim.tpl === 'distill') {
+      /* 老师软分布 → 学生软分布（静态就位版，is-done 免动画） */
+      if (idx === 0) {
+        var dr = el('div', 'materin-learn-distill is-teacher');
+        var dq = el('div', 'materin-learn-distill__q', t(day.anim.sentence));
+        dr.appendChild(dq);
+        var dpanel = el('div', 'materin-learn-distill__panel');
+        var dbars = el('div', 'materin-learn-distill__bars');
+        day.anim.candidates.forEach(function (w, i) {
+          var row = el('div', 'materin-learn-distill__row is-teacher' +
+            (i === 1 ? ' materin-learn-distill__row--dark' : ''));
+          row.appendChild(el('span', 'materin-learn-distill__word', w));
+          var track = el('div', 'materin-learn-distill__track');
+          var bar = el('div', 'materin-learn-distill__bar');
+          bar.style.width = day.anim.teacher[i] + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-distill__num', day.anim.teacher[i] + '%'));
+          dbars.appendChild(row);
+        });
+        dpanel.appendChild(dbars);
+        dr.appendChild(dpanel);
+        dr.appendChild(el('span', 'materin-learn-distill__who', '老师（软标签）'));
+        dr.appendChild(el('p', 'materin-learn-distill__note', t(day.anim.note)));
+        v.appendChild(dr);
+        v.appendChild(el('div', 'materin-learn-viz__label', '老师的概率表：第二名的 7% 是暗知识'));
+      } else if (idx === 1) {
+        var dbars2 = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '老师 400M 集成', val: 100, cls: '', txt: '错误率 1.4%' },
+          { tag: '学生 40M 从头训', val: 28, cls: ' materin-learn-viz__bar--en', txt: '5%（没有软标签）' },
+          { tag: '学生 40M 蒸馏后', val: 70, cls: '', txt: '2% 以下' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          dbars2.appendChild(row);
+        });
+        v.appendChild(dbars2);
+        v.appendChild(el('div', 'materin-learn-viz__label', 'MNIST 实账：参数缩 10 倍，错误率只多半个点'));
+      } else {
+        var dtwo = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '量化', val: 100, cls: '', txt: '同一个小模型存在哪（压缩存储）' },
+          { tag: '蒸馏', val: 100, cls: ' materin-learn-viz__bar--en', txt: '造一个更强的小模型（重训参数）' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          dtwo.appendChild(row);
+        });
+        v.appendChild(dtwo);
+        v.appendChild(el('div', 'materin-learn-viz__label', '两条「变小」的路：先蒸后量是常见组合'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));
@@ -687,7 +751,7 @@
           });
           return [lo - top, hi - top];
         }
-        for (var fs = 31; fs >= 22; fs -= 1.5) {
+        for (var fs = 31; fs >= 19; fs -= 1.5) {
           parts.forEach(function (e) {
             e.style.fontSize = (e.classList.contains('materin-learn-quote') ? fs - 2 : fs) + 'px';
           });

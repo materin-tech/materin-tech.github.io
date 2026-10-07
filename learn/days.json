@@ -1565,8 +1565,14 @@
           "en": "0.4% of parameters shape the task."
         },
         "blocks": [
-          { "k": "frozen", "n": 99 },
-          { "k": "train", "n": 1 }
+          {
+            "k": "frozen",
+            "n": 99
+          },
+          {
+            "k": "train",
+            "n": 1
+          }
         ],
         "pct": 0.4,
         "note": {
@@ -1717,6 +1723,340 @@
         "coverHook": {
           "zh": "70B 模型：FP16 要 140GB，INT4 只要 35GB——一张卡就能装下。",
           "en": "A 70B model: 140GB in FP16, just 35GB in INT4 — one card fits it."
+        }
+      }
+    },
+    {
+      "n": 12,
+      "stage": 1,
+      "week": 2,
+      "tpl": "distill",
+      "date": "2026-10-06",
+      "title": {
+        "zh": "蒸馏：把大师的手感，抄成小本教材",
+        "en": "Distillation: copying the master's intuition into a pocket textbook"
+      },
+      "subtitle": {
+        "zh": "让小模型不学标准答案，而是学大模型的完整输出分布——那些「7% 可能是 B」的软信息里，藏着老师对相似选项的判断。模型缩小 10 倍，能保住约 95% 的能力，靠的就是这份「暗知识」。",
+        "en": "The small model doesn't learn the right answer — it learns the teacher's full output distribution. The '7% chance it's B' is dark knowledge: how the master sees the near-misses. 10x smaller, ~95% of the ability."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：老师交出的不是答案，是整张概率表",
+            "en": "Mechanism: the teacher hands over a whole probability table, not an answer"
+          },
+          "p": {
+            "zh": "训练小模型最笨的办法是「标注复习」：给它「图片里是 3」这样的标准答案，答案是非黑即白的 one-hot——是 3 就是 1，不是就是 0。Hinton 2015 年的蒸馏走另一条路：先让大模型对同一道题输出完整概率表——「3：90%，8：7%，5：2%，其余合起来 1%」——再让小模型逐类去逼近这张软分布，损失函数用 KL 散度衡量两张表的距离。一张温度 T 调软后的概率表（每个 logit 除以 T 再 softmax，T 越大分布越平缓），把低概率选项之间的相对关系也放大交出来：8 之所以排在第二，是它的形状和 3 有几分像——这就是「暗知识」。",
+            "en": "The laziest way to train a small model is label review: feed it hard one-hot answers — 'it's a 3' means 1 for 3 and 0 for everything else. Hinton's 2015 distillation takes another road: first have the large model output its full probability table for the same question — '3: 90%, 8: 7%, 5: 2%, rest 1%' — then train the small model to match that soft distribution class by class, with KL divergence measuring the distance between tables. A temperature-softened table (divide logits by T, then softmax; higher T = flatter) amplifies the relative order of low-probability options too: 8 ranks second because its shape resembles a 3. That is dark knowledge."
+          },
+          "deep": {
+            "zh": "为什么软标签比硬标签值钱？一个标注只给 1 bit 信息（对/错），一张 10 类的概率表在 T 调软后每一项都是有效的监督信号——同等数据量下小模型每道题学到的「梯度地形」细腻得多。更深一层：概率表其实是老师对「类间相似度结构」的一次前向编码，小模型等于免费拿到了一张「8 长得像 3、1 和 7 容易混」的相似度地图，而这本来要靠它自己千锤百炼才能摸索出来。工程上常用「软硬混着教」：损失 = KL(软标签) × T² + 交叉熵(硬标签)，前者传结构，后者锚事实，两者权重是蒸馏最重要的超参数。",
+            "en": "Why are soft labels worth more than hard ones? A label carries 1 bit — right or wrong — while a softened 10-class table turns every entry into a live supervision signal, so per question the small model gets a far richer gradient landscape for the same data. Deeper: the probability table is a forward-encoded map of the teacher's inter-class similarity structure — the small model effectively gets for free the knowledge that '8 looks like 3, 1 and 7 get confused', which it would otherwise need long training to discover. In practice you mix both: loss = KL(soft) × T² + cross-entropy(hard), the former carrying structure, the latter anchoring facts; the mix weight is the single most important distillation hyperparameter."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "数字手写体是经典教学例：一个 400M 参数的集成大模型在 MNIST 上测试错误率约 1.4%，单独一个 40M 小模型从头训是 5% 左右；用大模型的软标签蒸馏，同样 40M 直接降到 2% 以下——参数缩 10 倍，错误率却只比老师多半个点。放到语言模型上规律一致：把 70B 老师的输出拿来教 7B 学生（有监督微调 + 软标签损失），在常规任务上学生能保住老师 90%～95% 的能力，代价只是 10 倍的推理显存差距从 140GB 降到 14GB（第 11 天的账在这里继续算）。",
+              "en": "The classic teaching example is digits: a 400M-parameter ensemble hits ~1.4% error on MNIST, while a lone 40M model trained from scratch sits near 5%; distilled from the ensemble's soft labels, the same 40M drops below 2% — 10x fewer parameters, barely half a point worse than the teacher. Language models follow the same law: teach a 7B student from a 70B teacher's outputs (SFT + soft-label loss) and it keeps 90–95% of the teacher's ability on ordinary tasks — while the day-11 memory bill shrinks from 140GB to 14GB."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「蒸馏就是把大模型的答案抄一遍」——不对。只抄硬答案那叫数据标注增强，跟蒸馏的核心收益无关；蒸馏的价值恰恰在软标签里那些「错误选项」的概率排序。另一个常见误判：「学生学会了就能超过老师」——常规蒸馏不会。学生学到的是老师在自家输出分布上的投影，投影不会比原像多信息；学生偶尔在某个基准上超过老师，多半是数据增强或去噪带来的，不是蒸馏本身变出了新知识。真正的自我超越（如 2019 年 Google 的 born-again network 实验）靠的是蒸馏过程附带的正则化效果，幅度有限。",
+              "en": "'Distillation just copies the teacher's answers' — no. Copying hard answers is merely label augmentation; the payoff lives in the ranking of the wrong options inside soft labels. Another misread: 'the student can surpass the teacher.' Vanilla distillation can't — the student learns a projection of the teacher's distribution, and a projection carries no more information than the original. When a student beats its teacher on a benchmark, it's usually the augmentation or denoising side effects, not new knowledge distilled. Genuine self-improvement (Google's born-again networks, 2019) comes from the regularizing effect of the process itself, and it is modest."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：温度 T 怎么改写一张概率表",
+            "en": "The math: how temperature T rewrites a probability table"
+          },
+          "p": {
+            "zh": "同一道题老师给出的 logit 是 [4.0, 2.0, 1.0]（三个候选）。T=1 时 softmax 给出 [88%, 11%, 1.4%]——「8 长得像 3」这层信息只剩 11%，还容易被当成噪声；把 T 升到 4，三个 logit 除以 4 变 [1.0, 0.5, 0.25]，softmax 给出 [42%, 26%, 20%]——低概率项之间的比例被摊开放大，第二、三名哪个更接近正确答案，一眼可见。这就是蒸馏时要用 T>1 的原因：不是改答案，是把老师「犹豫的形状」放大到小模型看得清的尺度。极端情况 T→∞ 所有选项等概率（结构信息归零），T→0 退化成 one-hot（回到硬标签），T 是「暗知识亮度」的旋钮。",
+            "en": "Same question, teacher logits [4.0, 2.0, 1.0]. At T=1 softmax gives [88%, 11%, 1.4%] — the '8 resembles 3' signal is a sliver of 11%, easy to dismiss as noise. Raise T to 4: the logits become [1.0, 0.5, 0.25] and softmax gives [42%, 26%, 20%] — the ratios among low-probability options spread out and become visible. That's why distillation uses T>1: not to change the answer, but to magnify the shape of the teacher's hesitation to a scale the student can see. Extremes: T→∞ makes everything uniform (structure gone), T→0 collapses to one-hot (hard labels again). T is the dimmer switch for dark knowledge."
+          },
+          "deep": {
+            "zh": "为什么 T² 要乘进损失里？softmax 对 logits 除以 T 后，梯度天然缩小约 1/T² 倍——T=4 时软标签的梯度只有原来的十六分之一，如果损失里不乘回 T²，软硬两项的权重就名存实亡：T 一调大，蒸馏项实际上被静音了。这个不起眼的平方因子是 Hinton 论文里最容易被抄漏、又最影响复现结果的一处——很多「蒸馏没效果」的复现报告，问题就出在这里。",
+            "en": "Why multiply the loss by T²? After dividing logits by T, softmax gradients shrink roughly 1/T² — at T=4 the soft term's gradient is one-sixteenth of normal, and without the T² factor the stated soft/hard weighting is fiction: cranking T silently mutes distillation. This unassuming square is the most-skipped detail of Hinton's paper and a frequent culprit when reproductions report 'no effect'."
+          },
+          "example": {
+            "h": {
+              "zh": "业界实践",
+              "en": "Industry practice"
+            },
+            "p": {
+              "zh": "开源生态里蒸馏随处可见：不少知名小模型（如多个 7B～14B 档的对话模型）的训练数据里都掺了大比例的「教师模型生成 + 人类筛选」的 CoT 数据——DeepSeek-R1 发布后一周内，社区用其 671B 推理模型的 80 万条推理轨迹微调出多个小模型，数学基准提升显著，这是「抄手感」规模化后的样子。代价也真实存在：学生的能力上限被老师的输出分布封顶，老师不会的题，软标签里不会有答案。",
+              "en": "Distillation is everywhere in open source: many well-known 7B–14B chat models train on a large share of teacher-generated, human-filtered CoT data. Within a week of DeepSeek-R1's release, the community fine-tuned several small models on 800k reasoning traces from its 671B model, with marked math-benchmark gains — that's 'copying the intuition' at industrial scale. The ceiling is real too: the student is capped by the teacher's output distribution; what the teacher can't do, no soft label contains."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "和量化怎么选",
+              "en": "Distillation vs quantization"
+            },
+            "p": {
+              "zh": "两条「变小」的路解决不同的问题：量化是「同一个小模型存在哪」——压缩已有权重的存储，能力上限不变；蒸馏是「造一个更强的小模型」——重训参数本身，能力上限被老师拉高。顺序通常也相反：先蒸馏出 7B 学生，再对它做 INT4 量化上线（7B×0.5 字节 ≈ 3.5GB，手机都装得下）。两者不冲突，是流水线的上下游。",
+              "en": "The two shrinking roads solve different problems: quantization asks 'where does this model live' — it compresses existing weights, ceiling unchanged; distillation asks 'can we build a stronger small model' — it retrains the parameters themselves, ceiling raised by the teacher. The order usually runs: distill a 7B student first, then INT4-quantize it for deployment (7B × 0.5 bytes ≈ 3.5GB — fits on a phone). They don't compete; they're upstream and downstream of one pipeline."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：蒸馏是「领域化」的第一块积木",
+            "en": "Extension: distillation is the first brick of domainization"
+          },
+          "p": {
+            "zh": "第 10 天的 LoRA 解决「在不动底座的前提下塑口音」，蒸馏解决「让小模型继承大模型的手感」，第 12 天之后它们会合流：第 141 天（第 6 阶段）讲领域化落地时，标准做法就是把通用大模型在领域任务上的推理过程蒸馏成中模型，再用 LoRA 微调，最后量化部署——三件工具各管一段。而蒸馏最核心的资产——带结构的软监督信号——会以另一种形式在第 2 阶段重现：给模型的示例（few-shot）本质上也是人类写给模型的「软标签」。",
+            "en": "Day 10's LoRA shapes the accent without touching the base; distillation lets a small model inherit a large model's intuition; after today they converge: in stage 6 (day 141) the standard domain playbook is exactly distill a general giant's reasoning into a mid-size model, LoRA-tune it, then quantize for deployment — three tools, three segments of one pipeline. And distillation's core asset — structured soft supervision — reappears in stage 2 in another form: few-shot examples are essentially soft labels written by humans."
+          },
+          "deep": null,
+          "example": null,
+          "misconception": null
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "打开任意能调温度参数的对话模型（OpenAI Playground、Ollama + openai 兼容端点均可），把同一个「略有两可」的问题分别用 T=0.2 和 T=2.0 各问 3 遍，把 6 份回答里「最优选项的选中率」和「第二选项的表达完整度」记成一张 2×2 表。回答两个问题：① T=2.0 时低概率选项为什么反而说得更完整？（提示：温度改变的是采样分布的形状，不是模型的知识——「犹豫的形状」本来就是暗知识。）② 如果你要给一个小模型造蒸馏数据，会选哪个温度？为什么极端值都不合适？（提示：T→0 变 one-hot，T→∞ 变均匀噪声。）",
+          "en": "Open any chat model with a temperature control (OpenAI Playground, or Ollama with an OpenAI-compatible endpoint). Ask the same slightly-ambiguous question 3 times at T=0.2 and 3 times at T=2.0, and tabulate: how often the best option wins, and how fully the second-best option gets expressed. Then answer: ① Why do low-probability options read more complete at T=2.0? (Hint: temperature reshapes the sampling distribution, not the model's knowledge — the shape of hesitation IS dark knowledge.) ② Which temperature would you pick to generate distillation data, and why do both extremes fail? (Hint: T→0 gives one-hot, T→∞ gives uniform noise.)"
+        }
+      },
+      "takeaway": {
+        "zh": "大模型的价值不止答案，还有它对错误的排序——蒸馏抄的是犹豫的形状，不是答案的正文。",
+        "en": "A big model's value isn't just answers but how it ranks its errors — distillation copies the shape of hesitation, not the answer text."
+      },
+      "anim": {
+        "tpl": "distill",
+        "hook": {
+          "zh": "同一个数字，老师的概率表是 [90%, 7%, 2%]——第二名的 7% 里藏着「暗知识」。",
+          "en": "Same digit, the teacher's table reads [90%, 7%, 2%] — the 7% runner-up carries dark knowledge."
+        },
+        "sentence": {
+          "zh": "手写数字识别：这是 3 吗？",
+          "en": "Handwritten digit: is this a 3?"
+        },
+        "teacher": [
+          90,
+          7,
+          2
+        ],
+        "student": [
+          55,
+          25,
+          14
+        ],
+        "candidates": [
+          "3",
+          "8",
+          "5"
+        ],
+        "note": {
+          "zh": "老师→学生：软标签把「8 与 3 相似」的结构一并传下去；学生自己学只能拿到硬答案。",
+          "en": "Teacher→student: soft labels pass down the '8 resembles 3' structure; from scratch the student only gets hard answers."
+        },
+        "coverHook": {
+          "zh": "参数砍掉 90%，错误率只涨 0.6 个点——靠的是抄下老师「犹豫的形状」。",
+          "en": "90% fewer parameters, only +0.6 points of error — by copying the shape of the teacher's hesitation."
+        }
+      }
+    },
+    {
+      "n": 13,
+      "stage": 1,
+      "week": 2,
+      "tpl": "similarity",
+      "date": "2026-10-07",
+      "title": {
+        "zh": "向量检索：按意思找，不是按字面找",
+        "en": "Vector retrieval: finding by meaning, not by spelling"
+      },
+      "subtitle": {
+        "zh": "第 2 天说过词住在坐标系里——检索就是把你的问题也变成坐标，然后在几十亿个坐标里找最近的邻居。余弦相似度量的是夹角不是距离：意思相近的句子即使字面零重叠，也能被捞出来。",
+        "en": "Day 2 showed words living in coordinate space — retrieval turns your question into coordinates too, then finds nearest neighbors among billions. Cosine similarity measures angle, not distance: sentences with zero word overlap still surface if they mean the same thing."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：余弦相似度——量夹角，不量远近",
+            "en": "Mechanism: cosine similarity — measure the angle, not the distance"
+          },
+          "p": {
+            "zh": "把一段文字交给嵌入模型（embedding model），输出一个固定长度的向量——现代模型常用 768～3072 维，每个维度都是语义空间的坐标。检索分两步：入库时，每篇文档先切块（chunk，通常 200～500 token）再各自算向量存进向量库；查询时，问题本身也算一个向量，然后和库里每一个向量算相似度，取最高的几条。相似度最常用余弦：两个向量的点积除以各自长度，只看方向夹角不看模长——「退货政策」和「退款规则」字面零重叠，但向量方向几乎一致，cos ≈ 0.9；而「退货政策」和「苹果发布会」方向垂直，cos ≈ 0.1。检索的本质：把「语义相近」翻译成「方向相近」。",
+            "en": "Feed text to an embedding model and it outputs a fixed-length vector — typically 768 to 3072 dimensions in modern models, each coordinate a position in semantic space. Retrieval runs in two phases: at ingest, documents are split into chunks (usually 200–500 tokens) and each chunk gets its own vector stored in a vector database; at query time, the question is embedded too, compared against every stored vector, and the top matches returned. The standard metric is cosine: dot product divided by both magnitudes — angle only, length ignored. 'Return policy' and 'refund rules' share zero words yet nearly the same direction, cos ≈ 0.9; 'return policy' vs 'apple launch event' is near-orthogonal, cos ≈ 0.1. Retrieval is just 'similar meaning' translated into 'similar direction'."
+          },
+          "deep": {
+            "zh": "为什么用余弦而不是欧氏距离？因为嵌入向量常常归一化到单位长度，此时余弦和欧氏距离一一对应（cos = 1 − d²/2），选哪个本是口味；余弦胜在「对模长不敏感」——一段 3 个字的短语和一篇 500 字的长文，语义强度不该由文字量决定，夹角天然剔除这个因素。真正的坑在「相似度分数不可跨模型比较」：cos 0.75 在 A 模型里是强相关，在 B 模型里可能只是泛泛相关，不同模型的向量根本不在同一个空间里——同一个系统从头到尾必须用同一个嵌入模型，换了模型，全库向量要全部重算。还有一块在工程上占比极大：ANN 近似最近邻索引（HNSW、IVF 等），几十亿向量不可能逐一算余弦，索引用图或聚类的办法把候选集从 10 亿缩到几千，牺牲一点点召回率换一千倍速度。",
+            "en": "Why cosine over Euclidean distance? Embedding vectors are usually normalized to unit length, where cosine and Euclidean map one-to-one (cos = 1 − d²/2) — either works. Cosine wins on length-insensitivity: a 3-word phrase and a 500-word essay shouldn't rank by word count, and the angle ignores that naturally. The real trap: similarity scores aren't comparable across models — cos 0.75 may be 'strongly related' in model A but merely 'loosely related' in model B; different models live in different spaces. One system, one embedding model, end to end — swap models and you recompute every vector in the store. And a huge engineering slice is ANN indexing (HNSW, IVF): you can't scan billions of vectors one by one, so graph or cluster indexes shrink candidates from a billion to a few thousand, trading a sliver of recall for a thousand-fold speedup."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "一个 5000 页的企业知识库，按每页约 600 token 切成 400-token 块：约 300 万 token ÷ 400 ≈ 7500 个块，每块一个 1024 维向量，每维 4 字节 → 7500 × 4KB ≈ 30MB——存储小到可以忽略，检索才是大头。查询延迟：精确扫描 7500 条向量 ≈ 7500 次点积，普通 CPU 也就几毫秒；到 10 亿块（≈4TB 向量）就必须上 ANN 索引，HNSW 单机查询能做到 1～10ms，代价是召回率约 95%～99%。嵌入 API 的账：7500 块 × 约 400 token ≈ 300 万 token，按主流嵌入模型价格（约 $0.02/百万 token）≈ $0.06，一次全库重建不到一毛钱。",
+              "en": "A 5,000-page corporate knowledge base, chunked at 400 tokens (about 600 per page): ~3M tokens ÷ 400 ≈ 7,500 chunks, one 1024-dim vector each at 4 bytes/dim → 7,500 × 4KB ≈ 30MB — storage is negligible; retrieval is the real cost. Query latency: exact scan of 7,500 vectors ≈ 7,500 dot products, a few milliseconds on an ordinary CPU. At a billion chunks (≈4TB of vectors) you need ANN: HNSW answers in 1–10ms on one machine, at ~95–99% recall. Embedding API cost: 3M tokens at ~$0.02/M ≈ $0.06 — a full rebuild costs less than a dime."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「相似度高 = 答案对」——这是向量检索最常见的幻觉来源。余弦量的是「话题方向一致」，不保证「内容正确」：问「2024 年的退货政策」，库里 2021 年的旧政策向量方向几乎相同，稳居榜首——语义检索对「过时」和「错版」完全不设防，这正是第 85 天 RAG 要加时间戳过滤和重排的原因。第二个误区：「向量越大越准」——1536 维换 3072 维多数场景提升不到 1%，存储和延迟却翻倍；维度收益递减极快，选模型看的是你的领域基准，不是维度表。",
+              "en": "'High similarity = correct answer' is the most common hallucination source in vector retrieval. Cosine measures aligned topics, not verified content: ask for the 2024 return policy and the 2021 version — nearly identical direction — sits at the top. Semantic search has no defense against staleness; that's why day-85 RAG adds timestamp filters and re-ranking. Second trap: 'more dimensions = more accurate.' Going 1536 → 3072 dims buys under 1% in most cases while doubling storage and latency; returns on dimensionality collapse fast. Pick a model by your domain benchmark, not the dimension table."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "为什么是这样：检索解决的是「窗口装不下」",
+            "en": "Why: retrieval exists because the window can't hold everything"
+          },
+          "p": {
+            "zh": "第 4 天算过窗口经济学的账：128K 窗口装一份 400 页 PDF 已经勉强，装整个企业知识库是天方夜谭——30 万页 ≈ 1.8 亿 token，塞进去一次要花数百美元，而且中段内容模型还记不住（lost in the middle）。向量检索是这套矛盾的标准解法：全库存外面，每次只把「方向最近」的几块（top-k，通常 3～10 块，约 2000～5000 token）请进窗口。成本从「每次数百美元」变成「每次几美分」，且进窗口的每块都是相关内容——窗口的每一格都花在刀刃上。这套「先检索、后生成」的流程叫 RAG（检索增强生成），第 13 天先把「检索」这一半讲透。",
+            "en": "Day 4 ran the numbers: a 128K window barely holds one 400-page PDF — a 300,000-page knowledge base is ~180M tokens, hundreds of dollars per stuffing, and the model forgets the middle anyway (lost in the middle). Vector retrieval is the standard answer to that contradiction: keep everything outside, invite only the nearest-direction chunks into the window each time (top-k, typically 3–10 chunks, ~2,000–5,000 tokens). Cost drops from hundreds of dollars to a few cents, and every chunk that enters is relevant — every window slot spent well. This retrieve-then-generate flow is called RAG; today nails the retrieval half."
+          },
+          "deep": {
+            "zh": "为什么「找相似」能做到「找答案」？因为嵌入模型在海量对比学习数据上训练过：它见过亿万个「这句话回答了那个问题」的配对，问题向量和答案向量在它的空间里被刻意拉近——「方向相近」才有了「语义相关」的资格。这也是为什么通用嵌入模型在专业领域会失灵：医学缩写、法条编号这类「圈内黑话」在训练语料里稀疏，方向判断随之失准——领域化微调嵌入模型（或换领域模型）是 RAG 落地最常见的隐形工程量。",
+            "en": "Why can 'find similar' perform 'find answers'? Because embedding models are trained on massive contrastive data — billions of 'this passage answers that question' pairs that pull question and answer vectors together by construction. That's what earns 'nearby direction' the right to mean 'semantically relevant'. It's also why general embedders fail in specialist domains: medical abbreviations and statute numbers are sparse in training corpora, so directions go unreliable — fine-tuning or swapping in a domain embedder is the most common hidden engineering cost of RAG."
+          },
+          "example": {
+            "h": {
+              "zh": "一个最小实验",
+              "en": "A minimal experiment"
+            },
+            "p": {
+              "zh": "把三句话各算一次嵌入：A「如何申请年假？」、B「年假的申请流程是什么？」、C「怎么烤面包？」——A·B 的余弦通常在 0.85 以上，A·C 在 0.2 以下。把 top-k 设为 1，向量检索在 A、B、C 里查「请假规定」时会稳稳选中 B——字面上 B 和查询只有「假」字重叠，方向却最接近。这个 5 分钟实验是理解 RAG 第一原理的捷径：检索质量的上限由嵌入模型决定，生成质量的上限由窗口里那几块决定。",
+              "en": "Embed three sentences: A 'How do I apply for annual leave?', B 'What's the process for requesting annual leave?', C 'How do I bake bread?' — cos(A,B) usually lands above 0.85, cos(A,C) below 0.2. With top-k=1, a vector search for 'leave policy' over A/B/C reliably picks B, even though B shares almost no literal words with the query — the directions are closest. This 5-minute experiment is the fastest way to grasp RAG's first principle: retrieval quality is capped by the embedder, generation quality by what enters the window."
+            }
+          },
+          "misconception": null
+        },
+        {
+          "h": {
+            "zh": "延伸：从这里通向 RAG",
+            "en": "Extension: the road from here to RAG"
+          },
+          "p": {
+            "zh": "今天讲的向量检索是 RAG 的第一块积木，但完整系统还有三块会在后面补齐：① 混合检索（关键词 BM25 + 向量两路召回再合并）——专有名词、编号这类「精确匹配」场景向量会输给关键词，第 85 天讲；② 重排（rerank）——粗筛的 top-20 交给交叉编码器精排出 top-3，把准确率再抬一截，第 86 天讲；③ 评估——检索错了后面全错，命中率怎么量、怎么建评测集，第 88 天讲。另外今天是第 1 阶段的第 13 天：再过两天（第 15 天）第 1 阶段收尾，将把前两周的十几个概念串成一张完整的地图。",
+            "en": "Today's vector retrieval is RAG's first brick; three more come later: ① hybrid retrieval (BM25 keywords + vectors, merged) — for exact matches like proper nouns and IDs where keywords beat vectors, day 85; ② re-ranking — a cross-encoder refines the top-20 into top-3, day 86; ③ evaluation — when retrieval fails everything downstream fails, day 88. Also: today is day 13 of stage 1 — two days out (day 15), stage 1 closes by weaving these two weeks of concepts into one complete map."
+          },
+          "deep": null,
+          "example": null,
+          "misconception": null
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "找一个免费嵌入 API（或本地跑 sentence-transformers），把下面 5 句话全部转向量：①「如何申请年假」②「年假的申请流程」③「怎么烤面包」④「请假要提前几天说」⑤「2021 年退货政策」。手工算每句与其余 4 句的余弦相似度（代码 10 行以内），列成 5×5 表。回答三个问题：① 哪一对最相似？为什么不是字面重叠最多的那对？（提示：看方向。）② 「请假要提前几天说」和「如何申请年假」的分数说明什么？（提示：话题同、意图近，检索会把它们当近邻。）③ 如果这是公司知识库，「2021 年退货政策」排第一会发生什么？（提示：今天讲的误区。）",
+          "en": "Grab a free embedding API (or run sentence-transformers locally) and vectorize these 5 sentences: ① 'How do I apply for annual leave' ② 'The process for requesting annual leave' ③ 'How to bake bread' ④ 'How many days' notice for leave' ⑤ 'The 2021 return policy'. Compute cosine similarity for every pair (under 10 lines of code) into a 5×5 table. Then answer: ① Which pair is most similar — and why isn't it the pair with the most literal overlap? (Hint: directions.) ② What does the score between ④ and ① tell you? (Hint: same topic, near intent — retrieval treats them as neighbors.) ③ If this were a company knowledge base, what happens when ⑤ ranks first? (Hint: today's misconception.)"
+        }
+      },
+      "takeaway": {
+        "zh": "检索的翻译官是嵌入模型：把「意思相近」变成「方向相近」——量的是夹角，防的是字面，防不了过时。",
+        "en": "The embedder is retrieval's translator: 'similar meaning' becomes 'similar direction' — angle beats spelling, but nothing beats staleness."
+      },
+      "anim": {
+        "tpl": "similarity",
+        "hook": {
+          "zh": "「退货政策」和「退款规则」字面零重叠，余弦相似度却高达 0.9——按意思找，不按字面找。",
+          "en": "'Return policy' and 'refund rules' share zero words yet score cos 0.9 — search by meaning, not spelling."
+        },
+        "sentence": {
+          "zh": "在 30 万页知识库里找：公司的退款规则是什么？",
+          "en": "Searching 300k pages: what is the company's refund policy?"
+        },
+        "points": [
+          {
+            "w": "退货政策",
+            "en": "return policy",
+            "x": 30,
+            "y": 28
+          },
+          {
+            "w": "退款规则",
+            "en": "refund rules",
+            "x": 38,
+            "y": 33
+          },
+          {
+            "w": "退款申请流程",
+            "en": "refund process",
+            "x": 45,
+            "y": 40
+          },
+          {
+            "w": "发票制度",
+            "en": "invoice policy",
+            "x": 62,
+            "y": 62
+          },
+          {
+            "w": "报销标准",
+            "en": "expense standards",
+            "x": 70,
+            "y": 70
+          },
+          {
+            "w": "苹果发布会",
+            "en": "apple launch event",
+            "x": 86,
+            "y": 30
+          },
+          {
+            "w": "新品定价",
+            "en": "product pricing",
+            "x": 78,
+            "y": 18
+          }
+        ],
+        "pairs": [
+          {
+            "a": "退货政策",
+            "b": "退款规则",
+            "sim": 0.91
+          },
+          {
+            "a": "退货政策",
+            "b": "退款申请流程",
+            "sim": 0.84
+          },
+          {
+            "a": "退货政策",
+            "b": "报销标准",
+            "sim": 0.52
+          },
+          {
+            "a": "退货政策",
+            "b": "苹果发布会",
+            "sim": 0.11
+          }
+        ],
+        "note": {
+          "zh": "查「退货政策」：余弦按方向排序——零字面重叠的「退款规则」排第一，垂直方向的「苹果发布会」垫底。",
+          "en": "Query 'return policy': cosine ranks by direction — 'refund rules' with zero word overlap takes #1, orthogonal 'apple launch event' lands last."
+        },
+        "coverHook": {
+          "zh": "30 万页文档检索只要几毫秒——因为「意思相近」被翻译成了「方向相近」，算一个夹角就够了。",
+          "en": "300k pages searched in milliseconds — 'similar meaning' becomes 'similar direction', and one angle decides."
         }
       }
     }

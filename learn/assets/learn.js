@@ -773,6 +773,70 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* distill：老师的软分布 → 学生的软分布（第 12 天）。三根候选条在老师/学生
+       两个标尺间过渡，第二条（runner-up）是暗知识的主角，循环重播。
+       入场只动 transform，不依赖 opacity（导出/采样不会停在透明第一帧）。 */
+    distill: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-distill');
+      var qline = el('div', 'materin-learn-distill__q', t(a.sentence));
+      var panel = el('div', 'materin-learn-distill__panel');
+      var barsBox = el('div', 'materin-learn-distill__bars');
+      var readout = el('div', 'materin-learn-distill__readout');
+      var who = el('span', 'materin-learn-distill__who',
+        lang() === 'en' ? 'teacher (soft labels)' : '老师（软标签）');
+      var note = el('p', 'materin-learn-distill__note', t(a.note));
+
+      var rows = a.candidates.map(function (w, i) {
+        var row = el('div', 'materin-learn-distill__row' +
+          (i === 1 ? ' materin-learn-distill__row--dark' : ''));
+        row.appendChild(el('span', 'materin-learn-distill__word', w));
+        var track = el('div', 'materin-learn-distill__track');
+        var bar = el('div', 'materin-learn-distill__bar');
+        bar.style.animationDelay = (0.2 + i * 0.16) + 's';
+        track.appendChild(bar);
+        row.appendChild(track);
+        var num = el('span', 'materin-learn-distill__num', '0%');
+        row.appendChild(num);
+        barsBox.appendChild(row);
+        return { bar: bar, num: num, row: row };
+      });
+
+      var t0 = null;
+      var DUR = 5200, HOLD = 1600, CYCLE = DUR + HOLD;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        var t01 = Math.min(tNow / DUR, 1);
+        /* 前半程落在老师分布，后半程滑向学生分布；p=0→1 是老师→学生的进度 */
+        var p = t01 < 0.5 ? Math.min(t01 / 0.5, 1) : 1;
+        var eased = 1 - Math.pow(1 - p, 3);
+        var isTeacher = t01 < 0.5;
+        rows.forEach(function (r, i) {
+          var from = a.teacher[i], to = a.student[i];
+          var v = from + (to - from) * eased;
+          r.bar.style.setProperty('--distill-w', (v / 100 * 100) + '%');
+          r.bar.style.width = v + '%';
+          r.num.textContent = Math.round(v) + '%';
+          r.row.classList.toggle('is-teacher', isTeacher);
+        });
+        who.textContent = isTeacher
+          ? (lang() === 'en' ? 'teacher (soft labels)' : '老师（软标签）')
+          : (lang() === 'en' ? 'student (learning the table)' : '学生（学这张表）');
+        wrap.classList.toggle('is-student', !isTeacher);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      panel.appendChild(barsBox);
+      panel.appendChild(readout);
+      readout.appendChild(who);
+      wrap.appendChild(qline);
+      wrap.appendChild(panel);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 
