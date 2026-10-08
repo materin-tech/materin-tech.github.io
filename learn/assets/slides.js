@@ -618,6 +618,76 @@
         v.appendChild(dtwo);
         v.appendChild(el('div', 'materin-learn-viz__label', '两条「变小」的路：先蒸后量是常见组合'));
       }
+    } else if (day.anim && day.anim.tpl === 'kvcache') {
+      if (idx === 0) {
+        /* 与动效页同一套两行缓存格：提示词整行就位 + 生成行静态全亮（is-in 免动画） */
+        var kv = el('div', 'materin-learn-kv');
+        var kvTagP = el('div', 'materin-learn-kv__tag', '提示词 K/V（预填充，一次算好）');
+        var kvPrompt = el('div', 'materin-learn-kv__row materin-learn-kv__row--prompt');
+        for (var p = 0; p < (day.anim.promptN || 12); p++) {
+          kvPrompt.appendChild(el('div', 'materin-learn-kv__cell materin-learn-kv__cell--prompt'));
+        }
+        var kvTagG = el('div', 'materin-learn-kv__tag', '生成 K/V（每词追加 1 格）');
+        var kvGen = el('div', 'materin-learn-kv__row materin-learn-kv__row--gen');
+        for (var q = 0; q < (day.anim.genN || 6); q++) {
+          kvGen.appendChild(el('div', 'materin-learn-kv__cell materin-learn-kv__cell--gen is-in'));
+        }
+        kv.appendChild(kvTagP);
+        kv.appendChild(kvPrompt);
+        kv.appendChild(kvTagG);
+        kv.appendChild(kvGen);
+        /* 静态读数行：填满右侧板并呼应「显存换时间」的叙事 */
+        var kvRead = el('div', 'materin-learn-kv__readout');
+        kvRead.appendChild(el('span', 'materin-learn-kv__step', '预填充 1 次 + 逐词追加'));
+        kvRead.appendChild(el('span', 'materin-learn-kv__cached', String((day.anim.promptN || 12) + (day.anim.genN || 6))));
+        kvRead.appendChild(el('span', 'materin-learn-kv__cached-label', '格 K/V 已缓存'));
+        kv.appendChild(kvRead);
+        var kvRedo = el('div', 'materin-learn-kv__redo');
+        kvRedo.appendChild(el('span', 'materin-learn-kv__redo-num', String((day.anim.promptN || 12) + (day.anim.genN || 6) - 1)));
+        kvRedo.appendChild(el('span', 'materin-learn-kv__redo-label', '格要重算（若无缓存）'));
+        kv.appendChild(kvRedo);
+        v.appendChild(kv);
+        v.appendChild(el('div', 'materin-learn-viz__label', '预填充一次建好缓存，之后每生成一词只追加一格'));
+      } else if (idx === 1) {
+        var kbars = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '8K 窗口', val: 6, cls: '', txt: '≈4GB 缓存' },
+          { tag: '128K 满窗', val: 100, cls: ' materin-learn-viz__bar--en', txt: '≈64GB（权重 14GB 的 4 倍）' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          kbars.appendChild(row);
+        });
+        v.appendChild(kbars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '7B 模型 FP16 的 KV cache 显存账（每 token ≈0.5MB）'));
+      } else if (idx === 2) {
+        var kbars2 = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '前缀全价', val: 100, cls: '', txt: '300 万 token/天' },
+          { tag: '前缀命中', val: 10, cls: ' materin-learn-viz__bar--en', txt: '≈30 万等效（约 1/10）' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          kbars2.appendChild(row);
+        });
+        v.appendChild(kbars2);
+        v.appendChild(el('div', 'materin-learn-viz__label', '客服机器人 3000-token 固定前缀 × 1000 轮：排版一条规则，成本降 90%'));
+      } else {
+        v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
+        v.appendChild(el('div', 'materin-learn-viz__label', '窗口经济学第二轴：token 复用了几次（第 4 天）'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

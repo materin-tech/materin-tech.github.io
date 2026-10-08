@@ -2059,6 +2059,139 @@
           "en": "300k pages searched in milliseconds — 'similar meaning' becomes 'similar direction', and one angle decides."
         }
       }
+    },
+    {
+      "n": 14,
+      "stage": 1,
+      "week": 2,
+      "tpl": "kvcache",
+      "date": "2026-10-08",
+      "title": {
+        "zh": "KV Cache：算过的注意力，不再算第二遍",
+        "en": "KV cache: attention computed once, never recomputed"
+      },
+      "subtitle": {
+        "zh": "第 6 天讲过，生成每个新词前注意力都要回看全句——但历史 token 的 K/V 永远不变。推理引擎把它们存进 KV cache：提示词的缓存一次算好，之后每生成一个词只追加一格。缓存是「用显存换时间」的标准交易，也是长上下文和 API 缓存折扣背后真正的账本。",
+        "en": "Day 6 showed attention re-reading the whole context before every new word — yet history's K/V never change. The engine stores them in a KV cache: the prompt's cache is built once at prefill, and each new word only appends one slot. Memory buys back quadratic recompute — and it is the real ledger behind long contexts and API cache discounts."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：注意力可以只算一次——算完就存",
+            "en": "Mechanism: attention can be computed once — then stored"
+          },
+          "p": {
+            "zh": "第 6 天讲过：生成每个新 token，注意力都要回看前面所有 token 的 K、V（键与值）。关键观察是：历史 token 的 K/V 永远不变——第 3 轮对话里第 1 句话的 K/V，和第 1 轮时算出来的一模一样。推理引擎于是把它们存进 KV cache：提示词进来时一次性并行算好全部 token 的 K/V（预填充，prefill），之后每生成一个词，只计算新词自己的那一组 K/V 追加进缓存，注意力直接读现成的历史 K/V——生成第 1000 个词时，前 999 个词的注意力一个都不用重算。",
+            "en": "Day 6 showed that generating each token makes attention look back at every earlier token's K and V (keys and values). The key observation: those K/V values never change — the first sentence's K/V in turn 3 is bit-identical to what was computed in turn 1. So the inference engine stores them in a KV cache: when the prompt arrives, all its tokens' K/V are computed once, in parallel (prefill); afterwards each generated word only computes its own single K/V and appends it, while attention reads the ready-made history — generating word 1000 recomputes nothing about the previous 999."
+          },
+          "deep": {
+            "zh": "缓存大小是道乘法题：2（K 和 V）× 层数 × KV 头数 × 头维度 × 序列长度 × 每数字节。以 7B 模型为例（32 层、4096 隐藏维、FP16）：每个 token 的缓存 ≈ 2 × 32 × 4096 × 2B ≈ 0.5MB——8K 上下文就是约 4GB。为什么值得：不缓存的话，每生成一个词都要对全部历史重做 K/V 投影，第 N 个词的成本正比于 N，整段生成是平方级的重复计算；缓存后每步只算 1 个新 token，成本变线性——用一块随上下文线性增长的显存，砍掉了平方级的重复劳动。",
+            "en": "Cache size is a multiplication: 2 (K and V) × layers × KV heads × head dim × sequence length × bytes per number. For a 7B model (32 layers, 4096 hidden, FP16): ~2 × 32 × 4096 × 2B ≈ 0.5MB per token — an 8K context is ≈ 4GB. Why it's worth it: without caching, every new word redoes K/V projections for the whole history — word N costs proportional to N, quadratic recompute overall; with caching each step computes one new token, linear — a linearly growing slab of memory deletes quadratically repeated work."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "7B 模型、FP16：每 token 缓存约 0.5MB。8K 上下文 → 4GB；128K 满窗 → 约 64GB，是模型权重（约 14GB）的 4 倍多——这就是「长上下文版」更贵、并发更低的直接原因：一张卡能同时服务几路对话 =（显存 − 权重）÷ 每路缓存。速度账：预填充 8K 提示词要一口气算 8192 个 token 的 K/V（首 token 延迟 1～3 秒），之后每个词只追加 1 格，稳定在几十毫秒——贵一次，然后一路便宜。",
+              "en": "7B model, FP16: ≈0.5MB of cache per token. An 8K context → 4GB; a full 128K window → ≈64GB, four times the weights (≈14GB) — the direct reason 'long-context' tiers cost more and serve fewer parallel users: conversations per GPU = (VRAM − weights) ÷ cache per conversation. Speed: prefilling an 8K prompt computes 8,192 tokens' K/V in one go (1–3s to first token), then each word only appends one slot at a few dozen milliseconds — pay once, then cheap all the way."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「长上下文是白送的」——窗口从 8K 扩到 128K，模型一个参数都没加，但推理成本在暗处全乘了 16：缓存显存 ×16、注意力计算 ×16、首 token 延迟 ×16。上下文不是「模型知道多少」，而是「你愿为每一格缓存付多少钱」——这是第 4 天窗口经济学的另一半账单：token 计费之外，还有一份显存与延迟的账。",
+              "en": "'Long context is free' — going 8K → 128K adds zero parameters, yet silently multiplies inference cost by 16: cache memory ×16, attention compute ×16, first-token latency ×16. Context is not 'how much the model knows'; it's 'how much you'll pay per cached slot' — the other half of day 4's window economics: beyond token pricing, a VRAM-and-latency bill."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "为什么是这样：用显存换时间的标准交易",
+            "en": "Why: the standard trade of memory for time"
+          },
+          "p": {
+            "zh": "缓存能成立，靠的是注意力的一条数学性质：每个 token 的 K/V 只由它自己及之前的内容决定，与「之后发生了什么」无关——所以历史格永远有效。生成是严格串行的（第 N+1 个词依赖第 N 个词），但 K/V 的计算不是：谁的 K/V 都可以提前算。既然「不变」，重算就是纯浪费；既然「可提前」，就有套利空间。KV cache 就是这笔交易：多花一块随上下文线性增长的显存，换掉平方级的重复计算——和第 13 天「用磁盘换窗口」是同一类工程判断：先算清楚哪边贵。",
+            "en": "The cache works because of one mathematical property of attention: a token's K/V depends only on itself and what came before, never on what follows — so history slots stay valid forever. Generation is strictly serial (word N+1 needs word N), but K/V computation is not: anyone's K/V can be computed in advance. Since they don't change, recomputing is pure waste; since they can be precomputed, there's an arbitrage. The KV cache is that trade: linearly growing memory buys out quadratic recompute — the same engineering judgment as day 13's 'trade disk for window': first work out which side is expensive."
+          },
+          "deep": {
+            "zh": "显存很快成为新瓶颈，于是出现「把缓存本身变小」的三条路：① GQA/MQA——让多个查询头共享一组 KV 头（LLaMA-2 70B 用 8 个 KV 头配 64 个查询头），缓存直接缩 8 倍，效果几乎无损；② 缓存量化——把 FP16 的 K/V 压到 INT8/INT4，第 11 天量化的老手艺，只是这次压的不是权重；③ 滑动窗口与淘汰——久远内容的注意力贡献本来就小，干脆不存。三条路的共同点：都不动模型权重，只动「怎么存」——工程上先削缓存，再谈换卡。",
+            "en": "Memory soon becomes the new bottleneck, so three lines of attack shrink the cache itself: ① GQA/MQA — multiple query heads share one KV head set (LLaMA-2 70B pairs 8 KV heads with 64 query heads), an 8× cache cut at nearly no quality loss; ② cache quantization — squeeze FP16 K/V into INT8/INT4, day 11's old craft, only this time on the cache, not the weights; ③ sliding windows and eviction — distant content contributes little attention anyway, so don't store it. Common thread: none touch the weights, only 'how it's stored' — cut the cache before you buy bigger GPUs."
+          },
+          "example": {
+            "h": {
+              "zh": "一个 5 分钟实验",
+              "en": "A 5-minute experiment"
+            },
+            "p": {
+              "zh": "打开任意大模型 API 的响应明细，分别用 500 token 和 8000 token 的提示词问同一个短问题：首 token 延迟（TTFT）随提示长度明显上涨——那是预填充在为整段提示建缓存；但两边的「后续每 token 速度」几乎一样——解码阶段每步只追加 1 格。TTFT 与稳态速度的分离，就是 prefill 和 decode 的分界线：前者按提示总长付费，后者固定成本逐词推进。",
+              "en": "Open any LLM API's response details and ask the same short question with a 500-token vs an 8,000-token prompt: time-to-first-token rises clearly with prompt length — that's prefill building the cache for the whole prompt; yet steady per-token speed is nearly identical in both — decoding appends one slot per step. The split between TTFT and steady speed is the prefill/decode boundary: the former bills by total prompt length, the latter advances word by word at fixed cost."
+            }
+          },
+          "misconception": null
+        },
+        {
+          "h": {
+            "zh": "延伸：缓存红利——前缀复用与提示词的新排法",
+            "en": "Extension: the cache dividend — prefix reuse and a new way to lay out prompts"
+          },
+          "p": {
+            "zh": "缓存真正改变产品的是「前缀复用」：两段请求只要开头相同（同样的系统提示 + 同一份文档），那部分 K/V 完全一致，可以跨请求复用——服务商把它做成「缓存命中」，命中部分的输入价格打到约 1/10。于是提示词工程多了一条排版铁律：不变的内容放最前面（系统提示、长文档），每次变化的内容放最后面——前缀一变，缓存全废。第 4 天的窗口经济学从此有两条轴：装了多少 token（钱），以及这些 token 被复用了多少次（时间与缓存）。明天（第 15 天）第 1 阶段收尾，把两周的概念串成一张地图。",
+            "en": "What actually changes products is prefix reuse: two requests with identical openings (same system prompt + same document) share bit-identical K/V, reusable across requests — providers sell this as a 'cache hit', billing the hit portion at roughly 1/10 of input price. Prompt layout gains an iron rule: static content first (system prompt, long docs), per-request content last — once the prefix changes, the cache is void. Day 4's window economics now has two axes: how many tokens fit (money) and how often they're reused (time and cache). Tomorrow (day 15) stage 1 closes, weaving two weeks of concepts into one map."
+          },
+          "deep": null,
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "客服机器人：固定前缀 3000 token（系统提示 + 产品手册），每轮用户输入约 200 token，一天 1000 轮。不复用：3000 × 1000 = 300 万 token 按全价计；前缀命中后：300 万 × 10% ≈ 30 万 token 等效——仅靠「把不变的内容放到最前面」这一条排版规则，输入成本降约 90%。反面教材：如果每轮把用户问题拼在前缀前面，前缀永远对不上，缓存永远 miss，一分钱优惠都拿不到。",
+              "en": "A support bot: fixed prefix of 3,000 tokens (system prompt + product manual), ~200 tokens of user input per turn, 1,000 turns a day. No reuse: 3,000 × 1,000 = 3M tokens at full price. With prefix hits: 3M × 10% ≈ 300K token-equivalents — one layout rule ('static first') cuts input cost by ~90%. Counter-example: prepend the user's question to the prefix and it never matches — the cache always misses, not a cent of discount."
+            }
+          },
+          "misconception": null
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "翻出任意一个大模型 API 文档里的模型参数表，手算 KV cache：按 32 层 × 4096 隐藏维 × 2（K+V）× 2 字节（FP16），先算每 token 缓存多少 MB，再算 8K、32K、128K 满窗各占多少 GB。回答三个问题：① 128K 满窗的缓存是 7B 权重（约 14GB）的几倍？（提示：64 ÷ 14。）② 一张 80GB 的卡，权重占 14GB，剩余显存能同时服务几路 32K 对话？（提示：先算每路缓存，别忘了留余量。）③ 文档里「缓存命中输入价约 1/10」的条款对应今天讲的哪一步？（提示：不变的前缀，K/V 一模一样。）",
+          "en": "Grab any LLM API's model spec sheet and compute the KV cache by hand: 32 layers × 4096 hidden × 2 (K+V) × 2 bytes (FP16) — first cache per token in MB, then total for full 8K / 32K / 128K windows in GB. Then answer: ① How many times the 7B weights (≈14GB) is the full 128K cache? (Hint: 64 ÷ 14.) ② An 80GB GPU with 14GB of weights — how many concurrent 32K conversations fit? (Hint: cache per conversation first, leave headroom.) ③ Which step of today's mechanism does 'cached input ≈ 1/10 price' correspond to? (Hint: an unchanged prefix has bit-identical K/V.)"
+        }
+      },
+      "takeaway": {
+        "zh": "KV cache 把平方级的重复计算换成线性增长的显存——上下文的每一格都不免费，能复用的前缀才最便宜。",
+        "en": "The KV cache swaps quadratic recompute for linearly growing memory — no context slot is free; only a reusable prefix is cheap."
+      },
+      "anim": {
+        "tpl": "kvcache",
+        "hook": {
+          "zh": "生成第 1000 个词时，前 999 个词的注意力一个都不用重算——它们早已躺在 KV cache 里。",
+          "en": "When generating word 1000, none of the previous 999 words' attention is recomputed — it all sits in the KV cache."
+        },
+        "sentence": {
+          "zh": "同一轮对话的第 6 次生成：历史 K/V 直接复用",
+          "en": "6th generation in the same conversation: history's K/V reused as-is"
+        },
+        "promptN": 12,
+        "genN": 6,
+        "note": {
+          "zh": "预填充一次性把 12 格提示的 K/V 算好（橙）；此后每生成一个词只新增 1 格（绿）——右侧警示数字是不加缓存时同一步要重算的格数。",
+          "en": "Prefill computes all 12 prompt slots' K/V at once (orange); each generated word then appends just 1 slot (green) — the red figure is how many slots the same step would recompute without a cache."
+        },
+        "coverHook": {
+          "zh": "长对话不越聊越卡、缓存命中还能打 1 折——都是因为 KV cache 把算过的注意力存了下来。",
+          "en": "Long chats never get slower, cache hits cost 1/10 — all because the KV cache keeps attention you already computed."
+        }
+      }
     }
   ]
 }

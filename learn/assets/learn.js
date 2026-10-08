@@ -837,6 +837,97 @@
       wrap.appendChild(panel);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* kvcache：预填充一次算好提示词 K/V（橙格齐落），之后逐词生成每步只追加 1 格（绿）；
+       右侧警示数同时滚动展示「不缓存则同一步要重算的格数」——显存换时间的交易可视化。
+       入场只动 transform，不碰 opacity（导出/采样不会停在透明第一帧）。 */
+    kvcache: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-kv');
+      var promptTag = el('div', 'materin-learn-kv__tag',
+        lang() === 'en' ? 'prompt K/V (prefill, once)' : '提示词 K/V（预填充，一次算好）');
+      var promptRow = el('div', 'materin-learn-kv__row materin-learn-kv__row--prompt');
+      var genTag = el('div', 'materin-learn-kv__tag',
+        lang() === 'en' ? 'generated K/V (+1 per token)' : '生成 K/V（每词追加 1 格）');
+      var genRow = el('div', 'materin-learn-kv__row materin-learn-kv__row--gen');
+      var readout = el('div', 'materin-learn-kv__readout');
+      var stepLabel = el('span', 'materin-learn-kv__step', '');
+      var cached = el('span', 'materin-learn-kv__cached', '0');
+      var cachedLabel = el('span', 'materin-learn-kv__cached-label',
+        lang() === 'en' ? 'cached K/V slots' : '格 K/V 已缓存');
+      var redo = el('div', 'materin-learn-kv__redo');
+      var redoNum = el('span', 'materin-learn-kv__redo-num', '0');
+      var redoLabel = el('span', 'materin-learn-kv__redo-label',
+        lang() === 'en' ? 'would recompute (no cache)' : '格要重算（若无缓存）');
+      var note = el('p', 'materin-learn-kv__note', t(a.note));
+
+      var promptN = a.promptN || 12;
+      var genN = a.genN || 6;
+
+      for (var i = 0; i < promptN; i++) {
+        var cell = el('div', 'materin-learn-kv__cell materin-learn-kv__cell--prompt');
+        cell.style.animationDelay = (0.2 + i * 0.09) + 's';
+        promptRow.appendChild(cell);
+      }
+      var genCells = [];
+      for (var g = 0; g < genN; g++) {
+        var gcell = el('div', 'materin-learn-kv__cell materin-learn-kv__cell--gen');
+        gcell.style.animationDelay = '0s';
+        genRow.appendChild(gcell);
+        genCells.push(gcell);
+      }
+
+      var t0 = null;
+      var PREFILL = 1500, STEP = 620, HOLD = 1500;
+      var CYCLE = PREFILL + genN * STEP + HOLD;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        var stepIdx = -1;
+        if (tNow < PREFILL) {
+          /* 预填充期：提示词整行落位，重算警示从 promptN 爬到 promptN */
+          var f = Math.min(tNow / PREFILL, 1);
+          promptRow.style.setProperty('--kv-p', f.toFixed(3));
+          cached.textContent = String(Math.round(promptN * f));
+          redoNum.textContent = String(Math.round(promptN * f));
+          stepLabel.textContent = lang() === 'en'
+            ? 'prefill — building the cache'
+            : '预填充 — 一次建好缓存';
+          redo.classList.remove('is-calm');
+        } else {
+          stepIdx = Math.min(Math.floor((tNow - PREFILL) / STEP), genN - 1);
+          var done = stepIdx + 1;
+          genCells.forEach(function (c, k) {
+            c.classList.toggle('is-in', k < done);
+          });
+          var held = promptN + done;
+          cached.textContent = String(held);
+          /* 不加缓存：这一步要为全部历史重算 K/V（held 格），缓存下只算 1 格 */
+          redoNum.textContent = String(held);
+          stepLabel.textContent = lang() === 'en'
+            ? 'generating — +' + done + ' slot, reuses ' + (held - 1)
+            : '生成中 — 新增 ' + done + ' 格，复用其余 ' + (held - 1) + ' 格';
+          redo.classList.add('is-calm');
+        }
+        redoNum.classList.toggle('is-hot', stepIdx >= 0);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      readout.appendChild(stepLabel);
+      readout.appendChild(cached);
+      readout.appendChild(cachedLabel);
+      redo.appendChild(redoNum);
+      redo.appendChild(redoLabel);
+      wrap.appendChild(promptTag);
+      wrap.appendChild(promptRow);
+      wrap.appendChild(genTag);
+      wrap.appendChild(genRow);
+      wrap.appendChild(readout);
+      wrap.appendChild(redo);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

@@ -445,6 +445,8 @@ body.is-export .materin-learn-winfill__cut-cell,
 body.is-export .materin-learn-duel__card { animation: none; transform: none; }
 body.is-export .materin-learn-fab__card { animation: none; transform: none; }
 body.is-export .materin-learn-quant__cell { animation: none; transform: none; }
+body.is-export .materin-learn-kv__cell,
+body.is-export .materin-learn-kv__cell--gen.is-in { animation: none; transform: none; }
 
 /* 图组内的 quant 表：继承暗色/亮色令牌，格宽照字节数收缩 */
 .materin-learn-viz .materin-learn-quant { max-width: 640px; gap: 12px; }
@@ -457,3 +459,16 @@ body.is-export .materin-learn-quant__cell { animation: none; transform: none; }
 /* 图组内的窗口预算格：放大一档适配右侧可视化板 */
 .materin-learn-viz .materin-learn-winfill__grid { grid-template-columns: repeat(8, 56px); gap: 10px; }
 .materin-learn-viz .materin-learn-winfill__cell { width: 56px; height: 56px; border-radius: 12px; }
+
+/* 图组内的 kvcache 缓存格：缩小一档塞进右侧可视化板 */
+.materin-learn-viz .materin-learn-kv { gap: 10px; }
+.materin-learn-viz .materin-learn-kv__row { min-height: 44px; padding: 8px; gap: 6px; border-radius: 10px; }
+.materin-learn-viz .materin-learn-kv__cell { width: 30px; height: 26px; border-radius: 6px; }
+.materin-learn-viz .materin-learn-kv__tag { font-size: 13px; }
+.materin-learn-viz .materin-learn-kv__step { font-size: 14px; }
+.materin-learn-viz .materin-learn-kv__cached { font-size: 26px; }
+.materin-learn-viz .materin-learn-kv__cached-label,
+.materin-learn-viz .materin-learn-kv__redo-label { font-size: 13px; }
+.materin-learn-viz .materin-learn-kv__redo { padding: 4px 14px; }
+.materin-learn-viz .materin-learn-kv__redo-num { font-size: 20px; }
+.materin-learn-viz .materin-learn-kv__note { display: none; }
