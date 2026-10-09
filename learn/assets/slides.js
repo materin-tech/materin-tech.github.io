@@ -688,6 +688,63 @@
         v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
         v.appendChild(el('div', 'materin-learn-viz__label', '窗口经济学第二轴：token 复用了几次（第 4 天）'));
       }
+    } else if (day.anim && day.anim.tpl === 'atlas') {
+      /* 静态迷你地图：三色站点 + 桥（黄色虚线）按 day 号连线，与动效页同一叙事 */
+      var byDA = {};
+      day.anim.nodes.forEach(function (nd) { byDA[nd.d] = nd; });
+      var mini = el('div', 'materin-learn-atlas');
+      var mfield = el('div', 'materin-learn-atlas__field');
+      day.anim.clusters.forEach(function (c) {
+        mfield.appendChild(el('div', 'materin-learn-atlas__band materin-learn-atlas__band--' + c.k));
+      });
+      var mlegend = el('div', 'materin-learn-atlas__legend');
+      day.anim.clusters.forEach(function (c) {
+        var item = el('span', 'materin-learn-atlas__legend-item materin-learn-atlas__legend-item--' + c.k);
+        item.appendChild(el('span', 'materin-learn-atlas__legend-dot'));
+        item.appendChild(el('span', null, t({ zh: c.zh, en: c.en })));
+        mlegend.appendChild(item);
+      });
+      var mbridge = el('span', 'materin-learn-atlas__legend-item materin-learn-atlas__legend-item--bridge');
+      mbridge.appendChild(el('span', 'materin-learn-atlas__legend-dot'));
+      mbridge.appendChild(el('span', null, '跨线桥'));
+      mlegend.appendChild(mbridge);
+      day.anim.nodes.forEach(function (nd) {
+        var node = el('div', 'materin-learn-atlas__node materin-learn-atlas__node--' + nd.k);
+        node.style.left = nd.x + '%';
+        node.style.top = nd.y + '%';
+        node.appendChild(el('span', 'materin-learn-atlas__node-d', 'D' + nd.d));
+        node.appendChild(el('span', 'materin-learn-atlas__node-name', t({ zh: nd.zh, en: nd.en })));
+        mfield.appendChild(node);
+      });
+      var miniEdges = [];
+      day.anim.edges.forEach(function (e) {
+        var pa = byDA[e.a], pb = byDA[e.b];
+        if (!pa || !pb) return;
+        var bridge = e.k === 'bridge';
+        var line = el('div', 'materin-learn-atlas__edge' + (bridge ? ' materin-learn-atlas__edge--bridge' : ''));
+        line.__pa = pa; line.__pb = pb;
+        mfield.appendChild(line);
+        miniEdges.push(line);
+      });
+      function layoutMini() {
+        var W = mfield.offsetWidth, H = mfield.offsetHeight;
+        if (!W || !H) return;
+        miniEdges.forEach(function (line) {
+          var ax = line.__pa.x / 100 * W, ay = line.__pa.y / 100 * H;
+          var bx = line.__pb.x / 100 * W, by = line.__pb.y / 100 * H;
+          var dx = bx - ax, dy = by - ay;
+          line.style.left = ax + 'px';
+          line.style.top = ay + 'px';
+          line.style.width = Math.sqrt(dx * dx + dy * dy) + 'px';
+          line.style.transform = 'rotate(' + (Math.atan2(dy, dx) * 180 / Math.PI) + 'deg)';
+        });
+      }
+      mini.appendChild(mfield);
+      mini.appendChild(mlegend);
+      v.appendChild(mini);
+      requestAnimationFrame(function () { layoutMini(); });
+      window.addEventListener('resize', layoutMini);
+      v.appendChild(el('div', 'materin-learn-viz__label', '三线一图：14 站 13 边，黄虚线是跨线桥（读 · 学 · 用）'));
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));
@@ -821,7 +878,7 @@
           });
           return [lo - top, hi - top];
         }
-        for (var fs = 31; fs >= 19; fs -= 1.5) {
+        for (var fs = 31; fs >= 17; fs -= 1.5) {
           parts.forEach(function (e) {
             e.style.fontSize = (e.classList.contains('materin-learn-quote') ? fs - 2 : fs) + 'px';
           });

@@ -928,6 +928,92 @@
       wrap.appendChild(redo);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* atlas：概念地图（第 15 天两周总结）——三根主线按带状布局排站，先落站、
+       再按主线顺序点亮边，最后亮跨线桥；循环重播。边几何与 sim 同法：布局后按像素算。 */
+    atlas: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-atlas');
+      var field = el('div', 'materin-learn-atlas__field');
+      var note = el('p', 'materin-learn-atlas__note', t(a.note));
+
+      a.clusters.forEach(function (c) {
+        field.appendChild(el('div', 'materin-learn-atlas__band materin-learn-atlas__band--' + c.k));
+      });
+      var legend = el('div', 'materin-learn-atlas__legend');
+      a.clusters.forEach(function (c) {
+        var item = el('span', 'materin-learn-atlas__legend-item materin-learn-atlas__legend-item--' + c.k);
+        item.appendChild(el('span', 'materin-learn-atlas__legend-dot'));
+        item.appendChild(el('span', null, t({ zh: c.zh, en: c.en })));
+        legend.appendChild(item);
+      });
+      var bridgeItem = el('span', 'materin-learn-atlas__legend-item materin-learn-atlas__legend-item--bridge');
+      bridgeItem.appendChild(el('span', 'materin-learn-atlas__legend-dot'));
+      bridgeItem.appendChild(el('span', null, lang() === 'en' ? 'cross-line bridge' : '跨线桥'));
+      legend.appendChild(bridgeItem);
+
+      var byD = {};
+      a.nodes.forEach(function (nd) {
+        var node = el('div', 'materin-learn-atlas__node materin-learn-atlas__node--' + nd.k);
+        node.style.left = nd.x + '%';
+        node.style.top = nd.y + '%';
+        node.style.animationDelay = (0.3 + nd.x * 0.012) + 's';
+        node.appendChild(el('span', 'materin-learn-atlas__node-d', 'D' + nd.d));
+        node.appendChild(el('span', 'materin-learn-atlas__node-name', t({ zh: nd.zh, en: nd.en })));
+        field.appendChild(node);
+        byD[nd.d] = nd;
+      });
+
+      var lineEdges = a.edges.filter(function (e) { return e.k !== 'bridge'; });
+      var bridgeEdges = a.edges.filter(function (e) { return e.k === 'bridge'; });
+      var links = a.edges.map(function (e, i) {
+        var pa = byD[e.a], pb = byD[e.b];
+        var bridge = e.k === 'bridge';
+        var line = el('div', 'materin-learn-atlas__edge' + (bridge ? ' materin-learn-atlas__edge--bridge' : ''));
+        line.__pa = pa; line.__pb = pb;
+        /* 主线边按顺序接力点亮；桥在主线走完后亮 */
+        line.__start = bridge ? 0.8 + lineEdges.length * 0.35 + bridgeEdges.indexOf(e) * 0.7
+                              : 1.2 + i * 0.35;
+        field.appendChild(line);
+        return line;
+      });
+
+      function layout() {
+        var W = field.offsetWidth, H = field.offsetHeight;
+        if (!W || !H) return false;
+        links.forEach(function (line) {
+          var ax = line.__pa.x / 100 * W, ay = line.__pa.y / 100 * H;
+          var bx = line.__pb.x / 100 * W, by = line.__pb.y / 100 * H;
+          var dx = bx - ax, dy = by - ay;
+          line.style.left = ax + 'px';
+          line.style.top = ay + 'px';
+          line.style.width = Math.sqrt(dx * dx + dy * dy) + 'px';
+          line.style.transform = 'rotate(' + (Math.atan2(dy, dx) * 180 / Math.PI) + 'deg)';
+        });
+        return true;
+      }
+      requestAnimationFrame(function () { layout(); });
+      window.addEventListener('resize', layout);
+
+      var t0 = null;
+      var CYCLE = 11;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = ((ts - t0) / 1000) % CYCLE;
+        links.forEach(function (line) {
+          var f = Math.min(Math.max((tNow - line.__start) / 0.8, 0), 1);
+          line.style.opacity = String(f);
+          line.classList.toggle('is-lit', f >= 1);
+        });
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(field);
+      wrap.appendChild(legend);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

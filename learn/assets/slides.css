@@ -88,7 +88,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 140px;
+  padding: 0 140px 96px;
   gap: 34px;
 }
 
@@ -116,6 +116,7 @@
   font-weight: 800;
   line-height: 1.16;
   letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
 .materin-learn-cover__sub {
@@ -447,6 +448,8 @@ body.is-export .materin-learn-fab__card { animation: none; transform: none; }
 body.is-export .materin-learn-quant__cell { animation: none; transform: none; }
 body.is-export .materin-learn-kv__cell,
 body.is-export .materin-learn-kv__cell--gen.is-in { animation: none; transform: none; }
+body.is-export .materin-learn-atlas__node,
+body.is-export .materin-learn-atlas__edge { animation: none; opacity: 1; }
 
 /* 图组内的 quant 表：继承暗色/亮色令牌，格宽照字节数收缩 */
 .materin-learn-viz .materin-learn-quant { max-width: 640px; gap: 12px; }
@@ -472,3 +475,10 @@ body.is-export .materin-learn-kv__cell--gen.is-in { animation: none; transform: 
 .materin-learn-viz .materin-learn-kv__redo { padding: 4px 14px; }
 .materin-learn-viz .materin-learn-kv__redo-num { font-size: 20px; }
 .materin-learn-viz .materin-learn-kv__note { display: none; }
+
+/* 图组内的 atlas 迷你地图：缩小一档塞进右侧可视化板 */
+.materin-learn-viz .materin-learn-atlas__field { height: 430px; border-radius: 14px; }
+.materin-learn-viz .materin-learn-atlas__node { padding: 5px 9px; border-radius: 8px; }
+.materin-learn-viz .materin-learn-atlas__node-d { font-size: 12px; }
+.materin-learn-viz .materin-learn-atlas__node-name { font-size: 15px; }
+.materin-learn-viz .materin-learn-atlas__band { font-size: 14px; }

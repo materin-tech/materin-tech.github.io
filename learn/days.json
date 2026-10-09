@@ -2192,6 +2192,322 @@
           "en": "Long chats never get slower, cache hits cost 1/10 — all because the KV cache keeps attention you already computed."
         }
       }
+    },
+    {
+      "n": 15,
+      "stage": 1,
+      "week": 3,
+      "tpl": "atlas",
+      "date": "2026-10-09",
+      "title": {
+        "zh": "两周地图：14 个零件，一台机器",
+        "en": "The two-week map: 14 parts, one machine"
+      },
+      "subtitle": {
+        "zh": "前两周拆了 14 个零件——token、嵌入、注意力、梯度下降、KV cache……单独背很快会忘，因为知识只有连成网络才留得住。今天不学新概念，把它们按「怎么读、怎么学、怎么用」三根主线重新串一遍，再架几座跨线桥。",
+        "en": "Two weeks, 14 parts — tokens, embeddings, attention, gradient descent, KV cache… memorized alone they fade, because knowledge sticks only when wired into a network. Today adds nothing new: it re-threads the 14 into three main lines — how it reads, how it learns, how it's used — then hangs a few cross-line bridges."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：这张图怎么读——三根主线、十四个站、三座桥",
+            "en": "Mechanism: how to read this map — three lines, fourteen stations, three bridges"
+          },
+          "p": {
+            "zh": "读图三步。第一步读主线。蓝线「怎么读」是表示问题：token 把字切碎（第 1 天），嵌入把字变成坐标（第 2 天），注意力决定每一步看哪里（第 6 天），窗口决定一次能看多少（第 4 天）——它回答「模型眼里的世界长什么样」。绿线「怎么学」是优化问题：预训练铺进海量数据（第 7 天），梯度下降在里面找参数（第 5 天），对齐把「会续写」掰成「会配合」（第 8 天），LoRA、量化、蒸馏（第 10–12 天）是「不动大脑、只做小抄」的三种省法。青线「怎么用」是工程问题：采样决定每步选哪个词（第 3 天），幻觉是这条流水线的副产品（第 9 天），向量检索按意思找料（第 13 天），KV cache 让重复计算归零（第 14 天）。第二步读站：每个站解决一个具体瓶颈，没有一个站是「概论」。第三步读桥：黄色虚线连着分属两根线的站——注意力 ↔ KV cache（缓存的就是注意力的中间结果）、嵌入 ↔ 检索（方向相近才有得找）、对齐 ↔ 幻觉（同一条流水线，压不灭）。",
+            "en": "Read the map in three passes. Pass one: the lines. The blue line 'how it reads' is representation: tokens split the text (day 1), embeddings turn words into coordinates (day 2), attention decides where to look at each step (day 6), the window decides how much fits at once (day 4) — it answers 'what does the world look like to the model'. The green line 'how it learns' is optimization: pretraining pours in massive data (day 7), gradient descent finds parameters inside it (day 5), alignment bends 'continues text' into 'cooperates' (day 8), and LoRA, quantization, distillation (days 10–12) are three ways to save without touching the brain. The cyan line 'how it's used' is engineering: sampling picks each word (day 3), hallucination is this pipeline's by-product (day 9), vector retrieval fetches material by meaning (day 13), and the KV cache zeroes out recompute (day 14). Pass two: the stations — each solves one concrete bottleneck; none is a 'general intro'. Pass three: the bridges — yellow dashes connect stations on different lines: attention ↔ KV cache (what's cached is attention's own intermediate state), embedding ↔ retrieval (similar direction is what makes search possible), alignment ↔ hallucination (same pipeline; suppression, not cure)."
+          },
+          "deep": {
+            "zh": "为什么「串」有效，可以讲得更硬：记忆提取本质是在网络里做检索——一个概念挂的提取线索越多，被成功提取的概率越高。孤立背 14 个定义，每个概念只挂一条线索（「那天上过课」）；串进三根主线后，每个概念至少挂 3～5 条线索（它的上游是谁、下游是谁、和谁隔线相望）。第 13 天讲过：检索是把「相关」翻译成「方向相近」——你复习时的脑内检索服从同一套数学。所以画地图不是「整理笔记」这种软功夫，而是给未来那次「提取」预埋检索入口的硬投资。",
+            "en": "Why does 'threading' work? Mechanistically: recall is retrieval over a network — the more retrieval cues a concept carries, the higher the odds it surfaces. Fourteen isolated definitions give each concept one cue ('it was taught that day'); threaded into three lines, each carries at least 3–5 (what feeds it, what it feeds, what it faces across the map). Day 13 showed retrieval as translating 'relevant' into 'nearby direction' — your brain's recall at review time obeys the same math. Drawing the map isn't soft 'note tidying'; it's hard engineering of the retrieval entries a future extraction will need."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "孤立路线：14 个概念 × 每个只挂 1 条线索 = 14 条连接，重读一遍笔记只是把同一条边再走一遍。串图路线：14 个概念 × 平均 5 条线索（2 条主线邻边 + 1 条跨线桥 + 上游/下游的「为什么」）= 约 70 条连接；画图 20 分钟，等于亲手把 70 条边各走一遍。经典数字也可对照：艾宾浩斯遗忘曲线上，纯重读 24 小时后留存约三分之一，而「自己动手画线连线」的提取式复习能翻倍以上——线索是自己铺的，提取时才找得到。",
+              "en": "Isolated route: 14 concepts × 1 cue each = 14 edges, and re-reading notes just walks the same edge again. Mapped route: 14 concepts × ~5 cues each (2 line neighbors + 1 cross bridge + the upstream/downstream 'whys') ≈ 70 connections; twenty minutes of drawing walks all 70 edges by hand. Classic numbers agree: on the Ebbinghaus curve, pure re-reading retains about a third after 24 hours, while active 'draw the links yourself' review more than doubles it — the cues you lay yourself are the cues a later extraction can find."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「地图 = 目录」——目录是线性清单，从第 1 页翻到第 14 页；地图是网络，价值全在交叉连接。注意力不只属于「读」，梯度下降要从它身上流过（学）；嵌入不只属于「读」，它同时是第 13 天向量检索的地基（用）。只按目录复习的人背得出 14 个孤立定义，却答不出「注意力同时连着哪两根线」——而面试和实战考的恰恰是后者。收藏了页面 ≠ 学会了：没有亲手连过线的概念，不属于你。",
+              "en": "'A map is just a table of contents' — a TOC is a linear list from page 1 to 14; a map is a network whose value lives entirely in cross-links. Attention isn't only 'reading': gradient descent flows through it (learning). Embeddings aren't only 'reading': they are also the foundation of day 13's vector retrieval (use). A TOC-style reviewer can recite 14 isolated definitions yet can't say which two lines attention connects — which is exactly what interviews and real work probe. Saving the page is not learning: a concept you never linked by hand was never yours."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "为什么是这样：三根线其实是一条流水线",
+            "en": "Why: the three lines are one pipeline"
+          },
+          "p": {
+            "zh": "「读 → 学 → 用」不是三个学科，而是同一台机器的三段工序：模型先得把世界「读」成向量（表示），再被数据「学」出参数（优化），最后被工程「用」进产品（推理与服务）。三段互相咬合：读的方式决定学的效率——token 切得好、表示选得稳，梯度下降收敛就快；学的结果决定用的成本——量化和 KV cache 是在学完之后继续省；用的反馈又会倒逼重学——领域微调（第 10 天）就是这么来的。所以这张地图不是把课程分章，而是把一台机器的图纸摊开：修任何一段之前，先知道它在流水线的哪个位置。",
+            "en": "'Read → learn → use' is not three subjects; it's one machine's three stages: the model must first read the world into vectors (representation), then learn parameters from data (optimization), and finally be engineered into a product (inference and serving). The stages mesh: how you read decides how cheaply you learn — good tokenization and stable representations make gradient descent converge faster; what you learn decides what serving costs — quantization and the KV cache keep saving after training ends; and usage feedback forces re-learning — that's exactly where domain fine-tuning (day 10) comes from. So this map doesn't divide a course into chapters; it spreads out one machine's blueprint: before fixing any stage, know where it sits on the line."
+          },
+          "deep": {
+            "zh": "为什么偏偏是这三段？信息论视角给了一个更干净的答案：读 = 编码（把文本压进向量），学 = 压缩（把万亿 token 的规律压进参数——第 7 天算过 15T 进、约 800GB 出），用 = 解码（把参数与上下文合成下一个词）。任何信息系统都逃不开「编码—压缩—解码」三件套，人脑复习也一样：今天这张图就是给前两周做一次重新编码——把「按天存储」改写成「按结构存储」，同一批信息，换了组织方式，提取成本立刻不一样。",
+            "en": "Why these three stages specifically? Information theory gives a cleaner answer: read = encoding (text squeezed into vectors), learn = compression (a trillion tokens' regularities squeezed into parameters — day 7 ran it: ~15T in, ~800GB out), use = decoding (parameters plus context synthesized into the next word). Every information system runs encode–compress–decode, and human review is no exception: today's map is a re-encoding of these two weeks — from 'stored by day' to 'stored by structure'. Same information, different organization, and the cost of retrieval changes immediately."
+          },
+          "example": {
+            "h": {
+              "zh": "一个 5 分钟实验",
+              "en": "A 5-minute experiment"
+            },
+            "p": {
+              "zh": "合上页面，先默写三根主线的名字，再沿每根线默写成员，最后只补三座桥（注意力 ↔ KV cache、嵌入 ↔ 检索、对齐 ↔ 幻觉）。数一数哪些站写不全——写不全的站，恰是当时学得最浅的：多数人卡在「量化」和「蒸馏」（第 11 天压同一批参数的存储 vs 第 12 天重训一个更小的新模型）。这张「默写缺口清单」不是失败记录，它就是接下来 13 天（第 16–28 天）最该补的清单。",
+              "en": "Close the page: first write the three lines' names from memory, then each line's stations, then just the three bridges (attention ↔ KV cache, embedding ↔ retrieval, alignment ↔ hallucination). Count the stations you couldn't complete — those are exactly where you learned shallowest: most people stall on quantization vs distillation (day 11 shrinks the storage of the same parameters; day 12 retrains a smaller new model). The gap list isn't a failure record — it's precisely the checklist for the next 13 days (16–28)."
+            }
+          },
+          "misconception": null
+        },
+        {
+          "h": {
+            "zh": "延伸：地图钉住了什么，又通向哪里",
+            "en": "Extension: what the map pins down, and where it leads"
+          },
+          "p": {
+            "zh": "向后看：第 1 阶段还剩 13 天（第 16–28 天），会沿这三根线各自加深——「读」的一侧走向生成循环与评估，「学」的一侧走向数据配方与规模定律，「用」的一侧走向检索增强的雏形；到第 28 天再用一整张图验收。向前看：第 2 阶段（第 29 天起）提示工程，本质是「在窗口里排布 token」——第 4 天的窗口经济学、第 1 天的 token 计费、第 14 天的前缀缓存，届时全都变成提示词排版的手艺；而第 13 天埋下的 RAG 伏笔，第 85 天才正式开工。地图上的每一站都不会只出现一次：它们会在后面的 153 天里反复被调用——这正是今天要把它画下来的原因。",
+            "en": "Looking back: 13 days remain in stage one (16–28), deepening each line — 'reading' heads toward the generation loop and evaluation, 'learning' toward data recipes and scaling laws, 'use' toward the first RAG sketches; day 28 closes with a full-map check. Looking forward: stage two (from day 29) is prompting — at bottom, 'arranging tokens inside the window': day 4's window economics, day 1's token billing, and day 14's prefix cache all become the craft of prompt layout. And day 13's RAG thread doesn't formally open until day 85. Every station on this map will be called on again across the remaining 153 days — which is exactly why it's worth drawing today."
+          },
+          "deep": null,
+          "example": null,
+          "misconception": null
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（20 分钟）",
+          "en": "Hands-on (20 min)"
+        },
+        "p": {
+          "zh": "找一张白纸，凭记忆画这张地图：先画三根线并标名，再把 14 个站填上去（day 号 + 名字），最后补桥。画完对照页面动效核改，然后回答三个问题：① 哪个站你画了两遍才敢落笔？它和相邻概念的边界到底在哪？（提示：LoRA 是「给原模型加批注」，蒸馏是「重训一个更小的新模型」——第 10/12 天。）② 「幻觉」站和「采样」站之间该不该有线？（提示：编造与正确出自同一条流水线——第 9 天。）③ 给「窗口」站找出两条跨线连接。（提示：一条通向检索——装不下才要找（第 13 天），一条通向提示工程——窗口里的排布就是手艺（第 29 天起）。）",
+          "en": "Take a blank sheet and draw this map from memory: three named lines first, then the 14 stations (day number + name), then the bridges. Check against the page animation, then answer: ① Which station did you hesitate on twice? Where exactly is its boundary with its neighbors? (Hint: LoRA adds annotations to the original model; distillation retrains a smaller new one — days 10/12.) ② Should 'hallucination' and 'sampling' be linked? (Hint: fabrication and correctness come off the same pipeline — day 9.) ③ Find two cross-line connections for the 'window' station. (Hint: one leads to retrieval — it doesn't fit, so you must search (day 13); one leads to prompting — layout inside the window is the craft (from day 29).)"
+        }
+      },
+      "takeaway": {
+        "zh": "概念挂进网络才留得住——「怎么读、怎么学、怎么用」三根线把 14 个零件拧成一台机器，复习时走的是边，不是点。",
+        "en": "Concepts stick only when wired into a network — three lines (how it reads, learns, is used) bolt 14 parts into one machine; review walks the edges, not the nodes."
+      },
+      "anim": {
+        "tpl": "atlas",
+        "hook": {
+          "zh": "14 天、14 个概念——闭上眼能画出这张图，两周的课才算学到手。",
+          "en": "14 days, 14 concepts — draw this map with the page closed, and the two weeks are truly yours."
+        },
+        "clusters": [
+          {
+            "k": "read",
+            "zh": "怎么读 · 表示",
+            "en": "How it reads"
+          },
+          {
+            "k": "learn",
+            "zh": "怎么学 · 优化",
+            "en": "How it learns"
+          },
+          {
+            "k": "use",
+            "zh": "怎么用 · 工程",
+            "en": "How it's used"
+          }
+        ],
+        "nodes": [
+          {
+            "d": 1,
+            "k": "read",
+            "zh": "Token",
+            "en": "Token",
+            "x": 6,
+            "y": 20
+          },
+          {
+            "d": 2,
+            "k": "read",
+            "zh": "嵌入",
+            "en": "Embedding",
+            "x": 16,
+            "y": 12
+          },
+          {
+            "d": 6,
+            "k": "read",
+            "zh": "注意力",
+            "en": "Attention",
+            "x": 46,
+            "y": 20
+          },
+          {
+            "d": 4,
+            "k": "read",
+            "zh": "窗口",
+            "en": "Window",
+            "x": 78,
+            "y": 12
+          },
+          {
+            "d": 7,
+            "k": "learn",
+            "zh": "预训练",
+            "en": "Pretrain",
+            "x": 10,
+            "y": 50
+          },
+          {
+            "d": 5,
+            "k": "learn",
+            "zh": "梯度下降",
+            "en": "Descent",
+            "x": 26,
+            "y": 58
+          },
+          {
+            "d": 8,
+            "k": "learn",
+            "zh": "对齐",
+            "en": "Alignment",
+            "x": 45,
+            "y": 44
+          },
+          {
+            "d": 10,
+            "k": "learn",
+            "zh": "LoRA",
+            "en": "LoRA",
+            "x": 58,
+            "y": 58
+          },
+          {
+            "d": 11,
+            "k": "learn",
+            "zh": "量化",
+            "en": "Quant",
+            "x": 73,
+            "y": 48
+          },
+          {
+            "d": 12,
+            "k": "learn",
+            "zh": "蒸馏",
+            "en": "Distill",
+            "x": 88,
+            "y": 56
+          },
+          {
+            "d": 3,
+            "k": "use",
+            "zh": "采样",
+            "en": "Sampling",
+            "x": 10,
+            "y": 84
+          },
+          {
+            "d": 9,
+            "k": "use",
+            "zh": "幻觉",
+            "en": "Hallucination",
+            "x": 34,
+            "y": 88
+          },
+          {
+            "d": 13,
+            "k": "use",
+            "zh": "检索",
+            "en": "Retrieval",
+            "x": 60,
+            "y": 84
+          },
+          {
+            "d": 14,
+            "k": "use",
+            "zh": "KV cache",
+            "en": "KV cache",
+            "x": 86,
+            "y": 90
+          }
+        ],
+        "edges": [
+          {
+            "a": 1,
+            "b": 2,
+            "k": "read"
+          },
+          {
+            "a": 2,
+            "b": 6,
+            "k": "read"
+          },
+          {
+            "a": 6,
+            "b": 4,
+            "k": "read"
+          },
+          {
+            "a": 7,
+            "b": 5,
+            "k": "learn"
+          },
+          {
+            "a": 5,
+            "b": 8,
+            "k": "learn"
+          },
+          {
+            "a": 8,
+            "b": 10,
+            "k": "learn"
+          },
+          {
+            "a": 10,
+            "b": 11,
+            "k": "learn"
+          },
+          {
+            "a": 10,
+            "b": 12,
+            "k": "learn"
+          },
+          {
+            "a": 3,
+            "b": 9,
+            "k": "use"
+          },
+          {
+            "a": 9,
+            "b": 13,
+            "k": "use"
+          },
+          {
+            "a": 2,
+            "b": 13,
+            "k": "bridge"
+          },
+          {
+            "a": 6,
+            "b": 14,
+            "k": "bridge"
+          },
+          {
+            "a": 8,
+            "b": 9,
+            "k": "bridge"
+          }
+        ],
+        "note": {
+          "zh": "蓝线读、绿线学、青线用；黄色虚线是跨线桥——注意力 → KV cache（缓存的就是它）、嵌入 → 检索（方向相近才有得找）、对齐 → 幻觉（同一条流水线，压不灭）。",
+          "en": "Blue reads, green learns, cyan serves; yellow dashes are cross-line bridges — attention → KV cache (that's what gets cached), embedding → retrieval (nearby direction is what makes search work), alignment → hallucination (same pipeline; suppressed, not cured)."
+        },
+        "coverHook": {
+          "zh": "14 个概念为什么记不住？每个只挂 1 条线索——串成三根线后是 70 条，复习一次全走一遍。",
+          "en": "Why do 14 concepts fade? One retrieval cue each. Threaded into three lines: 70 edges — one review pass walks them all."
+        }
+      }
     }
   ]
 }
