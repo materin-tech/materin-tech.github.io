@@ -745,6 +745,72 @@
       requestAnimationFrame(function () { layoutMini(); });
       window.addEventListener('resize', layoutMini);
       v.appendChild(el('div', 'materin-learn-viz__label', '三线一图：14 站 13 边，黄虚线是跨线桥（读 · 学 · 用）'));
+    } else if (day.anim && day.anim.tpl === 'loop') {
+      if (idx === 0) {
+        /* 五步链条 + 一次 tick 的产出：与动效页同一叙事（静态全亮） */
+        var chain = el('div', 'materin-learn-viz__chips');
+        (day.anim.stepsZh).forEach(function (sName, k) {
+          chain.appendChild(el('span', 'materin-learn-viz__chip', sName));
+          if (k < day.anim.stepsZh.length - 1) chain.appendChild(el('span', 'materin-learn-viz__chip--alt', '→'));
+        });
+        v.appendChild(chain);
+        var bars = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '无缓存：每圈重算全部历史', val: 100, cls: '', txt: '≈13.5 万次' },
+          { tag: '有 KV cache：每圈只算新查询', val: 0.4, cls: ' materin-learn-viz__bar--en', txt: '500 次' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(1.5, r.val) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars.appendChild(row);
+        });
+        v.appendChild(bars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '一次 tick 五步，500 token 回答 = 500 圈（缓存省 99.6%）'));
+      } else if (idx === 1) {
+        /* 雪球：一次跑偏被钉回输入后被放大——重复句计数示意 */
+        var bars2 = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '跑偏 1 次', val: 8, cls: '', txt: '1 句' },
+          { tag: '被钉回后继续采样', val: 55, cls: '', txt: '连错 5 句' },
+          { tag: '无纠错回路', val: 100, cls: ' materin-learn-viz__bar--en', txt: '整段带偏' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars2.appendChild(row);
+        });
+        v.appendChild(bars2);
+        v.appendChild(el('div', 'materin-learn-viz__label', '尾巴决定开头：错 1 格会被钉回去滚成雪球（曝光偏差）'));
+      } else {
+        /* 延伸：窗口容量 vs 一圈注意力开销 */
+        var bars3 = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: '窗口 128K = 循环体一次能装多少', val: 100, cls: '', txt: '容量上限' },
+          { tag: '缓存吃显存：越长越贵', val: 62, cls: ' materin-learn-viz__bar--en', txt: '转速 ↔ 可跑长度' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars3.appendChild(row);
+        });
+        v.appendChild(bars3);
+        v.appendChild(el('div', 'materin-learn-viz__label', '窗口管装多少，缓存管转多快——提示工程（D29 起）管喂什么'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));
@@ -878,12 +944,14 @@
           });
           return [lo - top, hi - top];
         }
-        for (var fs = 31; fs >= 17; fs -= 1.5) {
+        var colBox = text.getBoundingClientRect().bottom - top;
+        for (var fs = 31; fs >= 16; fs -= 1.5) {
           parts.forEach(function (e) {
             e.style.fontSize = (e.classList.contains('materin-learn-quote') ? fs - 2 : fs) + 'px';
           });
           var b = bounds();
-          if (b[1] <= 990 && b[0] >= 190) break;
+          /* 硬边界是文本列盒子本身（950）：内容超过列底就算溢出，990 只是页脚余量 */
+          if (b[1] <= colBox && b[0] >= 190) break;
         }
       });
     });

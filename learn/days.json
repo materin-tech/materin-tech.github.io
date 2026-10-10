@@ -2508,6 +2508,138 @@
           "en": "Why do 14 concepts fade? One retrieval cue each. Threaded into three lines: 70 edges — one review pass walks them all."
         }
       }
+    },
+    {
+      "n": 16,
+      "stage": 1,
+      "week": 3,
+      "tpl": "loop",
+      "date": "2026-10-10",
+      "title": {
+        "zh": "生成循环：一次只吐一个词的机器",
+        "en": "The generation loop: a machine that outputs one word at a time"
+      },
+      "subtitle": {
+        "zh": "两周课上过 14 个零件，今天看它们怎么在一台发动机里协同：模型不写「一段话」，只做一件事——把目前所有文本过一遍注意力，采样出下一个 token，然后把它钉回输入末尾，从头再来。理解了这个循环，你才知道流式输出、缓存命中率和「卡住了」分别发生在哪一步。",
+        "en": "Fourteen parts, one engine. The model never writes 'a paragraph' — each tick it runs attention over everything so far, samples one token, appends it, and loops. Understand this cycle and you know where streaming, cache hit rates, and 'it got stuck' actually live."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：一次 tick 的五步——查表到钉回去",
+            "en": "Mechanism: one tick, five steps"
+          },
+          "p": {
+            "zh": "把「模型在写作」这个幻象拆开，里面是一个严丝合缝的循环体，每转一圈吐一个 token。第 1 步查表：末尾 token 拿编号去嵌入表换向量（第 2 天）。第 2 步算注意力：新向量当查询，和窗口里全部历史 token 的键做点积，看看「该看哪里」（第 6 天）——有 KV cache 就直接领上次存好的键值（第 14 天），只算新来的这一条查询。第 3 步压缩：隐藏状态投影到词表（比如 20 万行）上，softmax 把分数压成总和为 1 的概率分布。第 4 步采样：按温度（第 3 天）决定怎么挑——低温挑最大，高温放手赌。第 5 步钉回去：挑中的 token 拼到输入末尾，回到第 1 步。终止条件只有三个：采到结束符、到达长度上限、触发停止词。「写一段 200 字回答」的真实含义：发动机空转两百圈，每圈执行一遍这五步。",
+            "en": "Strip away the illusion of 'the model writing', and you find a tight loop that emits one token per revolution. Step 1, look up: the last token trades its ID for a vector (day 2). Step 2, attend: the fresh vector acts as the query, dot-products against the keys of every token in the window (day 6) — with a KV cache it reuses stored keys and values (day 14) and computes only the one new query. Step 3, squash: the hidden state projects onto the vocabulary (say 200k rows) and softmax turns scores into a distribution summing to 1. Step 4, sample: temperature (day 3) decides how to pick — cold takes the argmax, hot gambles. Step 5, append: the chosen token is pinned to the end of the input, and back to step 1. Termination is only: end-of-sequence, a length cap, or stop words. 'Write a 200-character answer' means the engine idles 200 laps, five steps each."
+          },
+          "deep": {
+            "zh": "为什么非要一个一个吐？三个理由嵌在架构里。理由一，概率模型的本职：它学的任务就是「已知前文，预测下一个词」，整段话的概率是两百个条件概率连乘——链式法则把它锁死成逐步生成。理由二，因果掩码：注意力矩阵被上三角掩码挡住，每个位置只能看左边（第 6 天），右边还没生成就只能等。理由三，工程账：每一步的输出是下一步的输入，不吐出下一个词，下一步没得算。自回归不是偷懒，而是「预测下一个词」这个学习目标在推理时的自然形状。",
+            "en": "Why one token at a time? Three reasons are baked in. One, the model's job: it learned 'given the prefix, predict the next token'; a passage's probability is two hundred conditionals chained — the chain rule forces step-by-step generation. Two, the causal mask: attention is blocked above the diagonal, each position sees only its left (day 6); the right side hasn't been generated, so it must wait. Three, the ledger: each step's output is the next step's input. Autoregression isn't a shortcut — it's the inference-time shape of the 'next-token' objective."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "500 token 的回答，预填充 20 token 提示词后要转 500 圈。没有缓存时每圈扫全部历史：20+21+…+519 ≈ 13.5 万次「查询×键」计算，有 KV cache 时恰好 500 次——省 99.6%。时间上：单卡每圈 20～40 毫秒，500 圈就是 10～20 秒。你看到的「流式输出」不是打字快，而是每转完一圈就把刚采到的词推给显示器——圈速就是体验的上限，30 tokens/秒 ≈ 每 33 毫秒一圈。",
+              "en": "A 500-token reply turns 500 laps after prefilling 20 prompt tokens. Without a cache each lap scans all history: 20+21+…+519 ≈ 135k query×key products; with a KV cache exactly 500 — 99.6% saved. At 20–40 ms per lap, that's 10–20 seconds. 'Streaming' is just the engine pushing each freshly sampled token to your screen — lap rate caps perceived speed: 30 tok/s ≈ one lap per 33 ms."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「模型先在心里打草稿再输出」——没有这回事。每一步吐出的都已是最终答案：没有隐藏的整段计划，也没有循环之外的「思考区」。推理模型的思考 token 确实存在，但同样出自这条逐 token 流水线，只是被藏起来。另一个误区：「模型改写了自己刚才那句」——它做不到，循环只追加、不编辑；你看到的「重写」是整段重来，全额重算。",
+              "en": "'The model drafts in its head first' — no. Every emitted token is already final: no hidden whole-passage plan, no thinking lounge outside the loop. Reasoning models do emit thinking tokens, but on the same token-by-token pipeline, merely hidden. And 'it rewrote that sentence' — it can't; the loop only appends. A 'rewrite' is full regeneration at full cost."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "为什么是这样：尾巴决定开头——出错会滚雪球",
+            "en": "Why: the tail feeds the head — mistakes snowball"
+          },
+          "p": {
+            "zh": "循环结构最深远的一课：每一步的输入包含自己上一步的输出。训练时模型读的是人类写好的完美文本，推理时它读的是自己写的文本——训练和推理之间隔着一道「数据分布」的缝隙，这叫曝光偏差。一次轻微的跑偏（采样到一个稍偏的词）会被钉回输入，下一圈在这个偏了的基础上继续注意力和采样，跑偏可能被放大：这就是为什么长回答偶尔越走越散、为什么重复一句废话会连续重复十遍——循环没有纠错回路，它只会忠实地在错误之上盖正确的楼。第 9 天的幻觉在这个视角下看得更清楚：编造的内容一旦被采样出来，同样会被钉回上下文，成为后续生成的「事实依据」。",
+            "en": "The loop's deepest lesson: every step's input contains its own previous output. At training time the model reads flawless human text; at inference it reads its own text — a gap in data distribution called exposure bias. One slight drift (a mildly off word gets sampled) is pinned back into the input, and the next lap runs attention and sampling on top of the drift: errors can compound. That's why long answers sometimes wander, and why one repeated filler sentence becomes ten — the loop has no error-correction branch; it faithfully builds 'correct' floors on top of a tilted frame. Day 9's hallucination looks sharper here: once a fabrication is sampled, it too is appended and becomes the 'fact base' for later laps."
+          },
+          "deep": {
+            "zh": "为什么设计成「只追加、不编辑」，而不是像人写作那样回头改？因为概率模型每一步只输出一个词，它没有「整段草稿」这个中间物可以回去改——这是链条式生成的数学性质，不是产品缺陷。工程上的补救都不在循环内部，而在循环外部：要么重采样（把整段重新生成，付全额成本），要么在采样规则上装刹车（第 3 天的重复惩罚、停止词），要么靠外部流程检查后再决定继续（第 3 阶段 Agent 的「工具校验再生成」）。看懂这一点，你就明白为什么所有「让 AI 自己改错」的方案本质都是把循环多转几圈，而不是在圈里加一个撤销键。",
+            "en": "Why 'append-only, no edits' instead of a human's draft-and-revise? A probability model emits one token per step and never holds a 'whole draft' to go back and fix — that's a mathematical property of chained generation, not a product flaw. All engineering remedies therefore live outside the loop: resample (regenerate the passage at full cost), brake at sampling time (day 3's repetition penalty, stop words), or let an external process verify before continuing (stage 3 agents' 'tool-check-then-regenerate'). Once you see this, every 'make AI fix its own mistakes' scheme reads the same way: turn the loop more times, not add an undo key inside a lap."
+          },
+          "example": {
+            "h": {
+              "zh": "一个 3 分钟实验",
+              "en": "A 3-minute experiment"
+            },
+            "p": {
+              "zh": "让任何聊天模型「从『夏天』开始，每次接一个字，接 30 个字」，重复跑 5 次。你会看到有的轨迹顺、有的轨迹跑偏到几乎不成句。再对同一次跑输出口头追问：「把你刚才最后一个字换掉重说」——模型只能整段重来，不能像文本编辑器那样删一个字。这个实验让你亲手摸到循环的两条性质：单步不确定（温度采样，第 3 天）与不可回退（只追加，不编辑）。",
+              "en": "Ask any chat model: 'starting from 夏天, continue one character at a time, 30 characters' — run it 5 times. Some runs flow; some drift into near-nonsense. Then ask it to 'redo with just the last character changed': it can only regenerate the whole thing, never delete one character like a text editor. This experiment lets you touch the loop's two properties yourself: per-step uncertainty (temperature sampling, day 3) and irreversibility (append-only, no edits)."
+            }
+          },
+          "misconception": null
+        },
+        {
+          "h": {
+            "zh": "延伸：循环装得下多长——窗口、缓存与流水线",
+            "en": "Extension: how long can the loop run — window, cache, and the pipeline"
+          },
+          "p": {
+            "zh": "循环每转一圈都要把「此刻全部上下文」装进窗口（第 4 天）——128K 的窗口不是「模型最多能说 128K 字」，而是循环体内注意力一次能处理的容量上限；逼近上限后最早的 token 就要被挤出（第 4 天的截断），被挤出的那段历史在这一圈里彻底不存在。KV cache（第 14 天）是循环的加速器：它把「每圈重算全部历史」改成「每圈只算新 token」，但缓存本身要吃显存，越长越贵——所以引擎转速和可跑长度之间存在真实的工程取舍。向前看：第 2 阶段（第 29 天起）的提示工程本质是「往循环里喂什么」——系统提示、少样本示例、思考链，全都是被钉进上下文、之后每圈都要被注意力反复回看的 token；第 3 阶段的 Agent 则是给这台发动机装「传感器和刹车」：工具调用的结果同样被钉回上下文，形成「生成→行动→观察」的外层大循环。",
+            "en": "Every lap must fit 'all context so far' inside the window (day 4) — a 128K window is not 'the model can say 128K words'; it's the loop body's attention capacity per lap. As it fills, the earliest tokens get evicted (day 4's truncation), and evicted history ceases to exist for that lap. The KV cache (day 14) is the loop's turbocharger: it turns 'recompute all history each lap' into 'compute only the new token' — but the cache itself eats VRAM, so longer runs cost more; a real trade-off between RPM and range. Looking ahead: stage-2 prompting (from day 29) is 'what you feed the loop' — system prompts, few-shot examples, chain-of-thought are all tokens pinned into the context that every later lap re-attends. Stage-3 agents bolt sensors and brakes onto this engine: tool results are appended too, forming an outer generate→act→observe loop."
+          },
+          "deep": null,
+          "example": null,
+          "misconception": null
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "打开任意聊天界面，问同一个问题两次，第二次在提示词里加「请用更低的温度回答」（能设参数的界面直接把 temperature 从 1.0 拨到 0.2）。对比两次输出的差异，然后回答三个问题：① 低温回答是不是「更正确」了？还是只是「更保守」？（提示：温度改变的是从概率分布里挑词的方式，不是分布本身——第 3 天。）② 这次回答里有没有模型「改写」过自己的地方？仔细看，那其实是重新生成，还是真的局部修改？（提示：循环只追加。）③ 如果把这个问题换成 800 字长文写作任务，跑偏的概率会变高还是变低？为什么？（提示：跑偏会不会被钉回输入、滚成雪球——本天的「尾巴决定开头」。）",
+          "en": "In any chat UI, ask the same question twice; the second time add 'answer with lower temperature' (or turn temperature from 1.0 down to 0.2 where you can). Compare the two outputs, then answer: ① Is the low-temperature answer 'more correct' — or just 'more conservative'? (Hint: temperature changes how you pick from the distribution, not the distribution — day 3.) ② Did the model 'edit' anything it wrote? Look closely: was that a true local edit or a full regeneration? (Hint: the loop only appends.) ③ Would drift odds rise or fall on an 800-word writing task, and why? (Hint: does a drift get pinned back into the input and snowball — this day's 'the tail feeds the head'.)"
+        }
+      },
+      "takeaway": {
+        "zh": "大模型写作是幻觉：发动机每转一圈只吐一个 token——采样、钉回输入、再转一圈；没有草稿、没有回头路，尾巴决定开头。",
+        "en": "LLM writing is an illusion: the engine emits one token per lap — sample it, pin it back, turn again. No draft, no undo; the tail feeds the head."
+      },
+      "anim": {
+        "tpl": "loop",
+        "hook": {
+          "zh": "你看到的「整段回答」，是发动机空转几百圈、每圈只吐一个词。",
+          "en": "That whole paragraph you read? The engine idled hundreds of laps, one token each."
+        },
+        "coverHook": {
+          "zh": "模型不会「写一段话」——它每转一圈只吐 1 个词，采完就钉回去再转：500 字 = 500 圈。",
+          "en": "The model never 'writes a paragraph' — one token per lap, pinned back, loop again: 500 words = 500 laps."
+        },
+        "promptTokens": ["写", "一首", "关于", "秋天", "的", "诗"],
+        "genTokens": ["秋风", "起", "时", "，", "叶", "落", "如", "雨", "。"],
+        "lapsZh": "本次生成：9 圈 × 每圈 5 步",
+        "lapsEn": "This run: 9 laps × 5 steps each",
+        "stepsZh": ["查表", "算注意力", "压成概率", "采样", "钉回去"],
+        "stepsEn": ["look up", "attend", "squash", "sample", "append"],
+        "readoutZh": {
+          "laps": "圈",
+          "cacheNote": "有缓存：每圈只算新查询，历史 K/V 全复用（第 14 天）"
+        },
+        "readoutEn": {
+          "laps": "laps",
+          "cacheNote": "With cache: only the new query per lap; all history K/V reused (day 14)"
+        },
+        "note": {
+          "zh": "循环唯一的出口：采到结束符、长度上限或停止词。没有草稿，没有回头路。",
+          "en": "The loop's only exits: end-of-sequence, length cap, or stop words. No draft, no undo."
+        }
+      }
     }
   ]
 }

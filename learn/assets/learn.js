@@ -1014,6 +1014,90 @@
       wrap.appendChild(legend);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* loop：生成循环（第 16 天）——提示词整行落位，随后一圈一圈采样：
+       每圈高亮五步（查表→算注意力→压成概率→采样→钉回去），并把新 token
+       追加进生成行；圈数计数器爬升。只动 transform/opacity，循环重播。 */
+    loop: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-loop');
+      var promptTag = el('div', 'materin-learn-loop__tag',
+        lang() === 'en' ? 'prompt (pinned once)' : '提示词（一次钉好）');
+      var promptRow = el('div', 'materin-learn-loop__row materin-learn-loop__row--prompt');
+      var genTag = el('div', 'materin-learn-loop__tag',
+        lang() === 'en' ? 'generated (+1 token per lap)' : '生成区（每圈 +1 token）');
+      var genRow = el('div', 'materin-learn-loop__row materin-learn-loop__row--gen');
+      var stepsBox = el('div', 'materin-learn-loop__steps');
+      var stepNodes = [];
+      var nSteps = (lang() === 'en' ? a.stepsEn : a.stepsZh).length;
+      for (var s = 0; s < nSteps; s++) {
+        var chip = el('span', 'materin-learn-loop__step',
+          (lang() === 'en' ? a.stepsEn : a.stepsZh)[s]);
+        stepsBox.appendChild(chip);
+        stepNodes.push(chip);
+      }
+      var readout = el('div', 'materin-learn-loop__readout');
+      var lapNum = el('span', 'materin-learn-loop__lap', '0');
+      var lapLabel = el('span', 'materin-learn-loop__lap-label',
+        lang() === 'en' ? a.readoutEn.laps : a.readoutZh.laps);
+      var cacheNote = el('span', 'materin-learn-loop__cache',
+        lang() === 'en' ? a.readoutEn.cacheNote : a.readoutZh.cacheNote);
+      readout.appendChild(lapNum);
+      readout.appendChild(lapLabel);
+      readout.appendChild(cacheNote);
+      var note = el('p', 'materin-learn-loop__note', t(a.note));
+
+      var promptN = a.promptTokens.length;
+      var genN = a.genTokens.length;
+
+      a.promptTokens.forEach(function (tok, i) {
+        var cell = el('span', 'materin-learn-loop__cell materin-learn-loop__cell--prompt', tok);
+        cell.style.animationDelay = (0.15 + i * 0.1) + 's';
+        promptRow.appendChild(cell);
+      });
+      var genCells = a.genTokens.map(function (tok) {
+        var cell = el('span', 'materin-learn-loop__cell materin-learn-loop__cell--gen', tok);
+        genRow.appendChild(cell);
+        return cell;
+      });
+
+      var t0 = null;
+      var STEP = 700, GAP = 280, HOLD = 1800;
+      var LAP = STEP * nSteps;
+      var CYCLE = genN * (LAP + GAP) + HOLD;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        var inHold = tNow >= genN * (LAP + GAP);
+        var lapIdx = Math.min(Math.floor(tNow / (LAP + GAP)), genN - 1);
+        var tInLap = tNow - lapIdx * (LAP + GAP);
+        var inSteps = !inHold && tInLap < LAP;
+        /* 一圈 = 五步走完吐 1 个 token：走步中亮当前步；第 5 步「钉回去」落位即追加 */
+        var phase = inSteps ? Math.floor(tInLap / STEP) : nSteps - 1;
+        var done = inHold ? genN : (inSteps ? lapIdx : lapIdx + 1);
+        var lapCount = inHold ? genN : lapIdx + 1;
+        lapNum.textContent = String(lapCount);
+        stepNodes.forEach(function (chip, k) {
+          chip.classList.toggle('is-live', inSteps && k === phase);
+          chip.classList.toggle('is-done', !inSteps || k < phase);
+        });
+        genCells.forEach(function (c, k) {
+          c.classList.toggle('is-in', k < done);
+        });
+        lapNum.classList.toggle('is-ticking', inSteps);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(promptTag);
+      wrap.appendChild(promptRow);
+      wrap.appendChild(genTag);
+      wrap.appendChild(genRow);
+      wrap.appendChild(stepsBox);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 
