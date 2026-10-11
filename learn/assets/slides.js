@@ -745,6 +745,68 @@
       requestAnimationFrame(function () { layoutMini(); });
       window.addEventListener('resize', layoutMini);
       v.appendChild(el('div', 'materin-learn-viz__label', '三线一图：14 站 13 边，黄虚线是跨线桥（读 · 学 · 用）'));
+    } else if (day.anim && day.anim.tpl === 'moe') {
+      if (idx === 0) {
+        /* 机制页：逐 token 路由示意——当前词点走不同专家组合（确定性映射） */
+        var route = el('div', 'materin-learn-viz__routes');
+        (day.anim.tokens || []).forEach(function (tok, i) {
+          var nExp = day.anim.expertCount || 8;
+          var scores = [];
+          for (var e = 0; e < nExp; e++) {
+            scores.push({ v: 0.5 + 0.5 * Math.abs(Math.sin((i + 1) * 3.7 + (e + 1) * 1.9)), e: e });
+          }
+          scores.sort(function (x, y) { return y.v - x.v; });
+          var row = el('div', 'materin-learn-viz__route-row');
+          row.appendChild(el('span', 'materin-learn-viz__route-word', tok));
+          var dots = el('span', 'materin-learn-viz__route-dots');
+          scores.slice(0, day.anim.topK || 2).forEach(function (s) {
+            dots.appendChild(el('span', 'materin-learn-viz__route-dot', String(s.e + 1)));
+          });
+          row.appendChild(dots);
+          route.appendChild(row);
+        });
+        v.appendChild(route);
+        v.appendChild(el('div', 'materin-learn-viz__label', '路由逐 token 独立：6 个词走 6 种专家组合（示意）'));
+      } else if (idx === 1) {
+        /* 为什么页：三台机器激活率对照 */
+        var bars = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: 'Mixtral 8×7B', val: 28, cls: '', txt: '47B/13B' },
+          { tag: 'DeepSeek-V3', val: 5.5, cls: ' materin-learn-viz__bar--en', txt: '671B/37B' },
+          { tag: '稠密 Llama-70B', val: 100, cls: '', txt: '70B/70B' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(1.5, r.val) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars.appendChild(row);
+        });
+        v.appendChild(bars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '激活率：容量跟总参数走，算力跟激活参数走'));
+      } else {
+        /* 延伸页：显存墙——bf16 vs int4 的部署账 */
+        var bars3 = el('div', 'materin-learn-viz__bars');
+        [
+          { tag: 'bf16 全量', val: 100, cls: '', txt: '≈1.3TB · 17 张 80GB 卡' },
+          { tag: 'int4 量化', val: 26, cls: ' materin-learn-viz__bar--en', txt: '≈335GB · 5 张卡（第 11 天）' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(1.5, r.val) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars3.appendChild(row);
+        });
+        v.appendChild(bars3);
+        v.appendChild(el('div', 'materin-learn-viz__label', '显存按总参数全量买单——省算力不省显存，量化是解药'));
+      }
     } else if (day.anim && day.anim.tpl === 'loop') {
       if (idx === 0) {
         /* 五步链条 + 一次 tick 的产出：与动效页同一叙事（静态全亮） */

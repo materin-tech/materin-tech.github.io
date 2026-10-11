@@ -1016,6 +1016,92 @@
       return wrap;
     },
 
+    /* moe：专家混合（第 17 天）——token 行落位后路由逐词点名：当前 token 高亮，
+       8 条专家车道按门控分数排位，top-2 点亮走计算、其余保持睡眠；
+       readout 常驻「总参数/激活/激活率」。确定性分数：同一 token 每次刷新
+       点亮同一组专家（截屏任意帧可读）。只动 transform/背景，循环重播。 */
+    moe: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-moe');
+      var tokTag = el('div', 'materin-learn-moe__tag',
+        lang() === 'en' ? 'each token is routed afresh' : '每个 token 都要重新点名');
+      var tokRow = el('div', 'materin-learn-moe__tokens');
+      var tokCells = a.tokens.map(function (tok, i) {
+        var cell = el('span', 'materin-learn-moe__token', tok);
+        cell.style.animationDelay = (0.12 + i * 0.09) + 's';
+        tokRow.appendChild(cell);
+        return cell;
+      });
+      var gateTag = el('div', 'materin-learn-moe__tag',
+        lang() === 'en' ? a.gateLabelEn : a.gateLabelZh);
+      var laneBox = el('div', 'materin-learn-moe__lanes');
+      var lanes = [];
+      var n = a.expertCount;
+      for (var e = 0; e < n; e++) {
+        var lane = el('div', 'materin-learn-moe__lane');
+        var no = el('span', 'materin-learn-moe__lane-no',
+          (lang() === 'en' ? a.expertLabel.en : a.expertLabel.zh) + ' ' + (e + 1));
+        var meter = el('span', 'materin-learn-moe__lane-meter');
+        var fill = el('span', 'materin-learn-moe__lane-fill');
+        meter.appendChild(fill);
+        var score = el('span', 'materin-learn-moe__lane-score', '0.00');
+        lane.appendChild(no);
+        lane.appendChild(meter);
+        lane.appendChild(score);
+        laneBox.appendChild(lane);
+        lanes.push({ root: lane, fill: fill, score: score });
+      }
+      var readout = el('div', 'materin-learn-moe__readout');
+      ['total', 'active', 'ratio'].forEach(function (k) {
+        var rd = lang() === 'en' ? a.readoutEn[k] : a.readoutZh[k];
+        var box = el('div', 'materin-learn-moe__stat');
+        box.appendChild(el('span', 'materin-learn-moe__stat-num', rd.num));
+        box.appendChild(el('span', 'materin-learn-moe__stat-cap', rd.cap));
+        readout.appendChild(box);
+      });
+      var note = el('p', 'materin-learn-moe__note', t(a.note));
+
+      function gatesFor(i) {
+        var gates = [];
+        for (var e = 0; e < n; e++) {
+          gates.push({ v: 0.5 + 0.5 * Math.abs(Math.sin((i + 1) * 3.7 + (e + 1) * 1.9)), e: e });
+        }
+        gates.sort(function (x, y) { return y.v - x.v; });
+        var top = [];
+        for (var k = 0; k < a.topK; k++) top.push(gates[k].e);
+        return { gates: gates, top: top };
+      }
+
+      var HOLD = 2600;
+      var CYCLE = a.tokens.length * HOLD;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        var cur = Math.min(Math.floor(tNow / HOLD), a.tokens.length - 1);
+        var r = gatesFor(cur);
+        tokCells.forEach(function (c, k) {
+          c.classList.toggle('is-live', k === cur);
+        });
+        lanes.forEach(function (ln, e) {
+          var g = r.gates.filter(function (x) { return x.e === e; })[0];
+          ln.fill.style.transform = 'scaleX(' + g.v.toFixed(3) + ')';
+          ln.score.textContent = g.v.toFixed(2);
+          ln.root.classList.toggle('is-top', r.top.indexOf(e) !== -1);
+        });
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(tokTag);
+      wrap.appendChild(tokRow);
+      wrap.appendChild(gateTag);
+      wrap.appendChild(laneBox);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
+    },
+
     /* loop：生成循环（第 16 天）——提示词整行落位，随后一圈一圈采样：
        每圈高亮五步（查表→算注意力→压成概率→采样→钉回去），并把新 token
        追加进生成行；圈数计数器爬升。只动 transform/opacity，循环重播。 */

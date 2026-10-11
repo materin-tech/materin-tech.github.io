@@ -2621,12 +2621,41 @@
           "zh": "模型不会「写一段话」——它每转一圈只吐 1 个词，采完就钉回去再转：500 字 = 500 圈。",
           "en": "The model never 'writes a paragraph' — one token per lap, pinned back, loop again: 500 words = 500 laps."
         },
-        "promptTokens": ["写", "一首", "关于", "秋天", "的", "诗"],
-        "genTokens": ["秋风", "起", "时", "，", "叶", "落", "如", "雨", "。"],
+        "promptTokens": [
+          "写",
+          "一首",
+          "关于",
+          "秋天",
+          "的",
+          "诗"
+        ],
+        "genTokens": [
+          "秋风",
+          "起",
+          "时",
+          "，",
+          "叶",
+          "落",
+          "如",
+          "雨",
+          "。"
+        ],
         "lapsZh": "本次生成：9 圈 × 每圈 5 步",
         "lapsEn": "This run: 9 laps × 5 steps each",
-        "stepsZh": ["查表", "算注意力", "压成概率", "采样", "钉回去"],
-        "stepsEn": ["look up", "attend", "squash", "sample", "append"],
+        "stepsZh": [
+          "查表",
+          "算注意力",
+          "压成概率",
+          "采样",
+          "钉回去"
+        ],
+        "stepsEn": [
+          "look up",
+          "attend",
+          "squash",
+          "sample",
+          "append"
+        ],
         "readoutZh": {
           "laps": "圈",
           "cacheNote": "有缓存：每圈只算新查询，历史 K/V 全复用（第 14 天）"
@@ -2638,6 +2667,182 @@
         "note": {
           "zh": "循环唯一的出口：采到结束符、长度上限或停止词。没有草稿，没有回头路。",
           "en": "The loop's only exits: end-of-sequence, length cap, or stop words. No draft, no undo."
+        }
+      }
+    },
+    {
+      "n": 17,
+      "stage": 1,
+      "week": 3,
+      "tpl": "moe",
+      "date": "2026-10-11",
+      "title": {
+        "zh": "专家混合 MoE：470 亿参数，只唤醒 130 亿",
+        "en": "Mixture of Experts: 47B parameters, only 13B awake"
+      },
+      "subtitle": {
+        "zh": "上周看完发动机怎么转，今天看它怎么变「宽」而不变「贵」：每层 FFN 复制成几十份，路由器逐词点名，只算被点中的那几个。容量随总参数涨，算力随激活参数走——这是大模型军备竞赛的底牌。",
+        "en": "Last week: how the engine turns. Today: how it gets wider without getting pricier — dozens of FFN copies per layer, a router names tokens one by one, only the called experts compute. Capacity tracks total parameters, cost tracks active ones: the hidden card of the model race."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：一层 FFN 变一群 FFN——路由器逐词点名",
+            "en": "Mechanism: one FFN becomes a crowd — the router calls names token by token"
+          },
+          "p": {
+            "zh": "把第 16 天的发动机拆开看一层：注意力层照旧，但 FFN（第 7 天里那个「消化层」）被复制成 N 份——Mixtral 复制 8 份，DeepSeek-V3 每层 256 份。一个 token 到达时，先过一个极小的路由器：拿 token 的向量跟 N 个专家各算一个门控分数，softmax 归一化后取最高的 top-k 个（DeepSeek-V3 每层选 8 个，外加 1 个所有 token 共享的共享专家），只有被点中的专家真正做 FFN 计算，其余专家这一圈完全躺着不动。关键在「逐词」二字：路由不是每个问题选一个专家，而是每个 token、每一层都重新选——一句话 30 个 token，会激活几十种不同的专家组合。",
+            "en": "Open the day-16 engine at any one layer: attention stays as-is, but the FFN (day 7's 'digestion' layer) is copied N times — 8 copies in Mixtral, 256 per layer in DeepSeek-V3. When a token arrives it first passes a tiny router: the token vector scores a gate value against each of the N experts, softmax normalizes, and the top-k are chosen (DeepSeek-V3 picks 8 per layer, plus 1 shared expert every token also passes). Only the called experts actually compute their FFN; the rest sit idle for that lap. The key phrase is 'per token': routing is not one expert per question — every token, at every layer, is routed afresh. Thirty tokens in a sentence activate dozens of different expert combinations."
+          },
+          "deep": {
+            "zh": "为什么不全部用？全用就退化回稠密模型，算力随总参数线性上涨，扩容白扩。为什么不只选 1 个？训练早期路由器是乱指的，只给 1 个名额，指错一次就切断了那一步的梯度，训练不稳；top-2 到 top-8 留了冗余，还允许专家之间协作。第二个隐藏设计是负载均衡：不加约束时，路由器会偷懒把 token 都塞给少数几个「顺手」的专家，其余专家饿死（专家塌缩），几百亿参数白带——所以训练时加辅助损失，惩罚专家间的负载不均，强迫 token 流摊到所有专家头上。你看到的「每个专家都被用到」不是自然涌现，是被损失函数逼出来的。",
+            "en": "Why not use all experts? That collapses back into a dense model — compute scales linearly with total parameters, and the expansion buys nothing. Why not just 1? Early in training the router points randomly; with a single slot, one wrong pointer cuts that step's gradient and training destabilizes. top-2 to top-8 keeps redundancy and lets experts cooperate. The second hidden design is load balancing: unconstrained, the router lazily dumps tokens onto a few 'convenient' experts and starves the rest (expert collapse), carrying hundreds of billions of dead parameters — so training adds an auxiliary loss that penalizes uneven load and forces the token stream across all experts. 'Every expert gets used' is not emergent; it is coerced by the loss function."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "拿 Mixtral 8×7B 算：总参数 467 亿，32 层里每层 8 个专家选 2 个，单 token 激活约 130 亿（≈28%）。DeepSeek-V3 更狠：总参数 6710 亿，每层 256 选 8，单 token 激活约 370 亿（≈5.5%）——这是含注意力层与共享层的全账。路由器本身小到可以忽略（一层几千到几万参数），它贵的是「决定」，不是「计算」。",
+              "en": "Mixtral 8×7B: 46.7B total parameters, 8 experts per layer picking 2 across 32 layers — about 13B active per token (≈28%). DeepSeek-V3 goes further: 671B total, 256 experts picking 8 per layer, about 37B active per token (≈5.5%) — the full bill including attention and shared layers. The router itself is negligible (thousands of parameters per layer); its cost is the decision, not the arithmetic."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「专家 = 科室医生，问法律就找法律专家」——最流行也最错的理解。路由的粒度是 token 不是问题，专家学到的是 token 层面的模式组合（标点、代码符号、数字、某类句法结构），不是学科；同一个问题的 30 个 token 会走几十种专家组合，不存在某个「法律专家」被整体咨询。另一个误区：「MoE 是 8 个小模型拼接，轮流值班」——注意力层全体共享，一个 token 从下到上每层各选一次专家，不存在「这个回答出自专家 3」这回事。",
+              "en": "'Experts = department doctors: ask law, find the law expert' — the most popular and most wrong reading. Routing granularity is the token, not the question; experts learn token-level pattern mixes (punctuation, code symbols, digits, syntactic shapes), not disciplines. Thirty tokens route through dozens of combinations; no single 'law expert' is ever consulted whole. And MoE is not 8 small models taking shifts: attention layers are shared, and each token picks experts afresh at every layer on its way up — no answer 'comes from expert 3'."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "为什么是这样：容量与算力解绑——参数换知识，不换电费",
+            "en": "Why: unbundling capacity from compute — parameters buy knowledge, not watts"
+          },
+          "p": {
+            "zh": "稠密模型里两笔账绑在一起：想记住更多世界知识就得加参数（第 7 天的 scaling laws：参数越多，损失越低），而加参数就得让每个 token 付全额算力。MoE 把两笔账拆开：总参数继续膨胀（容量涨），每个 token 只走 top-k（算力≈不变）。这就是为什么 2024 年之后的主流大模型几乎全是 MoE——同一档的回答质量，推理算力账单只有稠密方案的几分之一。代价不是没有：全部专家必须常驻显存，「算力墙」换成了「显存墙」，这笔账留到第 3 节算。",
+            "en": "In a dense model two ledgers are bound together: more world knowledge needs more parameters (day 7's scaling laws — more parameters, lower loss), and more parameters make every token pay full compute. MoE splits the ledgers: total parameters keep growing (capacity up) while each token only walks top-k (compute roughly flat). That's why nearly every mainstream model since 2024 is MoE — same quality tier, an inference bill that's a fraction of the dense equivalent. The cost is real, though: all experts must sit in VRAM. The 'compute wall' becomes a 'VRAM wall' — that bill comes in section 3."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "三台机器摆一起看激活比例：Mixtral 8×7B——47B 总参/13B 激活，28%；DeepSeek-V3——671B 总参/37B 激活，5.5%；稠密 Llama-70B——70B/70B，100%。按第 16 天的圈速账：同样转 500 圈，DeepSeek-V3 每圈只走约 370 亿参数的乘加（前向约 2×激活参数 ≈ 740 亿次浮点运算/token），电费大致相当于一个 40B 级稠密模型；但它装下的「世界」是 6710 亿参数量级的——同档电费，16 倍容量。",
+              "en": "Three machines, one metric — active ratio: Mixtral 8×7B, 47B/13B = 28%; DeepSeek-V3, 671B/37B = 5.5%; dense Llama-70B, 70B/70B = 100%. On day 16's lap accounting: over 500 laps, DeepSeek-V3 walks ~37B parameters per lap (forward ≈ 2× active ≈ 74 GFLOPs/token) — an electricity bill close to a 40B-class dense model — while its 'world' is 671B-sized. Same-tier watts, 16× the capacity."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「MoE 让模型更便宜」——只对了算力那一半。训练更难（路由器和负载均衡损失要调，容易训崩）、显存更贵（671B 权重 bf16 要约 1.3TB，不管激活多少都得全装）、部署门槛更高（小显存卡根本装不下）。MoE 是把成本从「算力」挪到「显存与工程难度」，总量并没变小。对 API 使用者，价格变便宜是真的；对自部署者，先掂量的是显卡仓位。",
+              "en": "'MoE makes models cheaper' — only the compute half. Training is harder (router and load-balancing loss need tuning; easy to destabilize), VRAM is pricier (671B weights ≈ 1.3TB in bf16, installed in full regardless of activation), and the deployment bar is higher (small-VRAM cards need not apply). MoE moves cost from 'compute' to 'memory and engineering'; the total doesn't shrink. For API users, cheaper is true; for self-hosters, count your GPU slots first."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：省下的算力，换来的显存墙——和解药",
+            "en": "Extension: saved compute becomes a VRAM wall — and the antidotes"
+          },
+          "p": {
+            "zh": "MoE 省的是乘加次数，不省显存：671B 权重必须全量常驻，哪怕此刻只有 5.5% 在干活。bf16 下约 1.3TB，80GB 的卡要 17 张才装得下——所以 MoE 模型天然活在多机多卡集群里，小显存环境反而与它无缘。解药是第 11 天的量化：权重量化到 int4 后 671B ≈ 335GB，仍然巨大，但已从「17 张卡」降到「5 张卡」。两个不受波及的邻居：KV cache（第 14 天）住在注意力层，注意力全体共享，缓存大小与专家数无关；路由不可预测带来的是批量推理的调度问题，不是正确性问题。向前看：第 2 阶段（29 天起）你会遇到一个现象——同一问题微调一个词，回答结构可能明显变化，因为路由逐 token 独立，新词改写了后续每个位置的专家组合；第 3 阶段 Agent 的长任务高吞吐场景，恰是 MoE 批量效率的主场。",
+            "en": "MoE saves multiply-adds, not memory: 671B weights must sit in VRAM in full even while 5.5% work. In bf16 that's ≈1.3TB — seventeen 80GB cards — so MoE models naturally live in multi-node clusters and shun small-VRAM setups. The antidote is day 11's quantization: int4 brings 671B to ≈335GB — still huge, but from 17 cards down to 5. Two neighbors are unaffected: the KV cache (day 14) lives in the shared attention layers, so its size doesn't care about expert count; unpredictable routing creates batch-scheduling work, not correctness problems. Looking ahead: in stage 2 (day 29 on) you'll notice that tweaking one word can visibly reshape the whole answer — routing is per token, so a new word rewrites the expert mix at every later position. Stage 3 agents' long, high-throughput tasks are exactly where MoE's batch efficiency shines."
+          },
+          "deep": null,
+          "example": {
+            "h": {
+              "zh": "一个 3 分钟实验",
+              "en": "A 3-minute experiment"
+            },
+            "p": {
+              "zh": "在任何一个托管 MoE 模型的对话服务里，问「把这句话翻译成英文：山高月小」，再把问题改成「请把这句话翻译成英文：山高月小」——只多了一个「请」。对比两次回答的措辞和结构。然后回答：① 为什么加一个词会影响整段输出？（提示：路由逐 token 独立，新 token 改变了后续每个位置的输入和专家组合。）② 门控分数是怎么来的？（提示：token 向量乘一个学出来的路由矩阵——是训练出来的，不是规则写死的。）",
+              "en": "On any hosted MoE model, ask 'translate this into English: the mountain is high, the moon small', then ask again adding just one word: 'please translate…'. Compare the wording and structure of the two replies. Then: ① why does one added word affect the whole output? (Hint: routing is per token — the new token changes every later position's input and expert mix.) ② Where do gate scores come from? (Hint: the token vector times a learned routing matrix — trained, not hand-written.)"
+            }
+          },
+          "misconception": null
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "打开 Hugging Face 上 DeepSeek-V3（或 Mixtral）的模型卡，找到「Total Params / Activated Params」两个数，算出激活比例（DeepSeek-V3：671B/37B≈5.5%）。然后回答三个问题：① 部署时显存为什么要按 671B 备，而不是 37B？（提示：路由逐 token 现场决定，专家必须随叫随到——本天第 3 节。）② 推理激活 5.5%，训练成本是不是也只有 5.5%？（提示：训练时每个 batch 的 token 会摊到所有专家头上，负载均衡损失还专门逼着大家雨露均沾——专家塌缩那一段。）③ 你正在用的模型是稠密还是 MoE？去模型卡找证据。（提示：看有没有 experts / n_routed_experts 这类字段。）",
+          "en": "Open DeepSeek-V3's (or Mixtral's) Hugging Face model card, find 'Total Params / Activated Params', and compute the active ratio (DeepSeek-V3: 671B/37B ≈ 5.5%). Then answer: ① Why provision VRAM for 671B, not 37B? (Hint: routing is decided per token on the spot — experts must be on call; section 3.) ② If inference activates 5.5%, is training also 5.5%? (Hint: a batch's tokens spread across all experts, and the load-balancing loss deliberately shares the wealth — see expert collapse.) ③ Is the model you use dense or MoE? Find evidence in the model card. (Hint: look for fields like experts / n_routed_experts.)"
+        }
+      },
+      "takeaway": {
+        "zh": "MoE 把「更聪明」和「更贵」拆开：总参数买容量，激活参数付算力——路由器逐词点名 top-k，显存则按总参数全量买单。",
+        "en": "MoE unbundles 'smarter' from 'pricier': total parameters buy capacity, active parameters pay compute — the router calls top-k experts per token, while VRAM pays for all of them."
+      },
+      "anim": {
+        "tpl": "moe",
+        "hook": {
+          "zh": "470 亿参数的机器，每个词只唤醒 130 亿——其余的在睡觉，但工资照付。",
+          "en": "A 47B-parameter machine wakes only 13B per token — the rest sleep, but still collect rent."
+        },
+        "coverHook": {
+          "zh": "每处理一个词，470 亿参数里只有 130 亿在干活：路由器逐词点名，8 个专家选 2 个。",
+          "en": "Per token, only 13B of 47B parameters do the work: the router calls 2 of 8 experts, word by word."
+        },
+        "tokens": [
+          "把",
+          "这句",
+          "古文",
+          "翻译",
+          "成",
+          "白话"
+        ],
+        "expertCount": 8,
+        "topK": 2,
+        "expertLabel": {
+          "zh": "专家",
+          "en": "Expert"
+        },
+        "gateLabelZh": "路由器门控分数（逐词重新打分，最高分 top-2 点亮）",
+        "gateLabelEn": "Router gate scores (rescored per token; top-2 light up)",
+        "readoutZh": {
+          "total": {
+            "num": "47B",
+            "cap": "总参数 · 8 个专家"
+          },
+          "active": {
+            "num": "13B",
+            "cap": "本词激活 · top-2"
+          },
+          "ratio": {
+            "num": "28%",
+            "cap": "激活率"
+          }
+        },
+        "readoutEn": {
+          "total": {
+            "num": "47B",
+            "cap": "total · 8 experts"
+          },
+          "active": {
+            "num": "13B",
+            "cap": "active per token · top-2"
+          },
+          "ratio": {
+            "num": "28%",
+            "cap": "active ratio"
+          }
+        },
+        "note": {
+          "zh": "路由逐 token 独立、逐层独立：一句话的每个词走不同的专家组合；专家学的是模式，不是学科。",
+          "en": "Routing is per token, per layer: each word walks its own expert mix. Experts learn patterns, not subjects."
         }
       }
     }

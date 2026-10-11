@@ -314,6 +314,40 @@
 
 .materin-learn-viz__bar-val { min-width: 64px; max-width: 220px; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
+/* 逐 token 路由示意（moe，第 17 天） */
+.materin-learn-viz__routes { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 560px; }
+
+.materin-learn-viz__route-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 12px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-glass-bg-subtle);
+}
+
+.materin-learn-viz__route-word { min-width: 72px; font-size: 26px; font-weight: 700; }
+
+.materin-learn-viz__route-dots { display: flex; gap: 8px; }
+
+.materin-learn-viz__route-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 999px;
+  background: var(--materin-accent-soft);
+  color: var(--materin-accent);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 /* --- 结尾页 ---------------------------------------------------------- */
 .materin-learn-end {
   height: 100%;
