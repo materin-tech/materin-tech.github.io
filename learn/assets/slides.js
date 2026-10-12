@@ -873,6 +873,78 @@
         v.appendChild(bars3);
         v.appendChild(el('div', 'materin-learn-viz__label', '窗口管装多少，缓存管转多快——提示工程（D29 起）管喂什么'));
       }
+    } else if (day.anim && day.anim.tpl === 'fim') {
+      if (idx === 0) {
+        /* 机制页：FIM 三段重排——训练时「前缀+后缀+中间」，光标就是切口 */
+        var seq = el('div', 'materin-learn-viz__chips');
+        [
+          { tag: '前缀', cls: '' },
+          { tag: '＋', cls: ' materin-learn-viz__chip--alt' },
+          { tag: '后缀', cls: '' },
+          { tag: '→', cls: ' materin-learn-viz__chip--alt' },
+          { tag: '待补：中间', cls: ' materin-learn-viz__chip--merged' }
+        ].forEach(function (r) {
+          seq.appendChild(el('span', 'materin-learn-viz__chip' + r.cls, r.tag));
+        });
+        v.appendChild(seq);
+        var fbars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '光标前文（一次补全请求实际携带）', val: 100, cls: '', txt: '2000 token', wide: true },
+          { tag: '光标后文（也能看见）', val: 25, cls: ' materin-learn-viz__bar--en', txt: '500 token', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          fbars.appendChild(row);
+        });
+        v.appendChild(fbars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '补全 ≠ 续写：两头喂给 FIM，生成的位置在光标，不在文件尾'));
+      } else if (idx === 1) {
+        /* 为什么页：接受率与任务类型的分配账 */
+        var abars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '常规代码（测试/样板/常见模式）', val: 55, cls: '', txt: '任务快 55%', wide: true },
+          { tag: '私有业务逻辑（模型没见过的上下文）', val: 4, cls: ' materin-learn-viz__bar--en', txt: '提速趋近 0', wide: true },
+          { tag: '端到端延迟上限（M 系列 p50）', val: 100, cls: '', txt: '305ms · 服务端 82ms', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(2, Math.min(100, r.val)) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          abars.appendChild(row);
+        });
+        v.appendChild(abars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '接受率是补全的计分板：短补全像递工具，长补全像让你做评审'));
+      } else {
+        /* 延伸页：三种姿态——谁按 Tab */
+        var pbars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '补全：你按 Tab', val: 30, cls: '', txt: '你是司机 · 逐字陪跑', wide: true },
+          { tag: '聊天：它答你问', val: 62, cls: '', txt: '方向盘还在你手', wide: true },
+          { tag: 'Agent：它按 Tab（D50 起）', val: 100, cls: ' materin-learn-viz__bar--en', txt: '你只在路口确认', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          pbars.appendChild(row);
+        });
+        v.appendChild(pbars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '同一台发动机，三种姿态——提示工程（D29 起）管把需求喂给哪一种'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

@@ -88,7 +88,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 140px 96px;
+  padding: 40px 140px 96px;
   gap: 34px;
 }
 
@@ -295,6 +295,13 @@
 .materin-learn-viz__bar-row { display: flex; align-items: center; gap: 18px; }
 
 .materin-learn-viz__bar-tag { width: 120px; color: var(--materin-text-muted); font-size: 24px; text-align: right; }
+
+/* 长标签行（fim 等）：第一行标签允许加宽、字号降一档，避免 5 行碎字 */
+.materin-learn-viz__bar-row--wide .materin-learn-viz__bar-tag { width: 300px; font-size: 19px; line-height: 1.35; }
+
+/* 加宽行内轨道要留得出：容器同时放宽，数值列缩窄 */
+.materin-learn-viz__bar-row--wide .materin-learn-viz__bar-val { max-width: 150px; font-size: 19px; }
+.materin-learn-viz__bars--wide { max-width: 620px; }
 
 .materin-learn-viz__bar-track {
   flex: 1;

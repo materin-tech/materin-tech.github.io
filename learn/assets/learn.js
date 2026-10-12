@@ -1184,6 +1184,79 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* fim：中间填充（第 18 天）——三行瓦片：前缀只读落位 → 光标高亮 →
+       待补格逐格显现 → 后缀行点亮；readout 常驻「前文预算/后文预算/延迟」。
+       待补格用 scaleX 生长（不动 opacity），循环重播；确定性时序，任意帧可读。 */
+    fim: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-fim');
+      var prefixTag = el('div', 'materin-learn-fim__tag',
+        lang() === 'en' ? a.prefixCapEn || 'prefix — read-only context' : a.prefixCap);
+      var prefixRow = el('div', 'materin-learn-fim__row materin-learn-fim__row--prefix');
+      var prefixCells = a.prefixTokens.map(function (tok, i) {
+        var cell = el('span', 'materin-learn-fim__cell materin-learn-fim__cell--prefix', tok);
+        cell.style.animationDelay = (0.15 + i * 0.08) + 's';
+        prefixRow.appendChild(cell);
+        return cell;
+      });
+      var middleTag = el('div', 'materin-learn-fim__tag',
+        lang() === 'en' ? a.middleCapEn || 'to fill — at the cursor' : a.middleCap);
+      var middleRow = el('div', 'materin-learn-fim__row materin-learn-fim__row--middle');
+      var cursor = el('span', 'materin-learn-fim__cursor');
+      middleRow.appendChild(cursor);
+      var middleCells = a.middleTokens.map(function (tok, i) {
+        var cell = el('span', 'materin-learn-fim__cell materin-learn-fim__cell--middle', tok);
+        middleRow.appendChild(cell);
+        return cell;
+      });
+      var suffixTag = el('div', 'materin-learn-fim__tag',
+        lang() === 'en' ? a.suffixCapEn || 'suffix — the model sees it too' : a.suffixCap);
+      var suffixRow = el('div', 'materin-learn-fim__row materin-learn-fim__row--suffix');
+      var suffixCells = a.suffixTokens.map(function (tok, i) {
+        var cell = el('span', 'materin-learn-fim__cell materin-learn-fim__cell--suffix', tok);
+        suffixRow.appendChild(cell);
+        return cell;
+      });
+      var readout = el('div', 'materin-learn-fim__readout');
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      ['prefix', 'suffix', 'latency'].forEach(function (k) {
+        var box = el('div', 'materin-learn-fim__stat');
+        box.appendChild(el('span', 'materin-learn-fim__stat-num', rd[k].num));
+        box.appendChild(el('span', 'materin-learn-fim__stat-cap', rd[k].cap));
+        readout.appendChild(box);
+      });
+      var note = el('p', 'materin-learn-fim__note', t(a.note));
+
+      /* 时序：前缀落位 1.6s → 光标高亮 0.6s → 待补格逐格 0.4s/格 →
+         后缀点亮 0.8s → 静置 1.8s → 循环 */
+      var FILL = 1600, CURSOR = 600, STEP = 400, LIT = 800, HOLD = 1800;
+      var CYCLE = FILL + CURSOR + middleCells.length * STEP + LIT + HOLD;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        cursor.classList.toggle('is-live', tNow >= FILL && tNow < FILL + CURSOR + middleCells.length * STEP);
+        middleCells.forEach(function (c, k) {
+          var on = tNow >= FILL + CURSOR + k * STEP;
+          c.classList.toggle('is-in', on);
+        });
+        var suffixOn = tNow >= FILL + CURSOR + middleCells.length * STEP;
+        suffixRow.classList.toggle('is-lit', suffixOn);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(prefixTag);
+      wrap.appendChild(prefixRow);
+      wrap.appendChild(middleTag);
+      wrap.appendChild(middleRow);
+      wrap.appendChild(suffixTag);
+      wrap.appendChild(suffixRow);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

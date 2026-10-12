@@ -2664,3 +2664,168 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-body-day.is-stage .materin-learn-loop__lap-label { font-size: 28px; }
 .materin-learn-body-day.is-stage .materin-learn-loop__cache { font-size: 24px; }
 .materin-learn-body-day.is-stage .materin-learn-loop__note { font-size: 28px; max-width: 840px; }
+
+/* fim：中间填充（第 18 天）——三行瓦片（前缀/待补/后缀）+ 光标 + 三格 readout。
+   待补格只动 transform（scaleX 生长），初始可见不靠 opacity，循环重播。 */
+.materin-learn-fim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.materin-learn-fim__tag {
+  color: var(--materin-text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  align-self: flex-start;
+}
+
+.materin-learn-fim__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 14px;
+  background: var(--materin-glass-bg-subtle);
+  transition: border-color var(--materin-duration-normal, 0.3s) ease,
+              box-shadow var(--materin-duration-normal, 0.3s) ease;
+}
+
+.materin-learn-fim__row--prefix { border-color: var(--materin-accent-border); }
+.materin-learn-fim__row--middle { border-style: dashed; }
+.materin-learn-fim__row--suffix.is-lit {
+  border-color: var(--materin-ok);
+  box-shadow: var(--materin-shadow);
+}
+
+.materin-learn-fim__cell {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  height: 32px;
+  border: 1px solid var(--materin-border);
+  border-radius: 8px;
+  background: var(--materin-surface-2);
+  color: var(--materin-text-muted);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.materin-learn-fim__cell--prefix {
+  border-color: var(--materin-accent-border);
+  transform: translateY(6px) scale(0.9);
+  animation: materin-learn-fim-pop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+.materin-learn-fim__cell--suffix {
+  transform: translateY(4px) scale(0.94);
+  transition: transform 0.4s var(--materin-ease-standard, ease),
+              border-color var(--materin-duration-normal, 0.3s) ease,
+              color var(--materin-duration-normal, 0.3s) ease;
+}
+
+.materin-learn-fim__row--suffix.is-lit .materin-learn-fim__cell--suffix {
+  border-color: var(--materin-ok);
+  background: var(--materin-ok-soft, var(--materin-surface-2));
+  color: var(--materin-ok);
+  transform: translateY(0) scale(1);
+}
+
+.materin-learn-fim__cursor {
+  width: 3px;
+  height: 30px;
+  border-radius: 2px;
+  background: var(--materin-accent);
+  transition: transform 0.25s var(--materin-ease-standard, ease),
+              box-shadow 0.25s var(--materin-ease-standard, ease);
+}
+
+.materin-learn-fim__cursor.is-live {
+  transform: scaleY(1.25);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--materin-accent) 65%, transparent);
+}
+
+.materin-learn-fim__cell--middle {
+  border-color: var(--materin-ok);
+  border-style: dashed;
+  background: var(--materin-ok-soft, var(--materin-surface-2));
+  color: var(--materin-ok);
+  font-weight: 700;
+  transform: scaleX(0.04);
+  transform-origin: left center;
+  transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+}
+
+.materin-learn-fim__cell--middle.is-in { transform: scaleX(1); }
+
+@keyframes materin-learn-fim-pop {
+  from { transform: translateY(6px) scale(0.9); }
+  to { transform: translateY(0) scale(1); }
+}
+
+.materin-learn-fim__readout {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.materin-learn-fim__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-surface-2);
+}
+
+.materin-learn-fim__stat-num {
+  color: var(--materin-accent);
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-fim__stat-cap {
+  color: var(--materin-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.materin-learn-fim__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+  max-width: 640px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materin-learn-fim__cell--prefix,
+  .materin-learn-fim__cell--middle { animation: none; transition: none; }
+  .materin-learn-fim__cell--middle { transform: scaleX(1); }
+}
+
+/* 竖版舞台（?stage=1）：fim 放大 */
+.materin-learn-body-day.is-stage .materin-learn-fim { gap: 30px; max-width: 900px; }
+.materin-learn-body-day.is-stage .materin-learn-fim__tag { font-size: 26px; }
+.materin-learn-body-day.is-stage .materin-learn-fim__row { min-height: 92px; border-radius: 24px; gap: 14px; padding: 14px; }
+.materin-learn-body-day.is-stage .materin-learn-fim__cell { height: 56px; padding: 0 22px; border-radius: 14px; font-size: 30px; }
+.materin-learn-body-day.is-stage .materin-learn-fim__cursor { height: 52px; width: 5px; }
+.materin-learn-body-day.is-stage .materin-learn-fim__stat-num { font-size: 44px; }
+.materin-learn-body-day.is-stage .materin-learn-fim__stat-cap { font-size: 24px; }
+.materin-learn-body-day.is-stage .materin-learn-fim__note { font-size: 28px; max-width: 840px; }
