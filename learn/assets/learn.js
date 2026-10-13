@@ -1257,6 +1257,89 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* think：思维链（第 19 天）——左右两栏对照：上栏「直接回答」一圈到答案，
+       即刻打上错误判决；下栏「先想后答」草稿格逐格落位，含一个「先写错 →
+       回溯」的对：错格点亮 warn 判决后被划掉，修正格接着长出，答案格压轴。
+       草稿格只动 transform（scaleY 生长），初始可见不靠 opacity，循环重播。 */
+    think: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-think');
+      var question = el('div', 'materin-learn-think__question', t(a.question));
+
+      var fastTag = el('div', 'materin-learn-think__tag',
+        lang() === 'en' ? a.fastTagEn : a.fastTagZh);
+      var fastRow = el('div', 'materin-learn-think__row materin-learn-think__row--fast');
+      var fastCells = a.fastTokens.map(function (tok, i) {
+        var cell = el('span', 'materin-learn-think__cell materin-learn-think__cell--fast', tok);
+        cell.style.animationDelay = (0.2 + i * 0.1) + 's';
+        fastRow.appendChild(cell);
+        return cell;
+      });
+      var fastVerdict = el('div', 'materin-learn-think__verdict materin-learn-think__verdict--bad',
+        lang() === 'en' ? a.fastVerdictEn : a.fastVerdictZh);
+
+      var thinkTag = el('div', 'materin-learn-think__tag materin-learn-think__tag--think',
+        lang() === 'en' ? a.thinkTagEn : a.thinkTagZh);
+      var thinkRow = el('div', 'materin-learn-think__row materin-learn-think__row--think');
+      var thinkCells = a.thinkTokens.map(function (tok) {
+        var cell = el('span', 'materin-learn-think__cell materin-learn-think__cell--draft' +
+          (tok.bad ? ' materin-learn-think__cell--bad' : '') +
+          (tok.ans ? ' materin-learn-think__cell--ans' : ''), tok.w);
+        thinkRow.appendChild(cell);
+        return cell;
+      });
+      var slowVerdict = el('div', 'materin-learn-think__verdict materin-learn-think__verdict--good',
+        lang() === 'en' ? a.slowVerdictEn : a.slowVerdictZh);
+
+      var readout = el('div', 'materin-learn-think__readout');
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      ['fast', 'think', 'aime'].forEach(function (k) {
+        var box = el('div', 'materin-learn-think__stat');
+        box.appendChild(el('span', 'materin-learn-think__stat-num', rd[k].num));
+        box.appendChild(el('span', 'materin-learn-think__stat-cap', rd[k].cap));
+        readout.appendChild(box);
+      });
+      var note = el('p', 'materin-learn-think__note', t(a.note));
+
+      /* 时序：问题与直接栏 1.1s → 错误判决 0.7s → 草稿逐格 0.42s/格（错格
+         短暂点亮 warn 判决再划掉，修正格落地后判决转绿）→ 答案格定住 → 静置 */
+      var SETUP = 1100, JUDGE = 700, STEP = 420, HOLD = 1700;
+      var badIdx = a.thinkTokens.findIndex(function (tok) { return tok.bad; });
+      var fixIdx = badIdx + 1;
+      var CYCLE = SETUP + JUDGE + a.thinkTokens.length * STEP + HOLD;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        var draftStart = SETUP + JUDGE;
+        thinkCells.forEach(function (c, k) {
+          c.classList.toggle('is-in', tNow >= draftStart + k * STEP);
+        });
+        var judged = tNow >= SETUP;
+        fastVerdict.classList.toggle('is-in', judged);
+        fastRow.classList.toggle('is-rejected', judged);
+        /* 回溯对：错格被划掉（修正格落地后），慢栏判决在答案格前转绿 */
+        var struck = badIdx >= 0 && tNow >= draftStart + fixIdx * STEP;
+        var badCell = badIdx >= 0 ? thinkCells[badIdx] : null;
+        if (badCell) badCell.classList.toggle('is-struck', struck);
+        var goodAt = draftStart + Math.max(a.thinkTokens.length - 1, 0) * STEP;
+        slowVerdict.classList.toggle('is-in', tNow >= goodAt);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(question);
+      wrap.appendChild(fastTag);
+      wrap.appendChild(fastRow);
+      wrap.appendChild(fastVerdict);
+      wrap.appendChild(thinkTag);
+      wrap.appendChild(thinkRow);
+      wrap.appendChild(slowVerdict);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

@@ -945,6 +945,61 @@
         v.appendChild(pbars);
         v.appendChild(el('div', 'materin-learn-viz__label', '同一台发动机，三种姿态——提示工程（D29 起）管把需求喂给哪一种'));
       }
+    } else if (day.anim && day.anim.tpl === 'think') {
+      if (idx === 0) {
+        /* 机制页：上下两栏对照——直接答（错）vs 思维链（回溯后对），与动效页同一叙事 */
+        var pair = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '直接答：硬套 25+12=37', cls: '', verdict: '✗ 2ab 符号抄反', vcls: '' },
+          { tag: '先想后答：写 (a+b)²=25 → 2ab=12 → a²+b²=25−12', cls: ' materin-learn-viz__route-row--think', verdict: '✓ =13，验算通过', vcls: ' materin-learn-viz__route-word--ok' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          pair.appendChild(row);
+        });
+        v.appendChild(pair);
+        v.appendChild(el('div', 'materin-learn-viz__label', '思维链没有新引擎：思考段也是 token，写出来的中间结果成为后面每一步的条件'));
+      } else if (idx === 1) {
+        /* 为什么页：token 与延迟的开销账 */
+        var tbars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '直接答：token 数', val: 2.5, cls: '', txt: '≈50 token · 2 秒', wide: true },
+          { tag: '先想后答：token 数', val: 100, cls: '', txt: '≈2000 token · 30 秒', wide: true },
+          { tag: 'KV cache 抵扣后延迟（D14）', val: 15, cls: ' materin-learn-viz__bar--en', txt: '只贵 ≈15 倍', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(2, Math.min(100, r.val)) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          tbars.appendChild(row);
+        });
+        v.appendChild(tbars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '多想 40 倍只贵 15 倍——缓存让「深思」贵得可控，才敢做成开关'));
+      } else {
+        /* 延伸页：白嫖版 vs 训练版 + 按任务开档位 */
+        var gbars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '提示加「分步想」（2022 白嫖版）', val: 57, cls: '', txt: 'GSM8K 18→57%', wide: true },
+          { tag: 'RL 训练版（o1，2024）', val: 83, cls: ' materin-learn-viz__bar--en', txt: 'AIME 13→83%', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(2, r.val) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          gbars.appendChild(row);
+        });
+        v.appendChild(gbars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '档位按任务开：补全永远关，简单问答默认关，数学/调试/规划才全开'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

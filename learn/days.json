@@ -3046,6 +3046,214 @@
           "en": "Training reorders the three parts into prefix+suffix+middle, teaching the model to fill from both ends; at inference your cursor is the cut — a function name in the suffix is the strongest hint completion can get."
         }
       }
+    },
+    {
+      "n": 19,
+      "stage": 1,
+      "week": 3,
+      "tpl": "think",
+      "date": "2026-10-13",
+      "title": {
+        "zh": "思维链与推理模型：先想，再答",
+        "en": "Chain-of-thought & reasoning models: think, then answer"
+      },
+      "subtitle": {
+        "zh": "第三周到现在都在给模型省油：MoE 只唤醒 130 亿，补全压进 305 毫秒。今天反着来——同一台 Transformer，允许它为一道题先吐几千个 token 的思考段，再给答案。AIME 正确率 13%→83%，买单的不是新架构，是推理时的圈数。",
+        "en": "Week three has been fuel economy so far: MoE wakes 13B, completion fits in 305 ms. Today the opposite — the same Transformer, allowed to spend thousands of thinking tokens before answering. AIME accuracy 13%→83%; you pay in inference laps, not in a new architecture."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：思维链是把草稿写进上下文",
+            "en": "Mechanism: CoT is a scratchpad written into context"
+          },
+          "p": {
+            "zh": "推理模型没有新零件——引擎还是第 16 天那台「一次吐一个词」的生成循环。变化在吐什么：普通模型拿到问题直接开始吐答案；推理模型先吐一段思考（通常包在 <think> 标记里），把已知条件、候选公式、验算过程逐个写出来，然后才吐正式答案。关键机制在于：思考段也是 token，也在上下文里——后面的每一步生成，条件里都带着前面写下的中间结果。第 6 天讲过注意力是「看哪里」的分配：写出来的事实比算出来的概率更稳，模型不必在心里同时惦记两个数，草纸就摊在窗口里。训练这些行为靠带可验证奖励的强化学习：数学题的答案对不对、代码跑不跑得通，机器自动判分，模型在反复试错里学会「先展开、再验算、发现符号错了就回溯」。",
+            "en": "Reasoning models have no new parts — the engine is still day 16's one-token-per-lap generation loop. What changes is what gets emitted: an ordinary model starts spitting the answer right away; a reasoning model first emits a thinking track (usually wrapped in a <think> marker), writing out the givens, candidate formulas, and checks, and only then the answer. The key mechanism: thinking tokens are tokens, and they sit in context — every later step is conditioned on the intermediate results already written down. Day 6 covered attention as allocating 'where to look': a written fact is steadier than a computed probability; the scratchpad lies open in the window. The behavior is trained with RL on verifiable rewards — math answers and code execution are auto-graded — so the model learns to expand, verify, and backtrack when a sign flips."
+          },
+          "deep": {
+            "zh": "为什么「写出来」这么有用？因为生成是逐 token 条件化的：一旦「(a+b)²=a²+2ab+b²」被写进上下文，后面每一步都站在这个确定的事实上；而「心里想」的中间结果只活在概率分布里，一步走偏全盘皆错（第 16 天的雪球）。思维链本质上是把工作记忆外化到上下文——草稿纸不是装饰，是给注意力喂确定性。",
+            "en": "Why does writing it down help so much? Generation is token-by-token conditioning: once '(a+b)²=a²+2ab+b²' is in context, every later step stands on that certainty, whereas a 'mentally held' intermediate lives only in a probability distribution — one slip and the snowball rolls (day 16). CoT externalizes working memory into context — the scratchpad isn't decoration; it feeds attention deterministic ground."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "AIME 2024（美国数学邀请赛）：GPT-4o 直接答，正确率约 13%；o1 先想后答，约 83%。代价看 token：普通回答几百 token、两秒出头；o1 单题常吐几千 token 的思考段、耗时几十秒——多花约 40 倍的推理算力，买约 70 个百分点的正确率。这不是更好的架构，是同一个架构被允许想得更久。",
+              "en": "AIME 2024: GPT-4o answers directly at ~13%; o1 thinks first at ~83%. The cost is in tokens: an ordinary reply is a few hundred tokens in ~2 seconds; o1 routinely spends thousands of thinking tokens per problem and tens of seconds — roughly 40× the inference compute, buying ~70 points of accuracy. Not a better architecture; the same one allowed to think longer."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「推理模型 = 更大更贵，架构升级了」——没有。底座仍是 Transformer 加生成循环，第 16 天五步一圈一步没少；变的只有两处：训练目标换成可验证奖励，推理时允许先吐思考段。第二个误区：「思考段是隐藏的，模型没真想」——思考段是真计费、真耗延迟的 token，它就是答案的一部分，只是被产品界面折叠了。",
+              "en": "'A reasoning model means a bigger, pricier, new architecture' — no. The base is still a Transformer plus the generation loop, day 16's five steps per lap unchanged; only two things changed: the training objective (verifiable rewards) and permission to emit a thinking track first. Second: 'the thinking track is hidden, so the model isn't really thinking' — those tokens are billed and add latency; they are part of the answer, merely collapsed by the product UI."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "为什么：测试时计算的第三条轴",
+            "en": "Why: test-time compute, the third scaling axis"
+          },
+          "p": {
+            "zh": "前两周讲的 scaling 都在训练侧：参数更多（第 17 天 470 亿）、数据更多、算力更大。2024 年出现了第三条轴——测试时计算：推理性能随「思考 token 的数量」平滑提升，曲线形状像极了预训练的 scaling law，只是横轴换了。这条轴的现实意义是解耦：想让模型更准，不一定要重训一个更大的模型，可以允许它想得更久。第 17 天的 MoE 省的是电费，今天的推理模型把省下的预算花在「多转几千圈」上——省算力与多算力，是同一笔预算的两种花法。",
+            "en": "The scaling we covered lives on the training side: more parameters (47B on day 17), more data, more compute. In 2024 a third axis appeared — test-time compute: reasoning performance rises smoothly with the number of thinking tokens, a curve shaped like pretraining's scaling law with the x-axis swapped. Its practical meaning is decoupling: to get more accuracy you needn't retrain a bigger model; you can let it think longer. Day 17's MoE saves electricity; reasoning models spend that saved budget on thousands of extra laps — saving and spending compute are two postures of one budget."
+          },
+          "deep": {
+            "zh": "更反直觉的是「白嫖」效应：2022 年的思维链论文（Wei et al., Google）根本没训新模型——只在提示里加一句「Let's think step by step」，PaLM 540B 在 GSM8K 小学数学上的正确率就从约 18% 拉到约 57%。原因仍在第 16 天的循环里：提示把「分步」写进上下文，模型吐词的条件就变了。思维链首先是一种输入侧技术；推理模型是用强化学习把这种行为从「碰运气」变成「默认习惯」。",
+            "en": "Even more counterintuitive is the free-lunch effect: the 2022 chain-of-thought paper (Wei et al., Google) trained nothing — just adding 'Let's think step by step' to the prompt lifted PaLM 540B from ~18% to ~57% on GSM8K grade-school math. The reason is again day 16's loop: the prompt writes 'step by step' into context, changing the conditions of every emitted token. CoT is first an input-side technique; reasoning models use RL to turn that behavior from a lucky roll into a habit."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "同一道题两种跑法的开销：直接答 ≈50 token、≈2 秒；思维链 ≈2000 token、≈30 秒。按第 14 天的缓存账，思考段每圈只为新 token 算注意力，历史 K/V 不再重算——多想 40 倍，延迟只贵约 15 倍。这也是为什么「深思模式」敢做成开关：贵得可控，关掉就回到补全的速度。",
+              "en": "Same problem, two postures: direct ≈50 tokens and ≈2 s; CoT ≈2000 tokens and ≈30 s. By day 14's cache accounting, each lap of thinking only attends for the new token — history's K/V is never recomputed — so 40× the thinking costs roughly 15× the latency. That's why 'thinking mode' can ship as a toggle: controllably pricey, and off means back to completion speed."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「想得越多一定越准」——不是单调关系。思维链在简单任务上反而添乱：一步能答对的事，多写两百字就多两个出错机会；模型也会在思考段里编出流畅自信的错误推理——幻觉（第 9 天）照样走思维链。正确姿势是按任务开档位：补全（第 18 天）永远关，简单问答默认关，数学、代码调试、多步规划才全开。",
+              "en": "'More thinking is always more accurate' — not monotonic. CoT hurts on easy tasks: a one-step answer given two hundred extra words has two hundred extra chances to slip; models also fabricate fluent, confident wrong reasoning inside the thinking track — hallucination (day 9) runs on CoT too. The right posture is gearing by task: completion (day 18) always off, simple Q&A off by default, full throttle only for math, debugging, and multi-step planning."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：省油与踩油门是一笔账",
+            "en": "Extension: saving and spending are one budget"
+          },
+          "p": {
+            "zh": "把第三周的新零件连起来：第 16 天给了循环（每圈吐一个词），第 17 天的 MoE 决定每圈唤醒多少参数（容量与算力解绑），第 18 天的补全把延迟压进 305 毫秒（三道闸门全往「少」调），今天反着调一次——允许同一台机器为一道题转几千圈。四块拼图指向同一图景：Transformer 是发动机，此前的技术都在省油，思维链第一次把油门踩到底。往后看：第 29 天起的提示工程，第一课就是思维链提示——今天「白嫖版」的完整方法论；第 3 阶段（50 天起）的 Agent，则是把思考段显式化成「规划→动手→检查」的工具调用——先想后答的「想」，从一段文字升级成一串动作。",
+            "en": "Chain week three's parts together: day 16 gave the loop (one token per lap), day 17's MoE decides how many parameters each lap wakes (capacity unbound from compute), day 18's completion squeezed latency under 305 ms (all three gates tuned toward 'less'), and today tunes the opposite way — the same machine allowed thousands of laps on one problem. The picture: the Transformer is the engine; every technique so far saved fuel, and CoT floors the accelerator for the first time. Ahead: day 29's prompt engineering opens with CoT prompting — the full method behind today's free lunch; stage 3's agents (day 50 on) externalize the thinking track into plan→act→verify tool calls — 'thinking' graduates from text to actions."
+          },
+          "deep": null,
+          "example": {
+            "h": {
+              "zh": "一个 3 分钟实验",
+              "en": "A 3-minute experiment"
+            },
+            "p": {
+              "zh": "找任意聊天模型，出一道多步题（例如：「一个三位数，各位数字之和为 15，百位比个位大 3，十位是个位的 2 倍，求这个数」——先自己算出答案 936）。问两次：第一次直接要答案；第二次加一句「请一步一步推理，写出每一步，最后再给答案」。对比两次的长度与正确性，回答：① 第二次变长了几倍？多出来的 token 是什么内容？（提示：条件、公式、中间结果——那就是思考段。）② 中间步骤里有没有先写错再修正的痕迹？那就是回溯。③ 换成「1+1 等于几」，加不加「一步一步想」还有区别吗？",
+              "en": "Take any chat model and a multi-step problem (e.g. 'a three-digit number: digits sum to 15, the hundreds digit is 3 more than the units, the tens digit is twice the units — find it'; work out 936 yourself first). Ask twice: once demanding the answer directly, once appending 'reason step by step, write every step, then answer'. Compare length and correctness: ① How many times longer was the second? What are the extra tokens? (Hint: givens, formulas, intermediates — that's the thinking track.) ② Any write-then-fix marks along the way? That's backtracking. ③ For 'what is 1+1', does 'step by step' still change anything?"
+            }
+          },
+          "misconception": null
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "没有推理模型 API 也能做：打开任意聊天模型，把手头一道真实的多步任务（一道数学题、一段有逻辑的总结、一个日程冲突排查）分别用「直接给结论」和「先列推理步骤再给结论」两种问法各跑一遍。回答三个问题：① 哪一次的结论更可信？差异出在哪一步？（提示：盯着第二次回答里「先写后改」的位置，那往往是直接答会错的地方。）② 两次输出长度差几倍？按 token 计费的话，这道任务你愿意为「多想」付几倍价钱？③ 把第 18 天的三道闸门套在第二次输出上：它能在 305 毫秒内出字吗？什么样的任务才值得等 30 秒？",
+          "en": "No reasoning-model API needed: open any chat model, take one real multi-step task of yours (a math problem, a structured summary, a scheduling conflict), and run it twice — 'give the conclusion directly' vs 'list your reasoning steps first, then conclude'. Then: ① Which conclusion is more credible, and at which step did they diverge? (Hint: find the write-then-fix spot in the second answer — that's where the direct one would have slipped.) ② How many times longer was run two? If billed per token, how many times would you pay to 'think' on this task? ③ Apply day 18's three gates to the second output: could it ship in 305 ms? Which tasks are worth waiting 30 seconds for?"
+        }
+      },
+      "takeaway": {
+        "zh": "推理模型没有新引擎——还是第 16 天的生成循环，只是把算力从训练挪到推理时：先吐思考段、再吐答案段，写出来的中间结果让下一步踩在实地上。MoE 和补全在省油，思维链在踩油门，同一笔预算的两种花法。",
+        "en": "Reasoning models have no new engine — still day 16's generation loop, with compute moved from training to inference: a thinking track first, then the answer, written intermediates giving every later step solid ground. MoE and completion save fuel; CoT floors it — two postures of one budget."
+      },
+      "anim": {
+        "tpl": "think",
+        "hook": {
+          "zh": "AIME 从 13% 到 83%，没换发动机——只是允许它先想后答。",
+          "en": "From 13% to 83% on AIME with no new engine — just allowed to think before answering."
+        },
+        "coverHook": {
+          "zh": "同一道 AIME 题：直接答 13% 分，先吐 2000 个思考 token 再答 83%——买正确率的不是新架构，是圈数。",
+          "en": "Same AIME problem: 13% answering directly, 83% after 2000 thinking tokens — you buy accuracy in laps, not in architecture."
+        },
+        "question": {
+          "zh": "a+b=5，ab=6，求 a²+b²",
+          "en": "a+b=5, ab=6 — find a²+b²"
+        },
+        "fastTagZh": "直接回答 · 一圈到答案",
+        "fastTagEn": "direct answer · one lap",
+        "fastTokens": [
+          "硬套：25 + 12",
+          "= 37"
+        ],
+        "fastVerdictZh": "✗ 2ab 的符号抄反",
+        "fastVerdictEn": "✗ sign of 2ab flipped",
+        "thinkTagZh": "先想后答 · 思维链",
+        "thinkTagEn": "think first · chain of thought",
+        "thinkTokens": [
+          {
+            "w": "a+b=5"
+          },
+          {
+            "w": "ab=6"
+          },
+          {
+            "w": "(a+b)²=25"
+          },
+          {
+            "w": "a²+2ab+b²=25"
+          },
+          {
+            "w": "a²+b²=25+12",
+            "bad": true
+          },
+          {
+            "w": "回溯：2ab 应减"
+          },
+          {
+            "w": "a²+b²=25−12"
+          },
+          {
+            "w": "= 13",
+            "ans": true
+          }
+        ],
+        "slowVerdictZh": "✓ 验算通过",
+        "slowVerdictEn": "✓ verified",
+        "readoutZh": {
+          "fast": {
+            "num": "≈50",
+            "cap": "token · 直接答"
+          },
+          "think": {
+            "num": "≈2000",
+            "cap": "token · 先想后答"
+          },
+          "aime": {
+            "num": "13→83",
+            "cap": "AIME 正确率 %"
+          }
+        },
+        "readoutEn": {
+          "fast": {
+            "num": "≈50",
+            "cap": "tokens · direct"
+          },
+          "think": {
+            "num": "≈2000",
+            "cap": "tokens · thinking"
+          },
+          "aime": {
+            "num": "13→83",
+            "cap": "AIME accuracy %"
+          }
+        },
+        "note": {
+          "zh": "思考段也走第 16 天的生成循环，一圈一圈吐词；写出来的中间结果进入上下文，成为后面每一步的条件——错误被写在草稿上，才可能被自己看见并回溯。",
+          "en": "The thinking track still runs day 16's loop, token by token; what it writes enters context and conditions every later step — an error on the scratchpad is one the model can see and backtrack from."
+        }
+      }
     }
   ]
 }
