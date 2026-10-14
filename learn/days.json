@@ -3254,6 +3254,197 @@
           "en": "The thinking track still runs day 16's loop, token by token; what it writes enters context and conditions every later step — an error on the scratchpad is one the model can see and backtrack from."
         }
       }
+    },
+    {
+      "n": 20,
+      "stage": 1,
+      "week": 3,
+      "tpl": "spec",
+      "date": "2026-10-14",
+      "title": {
+        "zh": "推测解码：小模型写草稿，大模型改卷子",
+        "en": "Speculative decoding: the small model drafts, the big one grades"
+      },
+      "subtitle": {
+        "zh": "第三周修的都是浪费：MoE 关掉空转的参数，缓存省掉重算的搬运。今天修最后一块——逐词生成时空转的算力：小模型先写草稿，大模型用一圈的带宽顺手批改，输出分布分毫不变，速度 2~3 倍。",
+        "en": "Week three has been fixing waste: MoE parks idle parameters, cache skips recomputation. Today the last piece — idle compute during word-by-word generation: a small model drafts, the big one grades in one pass, output distribution unchanged, 2–3× faster."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：草稿、验证、重写",
+            "en": "Mechanism: draft, verify, rewrite"
+          },
+          "p": {
+            "zh": "推测解码不动第 16 天那台生成循环的引擎，而是在它旁边挂了一个「代笔」：一个 1B 上下的草稿模型按同样的上下文连吐 K 个词（比如 5 个）；然后大模型登场——注意，它不是逐个检查，而是把这 5 个位置当作一条已知序列，在一次前向里并行打出全部 5 个位置的分数。接着按位置验收：从左往右，草稿词与大模型自己的采样一致就收下，遇到第一个不一致的词整条截断，大模型顺手把自己本来会写的那个词补上。一轮下来，大模型真正「跑圈」的时间只有一圈，产出却是 4~5 个词——第 16 天的一圈一词，被改成了一圈多词。",
+            "en": "Speculative decoding leaves day 16's generation loop untouched; it bolts on a ghostwriter: a ~1B draft model proposes K tokens (say 5) from the same context; then the big model steps in — not checking them one by one, but treating those 5 positions as a known sequence and scoring all of them in a single forward pass. Then position-by-position acceptance: from the left, a draft word matching the big model's own sample is kept; at the first mismatch the run is cut, and the big model writes the word it would have produced anyway. One lap of big-model time yields 4–5 words — day 16's one-word-per-lap becomes many-words-per-lap."
+          },
+          "deep": {
+            "zh": "为什么验证几乎不要钱？生成慢的瓶颈从来不是算力，而是显存带宽：每吐一个词，70B 模型要把约 140GB 权重从显存完整搬一遍，乘法器大半时间在等数据。而「对 5 个位置并行打分」用的还是同一遍权重搬运——算 1 个词和算 5 个词的时间几乎一样，验证 K 个草稿词的成本 ≈ 自己写 1 个词。这是第 19 天「写出来的比算出来的稳」的镜像：那边把中间结果摊进上下文喂注意力，这边把一次搬完的带宽顺手多干几份活。",
+            "en": "Why is verifying nearly free? The bottleneck of generation was never compute — it's memory bandwidth: each emitted token streams the full ~140GB of a 70B model from HBM, so the multipliers mostly wait for data. Scoring 5 positions in parallel rides on that same single weight stream — computing 1 word and scoring 5 take nearly the same time, so verifying K draft words costs ≈ writing 1 yourself. It mirrors day 19's 'written beats computed': there, intermediates feed attention from context; here, one bandwidth pass does several jobs."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "70B 模型 bf16 权重 ≈140GB，主流 HBM 带宽 ≈3TB/s，逐词生成的物理下限 ≈47ms/词，约 21 token/秒。挂上推测解码：1B 草稿模型提议 4 个词，验收率约 0.75，一轮期望收下 (1−0.75⁵)/(1−0.75) ≈ 3 个词；时间只花「1 圈大模型 + 1 次草稿」≈ 47ms + 5ms——实测约 50 token/秒，提速 2.4×，而输出分布与不加速完全一致。",
+              "en": "70B in bf16 ≈140GB; mainstream HBM ≈3TB/s, so serial decoding floors at ≈47ms/token ≈ 21 tok/s. With speculative decoding: a 1B draft proposes 4 tokens, acceptance ≈0.75, expected (1−0.75⁵)/(1−0.75) ≈ 3 tokens per lap, costing one big lap plus a draft pass ≈ 47ms + 5ms — measured ≈50 tok/s, a 2.4× speedup, with the output distribution exactly unchanged."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「草稿模型会改变输出，质量打折」——恰恰相反：验收用的是拒绝采样，被拒位置按大模型自己的分布重抽，数学上可证明最终输出与不用加速完全同分布。这是它敢直接上生产的原因——快，但一个字都不是「小模型替你写的」。另一个误区：「草稿模型=小模型凑合用」——草稿必须与目标同分词器，否则提议根本无法放进同一条序列里验证。",
+              "en": "'The draft model changes the output, so quality drops' — the opposite: acceptance uses rejection sampling, and rejected positions resample from the big model's own distribution, provably identical to unaccelerated decoding. That's why it ships in production — faster, yet not one word is 'written by the small model'. Second: 'any small model will do' — the draft must share the target's tokenizer, otherwise its proposals can't even be placed into the same sequence for verification."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "为什么：省的是等待，不是质量",
+            "en": "Why: you save waiting, not quality"
+          },
+          "p": {
+            "zh": "第三周前几天的主题都是「省」：MoE 省算力、KV cache 省重算、补全省交互延迟。推测解码省的是另一种东西——大模型逐词生成时闲置的算力。解码阶段是典型的「访存为主、算力空转」：带宽吃满，算力利用率只有个位数百分比。推测解码不发明新计算，只是把本来就空着的并行打分能力塞满。对比第 19 天：测试时计算是「多花算力买正确率」，推测解码是「一分算力不多花，买回等待时间」——同一台机器的两笔账，一笔花在质量上，一笔花在时间上。",
+            "en": "This week's theme has been 'saving': MoE saves compute, KV cache saves recomputation, completion saves interaction latency. Speculative decoding saves another thing — the compute that idles while the big model generates word by word. Decoding is the textbook memory-bound workload: bandwidth saturated, compute utilization in single-digit percent. Speculative decoding invents no new math; it fills the parallel scoring lanes that were already sitting idle. Contrast day 19: test-time compute spends compute to buy accuracy; speculative decoding spends no extra compute and buys back wall-clock — two ledgers of the same machine, one spent on quality, one on time."
+          },
+          "deep": {
+            "zh": "验收率 α 是整个方案的经济学：α=0.75、K=4 时一轮期望收 3 个词；α 掉到 0.5，同样配置只收 ≈1.9 个词，提速腰斩。所以草稿模型不是「越小越好」也不是「越大越好」：太小则 α 低、白验证；太大则提议本身变慢，失去代笔意义。工程甜点区是「比目标小约 10 倍、同分词器」；或者干脆不设草稿模型——EAGLE、Medusa 让大模型自带几个轻量头给自己写草稿，α 更高，提速 3~4 倍。",
+            "en": "Acceptance rate α is the economics of the whole scheme: at α=0.75 and K=4 a lap yields 3 expected tokens; drop α to 0.5 and the same setup yields ≈1.9 — the speedup halves. So the draft is neither 'as small as possible' nor 'as big as possible': too small gives low α and wasted verification; too big slows the proposals themselves. The engineering sweet spot is ~10× smaller than the target with the same tokenizer — or no draft model at all: EAGLE and Medusa give the big model lightweight heads that draft for itself, pushing α up and speedups to 3–4×."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "一道代码改写任务（答案大段抄自输入）：连 n-gram 查表都能当草稿，验收率 α 高达 0.9，K=5 时一轮期望收 (1−0.9⁶)/(1−0.9) ≈ 4.7 个词，接近 5×；而开放创作类任务 α 只有 0.5~0.6，提速缩到 1.5×。同一个机制，收益完全由任务的可预测性决定——这也是为什么补全场景（第 18 天）和文档问答是推测解码的主场。",
+              "en": "A code-editing task (answer largely copied from the input): even an n-gram lookup works as the draft, α hits 0.9, and with K=5 a lap expects (1−0.9⁶)/(1−0.9) ≈ 4.7 tokens — near 5×; open-ended creative tasks sit at α 0.5–0.6 and the speedup shrinks to 1.5×. Same mechanism, payoff decided entirely by how predictable the task is — which is why completion (day 18) and document QA are speculative decoding's home turf."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「K 开得越大越快」——不。越靠后的草稿词越难猜中，α 按位置衰减；K=8 时后面几个位置几乎白验，还要搭上更长的验证圈和更深的缓存回滚（第 14 天：被拒位置之后，缓存里未验证的 K/V 全部作废）。实测甜点区在 K≈4~6，再大反而变慢。",
+              "en": "'Bigger K is faster' — no. Later draft tokens are harder to guess, so α decays by position; at K=8 the tail positions are mostly wasted verification, plus a longer verify lap and a deeper cache rollback (day 14: after a rejection, the unverified K/V in cache is discarded). Measured sweet spot: K≈4–6; beyond that it gets slower."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：从生产到 Agent 的延迟账",
+            "en": "Extension: already in production, and agents multiply it"
+          },
+          "p": {
+            "zh": "推测解码不是论文玩具：vLLM、TensorRT-LLM、各家推理服务早已内置，很多「API 变快了」的公告背后就是它。2024 年的 EAGLE-2 把提速推到 3~4 倍，靠的是草稿与目标共享特征。往后面看，这条技术与两条已学的线会合：第 14 天的 KV cache 决定了「被拒之后回滚多便宜」；第 19 天的推理模型思考段动辄几千 token，每个 token 都省 2 倍等待，长思考的墙钟时间直接腰斩。到第 3 阶段 Agent（第 50 天起），一次任务几百圈生成循环，圈圈都在攒这笔账。",
+            "en": "Speculative decoding is no paper toy: vLLM, TensorRT-LLM and most inference services ship it, and many 'our API got faster' announcements are exactly this. EAGLE-2 (2024) pushed speedups to 3–4× by sharing features between draft and target. Looking forward, it converges with two threads you already know: day 14's KV cache decides how cheap the rollback after a rejection is; day 19's reasoning models emit thousands of thinking tokens, and saving 2× waiting per token halves the wall-clock of long thinking. In stage 3 (agents, from day 50) a single task runs hundreds of generation laps — every lap banks this saving."
+          },
+          "deep": {
+            "zh": "更值得记的是它体现的通用思路：当系统被单一资源卡死（这里是带宽），先问「瓶颈上还挂着哪些免费的并行度」。MoE 把空转的参数关掉，KV cache 把重复的搬运省掉，推测解码把空转的算力填上——三招都画在第 16~17 天那台机器图上，只是各修一个浪费点。学会看「哪里在空转」，比记住任何一个具体方案都值钱。",
+            "en": "The transferable lesson: when a system is pinned by one resource (here bandwidth), first ask 'what free parallelism is still hanging off the bottleneck?' MoE switches off idling parameters, KV cache skips repeated streams, speculative decoding fills idle compute — all three live on day 16–17's machine diagram, each fixing one waste point. Learning to see where the idle is beats memorizing any single fix."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "一笔 Agent 的账：一次自动任务平均吐 3000 token，21 token/秒要等 143 秒；推测解码 2.4× 后是 60 秒。用户容忍度上，3 分钟和 1 分钟是「能不能当工具用」的分界——第 50 天讲的 Agent 循环，每一次工具调用都要重新过一遍生成循环，延迟是乘法累加的，2.4× 不是快一点，是可用性阈值。",
+              "en": "An agent ledger: one automated task emits ≈3000 tokens — 143 s at 21 tok/s, 60 s at 2.4×. For user tolerance, 3 minutes vs 1 minute is the line between 'a demo' and 'a tool' — day 50's agent loop re-runs the generation loop on every tool call, and latency compounds multiplicatively, so 2.4× isn't 'a bit faster', it's the usability threshold."
+            }
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「快是因为草稿模型小，那拿 70B 当 70B 的草稿」——失效且更慢：提议模型太接近目标时 α 固然高，但提议本身就要花一整圈的带宽，「一次搬带宽干两份活」的套利空间消失。推测解码赚的是带宽的批处理折扣，不是小模型的智力。",
+              "en": "'It's fast because the draft is small — so use a 70B to draft for a 70B' — that kills it and makes things slower: with a near-identical proposer α is high, but proposing itself burns a full lap of bandwidth and the arbitrage of 'one weight stream, two jobs' vanishes. Speculative decoding profits from bandwidth's batch discount, not from the small model's intelligence."
+            }
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "「你当大模型」实验：打开任意小参数模型（或聊天工具的快模式），让它先写一段你熟悉主题的 10 句短文。然后你逐句只做两件事——「接受」或「否决并改写」。回答三问：① 10 句里你直接放行几句？算出你的验收率 α。（提示：放行标准不是「没毛病」，是「和你会写的一模一样」。）② 按你的 α 算 (1−α⁵)/(1−α)，一轮期望收几句？和你刚才数的句数差多少？③ 把 10 句从零自己写一遍并计时：为什么「审一遍」远快于「重写一遍」？（提示：大模型审 K 个草稿词用的是同一遍权重搬运——读的带宽，不重花写的带宽。）",
+          "en": "The 'you are the big model' experiment: open any small model (or your chat tool's fast mode) and have it write 10 sentences on a topic you know well. Then go sentence by sentence doing only two things — 'accept' or 'reject and rewrite'. Then: ① How many did you accept outright? That's your acceptance rate α. (Hint: the bar isn't 'no flaws', it's 'exactly what I would have written'.) ② From your α compute (1−α⁵)/(1−α): how many sentences should one lap accept? How does that compare with what you counted? ③ Rewrite all 10 from scratch and time it: why is 'reviewing' so much faster than 'rewriting'? (Hint: the big model verifies K draft words on one weight stream — reading bandwidth, not paying writing bandwidth again.)"
+        }
+      },
+      "takeaway": {
+        "zh": "推测解码没有让大模型变聪明，也没有让它变笨：小模型先写草稿，大模型用一圈的带宽顺手批改，输出分布分毫不变，速度 2~3 倍。第三周修的都是浪费——MoE 修空转的参数，缓存修重算的搬运，推测解码修空转的算力。",
+        "en": "Speculative decoding makes the big model neither smarter nor dumber: a small model drafts, the big one grades in one lap of bandwidth, the output distribution unchanged, 2–3× faster. Week three fixes waste — MoE fixes idle parameters, cache fixes recompute, speculative decoding fixes idle compute."
+      },
+      "anim": {
+        "tpl": "spec",
+        "hook": {
+          "zh": "大模型逐词生成不是在想，是在等显存——小模型先把话铺出来，大模型一圈批改五个词。",
+          "en": "Word-by-word generation isn't thinking, it's waiting on memory — the draft paves the sentence, the big model grades five words in one lap."
+        },
+        "coverHook": {
+          "zh": "逐词生成 21 token/秒，挂上草稿模型变 50——输出分布一个字不变，省下的不是算力，是大模型等显存的空转。",
+          "en": "21 tokens/s word-by-word, 50 with a draft model — distribution unchanged; what you save is not compute, it's the big model waiting on memory."
+        },
+        "draftTagZh": "草稿 · 1B 小模型连吐 5 个词",
+        "draftTagEn": "draft · a 1B model proposes 5 tokens",
+        "draftTokens": [
+          "显存",
+          "带宽",
+          "才是",
+          "瓶颈",
+          "吧"
+        ],
+        "verifyTagZh": "验证 · 70B 一圈并行打出 5 个位置的分",
+        "verifyTagEn": "verify · the 70B scores all 5 positions in one pass",
+        "acceptN": 4,
+        "fixToken": "。",
+        "verdictZh": "✓ 4/5 收下，第 5 个按大模型自己的分布重写",
+        "verdictEn": "✓ 4/5 accepted; the 5th resampled from the big model",
+        "readoutZh": {
+          "draft": {
+            "num": "1B",
+            "cap": "草稿模型"
+          },
+          "verify": {
+            "num": "5",
+            "cap": "一圈验证的词"
+          },
+          "speed": {
+            "num": "2.4×",
+            "cap": "提速 · 分布不变"
+          }
+        },
+        "readoutEn": {
+          "draft": {
+            "num": "1B",
+            "cap": "draft model"
+          },
+          "verify": {
+            "num": "5",
+            "cap": "words verified per lap"
+          },
+          "speed": {
+            "num": "2.4×",
+            "cap": "faster · same distribution"
+          }
+        },
+        "note": {
+          "zh": "验证圈里，70B 把权重从显存只搬一遍，顺手给 5 个位置打分——算 1 个词和验 5 个词几乎一样快。被拒的词按大模型自己的分布重抽，输出与不加速时完全同分布。",
+          "en": "In the verify lap the 70B streams its weights once and scores 5 positions in passing — scoring 5 words costs about the same as writing 1. Rejected words resample from the big model's own distribution: the output is identical to unaccelerated decoding."
+        }
+      }
     }
   ]
 }

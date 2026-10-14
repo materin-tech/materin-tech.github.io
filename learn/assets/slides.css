@@ -339,6 +339,8 @@
 /* think 第 0 页对照行：长叙述词 + 判决胶囊收窄（复用 route 行容器） */
 .materin-learn-viz__route-row--think .materin-learn-viz__route-word { min-width: 0; font-size: 21px; font-weight: 600; line-height: 1.4; }
 .materin-learn-viz__route-word--ok { border-color: var(--materin-ok-border); background: var(--materin-ok-soft); color: var(--materin-ok); }
+/* spec 第 0 页对照行：判决胶囊不折行、不吃余量 */
+.materin-learn-viz__route-row .materin-learn-viz__route-dot { flex: 0 0 auto; white-space: nowrap; }
 
 .materin-learn-viz__route-dots { display: flex; gap: 8px; }
 

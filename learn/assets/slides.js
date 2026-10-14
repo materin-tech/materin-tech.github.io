@@ -1000,6 +1000,62 @@
         v.appendChild(gbars);
         v.appendChild(el('div', 'materin-learn-viz__label', '档位按任务开：补全永远关，简单问答默认关，数学/调试/规划才全开'));
       }
+    } else if (day.anim && day.anim.tpl === 'spec') {
+      if (idx === 0) {
+        /* 机制页：草稿行 → 验证行同位对照（4 收 1 重写），与动效页同一叙事 */
+        var spair = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '草稿（1B 连吐 5 词）', cls: '', verdict: '待验证', vcls: '' },
+          { tag: '验证（70B 一圈打分）：4 收 1 重写', cls: ' materin-learn-viz__route-row--think', verdict: '✓ 4/5', vcls: ' materin-learn-viz__route-word--ok' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          spair.appendChild(row);
+        });
+        v.appendChild(spair);
+        v.appendChild(el('div', 'materin-learn-viz__label', '被拒词按大模型自己的分布重抽——输出与不加速完全同分布'));
+      } else if (idx === 1) {
+        /* 为什么页：验收率决定收益 + 甜点区 */
+        var sbars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '逐词生成（无草稿）', val: 42, cls: '', txt: '21 token/秒', wide: true },
+          { tag: '草稿 + 验证（α=0.75）', val: 100, cls: ' materin-learn-viz__bar--en', txt: '≈50 token/秒 · 2.4×', wide: true },
+          { tag: 'K=8 的下场', val: 30, cls: '', txt: '尾部白验，反而更慢', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(2, Math.min(100, r.val)) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          sbars.appendChild(row);
+        });
+        v.appendChild(sbars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '瓶颈是带宽不是算力：验证 K 个词 ≈ 自己写 1 个词，甜点区 K≈4~6'));
+      } else {
+        /* 延伸页：任务可预测性决定 α → 收益；Agent 场景的延迟账 */
+        var xbars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '代码改写（答案多抄自输入）', val: 100, cls: '', txt: 'α≈0.9 · 提速近 5×', wide: true },
+          { tag: '开放创作', val: 32, cls: ' materin-learn-viz__bar--en', txt: 'α≈0.5~0.6 · 提速 1.5×', wide: true },
+          { tag: 'Agent 任务 3000 token', val: 62, cls: '', txt: '143 秒 → 60 秒', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(2, Math.min(100, r.val)) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          xbars.appendChild(row);
+        });
+        v.appendChild(xbars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '第 19 天多花算力买正确率，推测解码不多花一分买回时间——Agent 循环圈圈在攒'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

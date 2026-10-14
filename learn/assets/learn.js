@@ -1340,6 +1340,84 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* spec：推测解码（第 20 天）——两段式时序：草稿行由小模型连吐 K 个词（格
+       逐个 pop），随后整行点亮为「待验证」；验证圈里大模型一圈并行打分，草稿
+       格从左到右逐个翻转：收下的格转绿打勾，被拒格转 warn 并被重写格（大模型
+       自己的词）替换。判决行在重写格落位后转绿。格只动 transform（pop/scaleY），
+       初始可见不靠 opacity，循环重播。 */
+    spec: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-spec');
+      var draftTag = el('div', 'materin-learn-spec__tag',
+        lang() === 'en' ? a.draftTagEn : a.draftTagZh);
+      var draftRow = el('div', 'materin-learn-spec__row materin-learn-spec__row--draft');
+      var draftCells = a.draftTokens.map(function (tok, i) {
+        var cell = el('span', 'materin-learn-spec__cell materin-learn-spec__cell--draft', tok);
+        cell.style.animationDelay = (0.2 + i * 0.12) + 's';
+        draftRow.appendChild(cell);
+        return cell;
+      });
+      var verifyTag = el('div', 'materin-learn-spec__tag materin-learn-spec__tag--verify',
+        lang() === 'en' ? a.verifyTagEn : a.verifyTagZh);
+      var verifyRow = el('div', 'materin-learn-spec__row materin-learn-spec__row--verify');
+      /* 验证行与草稿行同位对齐：前 acceptN 个槽收草稿词，槽 acceptN 放重写词 */
+      var slots = [];
+      a.draftTokens.forEach(function (tok, i) {
+        var slot = el('span', 'materin-learn-spec__slot');
+        var cell = el('span', 'materin-learn-spec__cell materin-learn-spec__cell--slot', tok);
+        slot.appendChild(cell);
+        verifyRow.appendChild(slot);
+        slots.push({ slot: slot, cell: cell, accepted: i < a.acceptN });
+      });
+      var fixCell = el('span', 'materin-learn-spec__cell materin-learn-spec__cell--fix', a.fixToken);
+      slots[a.acceptN].slot.appendChild(fixCell);
+      var verdict = el('div', 'materin-learn-spec__verdict',
+        lang() === 'en' ? a.verdictEn : a.verdictZh);
+      var readout = el('div', 'materin-learn-spec__readout');
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      ['draft', 'verify', 'speed'].forEach(function (k) {
+        var box = el('div', 'materin-learn-spec__stat');
+        box.appendChild(el('span', 'materin-learn-spec__stat-num', rd[k].num));
+        box.appendChild(el('span', 'materin-learn-spec__stat-cap', rd[k].cap));
+        readout.appendChild(box);
+      });
+      var note = el('p', 'materin-learn-spec__note', t(a.note));
+
+      /* 时序：草稿 5 格 0.2s 起逐格 pop（CSS 动画）→ 验证点亮 → 逐格翻转判决
+         （0.45s/格）→ 重写格落位 + 判决转绿 → 静置 → 循环（重置类名重来） */
+      var DRAFT = 1400, VERIFY = 700, STEP = 450, HOLD = 2000;
+      var CYCLE = DRAFT + VERIFY + a.draftTokens.length * STEP + HOLD;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        var verifyStart = DRAFT;
+        var judging = tNow >= verifyStart + VERIFY;
+        verifyRow.classList.toggle('is-live', tNow >= verifyStart);
+        slots.forEach(function (s, i) {
+          var at = verifyStart + VERIFY + i * STEP;
+          var done = tNow >= at;
+          s.slot.classList.toggle('is-in', done);
+          s.slot.classList.toggle('is-ok', done && s.accepted);
+          s.slot.classList.toggle('is-re', done && !s.accepted);
+        });
+        var fixAt = verifyStart + VERIFY + a.acceptN * STEP + STEP * 0.5;
+        fixCell.classList.toggle('is-in', tNow >= fixAt);
+        verdict.classList.toggle('is-in', tNow >= fixAt + 300);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(draftTag);
+      wrap.appendChild(draftRow);
+      wrap.appendChild(verifyTag);
+      wrap.appendChild(verifyRow);
+      wrap.appendChild(verdict);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 
