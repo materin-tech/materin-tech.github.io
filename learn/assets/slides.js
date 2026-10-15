@@ -1090,7 +1090,7 @@
           bbars.appendChild(row);
         });
         v.appendChild(bbars);
-        v.appendChild(el('div', 'materin-learn-viz__label', '权衡的是延迟：同批最慢的请求决定整批步速，批越大单步越慢'));
+        v.appendChild(el('div', 'materin-learn-viz__label', '权衡的是延迟：同批最慢的请求决定整批步速'));
       } else {
         /* 延伸页：API 均价与吞吐的来源；你自己的部署也能开 */
         var ybars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
