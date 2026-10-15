@@ -1418,6 +1418,70 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* batch：连续批处理——4 条请求排队进同一批，GPU 逐列点亮算一次 */
+    batch: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-batch');
+      var lanesBox = el('div', 'materin-learn-batch__lanes');
+      var readout = el('div', 'materin-learn-batch__readout');
+      var note = el('p', 'materin-learn-batch__note', t(a.note));
+
+      var lanes = a.lanes.map(function (ln) {
+        var lane = el('div', 'materin-learn-batch__lane');
+        lane.appendChild(el('span', 'materin-learn-batch__lane-tag',
+          t({ zh: ln.zh, en: ln.en })));
+        var grid = el('div', 'materin-learn-batch__grid');
+        for (var c = 0; c < a.cols; c++) {
+          grid.appendChild(el('span', 'materin-learn-batch__cell'));
+        }
+        lane.appendChild(grid);
+        lanesBox.appendChild(lane);
+        return { lane: lane, arrive: ln.arrive, grid: grid };
+      });
+
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      ['serial', 'batch', 'gain'].forEach(function (k) {
+        var box = el('div', 'materin-learn-batch__stat');
+        box.appendChild(el('span', 'materin-learn-batch__stat-num', rd[k].num));
+        box.appendChild(el('span', 'materin-learn-batch__stat-cap', rd[k].cap));
+        readout.appendChild(box);
+      });
+
+      /* 时序：列 c 在 t = c 的起点同时点亮 4 条 lane 的该列格子（batch 一次算一列），
+         到达晚的 lane 其到达前的格子画成排队态（--queue）；走完静置后循环重播 */
+      var STEP = 1500, HOLD = 2200;
+      var CYCLE = a.cols * STEP + HOLD;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        var col = Math.floor(tNow / STEP);
+        var frac = (tNow % STEP) / STEP;
+        lanes.forEach(function (L, li) {
+          var cells = L.grid.children;
+          for (var c = 0; c < cells.length; c++) {
+            var waiting = c < L.arrive;                 /* 该列时请求还在排队 */
+            var filled = c >= L.arrive && col >= c;     /* 已随批算完的列 */
+            var live = col === c && c >= L.arrive;      /* 当前步正在算的列 */
+            var cell = cells[c];
+            cell.classList.toggle('materin-learn-batch__cell--queue', waiting);
+            cell.classList.toggle('materin-learn-batch__cell--live', filled || live);
+            cell.style.setProperty('--batch-f',
+              live ? frac.toFixed(3) : (filled ? '1' : '0'));
+          }
+          L.lane.classList.toggle('materin-learn-batch__lane--idle', col < L.arrive);
+          L.lane.classList.toggle('materin-learn-batch__lane--run', col >= L.arrive);
+        });
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(lanesBox);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

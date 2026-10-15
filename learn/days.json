@@ -3445,6 +3445,177 @@
           "en": "In the verify lap the 70B streams its weights once and scores 5 positions in passing — scoring 5 words costs about the same as writing 1. Rejected words resample from the big model's own distribution: the output is identical to unaccelerated decoding."
         }
       }
+    },
+    {
+      "n": 21,
+      "stage": 1,
+      "week": 3,
+      "tpl": "batch",
+      "date": "2026-10-15",
+      "title": {
+        "zh": "连续批处理：一圈算四条请求",
+        "en": "Continuous batching: one lap, four requests"
+      },
+      "subtitle": {
+        "zh": "第三周修的都是浪费：MoE 关掉空转的参数，缓存省掉重算的搬运，推测解码填满空转的算力。今天修最后一个——请求之间的间隔：把几乎同时到达的请求拼进同一个批次，GPU 每搬一遍权重顺便算几条，内容分毫不变，吞吐翻几倍。",
+        "en": "Week three fixes waste: MoE parks idle parameters, cache skips recomputation, speculative decoding fills idle compute. Today the last one — the gaps between requests: batch nearly-simultaneous arrivals and one weight stream serves several, content unchanged, throughput multiplied."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：GPU 的拼车逻辑",
+            "en": "Mechanism: carpooling for the GPU"
+          },
+          "p": {
+            "zh": "第 20 天说过，解码的瓶颈是带宽不是算力：每吐一个词，都要把上百 GB 权重从显存完整搬一遍，乘法器大部分时间在等数。逐条处理时，这趟车只载一位乘客。批处理把「等」变成「顺便」：调度器把几乎同时到达的几条请求拼成一个批次，每圈为整个批次做一次前向——4 条请求的 token 摆进同一个批量矩阵，一次权重搬运全部覆盖。对每条请求来说，自己仍是一步一步生成，顺序、内容分毫不变；变的只是「这一圈顺便替别人也算了」。算力利用率从个位数百分比拉到百分之八九十，这是 vLLM 这类推理引擎吞吐量比裸跑高几倍的核心来源。",
+            "en": "Day 20 established that decoding is bandwidth-bound, not compute-bound: every emitted token streams over a hundred GB of weights from VRAM while the multipliers mostly wait. One request at a time, that bus carries a single passenger. Batching turns waiting into side work: the scheduler packs nearly-simultaneous requests into one batch, and each lap runs one forward pass for the whole batch — 4 requests' tokens share one weight stream. Each request still generates step by step, order and content unchanged; what changed is that this lap also served others. Utilization climbs from single-digit percent to eighty or ninety — the core reason inference engines like vLLM outperform naive serving several-fold."
+          },
+          "deep": {
+            "zh": "为什么不担心「串味」？因为批次里的请求在数学上根本不相交：注意力只在各自序列内部打分（第 6 天），FFN 对每个位置独立作用（第 17 天的专家路由也是逐 token 独立）——把它们摆进同一个批量矩阵只是共享了同一次权重读取，计算彼此绝缘。batch 维度是矩阵乘法里最便宜的维度：多加一行请求，权重的搬运次数不变，只是把同一张结果表多抄几列。这也是它和推测解码的分工：推测解码在一条请求内部填满并行位，批处理在请求之间填满。",
+            "en": "Why no cross-contamination? Requests in a batch are mathematically disjoint: attention scores within each sequence only (day 6), and the FFN acts on each position independently (day 17's expert routing is per token too) — sharing a batch matrix means sharing one weight read, nothing more. The batch dimension is the cheapest dimension of matrix multiplication: another request adds a row of copies, not another weight pass. That's the division of labor with speculative decoding: one fills parallel lanes within a request, the other across requests."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：API 的价格就是这么来的",
+            "en": "The math: where API prices come from"
+          },
+          "p": {
+            "zh": "一家 API 公司的成本结构几乎全由批处理效率决定。算一笔账：一台 8 卡 H100 机器租金约每小时 20 美元，逐条处理吞吐约 21 token/秒（第 20 天的账）；开足连续批处理、并发两三百条，同一台机器能拉到几千 token/秒——平摊到每百万 token 的算力成本，差了约两个数量级。这解释了两个定价现象：其一，输入价通常是输出价的 1/3 到 1/5——预填充（prompt processing）天然大批量并行，你贴的几千 token 文档在一两圈里一起算，几乎不增加成本，逐 token 的解码才是贵的那半；其二，批量 API（24 小时内返回）便宜一半——把深夜空转的算力填满，边际成本接近零。",
+            "en": "An API company's cost structure is decided almost entirely by batching efficiency. The ledger: an 8x H100 box rents for about $20/hour; naive serving manages ~21 tokens/second (day 20's math); continuous batching at a few hundred concurrent requests pushes the same box to several thousand — roughly two orders of magnitude in cost per million tokens. This explains two pricing facts: first, input tokens usually cost 1/3 to 1/5 of output — prefill is naturally massively parallel (your pasted few-thousand-token document is computed in a lap or two, nearly free), while token-by-token decoding is the expensive half; second, batch APIs (results within 24h) cost half — filling idle night capacity costs almost nothing."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "为什么必须「连续」批处理？传统静态批处理要凑满一拨才发车：先到的请求在队列里干等，长短请求互相拖到整批结束才能走。Orca（2022）和 vLLM 的连续批处理（continuous batching）改的是调度：每生成一圈，刚完成的请求立刻退出、队列里新到的立刻顶上——批次像出租车随下随上，永不满员发车、也永不空驶。调度策略一个字没改模型，却把有效并发从「看运气」变成「持续打满」。",
+              "en": "Why must batching be continuous? Static batching waits to fill a bus: early arrivals idle in the queue, and short requests are dragged along until the whole batch finishes. Orca (2022) and vLLM's continuous batching changed the scheduling: at every lap, finished requests leave and fresh ones from the queue join immediately — a taxi that drops off and picks up on the go, never waiting to fill up, never running empty. The scheduling change touches no model weights, yet turns effective concurrency from luck into a full-time state."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：批处理改变什么，不改变什么",
+            "en": "Misconception: what batching changes, and what it never touches"
+          },
+          "p": {
+            "zh": "三个常见误读。其一，「批越大越快」：对吞吐（系统总 token/秒）是对的，对单条延迟是反的——同批最慢的请求决定整圈步长，批越大单圈越慢，你在共享服务上偶尔遇到的「突然变卡」，往往就是撞上了大批次。其二，「同批的请求会互相污染」：上一节说了，计算彼此绝缘，一条请求的内容不可能流进另一条——会被「别人」影响的只有速度，不是内容。其三，「批处理是服务端的事，与我无关」：你自己部署开源模型时，并发请求数就是批大小——压测时一条一条发请求，吞吐数字自然难看，不是模型不行。",
+            "en": "Three common misreads. First, 'bigger batch is always faster': true for throughput (total tokens/second), false for per-request latency — the slowest request in a batch sets the lap's pace, and the sudden sluggishness you hit on shared services is often a large batch. Second, 'requests in a batch contaminate each other': they are computationally disjoint — only speed is affected, never content. Third, 'batching is a server-side concern': when you self-host an open model, your concurrency IS the batch size — benchmarking one request at a time guarantees ugly numbers, and it's not the model's fault."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「API 按 token 的真实成本定价」。价格 = 算力成本 ÷ 批处理效率 + 利润：同一个开源模型，在不同平台报价差好几倍，多数差别不在模型，在推理栈的调度激进度。所以「换个更便宜的 API」往往不是换了更差的模型，而是换了一个更会拼车的司机——第 20 天的推测解码、今天的批处理、再加上量化（第 11 天），就是各家报价差异的三大来源。",
+              "en": "'API prices track the true per-token cost.' Price = compute cost ÷ batching efficiency + margin: the same open model can differ severalfold across platforms, mostly not because of the model but the inference stack's scheduling aggressiveness. 'A cheaper API' usually means the same model with a better carpool driver — speculative decoding (day 20), batching (today), and quantization (day 11) are the three big levers behind every price gap."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：修浪费三部曲收官",
+            "en": "Extension: the waste-fixing trilogy closes"
+          },
+          "p": {
+            "zh": "第三周至此凑齐了「修浪费」的四招：第 17 天 MoE 关掉空转的参数，第 14 天 KV cache 省掉重算的搬运，第 20 天推测解码填满空转的算力，今天批处理把不同用户的请求拼进同一圈——四招都不改模型、不改输出，只改「同一次权重搬运顺便干多少活」。往前看：第 2 阶段（29 天起）的上下文工程，是在用户侧做同样的压缩——少喂没用的 token，就是少付批处理摊不掉的那部分；第 3 阶段 Agent（50 天起）的多步工具调用，每一步都是一次请求，延迟账从这里开始乘法累加；更远的推理基础设施专题会把这套账算成完整的成本模型。今天带走一句话——",
+            "en": "Week three's toolkit is complete: MoE parks idle parameters (day 17), KV cache skips recomputed streams (day 14), speculative decoding fills idle compute (day 20), and batching packs different users' requests into one lap (today) — none of them touch the model or its outputs, only how much side work one weight stream does. Ahead: stage 2's context engineering (from day 29) is the user-side version of the same compression — fewer useless tokens means less of the part batching can't amortize; stage 3's agents (from day 50) fire a request per tool call, where latency starts compounding; a later infrastructure module turns this ledger into a full cost model. One sentence for today —"
+          }
+        },
+        {
+          "h": {
+            "zh": "一个 3 分钟实验",
+            "en": "A 3-minute experiment"
+          },
+          "p": {
+            "zh": "在任意 AI 应用里连续快速发 5 条消息，再隔一分钟单发 1 条，感受两种情况下回复速度的差别。然后回答：① 高峰期和深夜，同一个模型的响应速度为什么不同？（提示：批次大小和排队深度随到达率变化——第 2 节的出租车。）② 为什么 5 条连发时每条回复变慢了，但「总时间」远小于 5 条分开发？（提示：你亲手把自己变成了一个批次。）",
+            "en": "In any AI app, fire 5 messages in quick succession, then send 1 alone a minute later, and feel the difference. Then: ① Why does the same model respond differently at rush hour vs midnight? (Hint: batch size and queue depth track arrival rate — section 2's taxi.) ② Why did each of the 5 rapid replies get slower, yet the total time beat sending them one by one? (Hint: you just turned yourself into a batch.)"
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "打开任意支持开源模型的推理服务后台（vLLM、Ollama 或云厂商的并发面板），记下三个数：当前并发数（批大小）、吞吐（token/秒）、排队深度。先单线程发一条长问题记下耗时，再用 8 个标签页同时发 8 条同样的问题，记录总耗时和每条耗时。回答三个问题：① 8 条并发的总耗时和单条耗时的 8 倍差多少？远小于 8 倍的部分是什么？（提示：就是被逐条模式空转掉的算力——第 1 节的账。）② 每条的耗时比单发时变快还是变慢？为什么？（提示：同批最慢的请求决定步长——第 3 节。）③ 深夜跑同样的测试，哪个数字会变？（提示：到达率决定拼批速度。）",
+          "en": "Open the dashboard of any open-model serving stack (vLLM, Ollama, or a cloud concurrency panel) and note three numbers: current concurrency (batch size), throughput (tokens/s), queue depth. Time one long question single-threaded; then fire the same 8 questions from 8 tabs at once, recording total and per-request times. Then: ① How does the 8-way total compare with 8x the single time? What is the missing chunk? (Hint: the compute that serial serving idles away — section 1's ledger.) ② Did each request get faster or slower than solo? Why? (Hint: the slowest request in a batch sets the pace — section 3.) ③ Rerun at midnight: which number changes? (Hint: arrival rate sets the carpooling speed.)"
+        }
+      },
+      "takeaway": {
+        "zh": "批处理不改变任何一个回答的内容，只改变回答的成本：把几乎同时到达的请求拼进同一个批次，GPU 每搬一遍权重顺便算几条——利用率从个位数拉到九成，API 的价格和自部署的吞吐都由这件事决定。",
+        "en": "Batching changes no answer's content, only its cost: pack nearly-simultaneous requests into one batch and one weight stream serves them all — utilization from single digits to ninety percent, and both API prices and self-hosted throughput follow from this one trick."
+      },
+      "anim": {
+        "tpl": "batch",
+        "hook": {
+          "zh": "逐条处理时，GPU 78% 的力气在空转——把 4 条请求拼进一圈，它才算满了一次。",
+          "en": "One request at a time, the GPU idles 78% of the time — pack 4 into one lap and it finally works full."
+        },
+        "coverHook": {
+          "zh": "4 条请求各算各的，GPU 78% 时间在空转；拼进同一个批次，一圈算 4 条——省下的就是你付的输入费。",
+          "en": "Serving 4 requests separately, the GPU idles 78% of the time; batched, one lap serves all 4 — the savings are your input bill."
+        },
+        "cols": 6,
+        "lanes": [
+          {
+            "zh": "请求 A · 先到",
+            "en": "Request A · first",
+            "arrive": 0
+          },
+          {
+            "zh": "请求 B",
+            "en": "Request B",
+            "arrive": 1
+          },
+          {
+            "zh": "请求 C",
+            "en": "Request C",
+            "arrive": 2
+          },
+          {
+            "zh": "请求 D · 后到",
+            "en": "Request D · late",
+            "arrive": 4
+          }
+        ],
+        "readoutZh": {
+          "serial": {
+            "num": "1 条",
+            "cap": "逐条 · 每圈处理"
+          },
+          "batch": {
+            "num": "4 条",
+            "cap": "同批 · 一圈并行"
+          },
+          "gain": {
+            "num": "78%→6%",
+            "cap": "GPU 空闲占比 · 连续拼批"
+          }
+        },
+        "readoutEn": {
+          "serial": {
+            "num": "1",
+            "cap": "serial · served per lap"
+          },
+          "batch": {
+            "num": "4",
+            "cap": "batched · one lap"
+          },
+          "gain": {
+            "num": "78%→6%",
+            "cap": "GPU idle share · continuous batching"
+          }
+        },
+        "note": {
+          "zh": "示意：列 = 生成步（一圈），4 条请求拼进同一批。到达前的列画虚线（在排队）；到达后随批逐步点亮——每条请求各自的内容分毫不变，只是顺便搭了同一趟权重搬运。",
+          "en": "Illustrative: columns = generation laps, 4 requests share one batch. Columns before arrival show dashed (still queuing); after joining, each request lights up with the batch — content untouched, just sharing one weight stream."
+        }
+      }
     }
   ]
 }

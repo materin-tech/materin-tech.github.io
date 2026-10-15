@@ -1056,6 +1056,62 @@
         v.appendChild(xbars);
         v.appendChild(el('div', 'materin-learn-viz__label', '第 19 天多花算力买正确率，推测解码不多花一分买回时间——Agent 循环圈圈在攒'));
       }
+    } else if (day.anim && day.anim.tpl === 'batch') {
+      if (idx === 0) {
+        /* 机制页：排队 lanes → 并批 lanes 同位对照，与动效页同一叙事 */
+        var broutes = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '逐条处理：4 条请求排 4 段队', cls: '', verdict: 'GPU 空转 78%', vcls: '' },
+          { tag: '连续批处理：4 条挤进同一批', cls: ' materin-learn-viz__route-row--think', verdict: '✓ 一列算 4 条', vcls: ' materin-learn-viz__route-word--ok' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          broutes.appendChild(row);
+        });
+        v.appendChild(broutes);
+        v.appendChild(el('div', 'materin-learn-viz__label', '批内一次前向，4 条请求分摊同一遍权重搬运'));
+      } else if (idx === 1) {
+        /* 为什么页：到达率 × 批窗 = 吞吐；批次越大单价越低 */
+        var bbars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '批 = 1（逐条独享）', val: 12, cls: '', txt: '最贵 · 一条独占整遍搬运', wide: true },
+          { tag: '批 = 32', val: 55, cls: '', txt: '单价降到约 1/8', wide: true },
+          { tag: '批 = 256（连续拼批）', val: 100, cls: ' materin-learn-viz__bar--en', txt: '单价约 1/20 · 队列不空批不散', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(2, Math.min(100, r.val)) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bbars.appendChild(row);
+        });
+        v.appendChild(bbars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '权衡的是延迟：同批最慢的请求决定整批步速，批越大单步越慢'));
+      } else {
+        /* 延伸页：API 均价与吞吐的来源；你自己的部署也能开 */
+        var ybars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '自部署逐条处理', val: 20, cls: '', txt: '吞吐 21 token/秒 · 一条一条来', wide: true },
+          { tag: '自部署连续批处理', val: 100, cls: ' materin-learn-viz__bar--en', txt: '吞吐 3~5 倍 · 队列不断批就不散', wide: true },
+          { tag: '厂商 API 标价', val: 55, cls: '', txt: '输入价 = 批处理省下的搬运，明码标价', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(2, Math.min(100, r.val)) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          ybars.appendChild(row);
+        });
+        v.appendChild(ybars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '第 16 天的圈是发动机，第 20 天的草稿省等待，批处理把不同用户的圈拼成一圈'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));
