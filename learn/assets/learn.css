@@ -3296,3 +3296,187 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-body-day.is-stage .materin-learn-batch__stat-num { font-size: 44px; }
 .materin-learn-body-day.is-stage .materin-learn-batch__stat-cap { font-size: 24px; }
 .materin-learn-body-day.is-stage .materin-learn-batch__note { font-size: 28px; max-width: 840px; }
+
+/* tool：函数调用（第 22 天）——问题行 + 申请行（模型写的）+ 外呼行（你的代码
+   执行）+ 答案行；格只动 transform，初始可见不靠 opacity（导出/采样不会停在
+   透明第一帧）；申请行 JSON 风格等宽字，外呼行点亮走描边+阴影。 */
+.materin-learn-tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.materin-learn-tool__question {
+  max-width: 560px;
+  padding: 10px 20px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 999px;
+  background:
+    radial-gradient(120% 160% at 80% 0%, var(--materin-accent-soft), transparent 60%),
+    var(--materin-surface-2);
+  color: var(--materin-text);
+  font-size: 14px;
+  font-weight: 650;
+  text-align: center;
+}
+
+.materin-learn-tool__tag {
+  color: var(--materin-text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  align-self: flex-start;
+}
+
+.materin-learn-tool__tag--world { color: var(--materin-warn); }
+
+.materin-learn-tool__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 14px;
+  background: var(--materin-glass-bg-subtle);
+  transition: border-color var(--materin-duration-normal, 0.3s) ease,
+              box-shadow var(--materin-duration-normal, 0.3s) ease;
+}
+
+.materin-learn-tool__row--call { border-color: var(--materin-accent-border); }
+
+.materin-learn-tool__row--world { border-style: dashed; }
+.materin-learn-tool__row--world.is-live {
+  border-color: var(--materin-warn-border);
+  box-shadow: var(--materin-shadow);
+}
+
+.materin-learn-tool__row--ans { border-style: dashed; }
+
+.materin-learn-tool__cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--materin-border);
+  border-radius: 8px;
+  background: var(--materin-surface-2);
+  color: var(--materin-text);
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+
+.materin-learn-tool__cell--call {
+  border-color: var(--materin-accent-border);
+  background: var(--materin-surface-3);
+  color: var(--materin-accent);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  transform: translateY(8px) scaleY(0.2);
+  transform-origin: center bottom;
+  transition: transform 0.38s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+}
+
+.materin-learn-tool__cell--call.is-in { transform: translateY(0) scaleY(1); }
+
+.materin-learn-tool__cell--world {
+  border-color: var(--materin-warn-border);
+  background: var(--materin-warn-soft);
+  color: var(--materin-warn);
+  font-weight: 650;
+  transform: translateY(8px) scaleY(0.2);
+  transform-origin: center bottom;
+  transition: transform 0.38s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+}
+
+.materin-learn-tool__cell--world.is-in { transform: translateY(0) scaleY(1); }
+
+.materin-learn-tool__cell--ans {
+  border-color: var(--materin-ok-border);
+  background: var(--materin-ok-soft, var(--materin-surface-2));
+  color: var(--materin-ok);
+  font-weight: 700;
+  transform: translateY(8px) scaleY(0.2);
+  transform-origin: center bottom;
+  transition: transform 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+}
+
+.materin-learn-tool__cell--ans.is-in { transform: translateY(0) scaleY(1); }
+
+.materin-learn-tool__verdict {
+  align-self: flex-start;
+  color: var(--materin-ok);
+  font-size: 13px;
+  font-weight: 700;
+  transform: translateX(-4px) scaleY(0.6);
+  transition: transform 0.35s var(--materin-ease-standard, ease);
+}
+
+.materin-learn-tool__verdict.is-in { transform: translateX(0) scaleY(1); }
+
+.materin-learn-tool__readout {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.materin-learn-tool__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-surface-2);
+}
+
+.materin-learn-tool__stat-num {
+  color: var(--materin-accent);
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-tool__stat-cap {
+  color: var(--materin-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.materin-learn-tool__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+  max-width: 640px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materin-learn-tool__cell--call,
+  .materin-learn-tool__cell--world,
+  .materin-learn-tool__cell--ans { transform: none; transition: none; }
+  .materin-learn-tool__verdict { transform: none; }
+}
+
+/* 竖版舞台（?stage=1）：tool 放大 */
+.materin-learn-body-day.is-stage .materin-learn-tool { gap: 24px; max-width: 900px; }
+.materin-learn-body-day.is-stage .materin-learn-tool__question { font-size: 34px; padding: 16px 34px; border-radius: 24px; }
+.materin-learn-body-day.is-stage .materin-learn-tool__tag { font-size: 26px; }
+.materin-learn-body-day.is-stage .materin-learn-tool__row { min-height: 92px; border-radius: 24px; gap: 14px; padding: 14px; }
+.materin-learn-body-day.is-stage .materin-learn-tool__cell { height: 56px; padding: 0 22px; border-radius: 14px; font-size: 28px; }
+.materin-learn-body-day.is-stage .materin-learn-tool__verdict { font-size: 28px; }
+.materin-learn-body-day.is-stage .materin-learn-tool__stat-num { font-size: 44px; }
+.materin-learn-body-day.is-stage .materin-learn-tool__stat-cap { font-size: 24px; }
+.materin-learn-body-day.is-stage .materin-learn-tool__note { font-size: 28px; max-width: 840px; }

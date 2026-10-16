@@ -1482,6 +1482,95 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* tool：函数调用（第 22 天）——三段时序：申请行（模型写的，JSON 风格格）
+       逐格 pop → 外呼行点亮（你的代码执行，结果格逐格落位）→ 答案行逐格生长
+       + 判决转绿。格只动 transform（pop/scaleY），初始可见不靠 opacity，循环重播。 */
+    tool: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-tool');
+      var question = el('div', 'materin-learn-tool__question', t(a.question));
+
+      var callTag = el('div', 'materin-learn-tool__tag',
+        lang() === 'en' ? a.callTagEn : a.callTagZh);
+      var callRow = el('div', 'materin-learn-tool__row materin-learn-tool__row--call');
+      var callCells = (lang() === 'en' ? a.callTokensEn : a.callTokensZh).map(function (tok, i) {
+        var cell = el('span', 'materin-learn-tool__cell materin-learn-tool__cell--call', tok);
+        callRow.appendChild(cell);
+        return cell;
+      });
+
+      var worldTag = el('div', 'materin-learn-tool__tag materin-learn-tool__tag--world',
+        lang() === 'en' ? a.worldTagEn : a.worldTagZh);
+      var worldRow = el('div', 'materin-learn-tool__row materin-learn-tool__row--world');
+      var worldCells = (lang() === 'en' ? a.worldTokensEn : a.worldTokensZh).map(function (tok) {
+        var cell = el('span', 'materin-learn-tool__cell materin-learn-tool__cell--world', tok);
+        worldRow.appendChild(cell);
+        return cell;
+      });
+
+      var ansTag = el('div', 'materin-learn-tool__tag',
+        lang() === 'en' ? a.ansTagEn : a.ansTagZh);
+      var ansRow = el('div', 'materin-learn-tool__row materin-learn-tool__row--ans');
+      var ansCells = (lang() === 'en' ? a.ansTokensEn : a.ansTokensZh).map(function (tok) {
+        var cell = el('span', 'materin-learn-tool__cell materin-learn-tool__cell--ans', tok);
+        ansRow.appendChild(cell);
+        return cell;
+      });
+      var verdict = el('div', 'materin-learn-tool__verdict',
+        lang() === 'en' ? a.verdictEn : a.verdictZh);
+
+      var readout = el('div', 'materin-learn-tool__readout');
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      ['call', 'laps', 'trust'].forEach(function (k) {
+        var box = el('div', 'materin-learn-tool__stat');
+        box.appendChild(el('span', 'materin-learn-tool__stat-num', rd[k].num));
+        box.appendChild(el('span', 'materin-learn-tool__stat-cap', rd[k].cap));
+        readout.appendChild(box);
+      });
+      var note = el('p', 'materin-learn-tool__note', t(a.note));
+
+      /* 时序：问题+申请行 1.2s → 申请格 0.3s/格 → 外呼点亮+结果格 0.35s/格 →
+         答案格 0.45s/格 → 判决转绿 → 静置 → 循环 */
+      var SETUP = 1200, CALL_STEP = 300, CALL_GAP = 500, WORLD_STEP = 350,
+          ANS_STEP = 450, HOLD = 1900;
+      var callN = callCells.length, worldN = worldCells.length, ansN = ansCells.length;
+      var CYCLE = SETUP + callN * CALL_STEP + CALL_GAP + worldN * WORLD_STEP +
+                  ansN * ANS_STEP + HOLD;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        var callAt = SETUP, callEnd = callAt + callN * CALL_STEP;
+        var worldAt = callEnd + CALL_GAP, worldEnd = worldAt + worldN * WORLD_STEP;
+        var ansAt = worldEnd, ansEnd = ansAt + ansN * ANS_STEP;
+        callCells.forEach(function (c, k) {
+          c.classList.toggle('is-in', tNow >= callAt + k * CALL_STEP);
+        });
+        worldRow.classList.toggle('is-live', tNow >= worldAt);
+        worldCells.forEach(function (c, k) {
+          c.classList.toggle('is-in', tNow >= worldAt + k * WORLD_STEP);
+        });
+        ansCells.forEach(function (c, k) {
+          c.classList.toggle('is-in', tNow >= ansAt + k * ANS_STEP);
+        });
+        verdict.classList.toggle('is-in', tNow >= ansEnd);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(question);
+      wrap.appendChild(callTag);
+      wrap.appendChild(callRow);
+      wrap.appendChild(worldTag);
+      wrap.appendChild(worldRow);
+      wrap.appendChild(ansTag);
+      wrap.appendChild(ansRow);
+      wrap.appendChild(verdict);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

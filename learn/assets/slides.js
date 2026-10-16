@@ -1112,6 +1112,62 @@
         v.appendChild(ybars);
         v.appendChild(el('div', 'materin-learn-viz__label', '第 16 天的圈是发动机，第 20 天的草稿省等待，批处理把不同用户的圈拼成一圈'));
       }
+    } else if (day.anim && day.anim.tpl === 'tool') {
+      if (idx === 0) {
+        /* 机制页：申请行 vs 执行行同位对照——谁写、谁执行，与动效页同一叙事 */
+        var tpair = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '模型写的：get_weather(city=上海)', cls: '', verdict: '只是一段文字', vcls: '' },
+          { tag: '你的代码执行的：发请求 → 拿结果', cls: ' materin-learn-viz__route-row--think', verdict: '✓ 执行者是你', vcls: ' materin-learn-viz__route-word--ok' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          tpair.appendChild(row);
+        });
+        v.appendChild(tpair);
+        v.appendChild(el('div', 'materin-learn-viz__label', '受限解码把格式钉死：申请 100% 可解析——但格式免费，语义要自己把关'));
+      } else if (idx === 1) {
+        /* 为什么页：实时题两种结局 + 格式可靠性账 */
+        var tbars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '不用工具：凭训练里的旧模式硬答', val: 6, cls: '', txt: '实时题正确率 ≈0 · 语气照样自信', wide: true },
+          { tag: '挂上工具：外呼 300ms + 几十 token 贴回', val: 100, cls: ' materin-learn-viz__bar--en', txt: '上限 = 数据源本身', wide: true },
+          { tag: '裸写 JSON 的格式合法率', val: 70, cls: '', txt: '一个引号崩掉解析', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(2, Math.min(100, r.val)) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          tbars.appendChild(row);
+        });
+        v.appendChild(tbars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '买到的不是「更好一点」，是题目类别变了：实时题从瞎编变成有据'));
+      } else {
+        /* 延伸页：一次调用 = 循环加一枚外呼步 → Agent 循环的第一格 */
+        var xbars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '今天：人决定何时调用（1 次）', val: 30, cls: '', txt: '一问一答 · 你按回车', wide: true },
+          { tag: '第 50 天：模型在循环里自己决定', val: 100, cls: ' materin-learn-viz__bar--en', txt: '调几次、调哪个、何时停——Agent', wide: true },
+          { tag: '第 85 天：检索也是一种外呼', val: 62, cls: '', txt: 'RAG = 工具调用的头号场景', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(2, Math.min(100, r.val)) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          xbars.appendChild(row);
+        });
+        v.appendChild(xbars);
+        v.appendChild(el('div', 'materin-learn-viz__label', '把「人按回车」换成「模型自己决定」，今天的申请就是 Agent 循环的第一格'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

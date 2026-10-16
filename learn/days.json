@@ -3616,6 +3616,194 @@
           "en": "Illustrative: columns = generation laps, 4 requests share one batch. Columns before arrival show dashed (still queuing); after joining, each request lights up with the batch — content untouched, just sharing one weight stream."
         }
       }
+    },
+    {
+      "n": 22,
+      "stage": 1,
+      "week": 4,
+      "tpl": "tool",
+      "date": "2026-10-16",
+      "title": {
+        "zh": "函数调用：只写申请，从不执行",
+        "en": "Function calling: files requests, never executes"
+      },
+      "subtitle": {
+        "zh": "第四周从「修浪费」转到「接世界」：权重冻结在训练那天，模型连今天几点都不知道。它唯一的出口是文字——把「我不知道」写成一段你的代码看得懂的申请，由你的程序执行、把结果贴回上下文，它接着写。这一个外呼步骤，就是第 50 天 Agent 循环的第一格。",
+        "en": "Week four shifts from fixing waste to touching the world: weights frozen on training day, the model doesn't even know what time it is. Its only exit is text — write \"I don't know\" as a request your code can parse, execute outside, paste the result back, continue. That one outbound step is the first cell of the agent loop (day 50)."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：会写申请，不会执行",
+            "en": "Mechanism: it writes requests, never executes"
+          },
+          "p": {
+            "zh": "先把最关键的事实钉死：模型从头到尾只做一件事——根据上下文预测下一个 token（第 16 天的圈）。它「调用工具」时做的事和写诗一模一样：吐出一段符合约定格式的文字，比如 {\"name\":\"get_weather\",\"arguments\":{\"city\":\"上海\"}}。真正执行的是你的程序：运行时解析这段文字、真的发请求查天、把结果作为一条新消息（role=tool）贴回上下文，生成循环继续转——模型把这条结果当成普通文本读进去，接着写出「带伞」的建议。现代推理栈还加一道保险：受限解码（constrained decoding）——在调用段逐步用 schema 给 logits 打掩码，不符合格式的 token 直接被屏蔽，所以申请永远可解析。注意边界：格式是保证的，内容不是。",
+            "en": "Pin down the key fact first: the model does exactly one thing — predict the next token from context (day 16's loop). \"Calling a tool\" is no different from writing a poem: it emits text in an agreed format, like {\"name\":\"get_weather\",\"arguments\":{\"city\":\"Shanghai\"}}. What actually executes is your program: the runtime parses that text, really issues the request, and pastes the result back as a new message (role=tool); the generation loop keeps spinning — the model reads the result as ordinary text and writes the umbrella advice. Modern stacks add a guardrail: constrained decoding — during the call segment, the schema masks the logits step by step, so format-breaking tokens are simply blocked and the request is always parseable. The boundary: format is guaranteed, content is not."
+          },
+          "deep": {
+            "zh": "为什么模型会「选对工具、填对参数」？三层各出一半力：函数定义（名字、参数、说明）作为 schema 放进系统提示，模型靠注意力读到它们（第 6 天）；预训练和后训练语料里有海量「缺信息→发请求」的模式，模型学会了在碰到自己没有的事实时不硬答、先写申请头；受限解码再把格式钉死。所以「会用工具」不是长出来的新器官——还是那台下一 token 预测的发动机（第 16 天），只是装了一个格式化的排气口。",
+            "en": "Why does the model pick the right tool and fill sane arguments? Three layers split the work: function definitions (name, parameters, description) live in the system prompt as schemas, read via attention (day 6); pretraining and post-training corpora are full of \"missing info → issue request\" patterns, so the model learned to file a request header instead of bluffing when it lacks facts; constrained decoding pins the format. Tool use is not a new organ — it's the same next-token engine (day 16) with a formatted exhaust pipe."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：一道实时题的两种结局",
+            "en": "The math: one real-time question, two endings"
+          },
+          "p": {
+            "zh": "问「上海今天会下雨吗」。不用工具：训练数据停在过去的某一天（第 7 天的语料快照），模型要么承认「我无法获取实时天气」，要么用训练里见过的天气模式编一个「上海今天多云，22 度」——语气和真话一样自信，你无从分辨。挂上工具：模型写一张申请，天气接口返回 {小雨，降水概率 80%，18°C}，模型接着写「会下，带伞」。算账：多花 1 次外呼（HTTP 往返约 100–500 毫秒）加上结果贴回上下文的几十个 token（按第 14 天的缓存逻辑，重算很便宜），换来的不是「回答变好了一点」，而是这道题的类别变了——实时题的正确率上限从接近 0 提到数据源本身的水平。",
+            "en": "Ask \"will it rain in Shanghai today?\" Without tools: training data stops at some past day (day 7's corpus snapshot), so the model either admits it can't know, or invents \"cloudy, 22°C in Shanghai\" from weather patterns it saw in training — with the same confident tone as truth, indistinguishable. With a tool: the model files a request, the weather API returns {light rain, 80%, 18°C}, and it writes \"yes, take an umbrella\". The ledger: one outbound call (HTTP round trip ≈100–500ms) plus a few dozen tokens pasted back (cheap to recompute per day 14's cache). What you bought isn't \"a slightly better answer\" — the question changed category: the accuracy ceiling for real-time questions jumps from near zero to whatever the data source knows."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "格式可靠性同样能算：让模型裸写 JSON，引号漏一个、括号错一层，程序解析直接崩；挂上受限解码后，格式合法率是 100%。但别高兴太早——参数值本身仍可能填错（把「上海」填成「南京」，语法完全合法），所以生产系统在执行前还要做一层参数校验。一句话：格式免费，语义要自己把关。",
+              "en": "Format reliability is also computable: have a model write JSON bare and one missing quote or bracket breaks your parser; with constrained decoding, format validity is 100%. Don't celebrate yet — argument values can still be wrong (filling \"Nanjing\" for Shanghai is perfectly legal grammar), so production systems validate arguments before executing. In one line: format is free, semantics are on you."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：谁在按回车",
+            "en": "Misconception: who presses the Enter key"
+          },
+          "p": {
+            "zh": "三个常见误读。其一，「模型执行了函数」：模型只写了文本，执行永远发生在你的进程里——这恰好是安全边界：模型是申请方，不是执行方，危险的订单永远要你的代码签字。其二，「调完工具模型就连上网了」：没有持久连接，每次调用都是一次性的贴回，下一轮它依然只看得见上下文里的字。其三，「JSON 合法 = 答案正确」：受限解码只保证格式，参数可以填错、结果可以被误读——第 2 节说过，格式免费，语义自检。",
+            "en": "Three common misreads. First, \"the model executes the function\": it only writes text; execution always happens in your process — which is exactly the safety boundary: the model requests, never executes, and risky orders need your code's signature. Second, \"after the call the model is online\": there's no persistent connection; every call is a one-time paste-back, and next round it still only sees the words in context. Third, \"valid JSON = correct answer\": constrained decoding guarantees format only — arguments can be wrong, results can be misread. Format is free; semantics need checking."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「函数调用是模型的内置能力，换个模型就没了」。它其实是三层协议：schema 写进提示、选择与填参靠训练对齐、合法靠解码掩码——一个没专门练过工具调用的模型，配上清晰的函数说明和受限解码，也能完成大部分调用，只是选工具和填参数的准确率低一截。这也是工具生态能跨模型通用的原因：各家格式细节不同，协议是同一套。",
+              "en": "\"Function calling is built into a model — switch models and it's gone.\" It's really a three-layer protocol: schema in the prompt, tool choice and arguments from training alignment, validity from decoding masks — a model never specifically trained for tool calls, given clear function descriptions and constrained decoding, still handles most calls, just with lower pick-and-fill accuracy. That's why the tool ecosystem is cross-model: format details differ per vendor, the protocol is the same."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：从一次调用到一个 Agent",
+            "en": "Extension: from one call to an agent"
+          },
+          "p": {
+            "zh": "把今天的画面拉远：一次工具调用 = 生成循环（第 16 天）加了一枚「外呼」步骤，结果钉回上下文再继续。那如果让模型自己决定要不要再调一次、调哪个、什么时候停呢？——那就是 Agent（第 50 天起）：把「人决定何时调用」换成「模型在循环里自己决定」，今天这一步就是那个循环里最关键的一格。往前看：第 85 天起的 RAG 是工具调用最常用的场景（检索就是一种外呼）；第 2 阶段（29 天起）的提示工程管的是模型在「写申请」之前看到什么——上下文越准，申请越准。明天把视角拉回模型本身：评测，怎么科学地知道一个模型变好没有。",
+            "en": "Zoom out: one tool call = the generation loop (day 16) with one outbound step, the result pinned back before continuing. Now let the model itself decide whether to call again, which tool, when to stop — that's an agent (from day 50): swap \"human decides when to call\" for \"the model decides inside the loop\", and today's step is the key cell of that loop. Ahead: RAG (from day 85) is tool calling's most common scenario (retrieval is an outbound call); stage 2's prompting (from day 29) governs what the model sees before it writes the request — the sharper the context, the sharper the request. Tomorrow the lens turns back onto the model itself: evaluation — how to tell scientifically whether a model got better."
+          }
+        },
+        {
+          "h": {
+            "zh": "一个 3 分钟实验",
+            "en": "A 3-minute experiment"
+          },
+          "p": {
+            "zh": "打开任意带联网搜索的 AI 应用，问一个实时问题（如「今天有什么大新闻」），再把联网关掉问同一个。回答三个问题：① 关掉联网后，哪些句子从「有据」变成了「凭印象」？你靠什么分辨？（提示：训练截止日——第 7 天的语料快照。）② 搜索框里那个关键词是谁写的？（提示：模型写的申请，App 执行的搜索——今天的第 1 节。）③ 同一对话里第二次追问，为什么不用重新搜索也能答上？（提示：结果已经贴回上下文。）",
+            "en": "In any AI app with web search, ask a real-time question (\"what's in the news today\"), then turn search off and ask again. Then: ① With search off, which sentences went from \"grounded\" to \"from memory\"? How can you tell? (Hint: training cutoff — day 7's corpus snapshot.) ② Who wrote the keyword in the search box? (Hint: the model filed the request, the app ran the search — section 1 today.) ③ Why does a follow-up in the same chat answer without searching again? (Hint: the result is already pasted into context.)"
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "找一个你常用的大模型应用，找到「联网/工具/插件」开关，做三轮对比并记录：① 全开：问一道实时题，记下它调用了几次工具、每次用的关键词；② 全关：同一道题，从回答里至少找出一句「没有依据但语气自信」的话；③ 半开：在问题里明说「不要联网，直接回答」，看它是遵守（把申请压回去）还是照调不误。回答：② 里那句编造的话，和 ① 里它写下的搜索词，本质区别是什么？（提示：一个来自权重里的旧模式硬答，一个是把「我不知道」翻译成一张申请——把不知道写出来而不是编过去，就是今天全部的内容。）",
+          "en": "In a model app you use, find the \"web/tools/plugins\" switch and run three rounds: ① all on: ask a real-time question, note how many tool calls and what keywords; ② all off: same question, find at least one sentence that is confident but unsupported; ③ half on: say in the prompt \"don't search, answer directly\" and see whether it complies (holds the request back) or calls anyway. Then: what is the essential difference between ②'s invented sentence and ①'s written search keywords? (Hint: one is an old pattern in the weights bluffing its way through; the other translates \"I don't know\" into a request — writing the not-knowing instead of improvising past it is everything today.)"
+        }
+      },
+      "takeaway": {
+        "zh": "模型永远只写文字：所谓「会调用工具」，是它把「我不知道」写成一段你的代码看得懂的申请，由你的程序执行、把结果贴回上下文，再让它接着写——格式由受限解码保证，语义要你自己把关；这一个外呼步骤，就是第 50 天 Agent 循环的第一格。",
+        "en": "The model only ever writes text: \"using a tool\" means writing \"I don't know\" as a request your code can parse, executing outside, pasting the result back, and continuing — format guaranteed by constrained decoding, semantics on you; that one outbound step is the first cell of the agent loop (day 50)."
+      },
+      "anim": {
+        "tpl": "tool",
+        "hook": {
+          "zh": "模型连现在几点都不知道——「会调用工具」，是它写了一张你的代码看得懂的申请。",
+          "en": "The model doesn't even know what time it is — \"tool use\" is filing a request your code can read."
+        },
+        "coverHook": {
+          "zh": "模型从不执行函数，只写申请：外呼 300 毫秒，实时题从瞎编变成有据——Agent 循环的第一格，今天开始。",
+          "en": "The model never executes functions, only files requests: 300ms per call turns guessing into grounded answers — the first cell of the agent loop starts today."
+        },
+        "question": {
+          "zh": "上海今天会下雨吗？我该带伞吗？",
+          "en": "Will it rain in Shanghai today? Should I take an umbrella?"
+        },
+        "callTagZh": "第 1 圈 · 模型写的不是答案，是一张申请",
+        "callTagEn": "Lap 1 · it writes a request, not an answer",
+        "callTokensZh": [
+          "get_weather",
+          "city=上海",
+          "date=今天"
+        ],
+        "callTokensEn": [
+          "get_weather",
+          "city=Shanghai",
+          "date=today"
+        ],
+        "worldTagZh": "模型外 · 你的代码真的出门查了天",
+        "worldTagEn": "outside · your code actually checks the sky",
+        "worldTokensZh": [
+          "小雨",
+          "降水概率 80%",
+          "18°C"
+        ],
+        "worldTokensEn": [
+          "light rain",
+          "80% chance",
+          "18°C"
+        ],
+        "ansTagZh": "第 2 圈 · 结果贴回上下文，接着写答案",
+        "ansTagEn": "Lap 2 · result pasted back, the answer continues",
+        "ansTokensZh": [
+          "会下",
+          "带伞"
+        ],
+        "ansTokensEn": [
+          "Yes",
+          "Umbrella"
+        ],
+        "verdictZh": "✓ 答案里的每个数字都来自外呼结果，没有一个编的",
+        "verdictEn": "✓ every number in the answer comes from the call — none invented",
+        "readoutZh": {
+          "call": {
+            "num": "1 次",
+            "cap": "外呼 · 模型只写申请"
+          },
+          "laps": {
+            "num": "2 圈",
+            "cap": "生成循环 · 中间钉回一次"
+          },
+          "trust": {
+            "num": "0 个",
+            "cap": "答案里的编造数字"
+          }
+        },
+        "readoutEn": {
+          "call": {
+            "num": "1",
+            "cap": "outbound call · model only files"
+          },
+          "laps": {
+            "num": "2",
+            "cap": "laps · one pin-back between"
+          },
+          "trust": {
+            "num": "0",
+            "cap": "invented numbers in the answer"
+          }
+        },
+        "note": {
+          "zh": "示意：申请与结果都是普通 token——schema 放在系统提示里，受限解码保证申请可解析；执行永远发生在你的进程里。",
+          "en": "Illustrative: requests and results are ordinary tokens — the schema lives in the system prompt, constrained decoding keeps the request parseable; execution always happens in your process."
+        }
+      }
     }
   ]
 }
