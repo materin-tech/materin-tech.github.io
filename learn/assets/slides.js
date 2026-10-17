@@ -1168,6 +1168,77 @@
         v.appendChild(xbars);
         v.appendChild(el('div', 'materin-learn-viz__label', '把「人按回车」换成「模型自己决定」，今天的申请就是 Agent 循环的第一格'));
       }
+    } else if (day.anim && day.anim.tpl === 'bench') {
+      if (idx === 0) {
+        /* 机制页：三道工序链 + 判分尺松硬对照，与动效页同一叙事 */
+        var chain = el('div', 'materin-learn-viz__chips');
+        [
+          { tag: '组卷', alt: false }, { tag: '→', alt: true },
+          { tag: '作答', alt: false }, { tag: '→', alt: true },
+          { tag: '判分', alt: false }
+        ].forEach(function (r) {
+          chain.appendChild(el('span', 'materin-learn-viz__chip' + (r.alt ? ' materin-learn-viz__chip--alt' : ''), r.tag));
+        });
+        v.appendChild(chain);
+        var gb = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '代码题：真跑测试用例', val: 100, cls: '', txt: '判分最硬', wide: true },
+          { tag: '数学题：抽取最终数字', val: 62, cls: '', txt: '抽错就白答', wide: true },
+          { tag: '开放问答：模型当裁判', val: 30, cls: ' materin-learn-viz__bar--en', txt: 'judge 最软 · 偏爱长答案', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          gb.appendChild(row);
+        });
+        v.appendChild(gb);
+        v.appendChild(el('div', 'materin-learn-viz__label', '分数不是模型的属性，是「模型 × 工序」的属性：模板一换，分差好几个点'));
+      } else if (idx === 1) {
+        /* 为什么页：两套配方名次反转（与动效页同组数字）+ 瞎蒙基线 */
+        var fb = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '配方 A · 甲 78 / 乙 82 / 丙 70', val: 82, cls: '', txt: '乙第一', wide: true },
+          { tag: '配方 B · 甲 76 / 乙 72 / 丙 59', val: 76, cls: ' materin-learn-viz__bar--en', txt: '甲第一 · 名次反转', wide: true },
+          { tag: '5 选 1 瞎蒙基线', val: 20, cls: '', txt: '期望 20 分', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          fb.appendChild(row);
+        });
+        v.appendChild(fb);
+        v.appendChild(el('div', 'materin-learn-viz__label', '权重一个字节没动，变的只是题集和判分尺——5 个旋钮拧错一个，就为假提升上线真退步'));
+      } else {
+        /* 延伸页：看榜三条纪律 → 自己出卷 */
+        var eb = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '差距 >3 分', val: 100, cls: ' materin-learn-viz__bar--en', txt: '榜单缩小候选 · 才值得信', wide: true },
+          { tag: '差距 ≤2 分', val: 22, cls: '', txt: '判分噪声 · 名次不作数', wide: true },
+          { tag: '最后一轮：你的 20 道真题', val: 62, cls: '', txt: '钉死标准答案 + 同一台 judge', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          eb.appendChild(row);
+        });
+        v.appendChild(eb);
+        v.appendChild(el('div', 'materin-learn-viz__label', '提示工程（D29 起）= 固定题集上换模板：先冻结自己的评测集，才分得开优化和波动'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

@@ -1571,6 +1571,112 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* bench：评测（第 23 天）——两行模型分数条，两套配方逐个判卷：配方 A 时
+       乙>甲>丙，配方 B 时甲>乙>丙（名次反转）；行标签旁的名次徽章随分数
+       实时重排，数字滚动到位。条只动 transform（scaleX），初始可见不靠
+       opacity，循环重播。 */
+    bench: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-bench');
+      var recipeTag = el('div', 'materin-learn-bench__tag',
+        t(a.recipes[0].tag));
+
+      var rowsBox = el('div', 'materin-learn-bench__rows');
+      var rows = a.models.map(function (m) {
+        var row = el('div', 'materin-learn-bench__row');
+        var name = el('span', 'materin-learn-bench__name', t(m.name));
+        var rank = el('span', 'materin-learn-bench__rank', '');
+        var track = el('div', 'materin-learn-bench__track');
+        var bar = el('div', 'materin-learn-bench__bar');
+        bar.style.transform = 'scaleX(0)';
+        track.appendChild(bar);
+        var num = el('span', 'materin-learn-bench__num', '0');
+        row.appendChild(name);
+        row.appendChild(rank);
+        row.appendChild(track);
+        row.appendChild(num);
+        rowsBox.appendChild(row);
+        return { row: row, rank: rank, bar: bar, num: num };
+      });
+
+      var readout = el('div', 'materin-learn-bench__readout');
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      ['recipe', 'flip', 'noise'].forEach(function (k) {
+        var box = el('div', 'materin-learn-bench__stat');
+        box.appendChild(el('span', 'materin-learn-bench__stat-num', rd[k].num));
+        box.appendChild(el('span', 'materin-learn-bench__stat-cap', rd[k].cap));
+        readout.appendChild(box);
+      });
+      var verdict = el('div', 'materin-learn-bench__verdict',
+        lang() === 'en'
+          ? 'No weight changed — the rank did. Score = model × exam × grader.'
+          : '权重一个字节没动，名次反转了——分数 = 模型 × 题集 × 判分尺。');
+      var note = el('p', 'materin-learn-bench__note', t(a.note));
+
+      var MAX = 100;
+      /* 时序：配方 A 标签亮起 → 三条分数滚动（0.45s/条）→ 名次徽章逐个落位 →
+         静置 → 配方 B 标签替换、清零重滚 → B 名次落位 → 判决行压轴 → 循环 */
+      var SETUP = 1300, STEP = 520, RANK_GAP = 260, HOLD = 2100, VERDICT = 900;
+      var N = rows.length;
+      var FILL = SETUP + N * STEP;
+      var RANK_END = FILL + N * RANK_GAP;
+      var HALF = RANK_END + HOLD;
+      var CYCLE = HALF + SETUP + N * STEP + N * RANK_GAP + VERDICT + HOLD;
+      var t0 = null;
+      function ranksOf(scores) {
+        /* 同分并列：名次 = 比它高的个数 + 1 */
+        return scores.map(function (s) {
+          return scores.filter(function (x) { return x > s; }).length + 1;
+        });
+      }
+      function applyRecipe(rIdx, tNow, phaseStart) {
+        var recipe = a.recipes[rIdx];
+        var scores = recipe.scores;
+        var ranks = ranksOf(scores);
+        var best = Math.max.apply(null, scores);
+        rows.forEach(function (R, i) {
+          var at = phaseStart + SETUP + i * STEP;
+          var f = Math.min(Math.max((tNow - at) / STEP, 0), 1);
+          var eased = 1 - Math.pow(1 - f, 3);
+          var v = scores[i] * eased;
+          R.bar.style.transform = 'scaleX(' + (scores[i] / MAX * eased).toFixed(4) + ')';
+          R.num.textContent = String(Math.round(v));
+          var rankAt = phaseStart + SETUP + N * STEP + i * RANK_GAP;
+          var rIn = tNow >= rankAt && f >= 1;
+          R.rank.textContent = rIn ? '#' + ranks[i] : '';
+          R.rank.classList.toggle('is-in', rIn);
+          R.row.classList.toggle('is-top', rIn && scores[i] === best);
+          R.row.classList.toggle('is-flat', tNow < at);
+        });
+      }
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        if (tNow < HALF) {
+          recipeTag.textContent = t(a.recipes[0].tag);
+          recipeTag.classList.remove('is-second');
+          applyRecipe(0, tNow, 0);
+          verdict.classList.remove('is-in');
+        } else {
+          var t2 = tNow - HALF;
+          recipeTag.textContent = t(a.recipes[1].tag);
+          recipeTag.classList.add('is-second');
+          applyRecipe(1, t2, 0);
+          verdict.classList.toggle('is-in',
+            t2 >= SETUP + N * STEP + N * RANK_GAP + 300);
+        }
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(recipeTag);
+      wrap.appendChild(rowsBox);
+      wrap.appendChild(readout);
+      wrap.appendChild(verdict);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

@@ -3804,6 +3804,203 @@
           "en": "Illustrative: requests and results are ordinary tokens — the schema lives in the system prompt, constrained decoding keeps the request parseable; execution always happens in your process."
         }
       }
+    },
+    {
+      "n": 23,
+      "stage": 1,
+      "week": 4,
+      "tpl": "bench",
+      "date": "2026-10-17",
+      "title": {
+        "zh": "评测：分数是题集的函数",
+        "en": "Benchmarks: the score is a function of the test set"
+      },
+      "subtitle": {
+        "zh": "「A 比 B 强」这句话说了一半——强在谁的卷子上？昨天模型学会了写申请，今天换个问题：它答得到底好不好。一个分数 = 一台模型 × 一套题 × 一把判分尺，三样换掉任何一样，名次都能反转。先学会拆这张成绩单，第 50 天起你才看得懂 Agent 的账。",
+        "en": "\"A beats B\" is half a sentence — beats it on whose exam? Yesterday the model learned to file requests; today asks: how well does it actually answer? One score = one model × one test set × one grader; swap any of the three and the ranking flips. Learn to read the report card first — from day 50 you'll need it to read an agent's ledger."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：判卷流水线的三道工序",
+            "en": "Mechanism: the grading pipeline's three stations"
+          },
+          "p": {
+            "zh": "一个评测分数背后是一条流水线：① 组卷——从题集里取题。MMLU 这类选择题集每道题都有标准答案，GSM8K 是 5000 道带最终数字的小学数学应用题；② 作答——把每道题按固定模板喂给模型，同一个模型在不同提示模板下分数能差好几个点，所以严谨的榜单会连模板一起公开；③ 判分——选择题比对选项字母，数学题抽出最终数字比对，开放问答用另一个模型按评分标准打分（LLM-as-judge），代码题真正把生成代码丢进测试用例跑一遍（HumanEval 是 164 道编程题，看多少道能通过全部用例）。三条判分尺的松紧完全不同：代码题最硬，judge 打分最软。",
+            "en": "Behind every benchmark score runs a pipeline: ① build the exam — draw questions from a test set. Multiple-choice suites like MMLU carry ground-truth answers per question; GSM8K is 5,000 grade-school word problems each with a final number; ② answer — feed each question to the model with a fixed prompt template. The same model can swing several points across templates, which is why serious leaderboards publish the template too; ③ grade — multiple choice compares option letters, math extracts the final number, open-ended QA asks another model to score against a rubric (LLM-as-judge), and code actually runs the generated program against hidden test cases (HumanEval: 164 coding problems, pass if all tests pass). The three graders differ wildly in strictness: code is hardest to fool, the judge is softest."
+          },
+          "deep": {
+            "zh": "为什么这么较真？因为「会做这道题」和「答对这道题」之间隔着至少四层选择：抽哪些题（5000 题抽 500 道，抽样偏差直接进分数）、按什么顺序呈现（选项顺序换一下，模型的偏好会跟着变）、怎么抽答案（正则抽最后一个数字，抽错就白答）、judge 偏向谁（研究反复观察到 judge 偏爱自家输出和更长的回答）。所以榜单上 68 分和 70 分的差距，可能没有一条来自「模型变聪明了」——全部来自工序参数。分数不是模型的属性，是「模型 × 工序」这个组合的属性。",
+            "en": "Why so fussy? Because between \"can solve this problem\" and \"answered this one correctly\" sit at least four discretionary choices: which questions get sampled (500 of 5,000 — sampling bias goes straight into the score), how they're presented (reorder the options and the model's preference shifts), how answers are extracted (regex grabs the last number — grab wrong, answer wasted), and whom the judge favors (studies repeatedly find judges prefer their own outputs and longer answers). So a 68 vs 70 gap on a leaderboard may contain zero \"the model got smarter\" — all of it came from pipeline parameters. A score isn't a property of the model; it's a property of the model × pipeline combo."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：同三台模型，两套配方",
+            "en": "The math: same three models, two recipes"
+          },
+          "p": {
+            "zh": "看一组示意数据（动效里逐位滚动的那组）。配方 A：500 道通用选择题、5 选 1、直接比字母——模型乙 82 分第一，模型甲 78 分第二，模型丙 70 分。配方 B 只改两处：题目换成 500 道多步数学题、判分改成「抽取最终数字比对」——模型甲 76 分蹿到第一，乙 72 分掉到第二，丙 59 分垫底。两套配方里没有任何一台模型变了：权重一个字节都没动，变的只是题集和判分尺。这不是捏造——真实榜单上换模板、换 few-shot 数量、换抽取规则导致名次洗牌的研究一抓一把。",
+            "en": "Watch one illustrative set (the numbers the animation rolls through). Recipe A: 500 general multiple-choice questions, 5 options, compare letters — model B scores 82 and wins, model A gets 78, model C 70. Recipe B changes just two things: questions become 500 multi-step math problems and grading becomes \"extract the final number and compare\" — model A jumps to 76 and first place, B slips to 72, C drops to 59. Not a single weight changed anywhere: only the question set and the grader did. This isn't hypothetical — published research is full of leaderboards reshuffled by swapping templates, few-shot counts, or extraction rules."
+          },
+          "example": {
+            "h": {
+              "zh": "算一笔账",
+              "en": "The math"
+            },
+            "p": {
+              "zh": "再算一道选择题的「瞎蒙基线」：5 选 1 纯蒙期望 20 分。一道数学题集若判分只看「最后出现的一个数字」，把「共 3 步，每步 4 元，总价 12 元」错抽成 4 也算答错——所以严谨榜单的判分脚本本身就是论文的一部分。把账算全：模型 × 题集 × 模板 × 抽取 × 判分，五个旋钮任何一个拧错，你都可能为一次「假提升」上线一个真退步的版本。",
+              "en": "Now the blind-guess baseline: random guessing on 5-way multiple choice yields an expected 20. On a math set graded by \"the last number in the output,\" extracting the 4 from \"3 steps at $4 each, total $12\" counts as wrong — which is why careful teams publish their grading scripts as part of the paper. Run the full ledger: model × test set × template × extraction × grader. Twist any one of the five knobs wrong and you can ship a genuinely worse model to production chasing a fake improvement."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：分数高 = 会做题",
+            "en": "Misconception: a high score means it can solve it"
+          },
+          "p": {
+            "zh": "三个最常见的误读。其一，「分数差 2 个点就是更强」：2 个点完全可能落在判分噪声里——同一模型跑两遍（温度大于 0 时）都能差 1~2 个点，更别说换模板。其二，「题集是秘密，所以没法背题」：卷子保密挡得住题面，挡不住题型——GSM8K 刷多了，8×N 加权平均这种「长相」就成了可优化的对象，专门练过这类的模型分数高但没变聪明，这叫基准污染（contamination）。其三，「MMLU 分数高 = 什么都会」：MMLU 考的是「认出正确选项」，不是「凭空写出正确答案」——四选一做对 100 道和开卷写出 100 段正确解释，是两种能力。",
+            "en": "Three misreads top the list. First, \"2 points higher = stronger\": two points can sit entirely inside grading noise — the same model at temperature > 0 can vary 1–2 points between runs, before we even mention templates. Second, \"the test set is secret, so it can't be memorized\": hiding the exam blocks the wording, not the shape — after enough GSM8K exposure, the 8×N weighted-average look becomes an optimizable target; a model drilled on that genre scores high without getting smarter. That's benchmark contamination. Third, \"high MMLU = good at everything\": MMLU tests recognizing the right option, not producing it from scratch — acing 100 four-way choices and writing 100 correct explanations open-book are two different abilities."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「榜单是客观的，照着买就行」。榜单和广告一样有立场：谁出的模型、谁组的卷、谁写的判分脚本，全都长在同一家公司里时，「自家模型第一」要打折扣读。解法不是不信榜单，而是多重验证：看第三方复测、看不同家族题集（MMLU + 数学 + 代码 + 你的私有题）的交叉名次，名次在任何一两个配方下都稳得住才算数——这也是为什么严肃评测要换着配方跑，正如今天动效里两套配方两副名次。",
+              "en": "\"Leaderboards are objective — buy by rank.\" A leaderboard has a standpoint, like an ad: when the model, the exam, and the grading script all come from the same company, \"our model is #1\" deserves a discount. The fix isn't distrust but cross-checking: third-party re-runs, and rank agreement across different test families (MMLU + math + code + your own private set). A rank that survives two or more recipes is a rank you can trust — which is exactly why serious evaluation runs multiple recipes, as today's animation shows with its two."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：从公开榜单到你自己的 20 道题",
+            "en": "Extension: from public leaderboards to your own 20 questions"
+          },
+          "p": {
+            "zh": "把今天的公式拿去用：你要选模型时，真正的分数永远是「该模型 × 你的题集 × 你的判分」。公开榜单负责缩小候选范围（3 个点以上的差距才值得信，2 个点内的名次当噪声处理），决定性的最后一轮必须是你自己出卷：从真实工作里挑 20~50 道代表性任务、写死判分标准（能跑测试用例的跑用例，能比对的比对，剩下的固定同一台 judge 模型）。往前连：第 29 天起的提示工程，本质就是在固定题集上换模板——今天讲清了「模板也能洗名次」，你就知道为什么提示优化必须先冻结一个自己的评测集，否则「优化」和「波动」根本分不开。再往前：第 50 天 Agent 循环的每一步质量，最终都要回到这套判分尺上结算——没有自己的评测集，Agent 调优就是凭感觉买彩票。",
+            "en": "Put the formula to work: when you pick a model, the only score that matters is model × your test set × your grader. Public leaderboards narrow the field (trust gaps above ~3 points; treat rank differences within 2 as noise), but the decisive final round must be your own exam: 20–50 representative tasks drawn from real work, with grading pinned down (run test cases where possible, compare where possible, otherwise fix one judge model). Looking forward: prompt engineering (day 29+) is really just template-swapping on a fixed test set — now that you know templates can reshuffle ranks, you see why prompt optimization must first freeze your own eval set, or you can't tell optimization from fluctuation. Further out: every step of the agent loop (day 50+) settles its quality against a grader like this — without your own eval set, agent tuning is buying lottery tickets on vibes."
+          }
+        },
+        {
+          "h": {
+            "zh": "一个 3 分钟实验",
+            "en": "A 3-minute experiment"
+          },
+          "p": {
+            "zh": "找两个模型（或同一模型的不同档位），出 5 道你工作里的真题，做两轮判分：第一轮你自己凭感觉给两边的回答打分；第二轮把标准答案写在题目旁边，让一个第三方模型按 5 分制打分并说明理由。对比两轮的名次：① 两轮名次一致吗？不一致的那道题，是你的直觉宽松还是 judge 偏心？（提示：judge 偏爱更长的回答——第 2 节。）② 有没有一道题两边都答得不错，但第一轮你给了不同分？（提示：没有标准答案时，判分尺在凭记忆现造——这就是为什么要先把标准答案钉死。）③ 这 5 道题里，哪道最能代表你的日常？把这样的 20 道攒起来，就是你第 50 天之前的第一个私有评测集。",
+            "en": "Pick two models (or two tiers of the same model), write 5 real tasks from your work, and grade twice: round one, score both answers yourself on gut feel; round two, attach reference answers to each task and have a third model grade on a 1–5 scale with reasons. Compare ranks: ① Do the two rounds agree? For any disagreement, is your gut loose or the judge biased? (Hint: judges favor longer answers — section 2.) ② Is there a task where both answers were decent but round one gave them different scores? (Hint: with no reference answer, the grader is improvising from memory — that's why you pin references first.) ③ Which of the 5 best represents your daily work? Collect 20 like it — that's your first private eval set before day 50 arrives."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "打开任意一个公开模型榜单（LMSYS Arena 或类似），找两家分数咬得很近的模型（差距 ≤2 分），做三件事并记录：① 看它们各自在不同子项（数学/代码/写作）上的分项分数，总分接近的分项里藏着多大分化？② 查榜单说明：判分方式是选择题比对、数字抽取还是模型打分？换成另一种判分方式，这两个点的差距还有意义吗？③ 回答：假如把两家模型换成「同一家公司出的」，你对这 2 分差距的信任度要打几折？（提示：卷、尺、答卷同源时，样本方差之外的偏差没法排除——第 3 节的裁判偏心问题。）",
+          "en": "Open any public model leaderboard (LMSYS Arena or similar), find two models within 2 points of each other, and do three things: ① check their per-category scores (math / code / writing) — inside that near-tie, how big is the spread across categories? ② read the leaderboard's methodology: is grading letter-matching, number extraction, or model-judged? Would that 2-point gap survive a different grading scheme? ③ answer: if both models came from the same company, how much would you discount that 2-point gap? (Hint: when exam, grader, and examinee share a parent, bias beyond sampling noise can't be ruled out — the judge-favor problem from section 3.)"
+        }
+      },
+      "takeaway": {
+        "zh": "评测分数永远是一台乘法：模型 × 题集 × 判分尺——换任何一个因子名次都会反转。看榜先看配方，选型自备考卷：公开榜单缩小候选，最后拍板的是你自己那 20 道带标准答案的真题。",
+        "en": "A benchmark score is always a product: model × test set × grader — swap any factor and the ranking flips. Read the recipe before the rank, and bring your own exam to the final: leaderboards narrow the field; your 20 real tasks with pinned answers decide."
+      },
+      "anim": {
+        "tpl": "bench",
+        "hook": {
+          "zh": "换一套卷子，名次整个反转——分数从来不是模型的属性，是「模型 × 卷子 × 判分尺」的属性。",
+          "en": "Swap the exam and the ranking flips — a score was never the model's property; it belongs to model × exam × grader."
+        },
+        "coverHook": {
+          "zh": "同一台 78 分的模型，换个判分尺变 76 分第一——总分差 2 分当噪声，分项分化才见真章。",
+          "en": "The same 78-point model becomes #1 at 76 under a different grader — treat 2-point gaps as noise; spread across categories tells the truth."
+        },
+        "models": [
+          {
+            "k": "jia",
+            "name": {
+              "zh": "模型甲",
+              "en": "Model A"
+            }
+          },
+          {
+            "k": "yi",
+            "name": {
+              "zh": "模型乙",
+              "en": "Model B"
+            }
+          },
+          {
+            "k": "bing",
+            "name": {
+              "zh": "模型丙",
+              "en": "Model C"
+            }
+          }
+        ],
+        "recipes": [
+          {
+            "k": "mc",
+            "tag": {
+              "zh": "配方 A · 500 道通用选择题 · 比对选项字母",
+              "en": "Recipe A · 500 general MCQ · match the letter"
+            },
+            "scores": [
+              78,
+              82,
+              70
+            ]
+          },
+          {
+            "k": "math",
+            "tag": {
+              "zh": "配方 B · 500 道多步数学题 · 抽取最终数字",
+              "en": "Recipe B · 500 multi-step math · extract final number"
+            },
+            "scores": [
+              76,
+              72,
+              59
+            ]
+          }
+        ],
+        "readoutZh": {
+          "recipe": {
+            "num": "2 套",
+            "cap": "配方 · 题集 × 判分尺"
+          },
+          "flip": {
+            "num": "2 个",
+            "cap": "名额反转 · 权重零改动"
+          },
+          "noise": {
+            "num": "±2 分",
+            "cap": "判分噪声 · 此区间名次不作数"
+          }
+        },
+        "readoutEn": {
+          "recipe": {
+            "num": "2",
+            "cap": "recipes · exam × grader"
+          },
+          "flip": {
+            "num": "2",
+            "cap": "rank flips · zero weight changes"
+          },
+          "noise": {
+            "num": "±2",
+            "cap": "grading noise · ranks here don't count"
+          }
+        },
+        "note": {
+          "zh": "示意分数：同三台模型在两套配方下的得分。真实榜单上，换模板、换 few-shot 数量、换抽取规则导致名次洗牌的研究一抓一把——分数 = 模型 × 题集 × 判分尺。",
+          "en": "Illustrative: the same three models under two recipes. Published research is full of leaderboards reshuffled by swapping templates, few-shot counts, or extraction rules — score = model × test set × grader."
+        }
+      }
     }
   ]
 }
