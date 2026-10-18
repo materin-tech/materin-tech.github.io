@@ -1239,6 +1239,75 @@
         v.appendChild(eb);
         v.appendChild(el('div', 'materin-learn-viz__label', '提示工程（D29 起）= 固定题集上换模板：先冻结自己的评测集，才分得开优化和波动'));
       }
+    } else if (day.anim && day.anim.tpl === 'recipe') {
+      /* recipe（第 24 天）：零和预算格阵 + 能力对照——与动效页同一组食谱 */
+      if (idx === 0) {
+        var legend = el('div', 'materin-learn-viz__chips');
+        [
+          { tag: '网页', cls: '' }, { tag: '代码', cls: ' materin-learn-viz__chip--merged' },
+          { tag: '中文', cls: '' }, { tag: '数学', cls: '' }
+        ].forEach(function (r) {
+          legend.appendChild(el('span', 'materin-learn-viz__chip' + (r.cls ? ' materin-learn-viz__chip--alt' : ''), r.tag));
+        });
+        v.appendChild(legend);
+        var gates = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '清洗：质量分类器打分', val: 100, cls: '', txt: '乱码 / 广告剔除', wide: true },
+          { tag: '去重：MinHash 指纹', val: 70, cls: '', txt: '重复只留一份', wide: true },
+          { tag: '配比：按权重采样', val: 44, cls: ' materin-learn-viz__bar--en', txt: '来源定话语权', wide: true },
+          { tag: '退火：后期上优质', val: 26, cls: ' materin-learn-viz__bar--en', txt: '最后一段最值钱', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          gates.appendChild(row);
+        });
+        v.appendChild(gates);
+        v.appendChild(el('div', 'materin-learn-viz__label', '四道闸全在第一圈梯度之前：模型的性格，开训那天已写进配方'));
+      } else if (idx === 1) {
+        var led = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '网页类 · 约 70%', val: 100, cls: '', txt: '对话手感的地基', wide: true },
+          { tag: '代码 · 约 8%', val: 12, cls: ' materin-learn-viz__bar--en', txt: '≈2 亿个代码文件', wide: true },
+          { tag: '中文 · 约 4%', val: 6, cls: '', txt: '差半口气的来源', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          led.appendChild(row);
+        });
+        v.appendChild(led);
+        v.appendChild(el('div', 'materin-learn-viz__label', '10T 预算是零和账：交叉熵眼里代码 token 和闲聊 token 没有区别，区别只在喂了多少'));
+      } else {
+        var scale = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '代码 8%→20%', val: 62, cls: ' materin-learn-viz__bar--en', txt: '代码 ↑ · 闲聊手感 ↓', wide: true },
+          { tag: '中文 4%→20%', val: 62, cls: '', txt: '中文 ↑ · 英文掉分', wide: true },
+          { tag: '训练完再补', val: 8, cls: '', txt: '提示词补不回没喂过的能力', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          scale.appendChild(row);
+        });
+        v.appendChild(scale);
+        v.appendChild(el('div', 'materin-learn-viz__label', '配方是此消彼长的天平：明天（D25）规模定律定「能长多大」，配比定「长成什么样」'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

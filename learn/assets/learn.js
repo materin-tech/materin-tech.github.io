@@ -1677,6 +1677,83 @@
       wrap.appendChild(verdict);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* recipe：数据配方（第 24 天）——三份食谱行，格子按数据来源着色逐个落位，
+       行尾能力分数滚动到位；行与行之间「同 12 格零和预算」用颜色对比说话。
+       格只动 transform（pop），初始可见不靠 opacity，循环重播。 */
+    recipe: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-recipe');
+      var rowsBox = el('div', 'materin-learn-recipe__rows');
+      var note = el('p', 'materin-learn-recipe__note', t(a.note));
+
+      var rows = a.rows.map(function (r) {
+        var row = el('div', 'materin-learn-recipe__row');
+        row.appendChild(el('span', 'materin-learn-recipe__tag',
+          t({ zh: r.tagZh, en: r.tagEn })));
+        var cells = el('div', 'materin-learn-recipe__cells');
+        var cellNodes = [];
+        r.cells.forEach(function (c) {
+          for (var i = 0; i < c.n; i++) {
+            var cell = el('span', 'materin-learn-recipe__cell materin-learn-recipe__cell--' + c.k);
+            cells.appendChild(cell);
+            cellNodes.push(cell);
+          }
+        });
+        var out = el('span', 'materin-learn-recipe__out', '0');
+        row.appendChild(cells);
+        row.appendChild(out);
+        rowsBox.appendChild(row);
+        return { row: row, cells: cellNodes, out: out, outZh: r.outZh, outEn: r.outEn };
+      });
+
+      var readout = el('div', 'materin-learn-recipe__readout');
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      ['recipes', 'budget', 'shape'].forEach(function (k) {
+        var box = el('div', 'materin-learn-recipe__stat');
+        box.appendChild(el('span', 'materin-learn-recipe__stat-num', rd[k].num));
+        box.appendChild(el('span', 'materin-learn-recipe__stat-cap', rd[k].cap));
+        readout.appendChild(box);
+      });
+
+      /* 时序：行间错峰——每行 SETUP 后格子 60ms/格 pop（--recipe-f 渐变驱动），
+         分数在该行格子落完时滚动到位；全部行完成后静置，循环重播 */
+      var SETUP = 900, STEP = 60, HOLD = 2400;
+      var ROW = rows[0].cells.length * STEP;
+      var CYCLE = SETUP + rows.length * ROW + HOLD;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        rows.forEach(function (R, ri) {
+          var rowAt = SETUP + ri * ROW;
+          R.cells.forEach(function (c, ci) {
+            var at = rowAt + ci * STEP;
+            var f = Math.min(Math.max((tNow - at) / 340, 0), 1);
+            var eased = 1 - Math.pow(1 - f, 3);
+            c.style.setProperty('--recipe-f', eased.toFixed(3));
+            c.classList.toggle('is-in', tNow >= at);
+          });
+          var done = tNow >= rowAt + R.cells.length * STEP;
+          var f = Math.min(Math.max((tNow - rowAt - R.cells.length * STEP) / 500, 0), 1);
+          if (f > 0) {
+            R.out.classList.add('is-in');
+            /* 滚动：显示中文账单的进度（用整数推进到目标句） */
+            R.out.textContent = f >= 1 ? (lang() === 'en' ? R.outEn : R.outZh) : '· · ·';
+          } else {
+            R.out.classList.remove('is-in');
+            R.out.textContent = '';
+          }
+        });
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(rowsBox);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

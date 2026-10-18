@@ -3669,3 +3669,139 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-body-day.is-stage .materin-learn-bench__stat-cap { font-size: 24px; }
 .materin-learn-body-day.is-stage .materin-learn-bench__verdict { font-size: 28px; }
 .materin-learn-body-day.is-stage .materin-learn-bench__note { font-size: 28px; max-width: 840px; }
+
+/* recipe：数据配方（第 24 天）——三份食谱 × 12 格零和预算，格子按来源着色。
+   格子初始可见，入场只用 transform（pop，由 --recipe-f 驱动），循环重播。 */
+.materin-learn-recipe {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.materin-learn-recipe__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 14px;
+  background: var(--materin-glass-bg-subtle);
+  box-shadow: var(--materin-shadow);
+}
+
+.materin-learn-recipe__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+
+.materin-learn-recipe__tag {
+  flex: 0 0 132px;
+  color: var(--materin-text);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.materin-learn-recipe__cells {
+  flex: 1;
+  display: flex;
+  gap: 5px;
+}
+
+.materin-learn-recipe__cell {
+  --recipe-c: var(--materin-accent);
+  --recipe-f: 0;
+  width: 24px;
+  height: 30px;
+  border: 1px solid var(--materin-border);
+  border-radius: 6px;
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--recipe-c) calc(var(--recipe-f) * 100%), transparent),
+      color-mix(in srgb, var(--recipe-c) calc(var(--recipe-f) * 38%), transparent));
+  transform: scale(calc(0.82 + var(--recipe-f) * 0.18));
+  transition: transform 0.3s var(--materin-ease-standard, ease);
+}
+
+.materin-learn-recipe__cell--web { --recipe-c: var(--materin-accent); }
+.materin-learn-recipe__cell--code { --recipe-c: var(--materin-secondary); }
+.materin-learn-recipe__cell--zh { --recipe-c: var(--materin-ok); }
+.materin-learn-recipe__cell--math { --recipe-c: var(--materin-warn); }
+
+.materin-learn-recipe__out {
+  flex: 0 0 158px;
+  color: var(--materin-accent);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 13.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+  transform: translateX(6px);
+  transition: transform 0.35s var(--materin-ease-standard, ease);
+}
+
+.materin-learn-recipe__out.is-in { transform: translateX(0); }
+
+.materin-learn-recipe__readout {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.materin-learn-recipe__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-surface-2);
+}
+
+.materin-learn-recipe__stat-num {
+  color: var(--materin-accent);
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-recipe__stat-cap {
+  color: var(--materin-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.materin-learn-recipe__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+  max-width: 640px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materin-learn-recipe__cell,
+  .materin-learn-recipe__out { transform: none; transition: none; }
+}
+
+/* 竖版舞台（?stage=1）：recipe 放大 */
+.materin-learn-body-day.is-stage .materin-learn-recipe { gap: 22px; max-width: 900px; }
+.materin-learn-body-day.is-stage .materin-learn-recipe__rows { border-radius: 24px; gap: 16px; padding: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-recipe__row { min-height: 84px; gap: 18px; }
+.materin-learn-body-day.is-stage .materin-learn-recipe__tag { flex-basis: 250px; font-size: 26px; }
+.materin-learn-body-day.is-stage .materin-learn-recipe__cells { gap: 10px; }
+.materin-learn-body-day.is-stage .materin-learn-recipe__cell { width: 46px; height: 52px; border-radius: 10px; }
+.materin-learn-body-day.is-stage .materin-learn-recipe__out { flex-basis: 250px; font-size: 26px; }
+.materin-learn-body-day.is-stage .materin-learn-recipe__stat-num { font-size: 44px; }
+.materin-learn-body-day.is-stage .materin-learn-recipe__stat-cap { font-size: 24px; }
+.materin-learn-body-day.is-stage .materin-learn-recipe__note { font-size: 28px; max-width: 840px; }
