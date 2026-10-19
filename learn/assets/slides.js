@@ -1308,6 +1308,103 @@
         v.appendChild(scale);
         v.appendChild(el('div', 'materin-learn-viz__label', '配方是此消彼长的天平：明天（D25）规模定律定「能长多大」，配比定「长成什么样」'));
       }
+    } else if (day.anim && day.anim.tpl === 'scale') {
+      /* scale（第 25 天）：规模定律——与动效页同一组账：两行花法 / 曲线 / 预算账 */
+      if (idx === 0) {
+        var legend = el('div', 'materin-learn-viz__chips');
+        [
+          { tag: '买参数', cls: '' }, { tag: '买数据', cls: ' materin-learn-viz__chip--merged' }
+        ].forEach(function (r) {
+          legend.appendChild(el('span', 'materin-learn-viz__chip' + (r.cls ? ' materin-learn-viz__chip--alt' : ''), r.tag));
+        });
+        v.appendChild(legend);
+        var spent = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: 'C ≈ 6ND：训练总 FLOPs', val: 100, cls: '', txt: '前向 2N + 反向 4N', wide: true },
+          { tag: 'Kaplan 2020：偏向参数', val: 74, cls: '', txt: 'D ∝ N^0.74', wide: true },
+          { tag: 'Chinchilla 2022：等比放大', val: 50, cls: ' materin-learn-viz__bar--en', txt: '每参数约 20 token', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          spent.appendChild(row);
+        });
+        v.appendChild(spent);
+        v.appendChild(el('div', 'materin-learn-viz__label', '幂律把「靠直觉」变成「靠预算表」：小模型量出曲线，外推大模型'));
+      } else if (idx === 1) {
+        var duel = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: 'Gopher · 280B 参数 / 300B token', val: 55, cls: '', txt: 'MMLU ≈ 55', wide: true },
+          { tag: 'Chinchilla · 70B 参数 / 1.4T token', val: 62, cls: ' materin-learn-viz__bar--en', txt: 'MMLU ≈ 62', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          duel.appendChild(row);
+        });
+        v.appendChild(duel);
+        v.appendChild(el('div', 'materin-learn-viz__label', '同 5.76×10²³ FLOPs：参数减到 1/4、数据翻 4 倍，反超约 7 分'));
+      } else if (idx === 2) {
+        var over = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: 'Chinchilla 最优 8B：160B token', val: 12, cls: '', txt: '损失最优', wide: true },
+          { tag: 'Llama 3 8B：15T token', val: 100, cls: ' materin-learn-viz__bar--en', txt: '≈94 倍过量', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          over.appendChild(row);
+        });
+        v.appendChild(over);
+        v.appendChild(el('div', 'materin-learn-viz__label', '训练费一次性，推理费每次都收：过量训练是部署经济学，不是浪费'));
+      } else if (idx === 3) {
+        var rank = el('div', 'materin-learn-viz__route-dots');
+        [
+          { dot: '280B', word: '名义大 · 分数落后', ok: false },
+          { dot: '70B', word: '20 token/参数 · 反超', ok: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row');
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + (r.ok ? '' : ' materin-learn-viz__route-word--ok'), r.dot));
+          row.appendChild(el('span', 'materin-learn-viz__route-word' + (r.ok ? ' materin-learn-viz__route-word--ok' : ''), r.word));
+          rank.appendChild(row);
+        });
+        v.appendChild(rank);
+        v.appendChild(el('div', 'materin-learn-viz__label', '参数是存款空间，数据才是存款：不看 D 的参数榜 = 只量身高不称体重'));
+      } else if (idx === 4) {
+        var bound = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '曲线能算：损失怎么降', val: 100, cls: '', txt: '幂律外推', wide: true },
+          { tag: '曲线不算：涌现的相变', val: 50, cls: ' materin-learn-viz__bar--en', txt: '哪天「突然会做题」读不出', wide: true },
+          { tag: '曲线不算：喂哪种数据', val: 8, cls: ' materin-learn-viz__bar--en', txt: '配比是另一本账（第 24 天）', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bound.appendChild(row);
+        });
+        v.appendChild(bound);
+        v.appendChild(el('div', 'materin-learn-viz__label', '曲线管「多大」不管「哪些能力」：提示工程阶段（第 29 天起）是它的微缩版'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

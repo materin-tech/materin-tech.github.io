@@ -1754,6 +1754,106 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* scale：规模定律（第 25 天）——同一笔算力的两种花法（Gopher vs Chinchilla 行，
+       token 块按数量点亮）+ 下方单模型「过量喂食仍降损失」曲线。
+       入场只动 transform（--scale-f 驱动 + is-in），循环重播。 */
+    scale: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-scale');
+      var budget = el('div', 'materin-learn-scale__budget',
+        (lang() === 'en' ? 'Same compute: ' : '同一笔算力：') + a.budget);
+      var rowsBox = el('div', 'materin-learn-scale__rows');
+      var note = el('p', 'materin-learn-scale__note', t(a.note));
+
+      var rows = a.rows.map(function (r) {
+        var row = el('div', 'materin-learn-scale__row materin-learn-scale__row--' + r.k);
+        var head = el('div', 'materin-learn-scale__head');
+        head.appendChild(el('span', 'materin-learn-scale__tag', t({ zh: r.tagZh, en: r.tagEn })));
+        row.appendChild(head);
+        var cells = el('div', 'materin-learn-scale__cells');
+        var cellNodes = [];
+        for (var i = 0; i < a.units; i++) {
+          var cell = el('span', 'materin-learn-scale__cell materin-learn-scale__cell--' + (i < r.dataCells ? 'data' : 'param'));
+          cells.appendChild(cell);
+          cellNodes.push(cell);
+        }
+        row.appendChild(cells);
+        var stats = el('div', 'materin-learn-scale__stats');
+        var np = el('span', 'materin-learn-scale__n', t({ zh: r.nZh, en: r.nEn }));
+        var dp = el('span', 'materin-learn-scale__d', t({ zh: r.dZh, en: r.dEn }));
+        var rr = el('span', 'materin-learn-scale__ratio', t({ zh: r.rZh, en: r.rEn }));
+        stats.appendChild(np); stats.appendChild(dp); stats.appendChild(rr);
+        row.appendChild(stats);
+        rowsBox.appendChild(row);
+        return { cells: cellNodes, row: row };
+      });
+
+      var curveBox = el('div', 'materin-learn-scale__curve');
+      var axisY = el('div', 'materin-learn-scale__axis-y', 'Loss ↓');
+      var axisX = el('div', 'materin-learn-scale__axis-x', lang() === 'en' ? 'training tokens →' : '训练 token →');
+      var track = el('div', 'materin-learn-scale__track');
+      var line = el('div', 'materin-learn-scale__line');
+      track.appendChild(line);
+      var marks = a.curve.map(function (c) {
+        var mark = el('div', 'materin-learn-scale__mark materin-learn-scale__mark--' + c.k);
+        mark.style.setProperty('--scale-x', (lang() === 'en' ? c.posEn : c.posZh) + '%');
+        mark.appendChild(el('span', 'materin-learn-scale__mark-dot'));
+        mark.appendChild(el('span', 'materin-learn-scale__mark-name', t({ zh: c.nZh, en: c.nEn })));
+        mark.appendChild(el('span', 'materin-learn-scale__mark-loss', t({ zh: c.lZh, en: c.lEn })));
+        track.appendChild(mark);
+        return mark;
+      });
+      curveBox.appendChild(axisY);
+      curveBox.appendChild(track);
+      curveBox.appendChild(axisX);
+
+      var readout = el('div', 'materin-learn-scale__readout');
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      ['budget', 'tokens', 'score'].forEach(function (k) {
+        var box = el('div', 'materin-learn-scale__stat');
+        box.appendChild(el('span', 'materin-learn-scale__stat-num', rd[k].num));
+        box.appendChild(el('span', 'materin-learn-scale__stat-cap', rd[k].cap));
+        readout.appendChild(box);
+      });
+
+      /* 时序：预算徽章 → 行1（Gopher）数据块点亮 → 行2（Chinchilla）点亮 → 曲线
+         从左往右生长 + 锚点依次 is-in → 读数滚动，静置后循环 */
+      var T0 = 200, ROW = 1500, STEP = 70, CURVE = 1900, HOLD = 2600;
+      var CYCLE = T0 + rows.length * ROW + CURVE + HOLD;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        rows.forEach(function (R, ri) {
+          var rowAt = T0 + ri * ROW;
+          R.cells.forEach(function (c, ci) {
+            var at = rowAt + ci * STEP;
+            var f = Math.min(Math.max((tNow - at) / 320, 0), 1);
+            var eased = 1 - Math.pow(1 - f, 3);
+            c.style.setProperty('--scale-f', eased.toFixed(3));
+            c.classList.toggle('is-in', tNow >= at);
+          });
+        });
+        var curveAt = T0 + rows.length * ROW;
+        var cf = Math.min(Math.max((tNow - curveAt) / CURVE, 0), 1);
+        var easedC = 1 - Math.pow(1 - cf, 3);
+        line.style.setProperty('--scale-c', easedC.toFixed(3));
+        track.classList.toggle('is-in', cf > 0);
+        marks.forEach(function (m, mi) {
+          m.classList.toggle('is-in', cf >= (mi + 1) / marks.length - 0.001);
+        });
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(budget);
+      wrap.appendChild(rowsBox);
+      wrap.appendChild(curveBox);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

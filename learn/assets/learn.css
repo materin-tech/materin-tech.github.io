@@ -3805,3 +3805,321 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-body-day.is-stage .materin-learn-recipe__stat-num { font-size: 44px; }
 .materin-learn-body-day.is-stage .materin-learn-recipe__stat-cap { font-size: 24px; }
 .materin-learn-body-day.is-stage .materin-learn-recipe__note { font-size: 28px; max-width: 840px; }
+
+/* scale：规模定律（第 25 天）——同一笔算力的两种花法：Gopher / Chinchilla 两行
+   token 块按比例点亮（数据块 vs 参数块），下方单模型损失曲线三锚点。
+   格子初始可见，入场只动 transform（--scale-f / --scale-c 驱动），循环重播。 */
+.materin-learn-scale {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.materin-learn-scale__budget {
+  align-self: center;
+  padding: 5px 16px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 999px;
+  background: var(--materin-accent-soft);
+  color: var(--materin-accent);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.materin-learn-scale__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 14px;
+  background: var(--materin-glass-bg-subtle);
+  box-shadow: var(--materin-shadow);
+}
+
+.materin-learn-scale__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+
+.materin-learn-scale__head {
+  flex: 0 0 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.materin-learn-scale__tag {
+  color: var(--materin-text);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.materin-learn-scale__row--chinchilla .materin-learn-scale__tag { color: var(--materin-accent); }
+
+.materin-learn-scale__cells {
+  flex: 1;
+  display: flex;
+  gap: 3px;
+  min-width: 0;
+}
+
+.materin-learn-scale__cell {
+  --scale-f: 0;
+  width: 16px;
+  min-width: 0;
+  flex: 1 1 0;
+  height: 30px;
+  border: 1px solid var(--materin-border);
+  border-radius: 5px;
+  transform: scale(calc(0.82 + var(--scale-f) * 0.18));
+  transition: transform 0.3s var(--materin-ease-standard, ease);
+}
+
+/* 数据 token 块：主强调色（喂得多） */
+.materin-learn-scale__cell--data {
+  border-color: var(--materin-accent-border);
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--materin-accent) calc(var(--scale-f) * 100%), transparent),
+      color-mix(in srgb, var(--materin-accent) calc(var(--scale-f) * 38%), transparent));
+}
+
+/* 参数 token 块：中性色（存款空间） */
+.materin-learn-scale__cell--param {
+  border-color: color-mix(in srgb, var(--materin-text-muted) 45%, transparent);
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--materin-text-muted) calc(var(--scale-f) * 70%), transparent),
+      color-mix(in srgb, var(--materin-text-muted) calc(var(--scale-f) * 26%), transparent));
+}
+
+.materin-learn-scale__row--chinchilla.is-live .materin-learn-scale__cell--data,
+.materin-learn-scale__row--chinchilla .materin-learn-scale__cell--data { border-color: var(--materin-accent); }
+
+.materin-learn-scale__stats {
+  flex: 0 0 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  text-align: right;
+}
+
+.materin-learn-scale__n,
+.materin-learn-scale__d {
+  color: var(--materin-text);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.materin-learn-scale__ratio {
+  color: var(--materin-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.materin-learn-scale__row--chinchilla .materin-learn-scale__ratio { color: var(--materin-accent); }
+
+/* 单模型损失曲线：三锚点 + 生长线 */
+.materin-learn-scale__curve {
+  position: relative;
+  width: 100%;
+  padding: 14px 10px 4px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 14px;
+  background: var(--materin-glass-bg-subtle);
+}
+
+.materin-learn-scale__axis-y {
+  position: absolute;
+  top: 8px;
+  left: 20px;
+  color: var(--materin-text-muted);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.materin-learn-scale__axis-x {
+  margin-top: 4px;
+  text-align: right;
+  color: var(--materin-text-muted);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.materin-learn-scale__track {
+  position: relative;
+  height: 88px;
+  margin-top: 14px;
+}
+
+.materin-learn-scale__line {
+  --scale-c: 0;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.materin-learn-scale__line::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-bottom: 1px solid var(--materin-border);
+  background:
+    linear-gradient(to right,
+      var(--materin-glass-border) 1px, transparent 1px) 0 0 / 25% 100%;
+  opacity: 0.4;
+}
+
+/* 损失曲线本体：损失下降（左高右低），--scale-c 控制横向揭示 */
+.materin-learn-scale__line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, var(--materin-accent) 55%, var(--materin-ok));
+  clip-path: polygon(
+    calc(var(--scale-c) * 100%) 100%,
+    calc(var(--scale-c) * 100% - 100% + 4%) 14%,
+    10% 30%, 18% 46%, 30% 60%, 44% 70%, 60% 77%, 78% 82%,
+    100% 86%, 100% 100%);
+}
+
+.materin-learn-scale__mark {
+  --scale-x: 0%;
+  position: absolute;
+  bottom: calc(100% - var(--scale-x) * 0.001 - 96% - 12px);
+  left: var(--scale-x);
+  transform: translate(-50%, 0) scale(0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  opacity: 0.001;
+  transition: transform 0.4s var(--materin-ease-standard, ease);
+}
+
+/* 锚点位置贴曲线近似高度：缺数据高、Chinchilla 中、过量低 */
+.materin-learn-scale__mark--u { bottom: 46%; }
+.materin-learn-scale__mark--c { bottom: 20%; }
+.materin-learn-scale__mark--o { bottom: 4%; }
+
+.materin-learn-scale__mark.is-in {
+  transform: translate(-50%, 0) scale(1);
+  opacity: 1;
+}
+
+.materin-learn-scale__mark-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 2px solid var(--materin-accent);
+  background: var(--materin-surface-2);
+}
+
+.materin-learn-scale__mark--o .materin-learn-scale__mark-dot { border-color: var(--materin-ok); }
+
+.materin-learn-scale__mark-name {
+  color: var(--materin-text);
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: var(--materin-surface-2);
+  border: 1px solid var(--materin-glass-border);
+}
+
+.materin-learn-scale__mark-loss {
+  color: var(--materin-text-muted);
+  font-size: 9.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 1px 7px;
+  border-radius: 7px;
+  background: var(--materin-surface-2);
+  border: 1px solid var(--materin-glass-border);
+}
+
+.materin-learn-scale__mark--o .materin-learn-scale__mark-loss { color: var(--materin-ok); }
+
+.materin-learn-scale__readout {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.materin-learn-scale__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-surface-2);
+}
+
+.materin-learn-scale__stat-num {
+  color: var(--materin-accent);
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-scale__stat-cap {
+  color: var(--materin-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.materin-learn-scale__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+  max-width: 640px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materin-learn-scale__cell,
+  .materin-learn-scale__mark { transform: none; transition: none; }
+}
+
+/* 竖版舞台（?stage=1）：scale 放大 */
+.materin-learn-body-day.is-stage .materin-learn-scale { gap: 26px; max-width: 900px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__budget { font-size: 26px; padding: 12px 30px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__rows { border-radius: 24px; gap: 16px; padding: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__row { min-height: 84px; gap: 18px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__head { flex-basis: 230px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__tag { font-size: 26px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__cells { gap: 6px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__cell { height: 52px; border-radius: 8px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__stats { flex-basis: 300px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__n,
+.materin-learn-body-day.is-stage .materin-learn-scale__d { font-size: 25px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__ratio { font-size: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__track { height: 150px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__mark-name { font-size: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__mark-loss { font-size: 19px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__stat-num { font-size: 44px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__stat-cap { font-size: 24px; }
+.materin-learn-body-day.is-stage .materin-learn-scale__note { font-size: 28px; max-width: 840px; }
