@@ -1405,6 +1405,102 @@
         v.appendChild(bound);
         v.appendChild(el('div', 'materin-learn-viz__label', '曲线管「多大」不管「哪些能力」：提示工程阶段（第 29 天起）是它的微缩版'));
       }
+    } else if (day.anim && day.anim.tpl === 'icl') {
+      /* icl（第 26 天）：上下文学习——与动效页同一组账：机制对照 / 归纳头 /
+         40 分账 / 证据链 / 通往阶段二 */
+      if (idx === 0) {
+        var ipair = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '示例 → 权重（训练）', cls: '', verdict: '✗ 没发生', vcls: '' },
+          { tag: '示例 → 窗口（注意力）', cls: ' materin-learn-viz__route-row--think', verdict: '✓ 只读条件', vcls: ' materin-learn-viz__route-word--ok' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          ipair.appendChild(row);
+        });
+        v.appendChild(ipair);
+        v.appendChild(el('div', 'materin-learn-viz__label', '提示被原样拼进输入序列：示例与新问题在同一条 token 流里，注意力回看即可「学」'));
+      } else if (idx === 1) {
+        var ihain = el('div', 'materin-learn-viz__chips');
+        [
+          { tag: '记下：猫→喵', alt: false }, { tag: '→', alt: true },
+          { tag: '又见：猫', alt: false }, { tag: '→', alt: true },
+          { tag: '续写：喵', alt: true }
+        ].forEach(function (r) {
+          ihain.appendChild(el('span', 'materin-learn-viz__chip' + (r.alt ? ' materin-learn-viz__chip--alt' : ''), r.tag));
+        });
+        v.appendChild(ihain);
+        var ih = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '两层注意力的接力', val: 100, cls: '', txt: '前词头 + 归纳头', wide: true },
+          { tag: '预训练副产品，非专为 ICL 设计', val: 55, cls: '', txt: '重复语料里被选择保留', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          ih.appendChild(row);
+        });
+        v.appendChild(ih);
+        v.appendChild(el('div', 'materin-learn-viz__label', '模型不理解「动物叫声」——它执行一次精确的模式复制，但这已够用'));
+      } else if (idx === 2) {
+        var iledger = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: 'GSM8K · 标准提示 8 例', val: 31, cls: '', txt: '17.9 分', wide: true },
+          { tag: 'GSM8K · 思维链提示 8 例', val: 100, cls: ' materin-learn-viz__bar--en', txt: '58.1 分 · +40', wide: true },
+          { tag: '8 条思维链示例的成本', val: 8, cls: '', txt: '约 1600 token · 每次都付', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          iledger.appendChild(row);
+        });
+        v.appendChild(iledger);
+        v.appendChild(el('div', 'materin-learn-viz__label', '同模型同题集：40 分来自示例的写法；固定示例放最前，前缀缓存把它打折（第 14 天）'));
+      } else if (idx === 3) {
+        var iev = el('div', 'materin-learn-viz__route-dots');
+        [
+          { dot: '无残留', word: '删示例重问 · 69→32', ok: false },
+          { dot: '格式主导', word: '示例用表格就吐表格', ok: false },
+          { dot: '错误传染', word: '示例错 → 忠实抄错', ok: false }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row');
+          row.appendChild(el('span', 'materin-learn-viz__route-dot', r.dot));
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.word));
+          iev.appendChild(row);
+        });
+        v.appendChild(iev);
+        v.appendChild(el('div', 'materin-learn-viz__label', '「它学会了」是错觉：3～8 个精选示例就够，每个示例都在花 token 还带来近因偏差'));
+      } else if (idx === 4) {
+        var idoor = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '第 29 天：few-shot 方法论', val: 100, cls: '', txt: '挑·排·格式的手艺化', wide: true },
+          { tag: '第 50 天：Agent 工具清单', val: 62, cls: '', txt: '系统提示里仍是 ICL', wide: true },
+          { tag: '第 85 天：RAG 检索片段', val: 30, cls: ' materin-learn-viz__bar--en', txt: '上下文开卷的正式版', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          idoor.appendChild(row);
+        });
+        v.appendChild(idoor);
+        v.appendChild(el('div', 'materin-learn-viz__label', '阶段二的大门：今天讲的排序偏差与格式传染，会变成操作规范'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

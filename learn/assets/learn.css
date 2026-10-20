@@ -4123,3 +4123,210 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-body-day.is-stage .materin-learn-scale__stat-num { font-size: 44px; }
 .materin-learn-body-day.is-stage .materin-learn-scale__stat-cap { font-size: 24px; }
 .materin-learn-body-day.is-stage .materin-learn-scale__note { font-size: 28px; max-width: 840px; }
+
+/* icl：上下文学习（第 26 天）——零示例 vs 三示例两行对照。
+   格子初始可见，入场只动 transform（--icl-f 驱动 + is-in / is-live / is-ok / is-bad），循环重播。 */
+.materin-learn-icl {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.materin-learn-icl__budget {
+  align-self: center;
+  padding: 5px 16px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 999px;
+  background: var(--materin-accent-soft);
+  color: var(--materin-accent);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.materin-learn-icl__question {
+  align-self: center;
+  color: var(--materin-text);
+  font-size: 13.5px;
+  font-weight: 700;
+  text-align: center;
+  padding: 8px 18px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-glass-bg-subtle);
+  box-shadow: var(--materin-shadow);
+}
+
+.materin-learn-icl__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 14px;
+  background: var(--materin-glass-bg-subtle);
+  box-shadow: var(--materin-shadow);
+}
+
+.materin-learn-icl__row {
+  --icl-f: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-surface-2);
+  transform: translateY(calc((1 - var(--icl-f)) * 8px));
+  transition: transform 0.4s var(--materin-ease-standard, ease);
+}
+
+.materin-learn-icl__row--few.is-live {
+  border-color: var(--materin-accent-border);
+}
+
+.materin-learn-icl__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.materin-learn-icl__tag {
+  color: var(--materin-text);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.materin-learn-icl__row--few .materin-learn-icl__tag { color: var(--materin-accent); }
+
+.materin-learn-icl__acc {
+  color: var(--materin-text-muted);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.materin-learn-icl__demos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 24px;
+}
+
+.materin-learn-icl__demo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 8px;
+  background: var(--materin-surface-3);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  animation: materin-learn-icl-pop 0.32s var(--materin-ease-standard, ease) backwards;
+}
+
+@keyframes materin-learn-icl-pop {
+  from { transform: translateY(6px) scale(0.72); }
+  to { transform: translateY(0) scale(1); }
+}
+
+.materin-learn-icl__demo-arrow {
+  color: var(--materin-text-muted);
+  font-weight: 700;
+}
+
+.materin-learn-icl__demo-in {
+  color: var(--materin-text);
+}
+
+.materin-learn-icl__demo-out {
+  color: var(--materin-accent);
+}
+
+.materin-learn-icl__demo--empty {
+  border-style: dashed;
+  color: var(--materin-text-muted);
+  background: transparent;
+}
+
+.materin-learn-icl__answer {
+  color: var(--materin-text-muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  transition: color var(--materin-duration-normal, 0.3s) ease;
+}
+
+.materin-learn-icl__answer.is-ok { color: var(--materin-ok); }
+.materin-learn-icl__answer.is-bad { color: var(--materin-warn); }
+
+.materin-learn-icl__readout {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.materin-learn-icl__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-surface-2);
+}
+
+.materin-learn-icl__stat-num {
+  color: var(--materin-accent);
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-icl__stat-cap {
+  color: var(--materin-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.materin-learn-icl__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+  max-width: 640px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materin-learn-icl__row { transform: none; transition: none; }
+  .materin-learn-icl__demo { animation: none; }
+}
+
+/* 竖版舞台（?stage=1）：icl 放大 */
+.materin-learn-body-day.is-stage .materin-learn-icl { gap: 26px; max-width: 900px; }
+.materin-learn-body-day.is-stage .materin-learn-icl__budget { font-size: 26px; padding: 12px 30px; }
+.materin-learn-body-day.is-stage .materin-learn-icl__question { font-size: 30px; padding: 18px 34px; border-radius: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-icl__rows { border-radius: 24px; gap: 16px; padding: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-icl__row { gap: 14px; padding: 18px 20px; border-radius: 20px; }
+.materin-learn-body-day.is-stage .materin-learn-icl__tag { font-size: 27px; }
+.materin-learn-body-day.is-stage .materin-learn-icl__acc { font-size: 24px; }
+.materin-learn-body-day.is-stage .materin-learn-icl__demos { gap: 12px; min-height: 56px; }
+.materin-learn-body-day.is-stage .materin-learn-icl__demo { font-size: 26px; padding: 10px 22px; border-radius: 14px; animation-duration: 0.6s; }
+.materin-learn-body-day.is-stage .materin-learn-icl__answer { font-size: 27px; }
+.materin-learn-body-day.is-stage .materin-learn-icl__stat-num { font-size: 44px; }
+.materin-learn-body-day.is-stage .materin-learn-icl__stat-cap { font-size: 24px; }
+.materin-learn-body-day.is-stage .materin-learn-icl__note { font-size: 28px; max-width: 840px; }

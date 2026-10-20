@@ -4433,6 +4433,201 @@
         },
         "units": 20
       }
+    },
+    {
+      "n": 26,
+      "stage": 1,
+      "week": 4,
+      "tpl": "icl",
+      "date": "2026-10-20",
+      "title": {
+        "zh": "上下文学习：不训练，看例子就会",
+        "en": "In-context learning: examples, not training"
+      },
+      "subtitle": {
+        "zh": "第 4 周讲完了省钱与家底，今天讲推理侧最神奇的现象：往窗口里放几个示例，模型就会做没见过的新任务——权重一个字节没动。GPT-3 给它起名「上下文学习」，阶段二的提示工程整座大厦就盖在它上面。",
+        "en": "Week four covered thrift and pedigree; today is inference-side magic: drop a few examples into the window and the model handles a task it has never seen — not one weight changed. GPT-3 named it in-context learning, and all of stage 2's prompt engineering stands on it."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：示例不进权重，只进窗口",
+            "en": "Mechanism: examples enter the window, not the weights"
+          },
+          "p": {
+            "zh": "2020 年 GPT-3 论文（Brown et al.）给这个现象起了名字：上下文学习（in-context learning，ICL）——模型不更新任何参数，仅凭提示里的几个示例就完成了新任务。机制说穿了很简单：提示不是「给模型的留言」，它会被原样拼进输入序列——任务描述、示例对（输入→输出）、最后的新问题，全是同一条序列里的普通 token（第 1 天）。第 16 天的生成循环读到这段序列时，注意力（第 6 天）会从新问题回看整段上下文，发现「这一类输入后面都跟着那一类输出」的重复模式，采样时就顺着模式续写。所谓「学会」，发生在注意力的打分里，不发生在梯度下降里。",
+            "en": "The 2020 GPT-3 paper (Brown et al.) named it: in-context learning (ICL) — the model updates no parameters, yet completes a new task from a few examples in the prompt. The mechanism is simple once said out loud: the prompt is not a message to the model; it is concatenated verbatim into the input sequence — task description, example pairs (input → output), then the new question, all ordinary tokens (day 1). When day 16's generation loop reads this sequence, attention (day 6) looks back from the new question over the whole window, spots the repeated pattern of this kind of input being followed by that kind of output, and samples along it. The learning happens in attention's scoring, not in gradient descent."
+          },
+          "deep": {
+            "zh": "为什么强调「不发生在梯度里」？训练时改的是权重——那张决定所有任务行为的大表；推理时一切前向都是只读的，窗口里的 token 只能作为条件，不能作为修改。示例的作用是「条件」不是「教材」：条件改变的是同一条分布里取哪一段（像温度改变分布的形状，第 3 天），梯度改变的才是分布本身。这也解释了 ICL 的两个自带属性：即时生效——拼进窗口的下一毫秒就能用；随窗口蒸发——会话结束，什么都没留下。",
+            "en": "Why stress not-in-the-gradient? Training changes weights — the big table steering all behavior. Inference is read-only: tokens in the window can condition but never modify. Examples are a condition, not a textbook: a condition selects which slice of the same distribution you sample from (as temperature reshapes it, day 3); gradients change the distribution itself. Hence ICL's two built-in properties: instant effect — usable the millisecond it enters the window; and evaporation with the window — when the session ends, nothing remains."
+          }
+        },
+        {
+          "h": {
+            "zh": "为什么有效：归纳头在抄规律",
+            "en": "Why it works: induction heads copy the pattern"
+          },
+          "p": {
+            "zh": "Anthropic 在 2022 年的可解释性研究（Olsson et al.,《In-context Learning and Induction Heads》）找到了一个候选机制：归纳头（induction heads）。它由两层注意力接力组成：第一层「前词头」记住「上一个 token 是什么」，第二层「归纳头」把「上次见到 A 时，A 后面跟的是 B」这条经验用于打分——这一次又看到 A，就把 B 的概率抬高。放到 ICL 里：示例里的「猫 → 喵」被这样记下一条，新问题里再出现「猫」，归纳头就照着抄「喵」。模型并没有理解「动物叫声」这个语义，它执行的是一次精确的模式复制——但这已经足以完成大量任务。",
+            "en": "Anthropic's 2022 interpretability work (Olsson et al., In-context Learning and Induction Heads) found a candidate mechanism: induction heads. It is a two-layer attention relay: a previous-token head notes what came before, and an induction head applies the rule that last time A was seen, B followed — so seeing A again now, it raises B's probability. In ICL terms: each example of cat → meow is recorded that way; when cat reappears in the question, the head copies meow. The model has not grasped the semantics of animal sounds; it executes an exact pattern copy — which already suffices for a huge range of tasks."
+          },
+          "deep": {
+            "zh": "更深一层：归纳头不是为 ICL 专门设计的，它是预训练的副产品。语料里到处是重复结构——同一份文档里术语反复出现、代码里变量名成对出现——带归纳头的模型在这些数据上损失更低，于是被选择保留下来。这解释了 ICL 的能力边界：窗口里没有的模式抄不到（示例离得太远、被截断，等于没给）；模式内部要求自洽（示例互相矛盾，模型会摇摆）。第 24 天的数据配方在这里再次显灵：语料的重复密度，塑造了模型「抄规律」这门手艺的熟练度。",
+            "en": "Deeper: induction heads were not built for ICL — they are a byproduct of pretraining. Corpora teem with repetition — terms recurring within a document, variable names pairing up in code — and models with induction heads get lower loss on such data, so selection keeps them. This draws ICL's limits: patterns absent from the window cannot be copied (an example truncated away is no example); patterns must be self-consistent (contradictory examples make the model waver). Day 24's recipe echoes here: the repetition density of the corpus trains the craft of imitation."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：8 示例换 40 分",
+            "en": "The math: 8 examples buy 40 points"
+          },
+          "p": {
+            "zh": "ICL 最著名的战绩来自思维链提示（第 19 天讲过它的推理模型版）。同一套小学数学题集 GSM8K、同一个 540B 的 PaLM 模型：标准提示给 8 个「问题→答案」示例，得 17.9 分；把这 8 个示例换成带推理过程的「问题→推理链→答案」，得 58.1 分——权重一个字节没动，40 分来自示例的写法。价格呢：8 条思维链示例约 1600 token，按 $1/百万 token 的输入价，每次调用多付约 $0.0016。对比微调路线：补上这 40 分要准备千级数据、跑训练、承担灾难性遗忘的风险；ICL 路线只改了输入里的 1600 个 token。",
+            "en": "ICL's most famous result comes from chain-of-thought prompting (day 19 covered its reasoning-model form). Same GSM8K problem set, same 540B PaLM: standard prompting with 8 question-to-answer examples scores 17.9; swap the 8 examples for question-reasoning-answer chains and it scores 58.1 — not one weight changed; 40 points came from how the examples were written. The price: 8 chain examples run about 1600 tokens, roughly $0.0016 extra per call at $1 per million input tokens. Compare fine-tuning: closing those 40 points means curating thousands of examples, running training, and facing catastrophic forgetting; the ICL route changes 1600 tokens of input text."
+          },
+          "example": {
+            "h": {
+              "zh": "实例：示例是常驻成本，缓存是打折卡",
+              "en": "Example: examples recur; caching discounts them"
+            },
+            "p": {
+              "zh": "示例的账单特点是一次编写、每次支付：那 1600 token 属于输入，每次请求都要付一遍。但第 14 天的前缀缓存恰好治这个：示例固定在提示开头，第二次起命中缓存，重复部分大幅降价——所以工程实践把固定示例放在最前、把每条请求变化的部分放在最后。这一条排版规则，就是阶段二提示工程的第一笔经济学。",
+              "en": "The bill's shape: write once, pay every call — those 1600 tokens are input, charged on every request. Day 14's prefix caching treats exactly this: examples fixed at the top of the prompt hit the cache from the second call, so the repeated part gets a steep discount — which is why practice puts fixed examples first and per-request content last. That layout rule is stage 2's first piece of economics."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：它没学会，只是被带节奏",
+            "en": "Misconception: it didn't learn, it was led"
+          },
+          "p": {
+            "zh": "最危险的误读是把 ICL 当成学习。三个证据戳破它。其一，无残留：删掉示例再问同一个问题，正确率回落（示意对照 69%→32%），「学会」的能力没被存进任何地方。其二，格式主导：输出的格式跟着示例走，示例用表格它就吐表格，格式一换成绩也波动——它模仿的是表层模式，不只是语义。其三，错误传染：示例里故意写错一个答案，模型会忠实地把错误规律复制到新问题上——它分不清「你教的」和「对的」。",
+            "en": "The dangerous misread is treating ICL as learning. Three pieces of evidence puncture it. No residue: remove the examples and ask again — accuracy falls back (illustrative 69% → 32%); nothing learned was stored anywhere. Format dominance: output format follows the examples — tables in, tables out — and switching format shifts scores, so surface patterns are being imitated, not just semantics. Error contagion: deliberately mislabel one example and the model faithfully copies the wrong rule onto new inputs — it cannot tell what you taught from what is true."
+          },
+          "misconception": {
+            "h": {
+              "zh": "误区放大镜",
+              "en": "Misconception lens"
+            },
+            "p": {
+              "zh": "「示例越多越好」。边际收益递减得很快（第 25 天那条曲线在推理时的微缩版）：从 0 到 1 个相关示例的提升最大，其后迅速摊平，而每个示例都在花 token、占窗口，还引入排序偏差——模型偏爱离问题最近的示例（近因效应），关键示例放最前还是最后，效果不同。经验法则：3～8 个精选、彼此一致、覆盖任务典型变体的示例，胜过 30 个随手堆的。",
+              "en": "More examples are better. Diminishing returns set in fast (day 25's curve in miniature, at inference time): the first relevant example gives the biggest jump, then it flattens — while every example spends tokens and window, and adds ordering bias: the model favors examples nearest the question (recency), so position matters. Rule of thumb: 3–8 curated, mutually consistent examples covering the task's typical variants beat 30 dumped at random."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：阶段二的大门就是这扇",
+            "en": "Extension: stage 2 opens through this door"
+          },
+          "p": {
+            "zh": "第 1 阶段还剩 2 天（第 27、28 天），第 28 天会用一整张地图验收这 4 周。第 29 天起进入阶段二「提示工程与上下文」，第一课就是 few-shot 的方法论：示例怎么挑、怎么排、怎么写格式——今天讲的所有性质（排序偏差、格式传染、边际递减）都会变成手艺里的操作规范。再往前：第 50 天的 Agent 在系统提示里摆工具清单和调用示例，本质仍是 ICL；第 85 天的 RAG 把检索回来的知识片段摆进窗口，是「上下文开卷」的正式版。今天带走一句话——",
+            "en": "Stage 1 has two days left (27 and 28); day 28 closes with a full-map review of these four weeks. From day 29, stage 2 on prompting and context opens with few-shot methodology: how to pick, order, and format examples — today's properties (ordering bias, format contagion, diminishing returns) become craft rules. Further out: day 50's agents put tool lists and call examples in the system prompt — ICL again; day 85's RAG places retrieved knowledge into the window — open-book, formalized. One sentence for today —"
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "亲手做一次「零示例 vs 三示例 vs 示例里有毒」的三组对照（就在任意聊天模型里）：自造一个模型不可能认识的映射任务（例如「输入城市名，输出该市地铁条数」，或一段你自创的替换密码）。① 零示例直接问，记录回答；② 给 3 个自洽示例，再问同一个任务的新输入，记录回答；③ 把其中一个示例的答案故意改错，再问同一个新输入，记录回答。回答三个问题：① ② 的差别说明示例提供了什么？（提示：任务是你今天发明的——它不可能来自权重或预训练语料。）③ 里错误被复制了吗？（提示：模型分不清「你教的」和「对的」——窗口就是它此刻的全部事实，第 4 天。）两个实验的结果差异，哪个更让你意外？",
+          "en": "Run a three-way comparison in any chat model: zero-shot vs few-shot vs poisoned examples. Invent a mapping the model cannot know (for example, city name to number of metro lines, or a substitution cipher of your own). ① Ask with no examples, record the answer. ② Give 3 self-consistent examples and ask about a new input of the same task, record. ③ Corrupt one example's answer and ask the same new input, record. Then answer: ① What did the examples provide, judging by the gap between ① and ②? (Hint: you invented the task today — it cannot come from weights or pretraining.) ② Was the error copied? (Hint: the model cannot tell what you taught from what is true — the window is its entire reality, day 4.) Which result surprised you more?"
+        }
+      },
+      "takeaway": {
+        "zh": "上下文学习把「学」搬进了推理：示例不进权重只进注意力，归纳头照着窗口里的模式续写，三个示例就能教会一个新任务；但它没有记忆、不分对错——示例给什么它学什么，会话一关，一切清零。",
+        "en": "In-context learning moves learning into inference: examples never touch the weights, only attention — induction heads continue the window's patterns, and three examples can teach a brand-new task. But it keeps no memory and cannot tell right from wrong: it learns whatever the examples show, and when the session ends, everything resets."
+      },
+      "anim": {
+        "tpl": "icl",
+        "hook": {
+          "zh": "三个示例改变了答案，0 个权重被修改——学习第一次不用训练就发生了。",
+          "en": "Three examples changed the answer; zero weights were touched — learning without training, for the first time."
+        },
+        "coverHook": {
+          "zh": "权重 0 字节改动：往窗口里放 3 个示例，正确率 32%→69%——模型是看着例子「抄」会的。",
+          "en": "Zero weight updates: drop 3 examples into the window and accuracy jumps 32%→69% — the model copies its way to competence."
+        },
+        "question": {
+          "zh": "新任务（模型从没见过）：按示例的规律，翻译「羊」",
+          "en": "A task the model has never seen: following the examples, translate 羊"
+        },
+        "rows": [
+          {
+            "k": "zero",
+            "tagZh": "零示例 · 直接问",
+            "tagEn": "Zero-shot · ask",
+            "acc": 32,
+            "answerZh": "sheep？（当成英译了）",
+            "answerEn": "sheep? (took it as translation)",
+            "demos": []
+          },
+          {
+            "k": "few",
+            "tagZh": "三示例 · 看规律",
+            "tagEn": "Few-shot · imitate",
+            "acc": 69,
+            "answerZh": "咩 ✓",
+            "answerEn": "the sound ✓",
+            "demos": [
+              {
+                "inZh": "猫",
+                "inEn": "cat",
+                "outZh": "喵",
+                "outEn": "meow"
+              },
+              {
+                "inZh": "狗",
+                "inEn": "dog",
+                "outZh": "汪",
+                "outEn": "woof"
+              },
+              {
+                "inZh": "牛",
+                "inEn": "cow",
+                "outZh": "哞",
+                "outEn": "moo"
+              }
+            ]
+          }
+        ],
+        "readoutZh": {
+          "shots": {
+            "num": "0 → 3",
+            "cap": "窗口里的示例数"
+          },
+          "acc": {
+            "num": "32→69",
+            "cap": "同一任务正确率（示意）"
+          },
+          "weight": {
+            "num": "0 字节",
+            "cap": "权重更新 · 学习没走梯度"
+          }
+        },
+        "readoutEn": {
+          "shots": {
+            "num": "0 → 3",
+            "cap": "examples in the window"
+          },
+          "acc": {
+            "num": "32→69",
+            "cap": "accuracy, same task (illustrative)"
+          },
+          "weight": {
+            "num": "0 bytes",
+            "cap": "weight updates — no gradient"
+          }
+        },
+        "note": {
+          "zh": "示意：同一任务零示例与三示例的正确率（示意值，量级参考 GPT-3 论文各任务的 few-shot 提升）。机制在第 2 节：归纳头——「上一个猫后面是喵，现在又见猫，续喵」。示例只活在窗口里，会话结束即清零。",
+          "en": "Illustrative: accuracy on the same task with zero vs three examples (values illustrative, magnitudes in line with GPT-3's per-task few-shot gains). Mechanism in section 2: the induction head — cat was followed by meow; seeing cat again, continue meow. Examples live only in the window and vanish with the session."
+        }
+      }
     }
   ]
 }

@@ -1854,6 +1854,95 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* icl：上下文学习（第 26 天）——两行对照：零示例行（无示例、错误答案）
+       vs 三示例行（示例对逐格点亮 → 新问题照抄答案）。权重徽章「0 字节」。
+       格子初始可见，入场只动 transform（--icl-f 驱动 + is-in），循环重播。 */
+    icl: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-icl');
+      var budget = el('div', 'materin-learn-icl__budget',
+        (lang() === 'en' ? 'Weight updates: ' : '权重更新：') + (a.readoutZh ? a.readoutZh.weight.num : '0 字节'));
+      var rowsBox = el('div', 'materin-learn-icl__rows');
+      var note = el('p', 'materin-learn-icl__note', t(a.note));
+
+      var question = el('div', 'materin-learn-icl__question', t(a.question));
+
+      var rows = a.rows.map(function (r) {
+        var row = el('div', 'materin-learn-icl__row materin-learn-icl__row--' + r.k);
+        var head = el('div', 'materin-learn-icl__head');
+        head.appendChild(el('span', 'materin-learn-icl__tag', t({ zh: r.tagZh, en: r.tagEn })));
+        head.appendChild(el('span', 'materin-learn-icl__acc',
+          (lang() === 'en' ? 'acc ' : '正确率 ') + r.acc + '%'));
+        row.appendChild(head);
+
+        var demos = el('div', 'materin-learn-icl__demos');
+        var demoNodes = [];
+        (r.demos || []).forEach(function (d, di) {
+          var demo = el('span', 'materin-learn-icl__demo');
+          demo.appendChild(el('span', 'materin-learn-icl__demo-in', t({ zh: d.inZh, en: d.inEn })));
+          demo.appendChild(el('span', 'materin-learn-icl__demo-arrow', '→'));
+          demo.appendChild(el('span', 'materin-learn-icl__demo-out', t({ zh: d.outZh, en: d.outEn })));
+          demo.style.animationDelay = (di * 0.35) + 's';
+          demos.appendChild(demo);
+          demoNodes.push(demo);
+        });
+        if (!r.demos || !r.demos.length) {
+          demos.appendChild(el('span', 'materin-learn-icl__demo materin-learn-icl__demo--empty',
+            lang() === 'en' ? 'no examples in window' : '窗口里没有示例'));
+        }
+        row.appendChild(demos);
+
+        var out = el('div', 'materin-learn-icl__answer',
+          lang() === 'en' ? (r.k === 'few' ? 'model: ' : 'model: ') + r.answerEn
+                          : (r.k === 'few' ? '模型：' : '模型：') + r.answerZh);
+        row.appendChild(out);
+        rowsBox.appendChild(row);
+        return { row: row, demos: demoNodes, out: out, k: r.k };
+      });
+
+      var readout = el('div', 'materin-learn-icl__readout');
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      ['shots', 'acc', 'weight'].forEach(function (k) {
+        var box = el('div', 'materin-learn-icl__stat');
+        box.appendChild(el('span', 'materin-learn-icl__stat-num', rd[k].num));
+        box.appendChild(el('span', 'materin-learn-icl__stat-cap', rd[k].cap));
+        readout.appendChild(box);
+      });
+
+      /* 时序：问题徽章 → 零示例行落位（答案点灰）→ 三示例逐个 pop →
+         归纳头连线点亮（few 行 is-live）→ few 行答案翻绿 → 读数，循环重播 */
+      var T0 = 200, ZERO = 1100, DEMO = 550, LIVE = 700, HOLD = 2800;
+      var few = rows.filter(function (R) { return R.k === 'few'; })[0];
+      var CYCLE = T0 + ZERO + (few ? few.demos.length * DEMO : 0) + LIVE + HOLD;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        rows.forEach(function (R) {
+          var at = T0 + (R.k === 'zero' ? 0 : ZERO);
+          var f = Math.min(Math.max((tNow - at) / 500, 0), 1);
+          R.row.style.setProperty('--icl-f', f.toFixed(3));
+          R.row.classList.toggle('is-in', tNow >= at);
+          R.demos.forEach(function (d, di) {
+            d.classList.toggle('is-in', tNow >= at + 400 + di * DEMO);
+          });
+          var ansAt = at + 400 + R.demos.length * DEMO;
+          R.out.classList.toggle('is-ok', R.k === 'few' && tNow >= ansAt);
+          R.out.classList.toggle('is-bad', R.k === 'zero' && tNow >= ansAt);
+          R.row.classList.toggle('is-live', R.k === 'few' && tNow >= at + 400);
+        });
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(budget);
+      wrap.appendChild(question);
+      wrap.appendChild(rowsBox);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 
