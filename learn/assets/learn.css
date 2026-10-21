@@ -4330,3 +4330,212 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-body-day.is-stage .materin-learn-icl__stat-num { font-size: 44px; }
 .materin-learn-body-day.is-stage .materin-learn-icl__stat-cap { font-size: 24px; }
 .materin-learn-body-day.is-stage .materin-learn-icl__note { font-size: 28px; max-width: 840px; }
+
+/* unify：多模态（第 27 天）——文字/图块/声音三行，格子逐个点亮后整行收拢汇流。
+   格子初始可见，入场只动 transform（--unify-f 驱动 + is-in / is-gathered），循环重播。 */
+.materin-learn-unify {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.materin-learn-unify__question {
+  align-self: center;
+  color: var(--materin-text);
+  font-size: 13.5px;
+  font-weight: 700;
+  text-align: center;
+  padding: 8px 18px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-glass-bg-subtle);
+  box-shadow: var(--materin-shadow);
+}
+
+.materin-learn-unify__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 14px;
+  background: var(--materin-glass-bg-subtle);
+  box-shadow: var(--materin-shadow);
+}
+
+.materin-learn-unify__row {
+  --unify-f: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-surface-2);
+  /* 汇流：整行向中线收拢并轻微放大，「挤进同一条序列」 */
+  transform: translateX(calc((1 - var(--unify-f)) * 0px)) scale(calc(1 - var(--unify-f) * 0.04));
+  transition: transform 0.7s var(--materin-ease-standard, ease);
+}
+
+.materin-learn-unify__row.is-gathered {
+  border-color: var(--materin-accent-border);
+}
+
+.materin-learn-unify__head {
+  flex: 0 0 168px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.materin-learn-unify__tag {
+  color: var(--materin-text);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.materin-learn-unify__row--img .materin-learn-unify__tag { color: var(--materin-accent); }
+
+.materin-learn-unify__cap {
+  color: var(--materin-text-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.materin-learn-unify__cells {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.materin-learn-unify__cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--materin-border);
+  border-radius: 8px;
+  background: var(--materin-surface-3);
+  color: var(--materin-text-muted);
+  font-family: var(--materin-font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  white-space: nowrap;
+  transform: translateY(6px) scale(0.8);
+  transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2),
+              border-color var(--materin-duration-normal, 0.3s) ease,
+              background var(--materin-duration-normal, 0.3s) ease,
+              color var(--materin-duration-normal, 0.3s) ease;
+}
+
+.materin-learn-unify__cell.is-in {
+  transform: translateY(0) scale(1);
+}
+
+.materin-learn-unify__cell--img.is-in {
+  border-color: var(--materin-accent-border);
+  background: var(--materin-accent-soft);
+  color: var(--materin-accent);
+}
+
+.materin-learn-unify__cell--audio.is-in {
+  border-style: dashed;
+  border-color: var(--materin-ok-border, var(--materin-border));
+  background: var(--materin-ok-soft, var(--materin-surface-2));
+  color: var(--materin-ok);
+}
+
+.materin-learn-unify__merge {
+  align-self: center;
+  padding: 7px 20px;
+  border: 1px solid var(--materin-border);
+  border-radius: 999px;
+  background: var(--materin-surface-2);
+  color: var(--materin-text-muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  transform: scale(0.92);
+  transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2),
+              border-color var(--materin-duration-normal, 0.3s) ease,
+              color var(--materin-duration-normal, 0.3s) ease,
+              background var(--materin-duration-normal, 0.3s) ease;
+}
+
+.materin-learn-unify__merge.is-in {
+  transform: scale(1);
+  border-color: var(--materin-accent);
+  background: var(--materin-accent-soft);
+  color: var(--materin-accent);
+}
+
+.materin-learn-unify__readout {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.materin-learn-unify__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-surface-2);
+}
+
+.materin-learn-unify__stat-num {
+  color: var(--materin-accent);
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-unify__stat-cap {
+  color: var(--materin-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.materin-learn-unify__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+  max-width: 640px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materin-learn-unify__row,
+  .materin-learn-unify__cell,
+  .materin-learn-unify__merge { transform: none; transition: none; }
+}
+
+/* 竖版舞台（?stage=1）：unify 放大 */
+.materin-learn-body-day.is-stage .materin-learn-unify { gap: 26px; max-width: 900px; }
+.materin-learn-body-day.is-stage .materin-learn-unify__question { font-size: 30px; padding: 18px 34px; border-radius: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-unify__rows { border-radius: 24px; gap: 16px; padding: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-unify__row { gap: 18px; padding: 18px 20px; border-radius: 20px; }
+.materin-learn-body-day.is-stage .materin-learn-unify__head { flex-basis: 300px; }
+.materin-learn-body-day.is-stage .materin-learn-unify__tag { font-size: 27px; }
+.materin-learn-body-day.is-stage .materin-learn-unify__cap { font-size: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-unify__cells { gap: 10px; }
+.materin-learn-body-day.is-stage .materin-learn-unify__cell { min-width: 62px; height: 54px; padding: 0 16px; border-radius: 14px; font-size: 27px; }
+.materin-learn-body-day.is-stage .materin-learn-unify__merge { font-size: 27px; padding: 14px 34px; }
+.materin-learn-body-day.is-stage .materin-learn-unify__stat-num { font-size: 44px; }
+.materin-learn-body-day.is-stage .materin-learn-unify__stat-cap { font-size: 24px; }
+.materin-learn-body-day.is-stage .materin-learn-unify__note { font-size: 28px; max-width: 840px; }

@@ -1943,6 +1943,78 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* unify：多模态（第 27 天）——三种模态行（文字/图块/声音片）各自逐格点亮，
+       然后三行同时向中央汇流线收拢（translateX 收缩），汇入「同一条序列」徽章。
+       格子初始可见，入场只动 transform（--unify-f 驱动 + is-in），循环重播。 */
+    unify: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-unify');
+      var question = el('div', 'materin-learn-unify__question', t(a.question));
+
+      var rowsBox = el('div', 'materin-learn-unify__rows');
+      var rows = a.rows.map(function (r) {
+        var row = el('div', 'materin-learn-unify__row materin-learn-unify__row--' + r.k);
+        var head = el('div', 'materin-learn-unify__head');
+        head.appendChild(el('span', 'materin-learn-unify__tag', t({ zh: r.tagZh, en: r.tagEn })));
+        head.appendChild(el('span', 'materin-learn-unify__cap', t({ zh: r.capZh, en: r.capEn })));
+        row.appendChild(head);
+        var cells = el('div', 'materin-learn-unify__cells');
+        var cellNodes = r.cells.map(function (c) {
+          var cell = el('span', 'materin-learn-unify__cell materin-learn-unify__cell--' + r.k, c.w);
+          cells.appendChild(cell);
+          return cell;
+        });
+        row.appendChild(cells);
+        rowsBox.appendChild(row);
+        return { row: row, cells: cellNodes, k: r.k };
+      });
+
+      var merge = el('div', 'materin-learn-unify__merge',
+        lang() === 'en' ? a.mergeEn : a.mergeZh);
+
+      var readout = el('div', 'materin-learn-unify__readout');
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      ['patch', 'img', 'audio'].forEach(function (k) {
+        var box = el('div', 'materin-learn-unify__stat');
+        box.appendChild(el('span', 'materin-learn-unify__stat-num', rd[k].num));
+        box.appendChild(el('span', 'materin-learn-unify__stat-cap', rd[k].cap));
+        readout.appendChild(box);
+      });
+      var note = el('p', 'materin-learn-unify__note', t(a.note));
+
+      /* 时序：问题 0.3s → 三行格子交错点亮（行 r 错峰 0.9s，格间 0.22s）→
+         三行收拢汇流（--unify-f 0→1）→ 汇流徽章亮 → 静置 → 循环 */
+      var T0 = 300, ROW_GAP = 900, CELL = 220, MERGE = 900, HOLD = 2600;
+      var maxCells = Math.max.apply(null, a.rows.map(function (r) { return r.cells.length; }));
+      var FILL = T0 + (a.rows.length - 1) * ROW_GAP + maxCells * CELL;
+      var CYCLE = FILL + MERGE + HOLD;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        rows.forEach(function (R, ri) {
+          var rowAt = T0 + ri * ROW_GAP;
+          R.cells.forEach(function (c, ci) {
+            var at = rowAt + ci * CELL;
+            c.classList.toggle('is-in', tNow >= at);
+          });
+          var f = Math.min(Math.max((tNow - FILL) / MERGE, 0), 1);
+          R.row.style.setProperty('--unify-f', f.toFixed(3));
+          R.row.classList.toggle('is-gathered', f >= 1);
+        });
+        merge.classList.toggle('is-in', tNow >= FILL + MERGE * 0.6);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(question);
+      wrap.appendChild(rowsBox);
+      wrap.appendChild(merge);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

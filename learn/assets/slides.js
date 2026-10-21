@@ -1501,6 +1501,93 @@
         v.appendChild(idoor);
         v.appendChild(el('div', 'materin-learn-viz__label', '阶段二的大门：今天讲的排序偏差与格式传染，会变成操作规范'));
       }
+    } else if (day.anim && day.anim.tpl === 'unify') {
+      /* unify（第 27 天）：多模态——与动效页同一组账：切块机制 / 分辨率账单 /
+         三感官对账 / 无翻译器证据 / 窗口的多模态预算 */
+      if (idx === 0) {
+        var ucut = el('div', 'materin-learn-viz__chips');
+        [
+          { tag: '224×224 图', alt: false }, { tag: '→', alt: true },
+          { tag: '196 块 16×16', alt: false }, { tag: '→', alt: true },
+          { tag: '向量序列', cls: ' merged', plain: true }
+        ].forEach(function (r) {
+          var cls = 'materin-learn-viz__chip' +
+            (r.plain ? (r.cls || '') : (r.alt ? ' materin-learn-viz__chip--alt' : ''));
+          ucut.appendChild(el('span', cls, r.tag));
+        });
+        v.appendChild(ucut);
+        v.appendChild(el('div', 'materin-learn-viz__label', '不翻译成字：图块拉平后乘一个矩阵，变成和词向量同维度的向量（ViT，2020）'));
+      } else if (idx === 1) {
+        var ures = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '16×16 块 · 196 token', val: 25, cls: '', txt: '普通语义够用', wide: true },
+          { tag: '8×8 块 · 784 token', val: 100, cls: '', txt: '细节 ×4 · 账单 ×4', wide: true },
+          { tag: 'GPT-4o 高清：1024² 图', val: 98, cls: ' materin-learn-viz__bar--en', txt: '765 token 明码计费', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          ures.appendChild(row);
+        });
+        v.appendChild(ures);
+        v.appendChild(el('div', 'materin-learn-viz__label', '分辨率是 token 账单：块切多细是唯一旋钮，要多少细节付多少 token'));
+      } else if (idx === 2) {
+        var uled = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '文字 · 10 轮对话', val: 39, cls: '', txt: '≈3000 token', wide: true },
+          { tag: '图片 · 5 张高清', val: 50, cls: ' materin-learn-viz__bar--en', txt: '3825 token · 贵 27%', wide: true },
+          { tag: '逐帧视频 · 每分钟', val: 100, cls: ' materin-learn-viz__bar--en', txt: '138 万 token · 只能抽帧', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          uled.appendChild(row);
+        });
+        v.appendChild(uled);
+        v.appendChild(el('div', 'materin-learn-viz__label', '三感官同一张价目表：图是窗口里的新租客，贴进来就按 token 交租（第 4 天）'));
+      } else if (idx === 3) {
+        var uev = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '有翻译器：图→文字→理解', cls: '', verdict: '✗ 数杯子做不到', vcls: '' },
+          { tag: '无翻译器：图块向量直接进序列', cls: ' materin-learn-viz__route-row--think', verdict: '✓ 直接算出答案', vcls: ' materin-learn-viz__route-word--ok' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          uev.appendChild(row);
+        });
+        v.appendChild(uev);
+        v.appendChild(el('div', 'materin-learn-viz__label', '描述是 196 个向量到几十个字的降维：空间排布和视觉细节最先阵亡'));
+      } else {
+        var uwin = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '第 29 天：贴图就是提示的一部分', val: 100, cls: '', txt: '图像 token 吃窗口预算', wide: true },
+          { tag: '固定图 + 前缀缓存（第 14 天）', val: 62, cls: '', txt: '重复图照常打折', wide: true },
+          { tag: '第 85 天：RAG 图文混检', val: 30, cls: ' materin-learn-viz__bar--en', txt: '以图搜图进知识系统', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          uwin.appendChild(row);
+        });
+        v.appendChild(uwin);
+        v.appendChild(el('div', 'materin-learn-viz__label', '窗口升级成一切感官的入口：明天（第 28 天）用一整张地图验收这 4 周'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));
