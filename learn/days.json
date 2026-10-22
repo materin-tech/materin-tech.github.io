@@ -4878,6 +4878,498 @@
      "en": "Illustrative: each modality's tokenization entrance. Patches are linearly projected into vectors (ViT, 2020), speech is sliced from a mel spectrogram (Whisper: 30 s = 1500 frames), text goes through the tokenizer — attention, KV Cache, and the window budget are all shared unchanged."
     }
    }
+  },
+  {
+   "n": 28,
+   "stage": 1,
+   "week": 4,
+   "tpl": "atlas",
+   "date": "2026-10-22",
+   "title": {
+    "zh": "四周地图：27 个零件，一台机器",
+    "en": "The four-week map: 27 parts, one machine"
+   },
+   "subtitle": {
+    "zh": "第 15 天那张 14 站的图，两周里又长出 13 个站。今天不学新概念，只做验收：把 27 个零件放回「怎么读、怎么学、怎么用」三根线上，数一数边——27 站 27 条边，复习全图只要 9 分钟。",
+    "en": "The day-15 map had 14 stations; two weeks later there are 13 more. Nothing new today — just an audit: put all 27 parts back on the three lines (read / learn / use) and count the edges — 27 stations, 27 edges, nine minutes to walk the whole map."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：验收怎么读——先数边，再数站",
+      "en": "Mechanism: count edges first, then stations"
+     },
+     "p": {
+      "zh": "还是那张图：三根横带——上「怎么读 · 表示」、中「怎么学 · 优化」、下「怎么用 · 工程」，27 个站按天落位，蓝色主线在带内接力，黄色虚线是跨线桥。和第 15 天相比，带没变，站从 14 涨到 27：蓝线新增生成循环、思维链、上下文学习、多模态、评测；绿线新增 MoE、数据配方、规模定律；青线新增 FIM 补全、推测解码、批处理、工具调用。第 15 天教过的读法今天照跑——先读线（这段流水线解决什么问题），再读站（它卡住哪个瓶颈），最后读桥（哪两根线在暗中握手）。验收就是把这个读法走一遍：任何一个站说不出「上游是谁、下游是谁、和谁隔带相望」，那条线索就是欠账。",
+      "en": "Same map, three horizontal bands — how it reads (representation) on top, how it learns (optimization) in the middle, how it's used (engineering) at the bottom. 27 stations sit where their day put them; blue main lines relay within a band, yellow dashes are cross-line bridges. Versus day 15 the bands didn't change, the stations went 14 → 27: blue adds the gen loop, CoT, ICL, multimodal, and eval; green adds MoE, data mix, and scaling laws; cyan adds FIM, speculative decoding, batching, and tool calls. The day-15 reading routine still applies — read the line first (what does this pipeline stage solve), then the station (which bottleneck it unblocks), then the bridges (which two lines shake hands in the dark). The audit is simply walking that routine: any station where you can't name its upstream, downstream, and cross-band partner is an unpaid debt."
+     }
+    },
+    {
+     "h": {
+      "zh": "为什么：密度才是理解的上限",
+      "en": "Why: density caps understanding"
+     },
+     "p": {
+      "zh": "为什么用「旧图加密」来验收，而不是出一张卷子？因为第 15 天讲过：记忆是检索，检索走的是线索，线索就是边。两周里每天加一个新站，如果新站只和「当天的日子」连着，图只是变大了，没有变密——27 个孤立的定义比 14 个更难背。所以验收看的不是站数，是边数：14 站时 13 条边，今天 27 站 27 条边，每个新站至少牵着一条旧边进图——生成循环牵着注意力（D6），批处理牵着 KV cache（D14），上下文学习牵着窗口（D4）。边能连上，说明新概念长在了旧知识上；连不上，说明那天学成了孤岛。",
+      "en": "Why audit by densifying the old map instead of giving a quiz? Because day 15 said it: memory is retrieval, retrieval walks cues, and cues are edges. Two weeks of one new station per day could have made the map bigger without making it denser — 27 isolated definitions are harder to hold than 14. So the audit doesn't count stations, it counts edges: 13 edges at 14 stations, 27 edges at 27 stations today — every new station pulls at least one old edge in with it. The gen loop holds onto attention (D6), batching holds onto the KV cache (D14), in-context learning holds onto the window (D4). An edge that connects means the new concept grew on old knowledge; one that doesn't means that day became an island."
+     },
+     "deep": {
+      "zh": "这也是为什么验收要从「考站」改成「考边」：考站，背定义就能过关——「KV cache 是缓存」谁都会说；考边才见真章——「KV cache 缓存的是谁的中间结果？没有它，第 16 天的循环每圈要多算什么？」答案必须跨天调取。跨天调取正是后面 140 天的日常：提示工程（D29 起）在窗口里排布边，Agent 的工具清单（D50 起）本质是给「站」接上通向外部世界的桥。图密的人做题是在走边，图疏的人是在重新学。",
+      "en": "This is also why the audit grades edges, not stations: a station can be passed by reciting a definition — anyone can say \"the KV cache is a cache\". An edge can't: whose intermediate results does the KV cache keep? Without it, what does each lap of the day-16 loop recompute? Answers must be fetched across days. Cross-day fetching is exactly the next 140 days' daily life: prompt engineering (from D29) arranges edges inside the window, and an agent's tool list (from D50) is essentially bridges from stations to the outside world. A dense map walks edges to answer; a sparse map re-learns."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：9 分钟走完 27 条边",
+      "en": "The math: 27 edges in 9 minutes"
+     },
+     "p": {
+      "zh": "把复习成本算成时间。走边路线：27 条边，每条边回忆「两端是谁 + 为什么相连」，约 20 秒——全图走完 9 分钟，一杯咖啡的预算。重读路线：27 篇笔记，每篇回看约 3 分钟——81 分钟，一个下午。差 9 倍，而且走边是提取式复习（自己召回两端点），重读是再认式复习（看着文字点头）——第 15 天引用过的遗忘曲线研究里，提取式的长期留存显著更高。这张图同时是自检仪：9 分钟里哪条边卡壳，比如想不起「批处理为什么连着 KV cache」，当天就回炉那一天，误差精确到 1 天。",
+      "en": "Price the review in minutes. Edge route: 27 edges × ~20 s each to recall \"who are the two endpoints and why do they connect\" — 9 minutes for the whole map, one coffee. Re-reading route: 27 notes × ~3 min each — 81 minutes, an afternoon. Nine times the cost, and edge-walking is retrieval practice (you recall both endpoints yourself) while re-reading is recognition (you nod at text) — in the forgetting-curve research day 15 cited, retrieval practice retains far better. The map is also a self-diagnostic: whichever edge stalls in those 9 minutes — say, why batching connects to the KV cache — sends exactly that day back for re-drill, precise to a single day."
+     },
+     "example": {
+      "h": {
+       "zh": "一个 5 分钟实验",
+       "en": "A 5-minute experiment"
+      },
+      "p": {
+       "zh": "合上页面，随便挑 3 个站，写下各自的两跳邻居（邻站 + 邻站的邻站）。平均度 2.0（27 条边 ÷ 27 站）意味着每个站两跳内大约能到达 5 个站；如果你挑的站写不满 3 个邻居，说明它在你脑里还是孤岛——回去把它的「为什么」补上。",
+       "en": "Close the page, pick any 3 stations, and write down each one's two-hop neighbors (neighbors, plus neighbors of neighbors). An average degree of 2.0 (27 edges ÷ 27 stations) means each station reaches roughly 5 others within two hops; if one of your picks can't name 3 neighbors, it's still an island in your head — go back and re-attach its \"why\"."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：验收不是重学一遍",
+      "en": "Misconception: an audit is not re-studying"
+     },
+     "p": {
+      "zh": "两个常见跑偏。其一，「验收 = 把 27 天快速重学」——又坐回重读的老路，81 分钟花完，边一条没走。验收的正确姿势是闭卷走边：图在脑里，笔记只用来对答案。其二，「图必须画得全才算过」——画不全恰恰是验收的产出：卡住的边、空白的站就是清单，精确到天。真正危险的是第三种：把画图当成一次性的仪式，第 15 天画过就再没打开。网会荒——不走的边两周就锈，遗忘曲线不等人。所以这张图后面还要重画三次：第 50 天 Agent 开工、第 112 天 RAG 收官、第 168 天全程合龙，每画一次，边都会自己变多。",
+      "en": "Two common detours. One: \"audit = quickly re-study all 27 days\" — that's the re-reading trap again; 81 minutes spent, zero edges walked. The right posture is closed-book edge-walking: the map lives in your head, the notes exist only to check answers. Two: \"the drawing must be complete to count\" — incompleteness is precisely the audit's output: stalled edges and blank stations are the to-do list, precise to the day. The real danger is the third: treating the map as a one-time ritual, drawn on day 15 and never reopened. Networks go fallow — an unwalked edge rusts in two weeks, and the forgetting curve waits for no one. So this map gets redrawn three more times: day 50 when agents begin, day 112 when RAG wraps, day 168 for the full merge — and each redraw, the edges multiply on their own."
+     },
+     "misconception": {
+      "h": {
+       "zh": "误区放大镜",
+       "en": "Magnifier"
+      },
+      "p": {
+       "zh": "「我能答对每个概念的定义，图可画可不画」——定义是站，实战考的是路。面试官问「为什么推理模型先想再答更贵」，答案要从思维链（D19）走到批处理（D21）再走到 KV cache（D14），是一条三段路径；只会定义的人手里有 27 个点，走不出任何一条路。",
+       "en": "\"I can define every concept, so the map is optional\" — definitions are stations; practice grades routes. Ask why reasoning models cost more, and the answer walks from chain-of-thought (D19) to batching (D21) to the KV cache (D14) — a three-leg path. Someone holding only definitions has 27 dots and cannot walk out a single route."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：第 2 阶段要用哪几个站",
+      "en": "Extension: which stations stage 2 needs"
+     },
+     "p": {
+      "zh": "明天起进阶段二「提示工程与上下文」（第 29–49 天），地图上被点名的站一下子变多：窗口（D4）是工作台，token 计费（D1）是预算，KV cache（D14）是折扣券，上下文学习（D26）是核心机制，多模态（D27）说明贴图也是提示，采样（D3）解释为什么同一句话两次回答不一样。提示工程的本质一句话：不改权重，用窗口里的排布榨出最好的输出——全是旧零件的新用法。所以第 2 阶段不换地图，只是把「怎么用」这根线越画越粗；第 50 天 Agent 开工时，你会第二次重画这张图。",
+      "en": "Tomorrow stage 2 begins — Prompting & Context (days 29–49) — and suddenly many stations get named: the window (D4) is the workbench, token billing (D1) is the budget, the KV cache (D14) is the discount coupon, in-context learning (D26) is the core mechanism, multimodality (D27) means an attached image is part of the prompt, and sampling (D3) explains why the same sentence gets two different answers. Prompt engineering in one sentence: without touching the weights, squeeze the best output out of how tokens are arranged in the window — nothing but new uses for old parts. So stage 2 doesn't swap the map; it thickens the \"how it's used\" line. On day 50, when agents begin, you'll redraw this map a second time."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（20 分钟）",
+     "en": "Hands-on (20 min)"
+    },
+    "p": {
+     "zh": "找一张白纸，凭记忆画 27 站验收图：先画三根横带并标名，再填站（day 号 + 名字），最后补桥，画完对照页面动效核改。然后回答三个问题：① 数一数你画出的边——低于 20 条说明哪两周学得最浅？（提示：第 4 周「修浪费」三件套 MoE、推测解码、批处理彼此牵手，桥和青线边最容易漏。）② 「评测」站和哪些站相连？它为什么不在「怎么学」那根线上？（提示：评测读的是输出行为，不是训练过程——分数是题集的函数，D23。）③ 从「多模态」走到「检索」，最短路径经过哪几站？（提示：多模态 → KV cache（D14）→ 注意力（D6）→ 嵌入（D2）→ 检索（D13）——两座桥 + 两条主线边。）",
+     "en": "Take a blank sheet and draw the 27-station audit map from memory: three labeled bands first, then stations (day number + name), then bridges; check against the page animation. Then answer three questions: ① Count the edges you drew — below 20, which two weeks were learned most shallowly? (Hint: week 4's waste-fixing trio — MoE, speculative decoding, batching — hold hands; the bridges and cyan edges go missing first.) ② Which stations connect to Eval, and why isn't it on the \"how it learns\" line? (Hint: eval reads output behavior, not training — the score is a function of the question set, D23.) ③ Walk from Multimodal to Retrieval by the shortest path — which stations does it pass? (Hint: Multimodal → KV cache (D14) → Attention (D6) → Embedding (D2) → Retrieval (D13) — two bridges plus two main-line edges.)"
+    }
+   },
+   "takeaway": {
+    "zh": "验收不看笔记，只走边：27 站 27 条边，9 分钟一杯咖啡；卡壳的那条边，就是明天要回炉的那一天——第 2 阶段的提示工程，用的全是这张图上的旧零件。",
+    "en": "The audit skips the notes and walks the edges: 27 stations, 27 edges, nine minutes and one coffee. Every edge you stall on is the day to re-drill — and stage 2's prompt engineering will reuse nothing but these old parts."
+   },
+   "anim": {
+    "tpl": "atlas",
+    "hook": {
+     "zh": "两周前 14 站 13 边，今天 27 站 27 边——闭上眼还能画出这张图，第 1 阶段才算毕业。",
+     "en": "Two weeks ago: 14 stations, 13 edges. Today: 27 and 27. Draw this map with the page closed, and stage one is truly yours."
+    },
+    "clusters": [
+     {
+      "k": "read",
+      "zh": "怎么读 · 表示",
+      "en": "How it reads"
+     },
+     {
+      "k": "learn",
+      "zh": "怎么学 · 优化",
+      "en": "How it learns"
+     },
+     {
+      "k": "use",
+      "zh": "怎么用 · 工程",
+      "en": "How it's used"
+     }
+    ],
+    "nodes": [
+     {
+      "d": 1,
+      "k": "read",
+      "zh": "Token",
+      "en": "Token",
+      "x": 8,
+      "y": 11
+     },
+     {
+      "d": 2,
+      "k": "read",
+      "zh": "嵌入",
+      "en": "Embedding",
+      "x": 28,
+      "y": 11
+     },
+     {
+      "d": 6,
+      "k": "read",
+      "zh": "注意力",
+      "en": "Attention",
+      "x": 50,
+      "y": 11
+     },
+     {
+      "d": 16,
+      "k": "read",
+      "zh": "生成循环",
+      "en": "Gen loop",
+      "x": 72,
+      "y": 11
+     },
+     {
+      "d": 23,
+      "k": "read",
+      "zh": "评测",
+      "en": "Eval",
+      "x": 92,
+      "y": 11
+     },
+     {
+      "d": 4,
+      "k": "read",
+      "zh": "窗口",
+      "en": "Window",
+      "x": 14,
+      "y": 25
+     },
+     {
+      "d": 26,
+      "k": "read",
+      "zh": "上下文学习",
+      "en": "ICL",
+      "x": 36,
+      "y": 25
+     },
+     {
+      "d": 19,
+      "k": "read",
+      "zh": "思维链",
+      "en": "CoT",
+      "x": 58,
+      "y": 25
+     },
+     {
+      "d": 27,
+      "k": "read",
+      "zh": "多模态",
+      "en": "Multimodal",
+      "x": 80,
+      "y": 25
+     },
+     {
+      "d": 25,
+      "k": "learn",
+      "zh": "规模定律",
+      "en": "Scaling",
+      "x": 8,
+      "y": 44
+     },
+     {
+      "d": 24,
+      "k": "learn",
+      "zh": "数据配方",
+      "en": "Data mix",
+      "x": 26,
+      "y": 44
+     },
+     {
+      "d": 7,
+      "k": "learn",
+      "zh": "预训练",
+      "en": "Pretrain",
+      "x": 46,
+      "y": 44
+     },
+     {
+      "d": 5,
+      "k": "learn",
+      "zh": "梯度下降",
+      "en": "Descent",
+      "x": 66,
+      "y": 44
+     },
+     {
+      "d": 8,
+      "k": "learn",
+      "zh": "对齐",
+      "en": "Alignment",
+      "x": 88,
+      "y": 44
+     },
+     {
+      "d": 17,
+      "k": "learn",
+      "zh": "MoE",
+      "en": "MoE",
+      "x": 18,
+      "y": 58
+     },
+     {
+      "d": 10,
+      "k": "learn",
+      "zh": "LoRA",
+      "en": "LoRA",
+      "x": 42,
+      "y": 58
+     },
+     {
+      "d": 11,
+      "k": "learn",
+      "zh": "量化",
+      "en": "Quant",
+      "x": 64,
+      "y": 58
+     },
+     {
+      "d": 12,
+      "k": "learn",
+      "zh": "蒸馏",
+      "en": "Distill",
+      "x": 86,
+      "y": 58
+     },
+     {
+      "d": 3,
+      "k": "use",
+      "zh": "采样",
+      "en": "Sampling",
+      "x": 8,
+      "y": 77
+     },
+     {
+      "d": 9,
+      "k": "use",
+      "zh": "幻觉",
+      "en": "Hallucination",
+      "x": 28,
+      "y": 77
+     },
+     {
+      "d": 13,
+      "k": "use",
+      "zh": "检索",
+      "en": "Retrieval",
+      "x": 50,
+      "y": 77
+     },
+     {
+      "d": 22,
+      "k": "use",
+      "zh": "工具调用",
+      "en": "Tool calls",
+      "x": 72,
+      "y": 77
+     },
+     {
+      "d": 18,
+      "k": "use",
+      "zh": "补全",
+      "en": "FIM",
+      "x": 92,
+      "y": 77
+     },
+     {
+      "d": 14,
+      "k": "use",
+      "zh": "KV cache",
+      "en": "KV cache",
+      "x": 14,
+      "y": 91
+     },
+     {
+      "d": 21,
+      "k": "use",
+      "zh": "批处理",
+      "en": "Batching",
+      "x": 36,
+      "y": 91
+     },
+     {
+      "d": 20,
+      "k": "use",
+      "zh": "推测解码",
+      "en": "Spec decode",
+      "x": 58,
+      "y": 91
+     },
+     {
+      "d": 15,
+      "k": "use",
+      "zh": "两周地图",
+      "en": "2-week map",
+      "x": 82,
+      "y": 91
+     }
+    ],
+    "edges": [
+     {
+      "a": 1,
+      "b": 2,
+      "k": "read"
+     },
+     {
+      "a": 2,
+      "b": 6,
+      "k": "read"
+     },
+     {
+      "a": 6,
+      "b": 4,
+      "k": "read"
+     },
+     {
+      "a": 4,
+      "b": 26,
+      "k": "read"
+     },
+     {
+      "a": 26,
+      "b": 19,
+      "k": "read"
+     },
+     {
+      "a": 6,
+      "b": 16,
+      "k": "read"
+     },
+     {
+      "a": 16,
+      "b": 23,
+      "k": "read"
+     },
+     {
+      "a": 25,
+      "b": 24,
+      "k": "learn"
+     },
+     {
+      "a": 24,
+      "b": 7,
+      "k": "learn"
+     },
+     {
+      "a": 7,
+      "b": 5,
+      "k": "learn"
+     },
+     {
+      "a": 5,
+      "b": 8,
+      "k": "learn"
+     },
+     {
+      "a": 8,
+      "b": 10,
+      "k": "learn"
+     },
+     {
+      "a": 10,
+      "b": 11,
+      "k": "learn"
+     },
+     {
+      "a": 11,
+      "b": 12,
+      "k": "learn"
+     },
+     {
+      "a": 25,
+      "b": 17,
+      "k": "learn"
+     },
+     {
+      "a": 3,
+      "b": 9,
+      "k": "use"
+     },
+     {
+      "a": 9,
+      "b": 13,
+      "k": "use"
+     },
+     {
+      "a": 13,
+      "b": 22,
+      "k": "use"
+     },
+     {
+      "a": 14,
+      "b": 21,
+      "k": "use"
+     },
+     {
+      "a": 21,
+      "b": 20,
+      "k": "use"
+     },
+     {
+      "a": 2,
+      "b": 13,
+      "k": "bridge"
+     },
+     {
+      "a": 6,
+      "b": 14,
+      "k": "bridge"
+     },
+     {
+      "a": 8,
+      "b": 9,
+      "k": "bridge"
+     },
+     {
+      "a": 16,
+      "b": 3,
+      "k": "bridge"
+     },
+     {
+      "a": 27,
+      "b": 14,
+      "k": "bridge"
+     },
+     {
+      "a": 15,
+      "b": 23,
+      "k": "bridge"
+     },
+     {
+      "a": 26,
+      "b": 22,
+      "k": "bridge"
+     }
+    ],
+    "note": {
+     "zh": "示意：三根主线 20 条边 + 黄色虚线 7 座跨线桥 = 27 条边，平均每站 2 条线索。线从卡片下层穿过；按带读图——上读、中学、下用。",
+     "en": "Illustrative: 20 main-line edges + 7 yellow dashed bridges = 27 edges, ~2 cues per station. Lines pass beneath the cards; read by band — read on top, learn in the middle, serve at the bottom."
+    },
+    "coverHook": {
+     "zh": "两周前 14 站 13 边，今天 27 站 27 边——一杯咖啡 9 分钟走完全图，卡住的边就是要回炉的那天。",
+     "en": "Two weeks ago: 14 stations, 13 edges; today 27 and 27. Nine minutes, one coffee — every edge you stall on is the day to re-drill."
+    }
+   }
   }
  ]
 }

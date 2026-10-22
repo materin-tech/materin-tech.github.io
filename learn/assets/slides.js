@@ -744,7 +744,9 @@
       v.appendChild(mini);
       requestAnimationFrame(function () { layoutMini(); });
       window.addEventListener('resize', layoutMini);
-      v.appendChild(el('div', 'materin-learn-viz__label', '三线一图：14 站 13 边，黄虚线是跨线桥（读 · 学 · 用）'));
+      v.appendChild(el('div', 'materin-learn-viz__label', day.anim.nodes.length > 20
+        ? '三线一图：' + day.anim.nodes.length + ' 站 ' + day.anim.edges.length + ' 边，黄虚线是跨线桥（读 · 学 · 用）'
+        : '三线一图：14 站 13 边，黄虚线是跨线桥（读 · 学 · 用）'));
     } else if (day.anim && day.anim.tpl === 'moe') {
       if (idx === 0) {
         /* 机制页：逐 token 路由示意——当前词点走不同专家组合（确定性映射） */

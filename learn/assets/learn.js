@@ -975,7 +975,9 @@
         /* 主线边按顺序接力点亮；桥在主线走完后亮 */
         line.__start = bridge ? 0.8 + lineEdges.length * 0.35 + bridgeEdges.indexOf(e) * 0.7
                               : 1.2 + i * 0.35;
-        field.appendChild(line);
+        /* 线画在站点卡片下层（字段首个子元素插到 band 之后），避免压住站名 */
+        var firstCard = field.querySelector('.materin-learn-atlas__node');
+        if (firstCard) field.insertBefore(line, firstCard); else field.appendChild(line);
         return line;
       });
 
@@ -997,7 +999,8 @@
       window.addEventListener('resize', layout);
 
       var t0 = null;
-      var CYCLE = 11;
+      /* 循环长度随边数伸缩（D28 为 27 条边，11s 固定值走不完一圈） */
+      var CYCLE = Math.max(11, 1.2 + lineEdges.length * 0.35 + bridgeEdges.length * 0.7 + 2.5);
       function step(ts) {
         if (t0 == null) t0 = ts;
         var tNow = ((ts - t0) / 1000) % CYCLE;
