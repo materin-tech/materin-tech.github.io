@@ -5370,6 +5370,175 @@
      "en": "Two weeks ago: 14 stations, 13 edges; today 27 and 27. Nine minutes, one coffee — every edge you stall on is the day to re-drill."
     }
    }
+  },
+  {
+   "n": 29,
+   "stage": 2,
+   "week": 5,
+   "tpl": "counter",
+   "date": "2026-10-23",
+   "title": {
+    "zh": "提示工程：把提示写成程序",
+    "en": "Prompting: write the prompt like a program"
+   },
+   "subtitle": {
+    "zh": "阶段二第一课。提示工程不是把话说得客气，而是给一台只会续写的机器写程序：指令、示例、格式约束是它的三种语句，注意力是解释器。同一道题，写法差几行，正确率差几十个点。",
+    "en": "Stage 2, lesson one. Prompting is not phrasing politely — it is writing a program for a machine that only continues text: instructions, examples, and format constraints are its three statement kinds; attention is the interpreter. A few lines of phrasing swing accuracy by tens of points."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：提示拼进序列，注意力决定一切",
+      "en": "Mechanism: the prompt enters the sequence, attention does the rest"
+     },
+     "p": {
+      "zh": "先把一个最容易被忽视的事实钉死：你的提示不会以「弹窗」的形式通知模型，它被原样拼接进输入序列——系统提示、文档、示例、问题，全在同一条 token 流里（第 26 天的 ICL 讲过这条管道）。模型处理它时只做一件事：每个位置的注意力头回看全序列、打分、决定从谁那里借多少信息（第 6 天）。所以「提示写得好」的机制含义非常具体：你安排 token 的顺序和结构，就是在安排注意力被打向哪里。指令放在开头还是结尾、示例和问题隔多远、格式标记是否清晰，都在物理上改变注意力权重的分布——没有任何玄学。",
+      "en": "Pin down the most overlooked fact first: your prompt does not notify the model like a popup; it is concatenated verbatim into the input sequence — system prompt, documents, examples, question, all in one token stream (day 26's ICL covered this pipe). Processing it, the model does exactly one thing: at every position, attention heads look back over the whole sequence, score it, and decide whom to borrow from (day 6). So \"a well-written prompt\" means something mechanically concrete: by arranging the order and structure of tokens you arrange where attention lands. Whether instructions sit at the start or the end, how far examples sit from the question, whether format markers are crisp — each physically changes the attention-weight distribution. No mysticism involved."
+     },
+     "deep": {
+      "zh": "为什么提示值得被当成「程序」？对照一下：变量 = 窗口里的内容槽位（指令、材料、示例、问题各占一段）；控制流 = 指令的顺序与优先级（模型对最近的、结构最清晰的指令服从度最高）；输出格式 = 函数签名（约束得越明确，下游代码越好接）。而这套「程序」的解释器就是预训练出来的那台续写机器——它执行的不是你脑子里的意图，是窗口里 token 的统计模式。程序员几十年的老教训在这里原样重演：意图不写下来就等于不存在，写得不精确就按不精确的执行。",
+      "en": "Why treat prompts as programs? Compare: variables = content slots in the window (instruction, material, examples, question each occupy a segment); control flow = the order and priority of instructions (the model obeys the nearest, most crisply structured instruction best); output format = the function signature (the tighter the constraint, the easier downstream code). The interpreter for this \"program\" is the continuation machine pretraining built — it executes not your intent but the statistical pattern of tokens in the window. Programmers' oldest lesson replays verbatim: intent never written down does not exist, and what is written imprecisely gets executed imprecisely."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：四种写法，62 分差距",
+      "en": "The math: four phrasings, a 62-point gap"
+     },
+     "p": {
+      "zh": "提示工程的效应量有多大？拿一道需要推理的小学数学题（GSM8K 类型）在同一台模型上测四种写法：① 直问「答案是什么」——模型直接吐数字，约 18 分；② 加一句「请一步步想」—— CoT 零示例，约 42 分；③ 给 8 条带推理步骤的示例（第 26 天 PaLM 的账）——58.1 分；④ ③ 的基础上再要求「把最终答案单独放在一行『答案是 X』里」——解析成功率从约 85% 升到接近 100%，按解析后判分再多拿 2～3 分。从 18 到 80+，模型、参数、温度全部没动，动的只是窗口里的 token 排布。这就是「提示是程序」的定量含义：写法本身就是变量。",
+      "en": "How large is the effect? Take one GSM8K-style reasoning problem on the same model, four phrasings: (1) ask \"what's the answer\" — a bare number comes out, ~18 points; (2) add \"think step by step\" — zero-shot CoT, ~42; (3) provide 8 worked examples with reasoning (day 26's PaLM ledger) — 58.1; (4) on top of (3), require \"put the final answer on its own line as '答案是 X'\" — parse success climbs from ~85% to nearly 100%, adding 2–3 points under parsed scoring. From 18 to 80+: same model, same parameters, same temperature — only the token layout in the window moved. That is the quantitative meaning of \"prompt as program\": the phrasing itself is a variable."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "把账算到钱上。客服机器人系统提示 800 token，每天 5000 次调用，按 $1/百万输入 token：提示成本 = 800 × 5000 = 400 万 token/天 = $4/天 = $120/月——只是系统提示一项。如果为了「更周到」把系统提示写到 3000 token，同样流量下每月 $450，多付的 $330 买的是模型每次都要重读的那 2200 个 token（若服务商支持前缀缓存且提示固定不变，第 14 天的折扣能砍掉大半——所以固定的放最前、变化的放最后，既是排版规则也是成本规则）。",
+       "en": "Now price it. A support bot's system prompt is 800 tokens; 5,000 calls a day at $1/M input tokens: 800 × 5,000 = 4M tokens/day = $4/day = $120/month — the system prompt alone. Pad the prompt to 3,000 tokens \"for thoroughness\" and the same traffic costs $450/month; the extra $330 buys the model rereading 2,200 tokens every call (with prefix caching and an unchanged prompt, day 14's discount cuts most of it — fixed parts first, variable parts last is a cost rule as much as a layout rule)."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：礼貌没用，清醒才行——以及「提示词万能」的反面",
+      "en": "Misconception: politeness is free but worthless; and the opposite error of prompt omnipotence"
+     },
+     "p": {
+      "zh": "两个方向都要拆。其一：「对模型客气点，回答会更好」——实验反复显示「请」「谢谢」与准确率的相关性在噪声范围内，给小费的故事更是都市传说。礼貌不扣分也不加分：真正起作用的是结构——清晰的任务定义、明确的输出格式、恰当的示例。其二（更隐蔽的反向误区）：「只要提示词写得足够神，模型什么都能做」——提示工程的天花板是模型能力本身：窗口里没有的知识它变不出来（第 9 天），参数里没有的推理深度它演不出来。提示工程是把模型已有的能力「稳定地取出来」，不是「无中生有」。能力不够时，该上 RAG 上 RAG（第 85 天）、该微调微调（第 10 天）——提示是第一种工具，不是唯一的工具。",
+      "en": "Break both directions. First: \"be polite and answers improve\" — experiments repeatedly show \"please\" and \"thank you\" correlate with accuracy within noise, and the tipping story is urban legend. Politeness costs nothing and buys nothing; what works is structure — a crisp task definition, explicit output format, well-chosen examples. Second (the subtler, opposite error): \"with a divine enough prompt, the model can do anything\" — the ceiling of prompting is the model itself: knowledge absent from the window cannot be conjured (day 9), and reasoning depth absent from the parameters cannot be acted out. Prompting reliably extracts what the model already has; it does not create from nothing. When capability falls short, reach for RAG (day 85) or fine-tuning (day 10) — prompting is the first tool, not the only one."
+     },
+     "misconception": {
+      "h": {
+       "zh": "常见误区",
+       "en": "Common misconception"
+      },
+      "p": {
+       "zh": "「好的提示词可以一劳永逸」。提示依赖模型：换一个基座、升一次版本，同一份提示的性能会漂移——指令遵循的强度、对格式的敏感度都是那个模型的属性。所以生产系统里的提示要像代码一样管理：版本化、有回归测试集（第 23 天的评测方法直接复用）、改动走评审。一个可靠的信号：当你的提示超过一两百行、出现条件分支式的「如果用户问 X 则……」，你已经在用自然语言写软件了——那就该用软件工程的方法对待它。",
+       "en": "\"A good prompt is written once and works forever.\" Prompts are model-dependent: switch base models or bump a version and the same prompt drifts — instruction-following strength and format sensitivity are properties of that model. So production prompts must be managed like code: versioned, backed by a regression test set (day 23's eval methods apply directly), changes reviewed. A telltale sign: when your prompt passes a hundred lines and grows conditional branches (\"if the user asks X, then…\"), you are already writing software in natural language — treat it with software engineering."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：阶段二的地图——从一句话到一套工程",
+      "en": "Where this leads: stage 2's map, from a sentence to a discipline"
+     },
+     "p": {
+      "zh": "今天立了总纲：提示是程序。接下来的 20 天把这个程序拆成零件逐个打磨：第 30 天讲指令设计（任务描述怎么写才不带歧义）；第 31–32 天把 few-shot 的挑选、排序、格式做成方法论（第 26 天留下的三个性质全部落地成规范）；中间讲结构化输出、角色与系统提示、上下文排布与压缩（第 4 天的窗口预算在这里变成一门手艺）；第 43 天前后的思维工程会回到第 19 天的推理模型——「让模型多想」正在从提示技巧变成产品参数。终点在第 49 天：把所有零件装配成一个可维护的提示系统。今天带走一句话——",
+      "en": "Today set the thesis: a prompt is a program. The next 20 days machine its parts one by one: day 30, instruction design (writing task descriptions without ambiguity); days 31–32, few-shot methodology — picking, ordering, formatting (day 26's three properties become craft rules); then structured output, roles and system prompts, context layout and compression (day 4's window budget becomes a craft); around day 43, thinking engineering returns to day 19's reasoning models — \"let the model think\" is turning from a prompting trick into a product parameter. The destination on day 49: assembling the parts into a maintainable prompt system. One sentence for today —"
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "挑一道你最近想让模型做的事（比如「把这周日程整理成表格」），用四种写法各跑 3 次并记录结果：① 一句话直问；② 直问 + 「一步步想」；③ 直问 + 明确输出格式（「只输出 Markdown 表格，列：日期/事项/时长」）；④ ③ + 一个手写的示例输出。然后回答：④ 相比 ③ 的提升，是「模型变聪明了」还是「输出的形状被钉住了」？（提示：对比三次输出的格式一致性和内容正确率哪个变化更大——格式是提示最容易稳定拿到的收益。）",
+     "en": "Pick a task you actually want done (say, \"organize this week's schedule into a table\") and run four phrasings 3 times each, recording results: (1) one-line direct ask; (2) ask + \"think step by step\"; (3) ask + explicit output format (\"output only a Markdown table, columns: date/item/duration\"); (4) (3) + one handwritten example output. Then answer: is the gain from (4) over (3) \"the model got smarter\" or \"the output's shape got pinned\"? (Hint: compare which moved more across the three runs — format consistency or content accuracy; format is the easiest win prompting reliably delivers.)"
+    }
+   },
+   "takeaway": {
+    "zh": "提示是程序不是提问：窗口里的每个 token 都是代码，指令、示例、格式是三种语句，注意力是解释器——同一道题换四种写法能差 62 分；但它的天花板是模型能力本身，礼貌买不到分数，结构才买得到。",
+    "en": "A prompt is a program, not a question: every token in the window is code — instructions, examples, and format are its three statement kinds, attention is the interpreter — and four phrasings of one problem span 62 points; but the ceiling is the model itself: politeness buys nothing, structure does."
+   },
+   "anim": {
+    "tpl": "counter",
+    "hook": {
+     "zh": "同一道题，四种问法，三种命运。",
+     "en": "One problem, four phrasings, three fates."
+    },
+    "sentence": {
+     "zh": "把这道题的答案直接告诉我。",
+     "en": "Tell me the answer to this problem directly."
+    },
+    "tokensZh": [
+     "把",
+     "这道",
+     "题",
+     "的",
+     "答案",
+     "直接",
+     "告诉",
+     "我",
+     "。"
+    ],
+    "tokensEn": [
+     "Tell",
+     " me",
+     " the",
+     " answer",
+     " to",
+     " this",
+     " problem",
+     " direct",
+     "ly",
+     "."
+    ],
+    "counts": {
+     "zh": 9,
+     "en": 10,
+     "chars": 13
+    },
+    "note": {
+     "zh": "示意：你的提示被 BPE 切成普通 token，原样拼进输入序列——它不是弹窗，是程序源码。切法决定计费，排布决定注意力。",
+     "en": "Illustrative: your prompt is BPE-chopped into ordinary tokens and spliced into the input sequence — not a popup but source code. The cut sets the bill; the layout steers attention."
+    },
+    "coverHook": {
+     "zh": "同一道数学题：直问 18 分，加 8 个示例 58 分，再加格式约束 80+ 分——模型没换，换的是提示。",
+     "en": "Same math problem: 18 points asked cold, 58 with 8 examples, 80+ with format constraints — same model, different prompt."
+    },
+    "ledger": [
+     {
+      "tag": "① 直问：答案是什么",
+      "val": 18,
+      "cls": "",
+      "txt": "直接吐数字 · 18 分"
+     },
+     {
+      "tag": "② 加「一步步想」",
+      "val": 47,
+      "cls": "",
+      "txt": "零示例 CoT · 42 分"
+     },
+     {
+      "tag": "③ 8 条推理示例",
+      "val": 65,
+      "cls": "",
+      "txt": "few-shot CoT · 58 分"
+     },
+     {
+      "tag": "④ ③ + 格式约束",
+      "val": 92,
+      "cls": " materin-learn-viz__bar--en",
+      "txt": "解析成功率≈100% · 80+ 分"
+     }
+    ],
+    "ledgerLabel": "同一道题、同一台模型：写法本身就是变量（第 26 天同组数字）"
+   }
   }
  ]
 }

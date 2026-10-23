@@ -113,13 +113,29 @@
         var src = el('div', 'materin-learn-viz__label', '原句：' + t(day.anim.sentence));
         v.appendChild(src);
         var chips = el('div', 'materin-learn-viz__chips');
-        var merged = { '看清': 1, '说清': 1 };
         day.anim.tokensZh.forEach(function (tok) {
-          var cls = 'materin-learn-viz__chip' + (merged[tok] ? ' materin-learn-viz__chip--merged' : '');
-          chips.appendChild(el('span', cls, tok));
+          chips.appendChild(el('span', 'materin-learn-viz__chip', tok));
         });
         v.appendChild(chips);
-        v.appendChild(el('div', 'materin-learn-viz__label', '模型眼里的同一段话：10 个 token'));
+        v.appendChild(el('div', 'materin-learn-viz__label',
+          '切完：' + day.anim.counts.zh + ' 个 token——提示不是弹窗，是程序源码'));
+      } else if (day.anim.ledger) {
+        /* 数据带 ledger 时画效应量条形（如 D29 的四种写法分差） */
+        var bars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        var maxV = Math.max.apply(null, day.anim.ledger.map(function (r) { return r.val; }));
+        day.anim.ledger.forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row materin-learn-viz__bar-row--wide');
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + (r.cls || ''));
+          bar.style.width = Math.max(2, r.val / maxV * 100) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          bars.appendChild(row);
+        });
+        v.appendChild(bars);
+        v.appendChild(el('div', 'materin-learn-viz__label', day.anim.ledgerLabel || ''));
       } else {
         var bars = el('div', 'materin-learn-viz__bars');
         var rows = [
