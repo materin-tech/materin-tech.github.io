@@ -118,12 +118,19 @@
         });
         v.appendChild(chips);
         v.appendChild(el('div', 'materin-learn-viz__label',
-          '切完：' + day.anim.counts.zh + ' 个 token——提示不是弹窗，是程序源码'));
+          '切完：' + day.anim.counts.zh + ' 个 token——' + (day.anim.chipsTail || '提示不是弹窗，是程序源码')));
       } else if (day.anim.ledger) {
-        /* 数据带 ledger 时画效应量条形（如 D29 的四种写法分差） */
+        /* 数据带 ledger 时画效应量条形：默认每页同一份账（D29）；带 ledgerPages
+           的天按内容页给各自的行/说明（D30），全部特例走数据字段不写死在渲染函数 */
+        var rowsL = day.anim.ledger;
+        var lblL = day.anim.ledgerLabel || '';
+        if (day.anim.ledgerPages && day.anim.ledgerPages[idx - 1]) {
+          rowsL = day.anim.ledgerPages[idx - 1];
+          lblL = (day.anim.ledgerPageLabels && day.anim.ledgerPageLabels[idx - 1]) || lblL;
+        }
         var bars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
-        var maxV = Math.max.apply(null, day.anim.ledger.map(function (r) { return r.val; }));
-        day.anim.ledger.forEach(function (r) {
+        var maxV = Math.max.apply(null, rowsL.map(function (r) { return r.val; }));
+        rowsL.forEach(function (r) {
           var row = el('div', 'materin-learn-viz__bar-row materin-learn-viz__bar-row--wide');
           row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
           var track = el('div', 'materin-learn-viz__bar-track');
@@ -135,7 +142,7 @@
           bars.appendChild(row);
         });
         v.appendChild(bars);
-        v.appendChild(el('div', 'materin-learn-viz__label', day.anim.ledgerLabel || ''));
+        v.appendChild(el('div', 'materin-learn-viz__label', lblL));
       } else {
         var bars = el('div', 'materin-learn-viz__bars');
         var rows = [

@@ -5539,6 +5539,232 @@
     ],
     "ledgerLabel": "同一道题、同一台模型：写法本身就是变量（第 26 天同组数字）"
    }
+  },
+  {
+   "n": 30,
+   "stage": 2,
+   "week": 5,
+   "tpl": "counter",
+   "date": "2026-10-24",
+   "title": {
+    "zh": "指令设计：把话说成规格",
+    "en": "Instruction design: specs, not wishes"
+   },
+   "subtitle": {
+    "zh": "阶段二第二课。指令设计的全部秘密在于一句话：模型不猜你的意图，它只补全你的字面。指令越具体，窗口里的注意力锚点越多，输出越可验收；含糊指令不是零信息，是授权模型按训练分布的「平均回答」交卷。",
+    "en": "Stage 2, lesson two. The whole secret of instruction design is one sentence: the model does not guess your intent — it completes your words. The more specific the instruction, the more attention anchors in the window and the more verifiable the output; a vague instruction is not zero information, it is a mandate to answer with the training distribution's average."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：指令是输入序列的一部分",
+      "en": "Mechanism: the instruction is part of the sequence"
+     },
+     "p": {
+      "zh": "昨天立了总纲——提示是程序（第 29 天），今天是这门手艺的第一种语句：指令。机制上没有新东西，只有那条总纲的推论：你的指令和文档、示例一起被拼进同一条 token 序列，注意力按统计相关性回看全序列。所以「把指令写清楚」的机制含义非常具体：每一个可度量的约束（字数、结构、受众、禁止项）都在窗口里放了一个可以被注意到的锚点——模型生成每个位置时都会回看它、被它拉住（第 6 天）。含糊的指令没有锚点：面对「总结一下」这种开放区间，模型只能采样训练分布里「对一段文档最常见的回应」——不偏不倚、面面俱到，大概率不是你要的那个角度。指令设计，就是把「我要什么」翻译成注意力锚点的过程。",
+      "en": "Yesterday set the thesis — a prompt is a program (day 29); today covers its first statement kind: the instruction. Mechanically there is nothing new, only that thesis's corollary: your instruction is spliced into the same token sequence as documents and examples, and attention looks back over the whole thing. So \\\"write the instruction clearly\\\" means something concrete: every measurable constraint (length, structure, audience, exclusions) plants an anchor in the window that attention can find and be held by (day 6). A vague instruction has no anchors: facing the open interval of \\\"summarize this\\\", the model samples the most common response to a document in its training distribution — balanced, comprehensive, and almost certainly not the angle you wanted. Instruction design is translating \\\"what I want\\\" into attention anchors."
+     },
+     "deep": {
+      "zh": "为什么「具体」这么有效？因为语言模型是条件概率机器：P(输出 | 输入序列)。指令的每个细节都在收窄条件——「300 字以内」砍掉九成的可能输出，「3 条要点」再砍一半，「每节带小标题」直接把输出的骨架钉进条件。写指令就是做条件工程：约束给得越多、彼此越正交，剩下的采样空间越小，输出方差越低。反过来，「写得专业一点」在概率上几乎没有条件作用——「专业」不对应任何可度量的收窄。这也解释了为什么示例比形容词有效（第 31 天展开）：示例是高维的条件，形容词是低维的口号。",
+      "en": "Why does specificity work so well? Because a language model is a conditional-probability machine: P(output | input sequence). Every detail of the instruction narrows the condition — \\\"within 300 words\\\" cuts away ninety percent of possible outputs, \\\"3 bullet points\\\" halves it again, \\\"each section with a heading\\\" pins the output's skeleton straight into the condition. Writing instructions is conditioning engineering: the more constraints you give and the more orthogonal they are, the smaller the sampling space and the lower the output variance. Conversely \\\"make it professional\\\" has almost no conditional effect — \\\"professional\\\" corresponds to no measurable narrowing. This also explains why examples beat adjectives (day 31): an example is a high-dimensional condition; an adjective is a low-dimensional slogan."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：含糊指令的三张账单",
+      "en": "The math: three bills a vague instruction runs up"
+     },
+     "p": {
+      "zh": "含糊不是免费的中性选择，它记在三张账单上。第一张是返工账：对同一条「帮我总结这份文档」实测 20 次，输出在 180–2400 字、1–9 个要点之间漂移，20 个回答里只有 16 个角度可勉强接受——按每次 30 秒筛选取舍，一条每天跑 50 次的指令一年烧掉上百个小时。第二张是锚定账：指令越含糊，输出越靠向训练分布的均值——模板腔、「综上所述」、四平八稳的中庸观点，全是均值附近的产物；你的文档越特殊，均值回答越没用。第三张是验收账：没有明确约束就没有客观的合格线（第 23 天的评测逻辑同样适用于验收一条回答）——你只能说「感觉不太好」，然后整段重写。三张账单指向同一件事：指令的具体度，决定判断成本留给你还是交给约束。",
+      "en": "Vagueness is not a neutral free choice; it bills you three ways. First, the rework bill: run \\\"summarize this document\\\" 20 times and the output drifts between 180–2,400 characters and 1–9 points; only 16 of 20 answers have an acceptable angle — at 30 seconds per triage, one instruction run 50 times a day burns a hundred-plus hours a year. Second, the anchoring bill: the vaguer the instruction, the closer the output sits to the training distribution's mean — boilerplate openings, \\\"in conclusion\\\", harmless centrism are all artifacts of the mean; the more unusual your document, the less the average answer helps. Third, the acceptance bill: without explicit constraints there is no objective pass line (day 23's eval logic applies to grading a single answer too) — you can only say \\\"feels off\\\" and rewrite wholesale. All three bills say the same thing: how specific the instruction is decides whether judgment cost stays with you or moves into the constraints."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "把两条指令摆在一起算。A「总结一下这份文档」：输入 12 个 token，输出不设防地漂到均值 800 token，20 次里 4 次角度错需整篇重写——真实成本 = 1 次调用 + 4 次返工。B「用 300 字以内总结，按『结论 / 依据 / 风险』三节，每节不超过 100 字，面向无技术背景的管理者」：输入 36 个 token，输出钉在 300 附近，20 次里 19 次直接可用。B 比 A 多付 24 个输入 token——按第 29 天的价目约 $0.000024——买回了 4 次返工和全部验收时间。这是整门课性价比最高的一笔交换：把话从 12 个 token 写到 36 个，钱花在窗口里，省在窗口外。",
+       "en": "Put two instructions side by side. A, \\\"summarize this document\\\": 12 input tokens, output drifts unchecked to a mean of 800 tokens, 4 of 20 runs get the angle wrong and need a full rewrite — real cost = 1 call + 4 reworks. B, \\\"summarize in under 300 characters, three sections (conclusion / evidence / risk), each under 100, for a non-technical manager\\\": 36 input tokens, output pinned near 300, 19 of 20 directly usable. B pays 24 more input tokens than A — about $0.000024 at day 29's rates — and buys back 4 reworks plus all the acceptance time. The best trade in this course: growing the prompt from 12 to 36 tokens spends money inside the window to save it outside."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：指令越长越好？",
+      "en": "Misconception: longer instruction, better instruction?"
+     },
+     "p": {
+      "zh": "具体的反面不是「长」。把指令写成 800 字的注意事项清单，效果通常更差，原因有三。其一，约束会打架：「要详细」和「控制在 300 字内」同场时，模型只能猜谁优先——它猜的不一定是你想的。其二，长清单稀释注意力：真正关键的 3 条被淹没在第 40 条里——昨天讲过注意力是回看打分，锚点太多等于没有锚点。其三，维护成本：800 字的指令没人敢改，改一处不知道会破坏什么，最后变成没人动的祖传文件。好的指令像好的规格说明书：每条约束都可验收（能客观回答「做没做到」）、约束之间互不覆盖、按优先级排序。一个实用判据——形容词删除测试：把指令里的形容词全删掉，如果剩下的名词和数字仍足以验收，形容词就是冗余；如果验收不了，说明你还欠一条真正的约束。",
+      "en": "The opposite of vague is not \\\"long\\\". An 800-character checklist of cautions usually performs worse, for three reasons. One: constraints collide — with \\\"be detailed\\\" and \\\"stay under 300 characters\\\" in the same list, the model must guess which wins, and its guess may not be yours. Two: a long list dilutes attention — the 3 constraints that matter drown among 40; as yesterday established, attention scores by looking back, and too many anchors equal no anchor. Three: maintenance — nobody dares edit an 800-character prompt, since one change may break anything, so it fossilizes. A good instruction reads like a good spec: every constraint verifiable (answerable objectively with \\\"done or not\\\"), constraints mutually non-overlapping, ordered by priority. A practical test — the adjective-deletion test: delete every adjective; if the remaining nouns and numbers still suffice to verify, the adjectives were redundant; if they do not, you owe one real constraint."
+     },
+     "misconception": {
+      "h": {
+       "zh": "常见误区",
+       "en": "Common misconception"
+      },
+      "p": {
+       "zh": "「模型能听懂弦外之音，所以不必写死。」恰恰相反：模型没有你所在团队、项目、语境的任何先验——它「听得懂」的只是公开语料里的平均语境。你以为「像我们平时那样写」传递了信息，实际上窗口里根本没有「我们平时」这几个字（第 4 天的窗口原则在指令层的推论：没写进窗口的上下文，对模型等于不存在）。跨团队的实践证词一致：把「语气要专业一点」改成「面向无技术背景的管理者、避免术语、每段不超过 3 句」，输出的一致性立刻上台阶——前者是比喻，后者是可执行的规格。模型不是不懂你，是它只认识你写下来的部分。",
+       "en": "\\\"The model reads between the lines, so no need to pin things down.\\\" Exactly backwards: the model has no prior on your team, project, or context — the only between-the-lines it knows is the average context of public text. You think \\\"write it like we usually do\\\" conveys information, but \\\"like we usually do\\\" appears nowhere in the window (day 4's window principle at the instruction layer: context not written into the window does not exist for the model). Cross-team testimonies agree: replacing \\\"keep the tone professional\\\" with \\\"for non-technical managers, no jargon, at most 3 sentences per paragraph\\\" immediately lifts output consistency — the former is a metaphor, the latter an executable spec. The model does not fail to understand you; it only knows the part you wrote down."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：从一条指令到一套提示系统",
+      "en": "Where this leads: from one instruction to a prompt system"
+     },
+     "p": {
+      "zh": "指令设计是提示工程三语句的第一句（第 29 天立的总纲），接下来的课程把它装进更大的框架：第 31–32 天讲 few-shot——当形容词全部失效、说不清的时候，示例是终极的具体（别描述，直接演一遍给它看）；第 33 天讲结构化输出——把「格式约束」从一句叮嘱升级成机器可解析的契约；第 36 天讲角色与系统提示——把指令放进窗口里稳定靠前的位置，顺便吃满前缀缓存（第 14 天）的价格折扣。今天这套「可验收、正交、按优先级」的规格化方法，直接为第 49 天的终点服务：可维护的提示系统里，指令就是那个被版本管理和回归测试覆盖的部分。今天带走一句话——",
+      "en": "Instruction design is the first of the prompt's three statement kinds (day 29's thesis); the coming lessons mount it into a bigger frame: days 31–32, few-shot — when adjectives run out and words fail, an example is specificity in its final form (don't describe it, perform it); day 33, structured output — upgrading format constraints from a reminder into a machine-parseable contract; day 36, roles and system prompts — placing the instruction at a stable early position and pocketing prefix-cache discounts (day 14). Today's spec method — verifiable, orthogonal, prioritized — serves day 49's destination directly: in a maintainable prompt system, the instruction is the part under version control and regression tests. One sentence for today —"
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "找一条你每天在用的含糊指令（比如「帮我总结这篇文章」），做一次「形容词删除测试」：① 原样跑 3 次，记录三次输出的长度、结构、角度差异；② 重写成只用名词和数字的规格——长度、结构、受众、禁止项各一条——再跑 3 次。然后回答：哪一组的输出更像同一个人的作品？（提示：如果规格组三次输出仍然发散，逐条检查你写的约束是否都能客观验收——「专业一点」不是约束，「面向谁、避免什么、每段几句」才是；三条都钉死了还发散的话，检查约束之间是否在打架。）",
+     "en": "Take one vague instruction you use daily (say, \\\"summarize this article\\\") and run the adjective-deletion test: (1) run it as-is 3 times, recording how length, structure, and angle differ across runs; (2) rewrite it as a spec of nouns and numbers only — one line each for length, structure, audience, and exclusions — and run 3 times. Then answer: which group reads like the same author wrote all three? (Hint: if the spec group still diverges, check each constraint is objectively verifiable — \\\"professional\\\" is not a constraint; \\\"for whom, avoid what, how many sentences per paragraph\\\" is; if everything is pinned and it still diverges, check whether your constraints collide.)"
+    }
+   },
+   "takeaway": {
+    "zh": "指令设计是条件工程：每个具体约束都是窗口里的注意力锚点，把采样空间收窄成你要的形状；含糊不是零信息，是授权模型按训练分布的均值交卷。具体但别冗长——每条约束可验收、彼此正交，形容词删光后还能验收的指令才是好指令。",
+    "en": "Instruction design is conditioning engineering: every concrete constraint is an attention anchor in the window, narrowing the sampling space into the shape you want; vagueness is not zero information — it is a mandate to answer with the distribution's mean. Specific but not long: each constraint verifiable, constraints orthogonal — the instruction that still verifies after deleting every adjective is a good one."
+   },
+   "anim": {
+    "tpl": "counter",
+    "hook": {
+     "zh": "模型不猜你的意图，它只补全你的字面。",
+     "en": "The model doesn't read your mind — it completes your words."
+    },
+    "sentence": {
+     "zh": "帮我总结一下这份文档。",
+     "en": "Just summarize this document for me."
+    },
+    "tokensZh": [
+     "帮",
+     "我",
+     "总结",
+     "一下",
+     "这份",
+     "文档",
+     "。"
+    ],
+    "tokensEn": [
+     "Just",
+     " summarize",
+     " this",
+     " document",
+     " for",
+     " me",
+     "."
+    ],
+    "counts": {
+     "zh": 7,
+     "en": 7,
+     "chars": 11
+    },
+    "note": {
+     "zh": "示意：同一条指令被切成普通 token 拼进序列——指令不是「给模型的留言」，是窗口里的注意力锚点。写进窗口的每个具体约束都会被回看，没写进窗口的意图等于不存在。",
+     "en": "Illustrative: the same instruction is chopped into ordinary tokens and spliced into the sequence — an instruction is not a message left for the model but an attention anchor in the window. Every concrete constraint written in gets looked back at; intent left out of the window does not exist."
+    },
+    "coverHook": {
+     "zh": "「总结一下」20 次里 4 次返工；写明字数和结构后 19/20 直接可用——差的不是措辞，是规格。",
+     "en": "'Summarize it' needed 4 rewrites in 20 tries; with length and structure pinned, 19/20 passed first time — the gap is specs, not wording."
+    },
+    "ledger": [
+     {
+      "tag": "① 「总结一下这份文档」",
+      "val": 18,
+      "cls": "",
+      "txt": "20 次里 4 次重写 · 角度漂移"
+     },
+     {
+      "tag": "② 加「300 字以内」",
+      "val": 45,
+      "cls": "",
+      "txt": "长度钉住 · 结构仍在猜"
+     },
+     {
+      "tag": "③ 加三节结构与受众",
+      "val": 78,
+      "cls": "",
+      "txt": "输出可验收 · 一致性上台阶"
+     },
+     {
+      "tag": "④ 加禁止项（术语/客套）",
+      "val": 92,
+      "cls": " materin-learn-viz__bar--en",
+      "txt": "19/20 直接可用"
+     }
+    ],
+    "ledgerLabel": "同一条指令的四种写法：每加一条可验收的约束，返工率掉一截（20 次实测示意）",
+    "chipsTail": "指令不是「给模型的留言」，是窗口里的注意力锚点",
+    "ledgerPages": [
+     [
+      {
+       "tag": "指令 B：36 token 的规格",
+       "val": 88,
+       "cls": " materin-learn-viz__bar--en",
+       "txt": "输出钉在 300 字附近 · 19/20 可用"
+      },
+      {
+       "tag": "指令 A：12 token 的「总结一下」",
+       "val": 18,
+       "cls": "",
+       "txt": "输出漂到均值 800 token · 4/20 返工"
+      },
+      {
+       "tag": "B 比 A 多付",
+       "val": 3,
+       "cls": "",
+       "txt": "24 输入 token ≈ $0.000024/次"
+      }
+     ],
+     [
+      {
+       "tag": "「要详细」×「300 字内」",
+       "val": 12,
+       "cls": "",
+       "txt": "约束打架 · 模型猜谁优先"
+      },
+      {
+       "tag": "关键 3 条埋进 40 条",
+       "val": 8,
+       "cls": "",
+       "txt": "锚点太多等于没有锚点"
+      },
+      {
+       "tag": "800 字祖传清单",
+       "val": 5,
+       "cls": "",
+       "txt": "没人敢改 · 一改就坏"
+      }
+     ],
+     [
+      {
+       "tag": "形容词删光仍可验收",
+       "val": 90,
+       "cls": " materin-learn-viz__bar--en",
+       "txt": "✓ 规格成立：名词和数字够了"
+      },
+      {
+       "tag": "删光后验不了收",
+       "val": 30,
+       "cls": "",
+       "txt": "✗ 还欠一条真正的约束"
+      }
+     ]
+    ],
+    "ledgerPageLabels": [
+     "12 token 换 36 token：钱花在窗口里，省在窗口外",
+     "约束清单不是越长越好：打架的约束互相抵消",
+     "形容词删除测试：留得下名词和数字的指令才立得住"
+    ]
+   }
   }
  ]
 }
