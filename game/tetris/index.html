@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%231e6fd9'/></svg>" />
+<title>俄罗斯方块 · Tetris</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #07090d;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-user-select: none; user-select: none;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  /* 手机竖屏 9:16 逻辑画布：等比缩放居中（letterbox） */
+  #stage {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    background: #101623;
+  }
+  #stage canvas { display: block; width: 100%; height: 100%; }
+
+  .hud { position: absolute; inset: 0; pointer-events: none; color: #fff; }
+  .hud-top {
+    position: absolute; top: 1.8%; left: 4%; right: 4%;
+    display: flex; gap: 1em; align-items: center; justify-content: space-between;
+    font-size: clamp(12px, 3.4vmin, 18px);
+    text-shadow: 0 1px 4px rgba(0,0,0,.6);
+  }
+  .hud-chips { display: flex; gap: .6em; }
+  .hud-chip { background: rgba(0,0,0,.4); border-radius: 999px; padding: .3em .8em; white-space: nowrap; }
+  .hud-chip b { color: #ffd54f; }
+
+  /* 下一块预览 */
+  #next-wrap {
+    background: rgba(0,0,0,.4);
+    border-radius: 10px;
+    padding: .4em .6em .2em;
+    text-align: center;
+    font-size: clamp(9px, 2.4vmin, 13px);
+    color: rgba(255,255,255,.7);
+  }
+  #next-canvas { display: block; margin-top: .1em; }
+
+  /* 移动端控制按钮 */
+  #controls {
+    position: absolute; bottom: 2.2%; left: 0; right: 0;
+    display: flex; justify-content: center; align-items: center;
+    gap: 4.5vmin;
+    pointer-events: auto;
+  }
+  #controls button {
+    width: clamp(46px, 12.5vmin, 72px); height: clamp(46px, 12.5vmin, 72px);
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 50%;
+    font-size: clamp(18px, 5.5vmin, 30px);
+    color: #fff; cursor: pointer;
+    background: rgba(255,255,255,.1);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  }
+  #controls button:active { background: rgba(255,255,255,.3); transform: scale(.94); }
+
+  /* 遮罩层 */
+  .overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1.1em;
+    background: rgba(5, 8, 14, .86);
+    color: #fff; text-align: center;
+    transition: opacity .25s;
+  }
+  .overlay.hidden { opacity: 0; pointer-events: none; }
+  .overlay h1 { font-size: clamp(30px, 10vmin, 56px); letter-spacing: .12em; }
+  .overlay h2 { font-size: clamp(24px, 8vmin, 44px); }
+  .overlay p  { font-size: clamp(12px, 3.6vmin, 18px); color: rgba(255,255,255,.72); line-height: 1.9; padding: 0 8%; }
+  .overlay button {
+    pointer-events: auto;
+    border: none; cursor: pointer;
+    font-size: clamp(15px, 4.6vmin, 24px);
+    padding: .6em 2.4em;
+    border-radius: 999px;
+    color: #fff;
+    background: linear-gradient(180deg, #42a5f5, #1e6fd9);
+    box-shadow: 0 6px 18px rgba(30,111,217,.45);
+  }
+  .overlay button:active { transform: scale(.96); }
+
+  /* 舞台顶部氛围光（纯 CSS，2D 观感） */
+  #stage::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(130% 60% at 50% 0%, rgba(66,165,245,.13), transparent 60%);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="hud">
+    <div class="hud-top">
+      <div class="hud-chips">
+        <span class="hud-chip">分 <b id="hud-score">0</b></span>
+        <span class="hud-chip">级 <b id="hud-level">1</b></span>
+        <span class="hud-chip">行 <b id="hud-lines">0</b></span>
+      </div>
+      <div id="next-wrap">
+        <span>下一块</span>
+        <canvas id="next-canvas" width="72" height="72"></canvas>
+      </div>
+    </div>
+    <div id="controls">
+      <button id="btn-left"  aria-label="左移">◀</button>
+      <button id="btn-rotate" aria-label="旋转">⟳</button>
+      <button id="btn-right" aria-label="右移">▶</button>
+      <button id="btn-soft"  aria-label="加速">▼</button>
+      <button id="btn-hard"  aria-label="落底">⤓</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="screen-start">
+    <h1>俄罗斯方块</h1>
+    <p>手机：点下方按钮操作，长按▼加速<br>电脑：← → 移动，↑ 旋转，↓ 加速，空格落底</p>
+    <button id="btn-start">开始游戏</button>
+  </div>
+
+  <div class="overlay hidden" id="screen-over">
+    <h2>游戏结束</h2>
+    <p id="over-desc">得分 0</p>
+    <button id="btn-retry">再来一局</button>
+  </div>
+
+  <div class="overlay hidden" id="screen-pause">
+    <h2>已暂停</h2>
+    <button id="btn-resume">继续</button>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js" } }
+</script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
