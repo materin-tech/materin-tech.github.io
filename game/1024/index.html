@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%2342a5f5'/></svg>" />
+<title>1024 · 程序员版</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #07090d;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-user-select: none; user-select: none;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", monospace;
+  }
+  #stage {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    background: #101623;
+  }
+  #stage canvas { display: block; width: 100%; height: 100%; }
+
+  .hud { position: absolute; inset: 0; pointer-events: none; color: #fff; }
+  .hud-top {
+    position: absolute; top: 1.8%; left: 4%; right: 4%;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: clamp(12px, 3.4vmin, 18px);
+    text-shadow: 0 1px 4px rgba(0,0,0,.6);
+  }
+  .hud-chips { display: flex; gap: .6em; }
+  .hud-chip { background: rgba(0,0,0,.4); border-radius: 999px; padding: .3em .9em; }
+  .hud-chip b { color: #80deea; }
+  #btn-new {
+    pointer-events: auto;
+    background: rgba(0,0,0,.4); color: #fff;
+    border: none; border-radius: 999px;
+    font-size: clamp(12px, 3.4vmin, 18px);
+    padding: .3em .9em; cursor: pointer;
+  }
+
+  #controls {
+    position: absolute; bottom: 2.2%; left: 0; right: 0;
+    display: flex; justify-content: center; align-items: flex-end;
+    gap: 7vmin;
+    pointer-events: auto;
+  }
+  .dpad {
+    display: grid;
+    grid-template-columns: repeat(3, clamp(46px, 12vmin, 68px));
+    grid-template-rows: repeat(2, clamp(46px, 12vmin, 68px));
+    gap: 1.4vmin;
+  }
+  #controls button {
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 14px;
+    font-size: clamp(16px, 5vmin, 28px);
+    color: #fff; cursor: pointer;
+    background: rgba(255,255,255,.1);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  }
+  #controls button:active { background: rgba(255,255,255,.3); transform: scale(.94); }
+  #btn-up    { grid-column: 2; grid-row: 1; }
+  #btn-left  { grid-column: 1; grid-row: 2; }
+  #btn-down  { grid-column: 2; grid-row: 2; }
+  #btn-right { grid-column: 3; grid-row: 2; }
+  #btn-new-main {
+    width: clamp(46px, 12vmin, 68px); height: clamp(46px, 12vmin, 68px);
+    border-radius: 50% !important;
+  }
+
+  .overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1.1em;
+    background: rgba(5, 8, 14, .86);
+    color: #fff; text-align: center;
+    transition: opacity .25s;
+  }
+  .overlay.hidden { opacity: 0; pointer-events: none; }
+  .overlay h1 { font-size: clamp(28px, 9vmin, 52px); letter-spacing: .06em; }
+  .overlay h2 { font-size: clamp(24px, 8vmin, 44px); }
+  .overlay p  { font-size: clamp(12px, 3.6vmin, 18px); color: rgba(255,255,255,.72); line-height: 1.9; padding: 0 8%; }
+  .overlay button {
+    pointer-events: auto;
+    border: none; cursor: pointer;
+    font-size: clamp(15px, 4.6vmin, 24px);
+    padding: .6em 2.4em;
+    border-radius: 999px;
+    color: #fff;
+    background: linear-gradient(180deg, #4dd0e1, #00838f);
+    box-shadow: 0 6px 18px rgba(0,131,143,.45);
+  }
+  .overlay button:active { transform: scale(.96); }
+  .overlay .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.4);
+    box-shadow: none;
+  }
+
+  #stage::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(130% 60% at 50% 0%, rgba(77,208,225,.12), transparent 60%);
+  }
+</style>
+<script>
+// file:// 直开时 ES Module 会被 CORS 拦截，给出明确指引
+if (location.protocol === "file:") {
+  window.addEventListener("DOMContentLoaded", () => {
+    const tip = document.createElement("div");
+    tip.style.cssText = "position:fixed;left:12px;right:12px;bottom:12px;z-index:999;background:#b71c1c;color:#fff;padding:12px 16px;border-radius:10px;font:13px sans-serif;text-align:center;line-height:1.6";
+    tip.innerHTML = "⚠️ 请勿直接双击打开<br>在项目根目录运行 <b>python3 -m http.server 8080</b><br>然后访问 http://localhost:8080/" + location.pathname.split("/").slice(-2,-1)[0] + "/";
+    document.body.appendChild(tip);
+  });
+}
+</script>
+</head>
+<body>
+<div id="stage">
+  <div class="hud">
+    <div class="hud-top">
+      <div class="hud-chips">
+        <span class="hud-chip">分 <b id="hud-score">0</b></span>
+        <span class="hud-chip">最高 <b id="hud-best">0</b></span>
+      </div>
+      <button id="btn-new">↺ 新游戏</button>
+    </div>
+    <div id="controls">
+      <div class="dpad">
+        <button id="btn-up"    aria-label="上滑">▲</button>
+        <button id="btn-left"  aria-label="左滑">◀</button>
+        <button id="btn-down"  aria-label="下滑">▼</button>
+        <button id="btn-right" aria-label="右滑">▶</button>
+      </div>
+      <button id="btn-new-main" aria-label="新游戏">↺</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="screen-start">
+    <h1>1024 · 程序员版</h1>
+    <p>Bug ➜ 警告 ➜ 异常 ➜ 热修 ➜ 重构 ➜ 评审 ➜ 发布 ➜ <b>上线</b><br>修完所有 Bug，让项目成功上线（合成 1024）！<br>手机：滑动或方向键 · 电脑：方向键</p>
+    <button id="btn-start">开始改 Bug</button>
+  </div>
+
+  <div class="overlay hidden" id="screen-over">
+    <h2>项目烂尾了…</h2>
+    <p id="over-desc">得分 0</p>
+    <button id="btn-retry">重新立项</button>
+  </div>
+
+  <div class="overlay hidden" id="screen-win">
+    <h2>🚀 成功上线！</h2>
+    <p id="win-desc">当前得分 0</p>
+    <button id="btn-continue" class="btn-ghost">继续迭代</button>
+    <button id="btn-win-new">下一个项目</button>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js" } }
+</script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

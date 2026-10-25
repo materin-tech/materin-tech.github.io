@@ -39,6 +39,9 @@
     font-size: 26px;
   }
   .icon.tetris { background: linear-gradient(135deg, #42a5f5, #1e6fd9); }
+  .icon.snake  { background: linear-gradient(135deg, #66bb6a, #2e7d32); }
+  .icon.g2048  { background: linear-gradient(135deg, #ffca28, #f57f17); }
+  .icon.g1024  { background: linear-gradient(135deg, #4dd0e1, #00838f); }
   .card b { font-size: 17px; display: block; }
   .card span { font-size: 13px; color: rgba(255,255,255,.5); }
   .soon {
@@ -56,9 +59,20 @@
   <div class="grid">
     <a class="card" href="./tetris/">
       <div class="icon tetris">🧱</div>
-      <div><b>俄罗斯方块</b><span>经典消行 · 3D 质感 2D 玩法</span></div>
+      <div><b>俄罗斯方块</b><span>经典消行 · 等级加速</span></div>
     </a>
-    <div class="soon">更多小游戏施工中…</div>
+    <a class="card" href="./snake/">
+      <div class="icon snake">🐍</div>
+      <div><b>贪吃蛇</b><span>吃苹果成长 · 越来越快</span></div>
+    </a>
+    <a class="card" href="./2048/">
+      <div class="icon g2048">🔢</div>
+      <div><b>2048</b><span>滑动合并 · 冲击 2048</span></div>
+    </a>
+    <a class="card" href="./1024/">
+      <div class="icon g1024">💻</div>
+      <div><b>1024 程序员版</b><span>修完 Bug · 让项目上线</span></div>
+    </a>
   </div>
   <footer>materin-tech.github.io/game</footer>
 </body>
