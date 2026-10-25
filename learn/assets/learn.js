@@ -557,7 +557,7 @@
       var meterBar = el('div', 'materin-learn-duel__bar');
       var meterNum = el('span', 'materin-learn-duel__num', '50%');
       var meterLabel = el('span', 'materin-learn-duel__meter-label',
-        lang() === 'en' ? 'preference win rate' : '偏好胜率');
+        a.meterLabel ? t(a.meterLabel) : (lang() === 'en' ? 'preference win rate' : '偏好胜率'));
       var note = el('p', 'materin-learn-duel__note', t(a.note));
 
       meterTrack.appendChild(meterBar);

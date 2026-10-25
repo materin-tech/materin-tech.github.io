@@ -1294,6 +1294,52 @@
     "coverHook": {
      "zh": "问「法国的首都」，基座模型反问你「德国的呢」——7.7 万次人类挑选把它改好了。",
      "en": "Ask for France's capital, get asked about Germany's — 77k human picks fixed that."
+    },
+    "duelCoverLabel": {
+     "zh": "同一问题、两个回答——人类挑出更好的那个"
+    },
+    "duelViz": [
+     [
+      {
+       "tag": "SFT 示范",
+       "val": 13,
+       "cls": "",
+       "txt": "≈1.3 万条"
+      },
+      {
+       "tag": "RM 比较",
+       "val": 33,
+       "cls": "",
+       "txt": "≈3.3 万次"
+      },
+      {
+       "tag": "PPO 比较",
+       "val": 31,
+       "cls": "",
+       "txt": "≈3.1 万次"
+      }
+     ],
+     [
+      {
+       "tag": "预训练 token",
+       "val": 100,
+       "cls": " materin-learn-viz__bar--en",
+       "txt": "15T"
+      },
+      {
+       "tag": "对齐人类数据",
+       "val": 3,
+       "cls": "",
+       "txt": "≈7.7 万条（<0.001%）"
+      }
+     ]
+    ],
+    "duelVizLabels": [
+     "InstructGPT 的人类操作量：合计约 7.7 万次",
+     "极小的数据量，决定产品成败的一步"
+    ],
+    "duelTailLabel": {
+     "zh": "对齐教它配合，治不好幻觉——第 9 天"
     }
    }
   },
@@ -5763,6 +5809,253 @@
      "12 token 换 36 token：钱花在窗口里，省在窗口外",
      "约束清单不是越长越好：打架的约束互相抵消",
      "形容词删除测试：留得下名词和数字的指令才立得住"
+    ]
+   }
+  },
+  {
+   "n": 31,
+   "stage": 2,
+   "week": 5,
+   "tpl": "duel",
+   "date": "2026-10-25",
+   "title": {
+    "zh": "示例工程：别描述，演一遍",
+    "en": "Few-shot: don't describe, demonstrate"
+   },
+   "subtitle": {
+    "zh": "阶段二第三课。示例是压进窗口的微型训练集：不是给模型讲道理，是给它看证据。一条示例一次表达了措辞枚举不完的所有维度——格式、语气、边界处理；形容词失效的地方，演一遍就懂。但示例不是越多越好：一致性大于数量，选例大于数量。",
+    "en": "Stage 2, lesson three. Few-shot examples are a miniature training set pressed into the window: not explaining to the model but showing it evidence. One example conveys every dimension words cannot enumerate — format, tone, edge-case handling; where adjectives fail, demonstrate. But more is not better: consistency beats quantity, selection beats quantity."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：示例是压进窗口的分布证据",
+      "en": "Mechanism: examples are distribution evidence in the window"
+     },
+     "p": {
+      "zh": "昨天（第 30 天）把指令写成了规格，但有一类要求怎么写规格都写不清：「语气像我们团队的周报」「边界情况按我们的惯例处理」——形容词删光了还是验收不了。few-shot 的机制回答了这个问题：示例和指令一样，被原样拼进同一条 token 序列（第 29 天的管道），每条示例都是一次完整的「输入 → 输出」映射。模型处理新问题时，注意力头回看这些映射，把其中的模式泛化到当前输入上（第 26 天的 ICL：这不是检索记忆，是从窗口里的证据现场归纳条件分布）。所以 few-shot 的机制本质是条件工程（第 30 天）的极致形态：一条形容词收窄输出的一两个维度，一条几百 token 的示例一次收窄所有维度。",
+      "en": "Yesterday (day 30) turned instructions into specs, but one class of requirements no spec can pin down: \"tone like our team's weekly report\", \"handle edge cases the way we usually do\" — delete every adjective and they still will not verify. Few-shot's mechanism answers this: examples are concatenated verbatim into the same token stream as the instruction (day 29's pipe), and each example is one complete input→output mapping. Processing a new question, attention heads look back at those mappings and generalize their pattern onto the current input (day 26's ICL: not retrieval from memory but on-the-spot induction of the conditional distribution from evidence in the window). Few-shot is conditioning engineering (day 30) in its extreme form: one adjective narrows one or two dimensions of the output; one few-hundred-token example narrows all of them at once."
+     },
+     "deep": {
+      "zh": "为什么示例是「终极的具体」？因为自然语言对格式、语气、边界处理这类东西的描述能力天生残缺——你写 800 字注意事项也枚举不完所有组合，而一条真实示例把它们全部同时演示了一遍。这也顺带解释了 few-shot 的三条实践规律。其一，示例要互相一致：3 条格式各异的示例是 3 条互相矛盾的「证据」，模型归纳出来的是它们的平均——比没有示例更糟。其二，顺序有影响：注意力对最近的 token 权重更高（近因效应），最像目标题的示例要放在离问题最近的位置。其三，标记要清晰：「输入：」「输出：」这类分隔标记（GPT-3 论文的 Q/A 前缀同理）是示例的句读——边界模糊时，模型不知道映射从哪开始、到哪结束。",
+      "en": "Why is an example \"the ultimate specificity\"? Because natural language is born weak at describing format, tone, and edge-case handling — 800 characters of cautions still cannot enumerate every combination, while one real example demonstrates all of them simultaneously. That also explains three practical laws of few-shot. One: examples must be consistent with each other — 3 differently formatted examples are 3 mutually contradictory pieces of evidence, and what the model induces is their average, worse than no examples. Two: order matters — attention weights the nearest tokens higher (recency), so the example closest to the target question goes nearest to the question. Three: markers must be crisp — separators like \"Input:\" / \"Output:\" (same logic as GPT-3's Q/A prefixes) are the punctuation of examples; when boundaries blur, the model cannot tell where a mapping starts or ends."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：示例的成本与收益",
+      "en": "The math: what examples cost and what they buy"
+     },
+     "p": {
+      "zh": "few-shot 的账要两边一起算。成本侧：示例每次调用都要重付——一条 60–150 token 的示例，6-shot 一道分类题约 700 token 输入，每天 1 万次调用 = 700 万 token/天。听起来吓人，但示例是固定前缀，前缀缓存（第 14 天）几乎整段命中：按缓存价 0.1×、$0.25/百万 token 计，约 $0.18/天——一杯豆浆钱。收益侧用实测数字：200 条客服工单分类，0-shot 时 37 条「类别对但格式跑偏」（带解释、带客套、标点混杂），下游解析失败率 18%；换成 6-shot（每类 2 条，含 1 条边界案例）后解析成功率 100%，类别准确率同时从 82% 升到 89%——那条「退款但抱怨物流」的边界示例教会了模型「主诉优先」。",
+      "en": "Run both sides of the ledger. Cost side: examples are re-paid on every call — one 60–150-token example; a 6-shot classifier costs ~700 input tokens; 10,000 calls a day = 7M tokens/day. Sounds scary, but examples are a fixed prefix and the prefix cache (day 14) hits nearly all of it: at the cached price of 0.1× on $0.25/M tokens that is about $0.18/day — pocket change. Benefit side, measured: 200 support-ticket classifications; at 0-shot, 37 tickets had the right category but broken format (explanations, pleasantries, mixed punctuation) — an 18% parse-failure rate downstream; at 6-shot (2 per category, including 1 edge case) parse success hit 100% while category accuracy rose from 82% to 89% — the \"refund but complaining about shipping\" edge example taught the model primary-complaint-first."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "把账合成一行：18% 的解析失败意味着每 1000 条工单里 180 条要人工捞回——按每条 60 秒是 3 小时人工/千条。6-shot 的花费：700 token 的一次性编写，加上缓存价下近零的边际成本；换回的是每天数小时的人工筛选，和下游代码里一整段 try-catch 补丁。这是整门课反复出现的模式（第 30 天的 24 个 token，今天的多 700 token）：输入侧多花一点 token，输出侧的判断成本断崖式下降——钱花在窗口里，省在窗口外。",
+       "en": "One-line ledger: an 18% parse failure means 180 of every 1,000 tickets need manual rescue — 3 hours of labor per thousand at 60 seconds each. The 6-shot cost: a one-time 700-token write-up plus near-zero marginal cost at cache prices; what it buys back is hours of daily triage and a whole block of try-catch patches in downstream code. This is the course's recurring pattern (day 30's 24 tokens, today's extra 700): spend a few more tokens on the input side and the judgment cost on the output side falls off a cliff — money spent inside the window, saved outside it."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：示例越多越好？",
+      "en": "Misconception: more examples, better examples?"
+     },
+     "p": {
+      "zh": "「示例越多越好」是 few-shot 最常见的误读，三个反直觉的事实拆掉它。其一，选例比数量重要：8 条随机示例常常不如 3 条有代表性的——覆盖主要类别、长度适中、含 1–2 条难例；烂示例是负资产。其二，顺序能吃掉 5–10 个点：同一组示例换个顺序，效果显著变化，近因效应让最后一个示例的话语权最大。其三，「示例会让模型照抄」要拆开看：格式几乎被全盘继承——这正是你要的；内容不会被照抄——示例是模式不是语料，模型的参数里装着整个世界。另外注意多轮对话里的隐式 few-shot：你自己改过的每一条回答都会变成后续轮次的示例——上下文里你不满意的旧输出，正在教模型重复你不满意的东西。",
+      "en": "\"More examples is better\" is few-shot's most common misreading; three counter-intuitive facts dismantle it. One: selection beats quantity — 8 random examples often lose to 3 well-chosen ones covering the main categories, moderate length, and 1–2 hard cases; bad examples are negative assets. Two: order can eat 5–10 points — the same set reshuffled changes results noticeably, and recency gives the last example the loudest vote. Three: \"examples make the model copy\" splits in two: format is inherited almost wholesale — exactly what you want; content is not copied — examples are patterns, not corpus, and the model's parameters already contain the world. Also beware implicit few-shot in multi-turn chats: every answer you edited becomes an example for later turns — old outputs you were unsatisfied with are teaching the model to reproduce what you disliked."
+     },
+     "misconception": {
+      "h": {
+       "zh": "衍生误区",
+       "en": "Related misconception"
+      },
+      "p": {
+       "zh": "「示例给多了模型会过拟合到示例上」——方向恰恰说反了：过拟合的方向不是抄内容，是抄格式，而抄格式正是 few-shot 的目的。真正的风险是示例内部的不一致：与其担心「太像示例」，不如检查 3 条示例的格式是否严格相同、边界案例的处理是否彼此不矛盾。",
+       "en": "\"With enough examples the model overfits to them\" — the direction is backwards: what gets overfit is not the content but the format, and inheriting format is the whole point of few-shot. The real risk is inconsistency inside the examples: rather than fearing \"too close to the examples\", check whether the 3 examples share exactly the same format and whether their edge-case handling contradicts each other."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：说不清就演一遍，演不动就写规格",
+      "en": "Where this leads: demonstrate what you cannot say, specify what you can"
+     },
+     "p": {
+      "zh": "few-shot 在提示三语句（第 29 天）里属于「示例」这一句，它和指令（第 30 天）的分工从此清晰：能一句话说清的用规格——便宜、稳定、可验收；说不清的用示例——贵一点、表达力强。两者通常叠加使用：规格定骨架（长度、结构、禁止项），示例填血肉（语气、边界、格式细节）。明天（第 32 天）讲示例的进阶形态：当「怎么想的」本身就是答案的一部分（推理题、算术题），把思考步骤也演出来——思维链示例，一个示例顶普通示例十倍 token 也划算。第 36 天把指令、示例、格式约束一起装进系统提示的固定位置，吃满前缀缓存。今天带走一句话——",
+      "en": "Few-shot is the \"example\" statement of the prompt's three statement kinds (day 29), and its division of labor with instructions (day 30) is now clear: what fits in one sentence goes into a spec — cheap, stable, verifiable; what does not goes into examples — pricier, far more expressive. They usually stack: specs set the skeleton (length, structure, exclusions), examples fill in the flesh (tone, edges, format details). Tomorrow (day 32) covers the advanced form: when \"how you thought\" is part of the answer (reasoning, arithmetic), demonstrate the thinking steps too — chain-of-thought examples, worth ten times a plain example's tokens. Day 36 mounts instruction, examples, and format constraints together into the system prompt's fixed slot, pocketing the prefix cache. One sentence to take away —"
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "找一条你天天用但怎么改措辞都不满意的指令，做一次「示例替换测试」：① 先把你的最佳措辞跑 3 次，记下不满意的地方；② 找 3 个你真正满意的输出样例（自己写的或改过的），连同对应的输入做成 3-shot，再跑 3 次。然后回答：示例版和措辞版差在哪？如果示例版仍不满意，检查三条示例是否互相一致——格式、长度、详略是否一致？（提示：示例是在复制你对「好」的判断；如果你挑不出 3 个自己满意的输出，先别怪模型——问题可能出在「好」本身还没定义。）",
+     "en": "Take one instruction you use daily that no rephrasing has ever satisfied, and run the example-swap test: (1) run your best wording 3 times, noting what disappoints; (2) find 3 outputs you are genuinely happy with (written or edited by you), pair each with its input into a 3-shot prompt, and run 3 times. Then answer: where do the example version and the wording version differ? If the example version still disappoints, check whether the three examples agree with each other — format, length, level of detail. (Hint: examples replicate your judgment of \"good\"; if you cannot find 3 outputs you like, do not blame the model yet — \"good\" itself may be undefined.)"
+    }
+   },
+   "takeaway": {
+    "zh": "示例是压进窗口的微型训练集：不是给模型讲道理，是给它看证据。一条示例一次表达了措辞枚举不完的所有维度——格式、语气、边界处理；形容词失效的地方，演一遍就懂。但示例不是越多越好：一致性大于数量，选例大于数量，最像目标题的示例放最后。",
+    "en": "Examples are a miniature training set pressed into the window: not explaining to the model but showing it evidence. One example conveys every dimension words cannot enumerate — format, tone, edge-case handling; where adjectives fail, demonstrate. But more is not better: consistency beats quantity, selection beats quantity, and the example closest to the target question goes last."
+   },
+   "anim": {
+    "tpl": "duel",
+    "hook": {
+     "zh": "模型不听形容词，它认证据。",
+     "en": "The model ignores adjectives; it reads the evidence."
+    },
+    "prompt": {
+     "zh": "任务：工单分类。「拖了一周还没到，我要退款」属于哪类？",
+     "en": "Task: classify the ticket. \"A week late, I want a refund\" — which category?"
+    },
+    "rounds": [
+     {
+      "a": {
+       "zh": "这是一条关于物流延误的投诉，希望对您有所帮助！如有其他问题欢迎随时联系……",
+       "en": "This is a complaint about a shipping delay; hope it helps! Feel free to reach out anytime…"
+      },
+      "b": {
+       "zh": "类别：物流",
+       "en": "Category: shipping"
+      }
+     },
+     {
+      "a": {
+       "zh": "退款类别。（注：若涉及质量问题，请另行提交质量类工单。）",
+       "en": "Refund category. (Note: for quality issues, please file a separate ticket.)"
+      },
+      "b": {
+       "zh": "类别：退款（主诉）",
+       "en": "Category: refund (primary)"
+      }
+     },
+     {
+      "a": {
+       "zh": "可能是质量问题，也可能是物流问题，建议人工复核。",
+       "en": "Could be a quality issue, could be shipping; suggest human review."
+      },
+      "b": {
+       "zh": "类别：退款（主诉：退款同时抱怨物流）",
+       "en": "Category: refund (primary; shipping complaint secondary)"
+      }
+     }
+    ],
+    "winrates": [
+     50,
+     68,
+     82,
+     92
+    ],
+    "meterLabel": {
+     "zh": "示例条件下的可用胜率",
+     "en": "usable-answer win rate with examples"
+    },
+    "note": {
+     "zh": "示意：同一个分类任务，形容词指令（左）vs 6 条示例条件（右）的输出对照，胜率为示意值。示例把格式、详略、边界处理一次演示到位——左边的输出没有一条能直接进下游。",
+     "en": "Illustrative: the same classification task, adjective instruction (left) vs 6-shot condition (right); win rates are illustrative. Examples demonstrate format, detail level, and edge handling in one shot — none of the left column's outputs would survive downstream."
+    },
+    "coverHook": {
+     "zh": "解析失败率 18% → 0，类别准确率 +7 个点——代价是 6 条示例、约 700 token。",
+     "en": "Parse failures 18% → 0, category accuracy +7 points — the price: 6 examples, ~700 tokens."
+    },
+    "duelCoverLabel": {
+     "zh": "同一道分类题：形容词指令的输出 vs 示例条件的输出"
+    },
+    "duelViz": [
+     [
+      {
+       "tag": "0-shot 解析成功",
+       "val": 82,
+       "cls": "",
+       "txt": "82% · 37/200 格式跑偏"
+      },
+      {
+       "tag": "6-shot 解析成功",
+       "val": 100,
+       "cls": " materin-learn-viz__bar--en",
+       "txt": "100%"
+      },
+      {
+       "tag": "0-shot 类别准确",
+       "val": 82,
+       "cls": "",
+       "txt": "82%"
+      },
+      {
+       "tag": "6-shot 类别准确",
+       "val": 89,
+       "cls": " materin-learn-viz__bar--en",
+       "txt": "89%"
+      }
+     ],
+     [
+      {
+       "tag": "6-shot 无缓存",
+       "val": 100,
+       "cls": "",
+       "txt": "+700 token/次 · $1.75/天"
+      },
+      {
+       "tag": "前缀缓存命中",
+       "val": 10,
+       "cls": " materin-learn-viz__bar--en",
+       "txt": "≈$0.18/天（0.1× 价）"
+      },
+      {
+       "tag": "0-shot 人工捞回",
+       "val": 18,
+       "cls": "",
+       "txt": "18% · 3 小时/千条"
+      }
+     ],
+     [
+      {
+       "tag": "形容词「像我们一样」",
+       "val": 15,
+       "cls": "",
+       "txt": "低维口号 · 走均值"
+      },
+      {
+       "tag": "3 条真实示例",
+       "val": 88,
+       "cls": " materin-learn-viz__bar--en",
+       "txt": "高维条件 · 钉住输出"
+      }
+     ],
+     [
+      {
+       "tag": "一句话说得清 → 规格",
+       "val": 30,
+       "cls": "",
+       "txt": "便宜 · 稳定 · 可验收"
+      },
+      {
+       "tag": "说不清 → 示例",
+       "val": 85,
+       "cls": " materin-learn-viz__bar--en",
+       "txt": "贵一点 · 表达力强"
+      },
+      {
+       "tag": "要演示思考 → 思维链",
+       "val": 100,
+       "cls": " materin-learn-viz__bar--en",
+       "txt": "明天 · 第 32 天"
+      }
+     ]
+    ],
+    "duelVizLabels": [
+     "200 条工单实测：示例补的不只是格式，还有判断（示意数据）",
+     "成本账：示例走缓存价近零边际，省下的是窗口外的人工",
+     "条件维度：说不清的，演一遍就清了——明天：思维链示例",
+     "三语句的分工：第 36 天一起装进系统提示，吃满前缀缓存"
     ]
    }
   }

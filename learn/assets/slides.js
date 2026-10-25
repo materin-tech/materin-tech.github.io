@@ -289,47 +289,33 @@
         });
         duel.appendChild(round);
         v.appendChild(duel);
-        v.appendChild(el('div', 'materin-learn-viz__label', '同一问题、两个回答——人类挑出更好的那个'));
-      } else if (idx === 1) {
-        var bars = el('div', 'materin-learn-viz__bars');
-        [
-          { tag: 'SFT 示范', val: 13, cls: '', txt: '≈1.3 万条' },
-          { tag: 'RM 比较', val: 33, cls: '', txt: '≈3.3 万次' },
-          { tag: 'PPO 比较', val: 31, cls: '', txt: '≈3.1 万次' }
-        ].forEach(function (r) {
-          var row = el('div', 'materin-learn-viz__bar-row');
+        v.appendChild(el('div', 'materin-learn-viz__label',
+          t(day.anim.duelCoverLabel) || '同一问题、两个回答——人类挑出更好的那个'));
+      } else if (day.anim.duelViz && day.anim.duelViz[idx - 1]) {
+        /* 数据带 duelViz 时按内容页画效应量条形（下标 = 内容页 idx−1，D31 约定）；
+           说明行取 duelVizLabels，末页落到 duelTailLabel——全部走数据字段不写死 */
+        var rowsD = day.anim.duelViz[idx - 1];
+        var bars = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        var maxD = Math.max.apply(null, rowsD.map(function (r) { return r.val; }));
+        rowsD.forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row materin-learn-viz__bar-row--wide');
           row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
           var track = el('div', 'materin-learn-viz__bar-track');
-          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
-          bar.style.width = (r.val / 33 * 100) + '%';
+          var bar = el('div', 'materin-learn-viz__bar' + (r.cls || ''));
+          bar.style.width = Math.max(2, r.val / maxD * 100) + '%';
           track.appendChild(bar);
           row.appendChild(track);
           row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
           bars.appendChild(row);
         });
         v.appendChild(bars);
-        v.appendChild(el('div', 'materin-learn-viz__label', 'InstructGPT 的人类操作量：合计约 7.7 万次'));
-      } else if (idx === 2) {
-        var bars2 = el('div', 'materin-learn-viz__bars');
-        [
-          { tag: '预训练 token', val: 100, cls: ' materin-learn-viz__bar--en', txt: '15T' },
-          { tag: '对齐人类数据', val: 3, cls: '', txt: '≈7.7 万条（<0.001%）' }
-        ].forEach(function (r) {
-          var row = el('div', 'materin-learn-viz__bar-row');
-          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
-          var track = el('div', 'materin-learn-viz__bar-track');
-          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
-          bar.style.width = r.val + '%';
-          track.appendChild(bar);
-          row.appendChild(track);
-          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
-          bars2.appendChild(row);
-        });
-        v.appendChild(bars2);
-        v.appendChild(el('div', 'materin-learn-viz__label', '极小的数据量，决定产品成败的一步'));
+        var lblD = (day.anim.duelVizLabels && day.anim.duelVizLabels[idx - 1]) || '';
+        if (!lblD && day.anim.duelTailLabel) lblD = t(day.anim.duelTailLabel);
+        v.appendChild(el('div', 'materin-learn-viz__label', lblD));
       } else {
         v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
-        v.appendChild(el('div', 'materin-learn-viz__label', '对齐教它配合，治不好幻觉——第 9 天'));
+        v.appendChild(el('div', 'materin-learn-viz__label',
+          day.anim.duelTailLabel ? t(day.anim.duelTailLabel) : '✦ 实例拆解'));
       }
     } else if (day.anim && day.anim.tpl === 'flow') {
       if (idx === 0) {
