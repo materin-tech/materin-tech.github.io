@@ -2018,6 +2018,84 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* strform：格式工程（第 32 天）——三层格式约束逐层生长：格式说明行 →
+       格式示例行 → 受限解码行，每行右侧一根解析率条爬到各自的分值
+       （62 / 95 / 100），行内的小注解逐个点亮说明这层「失效的方式」；
+       三行齐后底部汇流徽章亮出「劝 + 锁」的总账。行初始可见，入场只动
+       transform（--sf-f 驱动 + is-in），循环重播。 */
+    strform: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-strform');
+      var question = el('div', 'materin-learn-strform__question', t(a.question));
+      var rowsBox = el('div', 'materin-learn-strform__rows');
+
+      var rows = a.layers.map(function (r) {
+        var row = el('div', 'materin-learn-strform__row materin-learn-strform__row--' + r.k);
+        var head = el('div', 'materin-learn-strform__head');
+        head.appendChild(el('span', 'materin-learn-strform__tag', t({ zh: r.tagZh, en: r.tagEn })));
+        head.appendChild(el('span', 'materin-learn-strform__cap', t({ zh: r.capZh, en: r.capEn })));
+        row.appendChild(head);
+
+        var line = el('div', 'materin-learn-strform__line');
+        var note = el('span', 'materin-learn-strform__warn', t({ zh: r.noteZh, en: r.noteEn }));
+        var track = el('div', 'materin-learn-strform__track');
+        var bar = el('div', 'materin-learn-strform__bar');
+        var num = el('span', 'materin-learn-strform__num', '0%');
+        track.appendChild(bar);
+        line.appendChild(note);
+        line.appendChild(track);
+        line.appendChild(num);
+        row.appendChild(line);
+        rowsBox.appendChild(row);
+        return { row: row, bar: bar, num: num, note: note, acc: r.acc };
+      });
+
+      var merge = el('div', 'materin-learn-strform__merge', t({ zh: a.mergeZh, en: a.mergeEn }));
+
+      var readout = el('div', 'materin-learn-strform__readout');
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      ['spec', 'example', 'lock'].forEach(function (k) {
+        var box = el('div', 'materin-learn-strform__stat');
+        box.appendChild(el('span', 'materin-learn-strform__stat-num', rd[k].num));
+        box.appendChild(el('span', 'materin-learn-strform__stat-cap', rd[k].cap));
+        readout.appendChild(box);
+      });
+      var note = el('p', 'materin-learn-strform__note', t(a.note));
+
+      /* 时序：问题 0.3s → 行 i 在 i*1.6s 落位：头 0.5s → 注解点亮 → 条爬升
+         0.8s（数字同步滚动到 acc）→ 全部完成后汇流徽章亮 → 静置 → 循环 */
+      var T0 = 300, ROW_GAP = 1600, HEAD = 500, CLIMB = 800, HOLD = 2600;
+      var nRows = rows.length;
+      var FILL = T0 + (nRows - 1) * ROW_GAP + HEAD + CLIMB;
+      var CYCLE = FILL + HOLD;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        rows.forEach(function (R, ri) {
+          var rowAt = T0 + ri * ROW_GAP;
+          R.row.classList.toggle('is-in', tNow >= rowAt);
+          R.note.classList.toggle('is-in', tNow >= rowAt + HEAD * 0.6);
+          /* 条爬升：宽度直接写百分比，数字同步滚动 */
+          var cf = Math.min(Math.max((tNow - rowAt - HEAD) / CLIMB, 0), 1);
+          var eased = 1 - Math.pow(1 - cf, 3);
+          R.bar.style.setProperty('--sf-w', eased.toFixed(3));
+          R.num.textContent = Math.round(R.acc * eased) + '%';
+          R.num.classList.toggle('is-done', cf >= 1);
+        });
+        merge.classList.toggle('is-in', tNow >= FILL);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(question);
+      wrap.appendChild(rowsBox);
+      wrap.appendChild(merge);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

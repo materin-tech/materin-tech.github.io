@@ -1520,7 +1520,7 @@
         [
           { tag: '224×224 图', alt: false }, { tag: '→', alt: true },
           { tag: '196 块 16×16', alt: false }, { tag: '→', alt: true },
-          { tag: '向量序列', cls: ' merged', plain: true }
+          { tag: '向量序列', cls: ' materin-learn-viz__chip--merged', plain: true }
         ].forEach(function (r) {
           var cls = 'materin-learn-viz__chip' +
             (r.plain ? (r.cls || '') : (r.alt ? ' materin-learn-viz__chip--alt' : ''));
@@ -1598,6 +1598,84 @@
         });
         v.appendChild(uwin);
         v.appendChild(el('div', 'materin-learn-viz__label', '窗口升级成一切感官的入口：明天（第 28 天）用一整张地图验收这 4 周'));
+      }
+    } else if (day.anim && day.anim.tpl === 'strform') {
+      /* strform（第 32 天）：格式工程——与动效页同一组账：三层机制 /
+         62→95→100 的账单 / 语义错误盲区 / 接口化与通往阶段三 */
+      if (idx === 0) {
+        var schain = el('div', 'materin-learn-viz__chips');
+        [
+          { tag: '格式说明', alt: false }, { tag: '→', alt: true },
+          { tag: '格式示例', alt: false }, { tag: '→', alt: true },
+          { tag: '受限解码', merged: true }
+        ].forEach(function (r) {
+          var cls = 'materin-learn-viz__chip' + (r.merged ? ' materin-learn-viz__chip--merged' : (r.alt ? ' materin-learn-viz__chip--alt' : ''));
+          schain.appendChild(el('span', cls, r.tag));
+        });
+        v.appendChild(schain);
+        var swho = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '说明 + 示例：窗口里的注意力在回看', cls: '', verdict: '概率性的劝', vcls: '' },
+          { tag: '受限解码：采样前置零非法 token', cls: ' materin-learn-viz__route-row--think', verdict: '✓ 确定性的锁', vcls: ' materin-learn-viz__route-word--ok' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          swho.appendChild(row);
+        });
+        v.appendChild(swho);
+        v.appendChild(el('div', 'materin-learn-viz__label', '模型没有「输出格式」的概念：它只在预测下一个 token——格式是约束钉出来的'));
+      } else if (idx === 1) {
+        var sbill = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '纯文字要求 · 76/200 可解析', val: 62, cls: '', txt: '62 分 · 人工捞 76 分钟/天', wide: true },
+          { tag: '+3 条格式示例 · 190/200', val: 95, cls: '', txt: '95 分 · 多付 ≈360 token/次', wide: true },
+          { tag: '受限解码 · 200/200', val: 100, cls: ' materin-learn-viz__bar--en', txt: '100 分 · 语法错误清零', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          sbill.appendChild(row);
+        });
+        v.appendChild(sbill);
+        v.appendChild(el('div', 'materin-learn-viz__label', '1000 条/天的总账：示例多花不到一分钱，换回 66 分钟人工——回报率最高的工程动作'));
+      } else if (idx === 2) {
+        var sblind = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '多了一句前言 · 单引号', cls: '', verdict: '✗ 语法伤 · 锁得住', vcls: '' },
+          { tag: '40 条全填 medium · 编造枚举值', cls: ' materin-learn-viz__route-row--think', verdict: '✗ 语义伤 · 锁不住', vcls: ' materin-learn-viz__route-word--bad' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          sblind.appendChild(row);
+        });
+        v.appendChild(sblind);
+        v.appendChild(el('div', 'materin-learn-viz__label', '格式越锁越死，语义错误越隐蔽：全绿解析仪表盘下面可能是全错的字段值'));
+      } else {
+        var sbridge = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '第 22 天：函数调用的申请', val: 100, cls: '', txt: '就是受限解码钉的 JSON', wide: true },
+          { tag: '第 50 天：Agent 工具链', val: 62, cls: '', txt: '上一步输出 = 下一步输入', wide: true },
+          { tag: '第 85 天：RAG 结构化抽取', val: 30, cls: ' materin-learn-viz__bar--en', txt: '同一套三层约束', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = r.val + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          sbridge.appendChild(row);
+        });
+        v.appendChild(sbridge);
+        v.appendChild(el('div', 'materin-learn-viz__label', '输出即接口：接口定了，流水线才敢接——下一课把三种语句拼成完整提示系统'));
       }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));

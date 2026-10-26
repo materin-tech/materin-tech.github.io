@@ -339,6 +339,7 @@
 /* think 第 0 页对照行：长叙述词 + 判决胶囊收窄（复用 route 行容器） */
 .materin-learn-viz__route-row--think .materin-learn-viz__route-word { min-width: 0; font-size: 21px; font-weight: 600; line-height: 1.4; }
 .materin-learn-viz__route-word--ok { border-color: var(--materin-ok-border); background: var(--materin-ok-soft); color: var(--materin-ok); }
+.materin-learn-viz__route-word--bad { border-color: var(--materin-warn-border); background: var(--materin-warn-soft); color: var(--materin-warn); }
 /* spec 第 0 页对照行：判决胶囊不折行、不吃余量 */
 .materin-learn-viz__route-row .materin-learn-viz__route-dot { flex: 0 0 auto; white-space: nowrap; }
 /* scale（第 25 天）route 行：叙述标签一行放下，防孤字折行（D25/D19 同坑） */

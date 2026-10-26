@@ -6037,6 +6037,182 @@
      "条件维度：说不清的，演一遍就清了"
     ]
    }
+  },
+  {
+   "n": 32,
+   "stage": 2,
+   "week": 5,
+   "tpl": "strform",
+   "date": "2026-10-26",
+   "title": {
+    "zh": "格式工程：输出即接口",
+    "en": "Format engineering: the output is an interface"
+   },
+   "subtitle": {
+    "zh": "阶段二第四课，提示的第三种语句。指令管「做什么」，示例管「像什么」，格式管「交给谁」——当输出直接流进代码，一个引号就是一次生产事故。今天讲怎么把输出钉成接口：约束写清楚、示例给到位、解析锁到底。",
+    "en": "Day 4 of stage 2 — the third kind of prompt statement. Instructions say what, examples say like-what, format says for-whom. Once output flows straight into code, one broken quote is a production incident. Today: pin the output into an interface — spell the constraints, show an example, lock the parse."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：三个层面，谁在管哪个错误",
+      "en": "Mechanism: three layers, who catches which error"
+     },
+     "p": {
+      "zh": "昨天演完了示例，今天收尾第三种语句。模型本身没有「输出格式」的概念——它只是在预测下一个 token，所以格式要靠三层约束来钉：第一层是提示里的格式说明（JSON schema、「只输出数组、不要解释」），靠注意力回看生效，模型大部分时候遵守，但每次生成都是一次全新的概率抽样；第二层是格式示例（第 31 天的示例工程，一条示例同时钉住格式和内容风格）；第三层是受限解码（constrained decoding）：在 token 概率分布上把不符合 schema 的 token 权重直接置零——下一个 token 只能从「合法集合」里选。前两层是「劝」，第三层是「锁」。",
+      "en": "Yesterday was examples; today closes the third statement. The model has no concept of 'output format' — it only predicts the next token, so format is pinned by three layers: format instructions in the prompt (a JSON schema, 'output only the array, no prose'), enforced by attention over the window; format examples (day 31 — one example pins format and style at once); and constrained decoding, which zeroes the probability of any token that would violate the schema before sampling — the next token can only come from the legal set. The first two layers persuade; the third locks."
+     },
+     "deep": {
+      "zh": "为什么必须分层？因为每层失效的方式不同。提示说明会「失忆」：窗口一长，注意力稀释，模型写到第 30 个对象时忘了第 2 条规则。示例会「漂移」：它给的是分布证据，不是硬约束——模型可能学到你的缩进却把引号写错。受限解码不会失效，但它只保证语法：模型可以在合法 JSON 里输出错误的字段值、编造的枚举值。所以工程上的次序是：格式说明写进系统提示（前缀缓存还给它打折，第 14 天）、最有代表性的示例压轴、解析层再用 schema 校验兜底——「劝」越准，「锁」要兜的底就越小。",
+      "en": "Why layer them? Because each fails differently. Instructions 'fade': with long windows, attention dilutes and the model forgets rule #2 by object #30. Examples 'drift': they are distribution evidence, not hard constraints — the model may copy your indent yet botch a quote. Constrained decoding never fails, but it only guarantees syntax: the model can still emit wrong values or invented enum members inside perfectly legal JSON. So the engineering order: format spec in the system prompt (prefix-cached, day 14), the strongest example last, then schema validation as the final net — the better the persuading, the less the lock has to catch."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：62 分、95 分、100 分的三种成本",
+      "en": "The math: 62, 95, 100 — at three different prices"
+     },
+     "p": {
+      "zh": "同样一个「把 200 条客服工单抽取成结构化 JSON」的任务，三种做法的账完全不同。纯文字要求（「请输出 JSON，字段有 id、category、urgency」）：200 条里约 76 条可直接解析（62 分），修复员每千条要花约 3 小时人工捞。加 3 条格式示例（示例工程）：约 190 条可解析（95 分），剩下 10 条仍是「多了一句解释」这类小伤。上受限解码（传 schema 进 API 的 structured output 参数）：200/200 全部可解析（100 分），语法错误清零——但字段值仍可能有错：urgency 是「高」还是「中」，schema 管不了，那仍是指令和示例的活。",
+      "en": "Same task — extract 200 support tickets into structured JSON — bills very differently three ways. Plain prose spec ('output JSON with fields id, category, urgency'): ~76/200 parse cleanly (62), and a fixer spends ~3 hours per 1,000 rescuing the rest. Add 3 format examples (day 31): ~190/200 (95), the remainder still 'one sentence of prose' nicks. Use constrained decoding (pass the schema into the API's structured-output parameter): 200/200 (100) — syntax errors hit zero, but field values can still be wrong: whether urgency is 'high' or 'medium' is beyond any schema; that remains instructions' and examples' job."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "算总账：假设这条流水线每天跑 1000 条工单。方案 A（纯文字）：62% 可用 → 380 条人工捞，按每条 12 秒算 ≈ 76 分钟/天。方案 B（+示例）：95% → 50 条 ≈ 10 分钟/天。方案 C（受限解码）：0 条语法问题。成本端：示例每条 ≈ 120 token，3 条 ≈ 360 token/请求；按输入 $1/百万 token、每请求其余 600 token 算，B 比 A 每天多花约 $0.0009——不到一分钱，换回 66 分钟。C 还要付 schema 编写与字段漂移校验的一次性成本。结论：格式约束是全路线回报率最高的工程动作之一。",
+       "en": "Total it: the pipeline runs 1,000 tickets a day. Plan A (prose only): 62% usable → 380 rescued at ~12s each ≈ 76 min/day. Plan B (+examples): 95% → 50 tickets ≈ 10 min/day. Plan C (constrained decoding): zero syntax failures. Cost side: each example ≈120 tokens, so B adds ≈360 tokens per request; at $1/M input with ~600 other tokens per request, B costs about $0.0009 more per day than A — under a penny for 66 minutes back. C also pays a one-off: writing the schema and drift checks. Verdict: format constraints are among the highest-ROI moves on this route."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：格式合法 ≠ 内容正确",
+      "en": "Misconception: valid format ≠ correct content"
+     },
+     "p": {
+      "zh": "「上了 structured output 就稳了」是最危险的误区。受限解码保证的是：下一个 token 属于 schema 允许的集合——它是语法保险，不是语义保险。真实翻车案例：schema 枚举里写了 \"high|medium|low\"，模型连续 40 条工单全填 \"medium\"——语法 100% 合法，判断完全失效；schema 要 category 从固定列表里选，模型编了一个列表里没有但「听起来像」的值——旧版 API 直接解析失败，新版会自动映射到最近的合法枚举，错得更隐蔽。格式越是被锁死，语义错误就越不容易被看见：全绿的解析仪表盘下面，藏着的可能是全错的字段值。",
+      "en": "\"Structured output makes it safe\" is the dangerous one. Constrained decoding guarantees the next token belongs to the schema's legal set — syntax insurance, not semantic insurance. Real failures: an enum \"high|medium|low\" came back \"medium\" on 40 consecutive tickets — 100% legal, judgment dead; a category field got an invented value that merely 'sounded right' — old APIs hard-fail, newer ones silently map to the nearest legal enum, which hides the error better. The more the format is locked, the less visible semantic errors become: under an all-green parse dashboard may sit all-wrong values."
+     },
+     "misconception": {
+      "h": {
+       "zh": "常见误区",
+       "en": "Common misconception"
+      },
+      "p": {
+       "zh": "「加个『请严格输出 JSON』就够了」。这句话是三种语句里最弱的一种：它是概率性的劝，不是确定性的锁。实测里「严格」二字对解析率的提升经常在误差范围内；真正把 62 分抬到 95 的是示例，把 95 抬到 100 的是受限解码。另一个反面：格式锁死 ≠ 可以不写说明。解析层只认字段名和类型，字段值的质量仍由指令决定——schema 锁住骨架，「urgency 按对客户业务的影响判断」这句仍要写清楚。",
+       "en": "\"Just add 'output strict JSON'\". Of the three statements this is the weakest: a probabilistic nudge, not a deterministic lock. In tests, the word 'strict' moves parse rates within noise; what lifts 62→95 is examples, and 95→100 is constrained decoding. The flip side: a locked format does not exempt you from writing the spec. The parser only knows field names and types; value quality still comes from instructions — the schema pins the skeleton, but 'urgency = impact on the customer's business' still needs to be spelled out."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：接口定了，流水线才敢接",
+      "en": "Where this leads: the pipeline can only trust a fixed interface"
+     },
+     "p": {
+      "zh": "格式工程是阶段二通向阶段三的桥。第 22 天的函数调用之所以能工作，靠的正是受限解码把「申请」钉成可解析的 JSON——那是今天的格式约束在 Agent 场景的化身。第 50 天起的 Agent 循环里，每一步工具调用的输出都是下一步的输入：格式一崩，整条流水线崩；把输出当接口设计（schema 版本化、字段向后兼容、解析失败重试），是把「聊天」升级成「系统」的第一课。阶段四的 RAG 里，检索片段的结构化抽取用的也是今天这套三层约束。今天只需带走一句话——",
+      "en": "Format engineering is stage 2's bridge to stage 3. Day 22's function calling works precisely because constrained decoding pins the 'request' into parseable JSON — today's topic wearing its agent costume. From day 50, every agent loop feeds each tool call's output into the next step: one broken format collapses the pipeline. Designing output as an interface (versioned schemas, backward-compatible fields, parse-fail retries) is lesson one of upgrading 'chat' into 'system'. In stage 4, RAG's structured extraction of retrieved passages reuses today's three layers. For today, one sentence —"
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "挑 5 条你收藏过的文章或邮件标题，做一次「三层格式约束对照实验」：① 纯文字要求（「输出 JSON：字段有 title、tags、reason」）跑 1 次，数一数输出能否被 JSON.parse 直接解析，解析失败的具体是哪种伤（多了前言？字段名漂移？单引号？）；② 在要求后面加 1 条你手写的完整输出示例再跑 1 次，对比两次失败点；③ 如果你的模型支持 structured output / JSON mode，传入 schema 跑第 3 次。最后回答两个问题：三层各自拦住了哪类错误？哪类错误连受限解码都拦不住？（提示：schema 认识「字符串」，但它认识「有道理」吗？）",
+     "en": "Pick 5 saved articles or email titles and run a three-layer format experiment: (1) prose spec only ('output JSON with fields title, tags, reason') once — does JSON.parse accept it raw? Which wound failed it: preamble? drifted field names? single quotes? (2) Append one complete handwritten example and rerun; compare failure points. (3) If your model supports structured output / JSON mode, pass a schema for run 3. Then answer: which error class did each layer catch, and which class survives even constrained decoding? (Hint: does the schema know what 'reasonable' means?)"
+    }
+   },
+   "takeaway": {
+    "zh": "格式说明是劝，示例是证据，受限解码是锁：劝把错误从 38% 压到 5%，锁把 5% 清到 0——但锁只保语法，值对不对仍归指令和示例管。输出即接口：接口定了，流水线才敢接。",
+    "en": "Format specs persuade, examples testify, constrained decoding locks: persuasion cuts errors from 38% to 5%, the lock takes 5% to 0 — but the lock only guarantees syntax; value quality still belongs to instructions and examples. Output is an interface: the pipeline can only trust a fixed one."
+   },
+   "anim": {
+    "tpl": "strform",
+    "hook": {
+     "zh": "模型不知道什么叫 JSON——格式是三层约束钉出来的。",
+     "en": "The model doesn't know what JSON is — format is pinned by three layers."
+    },
+    "coverHook": {
+     "zh": "同一个抽取任务：纯文字要求 62 分，加 3 条示例 95 分，受限解码 100 分——格式约束是回报率最高的工程动作。",
+     "en": "Same extraction task: prose spec 62, +3 examples 95, constrained decoding 100 — format constraints are the highest-ROI engineering move."
+    },
+    "question": {
+     "zh": "把 200 条客服工单抽成结构化 JSON",
+     "en": "Extract 200 support tickets into structured JSON"
+    },
+    "layers": [
+     {
+      "k": "spec",
+      "tagZh": "第 1 层 · 格式说明（写进提示）",
+      "tagEn": "Layer 1 · format spec (in the prompt)",
+      "capZh": "靠注意力回看 · 概率性的劝",
+      "capEn": "attention-enforced · a probabilistic nudge",
+      "noteZh": "「请输出 JSON」窗口一长就会失忆",
+      "noteEn": "'Output JSON' fades as the window grows",
+      "acc": 62
+     },
+     {
+      "k": "example",
+      "tagZh": "第 2 层 · 格式示例（演一遍）",
+      "tagEn": "Layer 2 · format example (show, don't tell)",
+      "capZh": "分布证据 · 钉住格式与风格",
+      "capEn": "distribution evidence · pins format and style",
+      "noteZh": "示例可能被学到缩进、漏掉引号",
+      "noteEn": "the model may copy your indent, botch a quote",
+      "acc": 95
+     },
+     {
+      "k": "lock",
+      "tagZh": "第 3 层 · 受限解码（置零非法 token）",
+      "tagEn": "Layer 3 · constrained decoding (illegal tokens zeroed)",
+      "capZh": "在概率分布上直接锁 · 确定性的锁",
+      "capEn": "zeroed at the distribution · a deterministic lock",
+      "noteZh": "下一个 token 只能从合法集合里选",
+      "noteEn": "the next token must come from the legal set",
+      "acc": 100
+     }
+    ],
+    "mergeZh": "三层叠加：劝把错误从 38% 压到 5%，锁清零——但锁只保语法",
+    "mergeEn": "Layered: persuasion cuts errors 38%→5%, the lock zeroes the rest — syntax only",
+    "readoutZh": {
+     "spec": {
+      "num": "62%",
+      "cap": "纯文字 · 可直接解析"
+     },
+     "example": {
+      "num": "95%",
+      "cap": "+3 示例 · 每条 120 token"
+     },
+     "lock": {
+      "num": "100%",
+      "cap": "受限解码 · 语法错误清零"
+     }
+    },
+    "readoutEn": {
+     "spec": {
+      "num": "62%",
+      "cap": "prose only · parse-clean"
+     },
+     "example": {
+      "num": "95%",
+      "cap": "+3 examples · 120 tokens each"
+     },
+     "lock": {
+      "num": "100%",
+      "cap": "constrained · zero syntax errors"
+     }
+    },
+    "note": {
+     "zh": "示意：同一抽取任务在三层约束下的可解析率（200 条实测示意值）。注意第三层的 100% 只覆盖语法：urgency 全填 medium 这类语义错误，schema 看不见——值对不对仍归第 30 天的指令和第 31 天的示例管。",
+     "en": "Illustrative: parse rates for the same extraction task under three constraint layers (200-item test, illustrative). Layer 3's 100% covers syntax only: semantic misses like every urgency set to 'medium' are invisible to the schema — value quality still belongs to day 30's instructions and day 31's examples."
+    }
+   }
   }
  ]
 }

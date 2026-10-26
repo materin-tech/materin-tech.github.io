@@ -4539,3 +4539,207 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-body-day.is-stage .materin-learn-unify__stat-num { font-size: 44px; }
 .materin-learn-body-day.is-stage .materin-learn-unify__stat-cap { font-size: 24px; }
 .materin-learn-body-day.is-stage .materin-learn-unify__note { font-size: 28px; max-width: 840px; }
+
+/* strform：格式工程（第 32 天）——三层格式约束逐层生长，每行一条解析率
+   条爬到各自分值（62/95/100），汇流徽章亮「劝 + 锁」总账。行初始可见，
+   入场只动 transform（--sf-f 驱动 + is-in），条宽走 --sf-w，循环重播。 */
+.materin-learn-strform {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 680px;
+}
+
+.materin-learn-strform__question {
+  padding: 10px 22px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 14px;
+  background: var(--materin-glass-bg-subtle);
+  color: var(--materin-text);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.materin-learn-strform__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 16px;
+  background: var(--materin-glass-bg-subtle);
+}
+
+.materin-learn-strform__row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--materin-border);
+  border-radius: 12px;
+  background: var(--materin-surface-2);
+  transform: translateX(-10px);
+  transform-origin: left center;
+  transition: transform 0.45s var(--materin-ease-standard, ease),
+              border-color 0.45s ease;
+}
+
+.materin-learn-strform__row.is-in { transform: translateX(0); }
+.materin-learn-strform__row--spec.is-in { border-color: var(--materin-border-strong); }
+.materin-learn-strform__row--example.is-in { border-color: var(--materin-secondary-border); }
+.materin-learn-strform__row--lock.is-in { border-color: var(--materin-accent-border); }
+
+.materin-learn-strform__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.materin-learn-strform__tag {
+  color: var(--materin-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.materin-learn-strform__row--lock .materin-learn-strform__tag { color: var(--materin-accent); }
+
+.materin-learn-strform__cap {
+  color: var(--materin-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.materin-learn-strform__line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.materin-learn-strform__warn {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--materin-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: translateX(-4px);
+  transition: color 0.4s ease, transform 0.4s ease;
+}
+
+.materin-learn-strform__warn.is-in {
+  color: var(--materin-warn);
+  transform: translateX(0);
+}
+
+.materin-learn-strform__track {
+  --sf-w: 1;
+  flex: 0 0 170px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--materin-surface-3);
+  overflow: hidden;
+}
+
+.materin-learn-strform__bar {
+  height: 100%;
+  width: calc(var(--sf-w, 0) * 100%);
+  border-radius: inherit;
+  background: var(--materin-secondary);
+  transform-origin: left center;
+}
+
+.materin-learn-strform__row--lock .materin-learn-strform__bar { background: var(--materin-accent); }
+
+.materin-learn-strform__num {
+  flex: 0 0 52px;
+  color: var(--materin-text);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.materin-learn-strform__num.is-done { color: var(--materin-ok); }
+
+.materin-learn-strform__merge {
+  padding: 9px 20px;
+  border: 1px solid var(--materin-accent-border);
+  border-radius: 999px;
+  background: var(--materin-accent-soft);
+  color: var(--materin-accent);
+  font-size: 12.5px;
+  font-weight: 700;
+  transform: translateX(-6px) scaleY(0.6);
+  transform-origin: center bottom;
+  transition: transform 0.4s var(--materin-ease-standard, ease);
+}
+
+.materin-learn-strform__merge.is-in { transform: translateX(0) scaleY(1); }
+
+.materin-learn-strform__readout {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.materin-learn-strform__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-surface-2);
+}
+
+.materin-learn-strform__stat-num {
+  color: var(--materin-accent);
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-strform__stat-cap {
+  color: var(--materin-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.materin-learn-strform__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+  max-width: 640px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materin-learn-strform__row,
+  .materin-learn-strform__warn,
+  .materin-learn-strform__merge { transform: none; transition: none; }
+}
+
+/* 竖版舞台（?stage=1）：strform 放大 */
+.materin-learn-body-day.is-stage .materin-learn-strform { gap: 26px; max-width: 900px; }
+.materin-learn-body-day.is-stage .materin-learn-strform__question { font-size: 30px; padding: 18px 34px; border-radius: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-strform__rows { border-radius: 24px; gap: 16px; padding: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-strform__row { gap: 12px; padding: 18px 20px; border-radius: 20px; }
+.materin-learn-body-day.is-stage .materin-learn-strform__tag { font-size: 26px; }
+.materin-learn-body-day.is-stage .materin-learn-strform__cap { font-size: 21px; }
+.materin-learn-body-day.is-stage .materin-learn-strform__warn { font-size: 21px; }
+.materin-learn-body-day.is-stage .materin-learn-strform__track { flex-basis: 300px; height: 18px; }
+.materin-learn-body-day.is-stage .materin-learn-strform__num { font-size: 28px; }
+.materin-learn-body-day.is-stage .materin-learn-strform__merge { font-size: 27px; padding: 14px 34px; }
+.materin-learn-body-day.is-stage .materin-learn-strform__stat-num { font-size: 44px; }
+.materin-learn-body-day.is-stage .materin-learn-strform__stat-cap { font-size: 24px; }
+.materin-learn-body-day.is-stage .materin-learn-strform__note { font-size: 28px; max-width: 840px; }
