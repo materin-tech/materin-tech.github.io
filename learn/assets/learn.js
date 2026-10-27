@@ -2096,6 +2096,84 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* chain：任务拆解（第 33 天）——三环流水线逐环落位：环 1 的输出盒
+       变成环 2 的输入盒（接线头语义），每环点亮验收句；中途环 2 失败 →
+       重试徽章亮「只重跑该环」；收束行给三环 token 总账。行初始可见，
+       入场只动 transform（--ch-f 驱动 + is-in），循环重播。 */
+    chain: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-chain');
+      var question = el('div', 'materin-learn-chain__question', t(a.question));
+      var rowsBox = el('div', 'materin-learn-chain__rows');
+
+      var rows = a.steps.map(function (r) {
+        var row = el('div', 'materin-learn-chain__row materin-learn-chain__row--' + r.k);
+        var head = el('div', 'materin-learn-chain__head');
+        head.appendChild(el('span', 'materin-learn-chain__tag', t({ zh: r.tagZh, en: r.tagEn })));
+        head.appendChild(el('span', 'materin-learn-chain__cap', t({ zh: r.capZh, en: r.capEn })));
+        row.appendChild(head);
+
+        var io = el('div', 'materin-learn-chain__io');
+        io.appendChild(el('span', 'materin-learn-chain__box materin-learn-chain__box--in', t({ zh: r.inZh, en: r.inEn })));
+        io.appendChild(el('span', 'materin-learn-chain__arrow', '→'));
+        io.appendChild(el('span', 'materin-learn-chain__box materin-learn-chain__box--out', t({ zh: r.outZh, en: r.outEn })));
+        io.appendChild(el('span', 'materin-learn-chain__tok', t({ zh: r.tok, en: r.tok })));
+        row.appendChild(io);
+        rowsBox.appendChild(row);
+        return { row: row, arrow: io.querySelector('.materin-learn-chain__arrow') };
+      });
+
+      var retry = el('div', 'materin-learn-chain__retry',
+        lang() === 'en' ? a.retry.failEn : a.retry.failZh);
+
+      var merge = el('div', 'materin-learn-chain__merge', t({ zh: a.mergeZh, en: a.mergeEn }));
+
+      var readout = el('div', 'materin-learn-chain__readout');
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      rd.forEach(function (r) {
+        var box = el('div', 'materin-learn-chain__stat');
+        box.appendChild(el('span', 'materin-learn-chain__stat-num', r.num));
+        box.appendChild(el('span', 'materin-learn-chain__stat-cap', r.cap));
+        readout.appendChild(box);
+      });
+      var note = el('p', 'materin-learn-chain__note', t(a.note));
+
+      /* 时序：问题 0.3s → 环 i 在 i*1.7s 落位（头 0.4s → io 0.4s）→
+         环 2 落位后 0.4s 重试徽章亮 1.1s → 全部完成后收束徽章亮 → 静置 → 循环 */
+      var T0 = 300, ROW_GAP = 1700, HEAD = 400, IO = 400,
+          RETRY_AT = T0 + 1 * ROW_GAP + HEAD + IO + 400, RETRY_LEN = 1100;
+      var nRows = rows.length;
+      var FILL = T0 + (nRows - 1) * ROW_GAP + HEAD + IO;
+      var CYCLE = FILL + 3000;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        rows.forEach(function (R, ri) {
+          var rowAt = T0 + ri * ROW_GAP;
+          R.row.classList.toggle('is-in', tNow >= rowAt);
+          var ioAt = rowAt + HEAD;
+          R.arrow.classList.toggle('is-in', tNow >= ioAt + IO * 0.5);
+        });
+        var retryOn = tNow >= RETRY_AT && tNow < RETRY_AT + RETRY_LEN;
+        retry.classList.toggle('is-in', retryOn);
+        retry.textContent = retryOn
+          ? (lang() === 'en' ? a.retry.okEn : a.retry.okZh)
+          : (lang() === 'en' ? a.retry.failEn : a.retry.failZh);
+        merge.classList.toggle('is-in', tNow >= FILL + 300);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(question);
+      wrap.appendChild(rowsBox);
+      wrap.appendChild(retry);
+      wrap.appendChild(merge);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

@@ -1677,6 +1677,80 @@
         v.appendChild(sbridge);
         v.appendChild(el('div', 'materin-learn-viz__label', '输出即接口：接口定了，流水线才敢接——下一课把三种语句拼成完整提示系统'));
       }
+    } else if (day.anim && day.anim.tpl === 'chain') {
+      /* chain（第 33 天）：任务拆解——三环流水线 / 84k 对 7k 的账 /
+         错误复合率 / 链通向 Agent（与动效页同一组数） */
+      if (idx === 0) {
+        var chpipe = el('div', 'materin-learn-viz__chips');
+        [
+          { tag: '资料清单', alt: false }, { tag: '→', alt: true },
+          { tag: '结构大纲', alt: false }, { tag: '→', alt: true },
+          { tag: '800 字成文', merged: true }
+        ].forEach(function (r) {
+          var cls = 'materin-learn-viz__chip' + (r.merged ? ' materin-learn-viz__chip--merged' : (r.alt ? ' materin-learn-viz__chip--alt' : ''));
+          chpipe.appendChild(el('span', cls, r.tag));
+        });
+        v.appendChild(chpipe);
+        var chwhy = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '单窗口 · 三种指令互相稀释', cls: '', verdict: '✗ 全局重跑', vcls: ' materin-learn-viz__route-word--bad' },
+          { tag: '三环 · 每环只回看一种指令', cls: ' materin-learn-viz__route-row--think', verdict: '✓ 当环验收', vcls: ' materin-learn-viz__route-word--ok' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          chwhy.appendChild(row);
+        });
+        v.appendChild(chwhy);
+        v.appendChild(el('div', 'materin-learn-viz__label', '一环一提示：上一环的输出盒就是下一环的输入盒——中间产物看得见'));
+      } else if (idx === 1) {
+        var chbill = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '一条提示 · 平均 4 次重跑', val: 100, cls: '', txt: '≈84k token · 每次全量 20k', wide: true },
+          { tag: '三环链 · 一次通过', val: 8, cls: ' materin-learn-viz__bar--en', txt: '≈7k token · 合计', wide: true },
+          { tag: '改文风 · 只重跑成文环', val: 3, cls: '', txt: '2.7k · 清单复用', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(3, r.val) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          chbill.appendChild(row);
+        });
+        v.appendChild(chbill);
+        v.appendChild(el('div', 'materin-learn-viz__label', '12 倍差距：把「错了全重来」变成「坏了只换环」'));
+      } else if (idx === 2) {
+        var chcomp = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '每环 95% 做对 · 三环链', cls: '', verdict: '整体 86%', vcls: '' },
+          { tag: '每环 95% 做对 · 五环链', cls: ' materin-learn-viz__route-row--think', verdict: '只剩 77%', vcls: ' materin-learn-viz__route-word--bad' },
+          { tag: '修法：提高最弱一环，不加环补救', cls: '', verdict: '✓ 往上游修', vcls: ' materin-learn-viz__route-word--ok' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          chcomp.appendChild(row);
+        });
+        v.appendChild(chcomp);
+        v.appendChild(el('div', 'materin-learn-viz__label', '拆环粒度：一种失败模式一环，失败时能一句话说出哪里错'));
+      } else {
+        var chnext = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '第 22 天 · 工具调用', cls: '', verdict: '环间接线头', vcls: '' },
+          { tag: '第 32 天 · 受限解码', cls: '', verdict: '接线处上锁', vcls: '' },
+          { tag: '第 50 天 · Agent', cls: ' materin-learn-viz__route-row--think', verdict: '填槽+重跑自动化', vcls: ' materin-learn-viz__route-word--ok' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          chnext.appendChild(row);
+        });
+        v.appendChild(chnext);
+        v.appendChild(el('div', 'materin-learn-viz__label', '今天的手工链就是 Agent 骨架——明天讲链的孪生兄弟：多轮对话不掉链子'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

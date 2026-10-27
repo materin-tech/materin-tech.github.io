@@ -6213,6 +6213,179 @@
      "en": "Illustrative: parse rates for the same extraction task under three constraint layers (200-item test, illustrative). Layer 3's 100% covers syntax only: semantic misses like every urgency set to 'medium' are invisible to the schema — value quality still belongs to day 30's instructions and day 31's examples."
     }
    }
+  },
+  {
+   "n": 33,
+   "stage": 2,
+   "week": 5,
+   "tpl": "chain",
+   "date": "2026-10-27",
+   "title": {
+    "zh": "任务拆解：把活拆成链",
+    "en": "Task decomposition: split the job into a chain"
+   },
+   "subtitle": {
+    "zh": "阶段二第五课，把三种语句升级成系统。指令、示例、格式管的是一句话怎么写；当任务本身装不进一个窗口——先搜集、再分析、再成文——答案不是把提示写长，而是把活拆成链：每环一个提示、一种任务、一个验收点，坏一环只重跑一环。",
+    "en": "Day 5 of stage 2 — from statements to a system. Instructions, examples, and formats govern one prompt; when a task can't fit one window — gather, then analyze, then write — the answer isn't a longer prompt, it's a chain: one prompt per link, one job per link, one checkpoint per link, and a broken link reruns alone."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：一环一提示，输出接线头",
+      "en": "Mechanism: one link, one prompt, output as the plug"
+     },
+     "p": {
+      "zh": "昨天把输出钉成了接口，今天让接口真正「接线」。链式调用的机制一句话：上一个提示的输出，被程序原样填进下一个提示的输入槽。数学上，你把一次大采样 P(报告｜资料) 换成了逐级条件采样——P(清单｜资料) × P(大纲｜清单) × P(成文｜大纲)——每一环的注意力只回看一种任务的指令。为什么这样更准？回看第 4 天的窗口：注意力要在整个上下文里摊开，一个窗口同时装「找资料的规则」「分析的角度」「写作的文风」，三种指令互相稀释（第 30 天说过，窗口一长规则会失忆）；拆成三环后每环窗口短、指令单一，遵守率回升。更关键的是结构红利：中间产物看得见——清单不对当场重跑搜集环，而不是等 800 字成文写完才发现根子在资料。",
+      "en": "Yesterday we pinned the output into an interface; today the interface actually gets wired. Chained calls in one sentence: the previous prompt's output is filled programmatically into the next prompt's input slot. Mathematically, you trade one big sample of P(report | material) for a chain of conditional samples — P(list | material) × P(outline | list) × P(draft | outline) — where each link's attention reviews the instructions of exactly one job. Why is that more accurate? Recall day 4's window: attention spreads across the whole context. If one window holds 'rules for finding sources', 'angles for analysis', and 'voice for writing' at once, the three instructions dilute each other (day 30: rules fade as windows grow). Split into three links, each window is short and each instruction singular, so compliance climbs back. And there's a structural dividend: intermediate products are visible — a bad list gets caught and the gather link reruns on the spot, instead of discovering after 800 words that the root cause was the material."
+     },
+     "deep": {
+      "zh": "为什么拆环能提高质量而不只是省钱？因为每环的验收点变了。单提示的验收是「最终成品像不像话」——错误要到最后一环才暴露，而且根因和症状隔着几千 token。链式把验收切成每环一个：搜集环只验「资料全不全、来源真不真」，大纲环只验「结构立不立得住」，成文环只验「文字像不像人写的」。这跟软件工程的单一职责是同一条原理：一个函数只做一件事，测试才写得短。注意第 32 天的三层格式约束在每一环都要重新钉——链不是免检通道，输入槽是接口，接口就要锁。",
+      "en": "Why does splitting raise quality, not just save money? Because each link gets its own checkpoint. A single prompt is checked at 'does the final product read well' — errors surface only at the end, with root cause and symptom thousands of tokens apart. A chain checks each link: the gather link answers 'are the sources complete and real', the outline link 'does the structure hold', the draft link 'does the prose read human'. It's the single-responsibility principle: a function that does one thing gets a short test. Note that day 32's three format layers must be re-pinned at every link — a chain is not an inspection-free channel; the input slot is an interface, and interfaces get locked."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：84k 和 7k 的差距",
+      "en": "The math: 84k versus 7k tokens"
+     },
+     "p": {
+      "zh": "同一个任务「调研一个主题并写 800 字推荐文」。一条提示做完：系统提示加任务说明加 20 篇资料 ≈ 20k token 上下文，实测这种「多任务混合提示」平均要重跑 4 次左右才出一份能用的（常见死法：资料漏了、结构散了、文风漂了——三种失败混在一次采样里，修好一个弄坏另一个），20k × 4.2 ≈ 84k token，而且每次重跑连搜集都重来。拆成三环：搜集环 400 进 300 出 × 5 个来源 ≈ 3.5k；大纲环 1k；成文环 2.7k，合计 ≈ 7k。失败了？搜集环坏只重跑搜集（700 token 一次），成文环坏只重跑成文（2.7k）——而且搜集结果存下来，改文风重跑十次也只烧成文环。84k 对 7k 是 12 倍的差距；对每天跑几百次的生产线，就是「能不能上」和「只能 demo」的差距。",
+      "en": "Same task: 'research a topic and write an 800-word recommendation.' One prompt end-to-end: system prompt + task spec + 20 sources ≈ 20k tokens of context; in practice such mixed-job prompts need ~4 reruns to yield one usable draft (typical failures: sources missed, structure loose, voice drifted — three failure modes fused into one sample; fixing one breaks another), so 20k × 4.2 ≈ 84k tokens, and every rerun redoes the gathering. Split into three links: gather 400 in / 300 out × 5 sources ≈ 3.5k; outline 1k; draft 2.7k — about 7k total. Something fails? A gather failure costs 700 tokens per rerun; a draft failure costs 2.7k — and the gather results are saved, so rerunning for style ten times still burns only the draft link. 84k versus 7k is a 12× gap; on a production line running hundreds of jobs a day, it's the gap between 'shippable' and 'demo only'."
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：链不是越长越好",
+      "en": "Misconception: longer isn't better"
+     },
+     "p": {
+      "zh": "直觉说「拆得越细越可控」。但每一环都是一次信息压缩：搜集环把 20 篇文章压成 300 字清单，清单里没有的信息，后面所有环都救不回来。错误是复合的——假设每环 95% 做对，三环链整体 0.95³ ≈ 86%，五环链只剩 77%；环数翻倍，错误率不止翻倍。所以拆环的粒度不是「步骤最少」也不是「越细越好」，而是「一种失败模式一环」：同一环里装两种失败（又找资料又判断质量），出错时你不知道该重跑哪段，提示也改不动——两个目标在抢一个指令的注意力。判断标准：这一环失败了，你能不能一句话说出哪里错？能，就是一环；说不清，就该再拆或合并。",
+      "en": "Intuition says 'finer splitting means more control.' But every link is an information compression: the gather link squeezes 20 articles into a 300-word list, and information missing from the list can't be recovered by any later link. Errors compound — if each link is 95% right, a 3-link chain lands at 0.95³ ≈ 86% and a 5-link chain at 77%; double the links and the error rate more than doubles. So the granularity is neither 'fewest steps' nor 'as fine as possible' — it's 'one failure mode per link': pack two failures into one link (finding sources AND judging quality) and when it breaks you can't tell which half to rerun, and the prompt can't be fixed because two goals fight over one instruction's attention. The test: when this link fails, can you say in one sentence what went wrong? If yes, it's a link; if not, split or merge."
+     },
+     "deep": {
+      "zh": "「95% 复合」还有一层工程含义：链的正确修法是「提高最弱一环」，而不是「加环补救」。想用第 6 环来「检查前 5 环的错误」，检查环自己也有 5% 错误率，而且它只能看见上游压缩后的残骸——上游清单里本来就没有的错误，任何检查环节永远检不出来。方向永远是往上游修：把搜集环的来源约束写得更硬（第 30 天的指令规格、第 32 天的受限解码），而不是下游加质检。",
+      "en": "The 95% compounding has a second engineering consequence: the right fix is 'strengthen the weakest link,' never 'add a link to patch.' A sixth link that 'checks the previous five' has its own 5% error rate — and it can only see the compressed wreckage upstream; errors that never made it into the list are invisible to any checker. Always fix upstream: harden the gather link's source constraints (day 30's instruction specs, day 32's constrained decoding) instead of adding downstream QA."
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：手工链就是 Agent 骨架",
+      "en": "Extension: your manual chain is an agent's skeleton"
+     },
+     "p": {
+      "zh": "今天你手动复制粘贴中间产物，把三个提示接成一条链——这套动作就是第 50 天 Agent 的全部雏形。Agent 做的事只有两件：把「上环输出填进下环输入」自动化（第 22 天的工具调用就是环与环之间的自动接线，接线处用第 32 天的受限解码锁住 JSON，链才不会断在引号上），以及把「坏了重跑哪环」自动化——错误信号从你的眼睛换成程序校验。链还有第二种接法：路由。在第 2 环后加一个判别环，判断「这个问题简单还是复杂」，简单直接走成文、复杂才走深挖——阶段三整周讲的都是这几种接法怎么组合。今天先用手把链走通一次，明天讲链的孪生兄弟：多轮对话里的上下文怎么不掉链子。",
+      "en": "Today you copy-paste intermediate products by hand, wiring three prompts into one chain — and that manual routine is the entire prototype of day 50's agent. An agent does two things: it automates 'fill the last output into the next input' (day 22's tool calls are the automatic wiring between links, with day 32's constrained decoding locking the JSON at every joint so the chain doesn't snap on a quote), and it automates 'which link to rerun on failure' — the error signal moves from your eyes to programmatic checks. Chains also have a second wiring pattern: routing. Add a judge link after link 2 that decides 'is this question simple or complex' — simple goes straight to drafting, complex goes deeper. Stage 3 spends a whole week on these wiring patterns. Today, walk the chain by hand once; tomorrow, the chain's twin sibling: keeping context intact across turns."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "把你最近一次「直接一条提示」失败的任务（比如「帮我调研 X 并写推荐文」）拆成三环：① 搜集环：只输出资料清单（来源 + 一句话要点），不许写观点；② 大纲环：只吃清单，输出结构大纲，不许写正文；③ 成文环：只吃大纲，输出全文。每环之间手动复制粘贴中间产物，并各问一遍验收句：资料全吗？结构立得住吗？文字像人写的吗？然后故意在搜集环砍掉一半来源再跑一遍，回答两个问题：错误是从哪一环开始被发现的？成文环补得回来吗？（提示：看看大纲环是不是把缺失资料当成「不需要」，把缺口包装成了结构。）",
+     "en": "Take a task you recently failed with one prompt (say, 'research X and write a recommendation') and split it into three links: (1) gather — output only a source list (source + one-line takeaway), no opinions allowed; (2) outline — consume only the list, output a structural outline, no prose allowed; (3) draft — consume only the outline, write the full piece. Copy-paste between links by hand and ask each checkpoint: sources complete? structure sound? prose human? Then deliberately cut half the sources from link 1 and rerun. Answer two questions: at which link did the error first surface? Could the draft link recover it? (Hint: did the outline link treat the missing sources as 'not needed', packaging the gap into the structure?)"
+    }
+   },
+   "takeaway": {
+    "zh": "任务装不进一个窗口时，别把提示写长，把活拆成链：一环一提示、一种失败一环、一环一个验收点。84k 对 7k 不是省 token，是把「错了全重来」变成「坏了只换环」——这条手工链，就是阶段三 Agent 的骨架。",
+    "en": "When a job doesn't fit one window, don't lengthen the prompt — split it into a chain: one prompt per link, one failure mode per link, one checkpoint per link. 84k versus 7k isn't token savings, it's 'rerun everything' becoming 'swap the broken link' — and that manual chain is the skeleton of stage 3's agents."
+   },
+   "anim": {
+    "tpl": "chain",
+    "hook": {
+     "zh": "一条提示装不下三种活——拆成链，坏一环只重跑一环。",
+     "en": "One prompt can't hold three jobs — split into a chain, rerun only the broken link."
+    },
+    "coverHook": {
+     "zh": "同一个调研写作任务：一条提示重跑 4 次烧 84k token，拆成三环只烧 7k——中间产物还能复用。",
+     "en": "Same research-and-write task: one prompt burns 84k tokens across ~4 reruns; a 3-link chain burns 7k — and the middle products are reusable."
+    },
+    "question": {
+     "zh": "调研 A 主题并写一篇 800 字推荐文",
+     "en": "Research topic A and write an 800-word recommendation"
+    },
+    "steps": [
+     {
+      "k": "gather",
+      "tagZh": "环 1 · 搜集",
+      "tagEn": "Link 1 · gather",
+      "capZh": "只做找与筛，不写观点",
+      "capEn": "find and filter — no opinions",
+      "inZh": "20 篇来源",
+      "inEn": "20 sources",
+      "outZh": "资料清单 · 300 字",
+      "outEn": "list · 300 words",
+      "tok": "0.7k"
+     },
+     {
+      "k": "outline",
+      "tagZh": "环 2 · 大纲",
+      "tagEn": "Link 2 · outline",
+      "capZh": "只吃清单，只搭结构",
+      "capEn": "list in, structure out",
+      "inZh": "资料清单",
+      "inEn": "source list",
+      "outZh": "结构大纲 · 150 字",
+      "outEn": "outline · 150 words",
+      "tok": "1.0k"
+     },
+     {
+      "k": "write",
+      "tagZh": "环 3 · 成文",
+      "tagEn": "Link 3 · write",
+      "capZh": "只吃大纲，只管文风",
+      "capEn": "outline in, voice out",
+      "inZh": "结构大纲",
+      "inEn": "outline",
+      "outZh": "推荐文 · 800 字",
+      "outEn": "essay · 800 words",
+      "tok": "2.7k"
+     }
+    ],
+    "retry": {
+     "link": 1,
+     "failZh": "✗ 大纲散了——重跑环 2",
+     "failEn": "✗ outline fell apart — rerun link 2",
+     "okZh": "✓ 重跑通过 · 只烧 1k token",
+     "okEn": "✓ rerun passed · only 1k tokens"
+    },
+    "mergeZh": "三环合计 ≈ 7k token · 搜集结果可复用，坏哪环只重跑哪环",
+    "mergeEn": "3 links ≈ 7k tokens · gather results reused; only the broken link reruns",
+    "readoutZh": [
+     {
+      "num": "84k",
+      "cap": "一条提示 · 平均 4 次重跑"
+     },
+     {
+      "num": "7k",
+      "cap": "三环链 · 一次通过"
+     },
+     {
+      "num": "2.7k",
+      "cap": "改文风 · 只重跑成文环"
+     }
+    ],
+    "readoutEn": [
+     {
+      "num": "84k",
+      "cap": "one prompt · ~4 reruns"
+     },
+     {
+      "num": "7k",
+      "cap": "3-link chain · first pass"
+     },
+     {
+      "num": "2.7k",
+      "cap": "style retry · draft link only"
+     }
+    ],
+    "note": {
+     "zh": "示意：同一「调研＋成文」任务的 token 账（量级示意）。一条提示的 4 次重跑每次都是全量 20k；三环链的失败被验收点截在当环——搜集环坏烧 700，成文环坏烧 2.7k，且搜集结果存下来可反复复用。",
+     "en": "Illustrative: the token bill for the same research-and-write task (order-of-magnitude). Each of the single prompt's ~4 reruns is a full 20k; in the chain, failures are caught at their own checkpoint — a gather failure costs 700, a draft failure 2.7k, and saved gather results are reused across reruns."
+    }
+   }
   }
  ]
 }
