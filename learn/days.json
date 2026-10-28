@@ -6386,6 +6386,204 @@
      "en": "Illustrative: the token bill for the same research-and-write task (order-of-magnitude). Each of the single prompt's ~4 reruns is a full 20k; in the chain, failures are caught at their own checkpoint — a gather failure costs 700, a draft failure 2.7k, and saved gather results are reused across reruns."
     }
    }
+  },
+  {
+   "n": 34,
+   "stage": 2,
+   "week": 5,
+   "tpl": "turns",
+   "date": "2026-10-28",
+   "title": {
+     "zh": "多轮对话：上下文不掉链",
+     "en": "Multi-turn dialogue: keeping context intact"
+   },
+   "subtitle": {
+    "zh": "阶段二第六课。链是「程序替你填槽」，多轮对话是「用户不停续写」——同一台机器，风险全变了样：历史每轮整段重发，账单滚雪球；模型把历史当事实引用，一个口误被钉进上下文就反复放大。今天讲窗口的接线纪律：什么进窗口、什么折叠、什么彻底放下文。",
+    "en": "Day 6 of stage 2. A chain fills slots programmatically; a multi-turn chat keeps appending — same machine, new risks: the full history is re-sent every turn so the bill snowballs, and the model quotes history as fact, so one slip gets pinned in and amplified. Today: window wiring discipline — what goes in, what gets folded, what moves to a document."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：每轮都整段重发，没有增量",
+      "en": "Mechanism: the whole history is re-sent every turn"
+     },
+     "p": {
+      "zh": "多轮对话的机制只有一个动作：每一轮，客户端把「系统提示＋全部历史＋新消息」整段重新发一遍。模型没有记忆——第 11 天的 KV cache 只在单次生成内复用，新请求进来，一切都按输入 token 全价重算。这笔账是平方级的：一次 20 轮的对话，每轮新增约 600 token，第 20 轮时窗口里已经堆到 1k 系统提示 + 12k 历史 = 13k；而整个会话累计烧掉的输入不是 13k，是每轮都把全部历史重发一遍的求和 ≈ 146k。你以为在「聊 20 句」，账单上是「重发了一本小册子 20 遍」。",
+      "en": "Multi-turn dialogue has exactly one mechanism: every turn, the client re-sends 'system prompt + full history + the new message' as one block. The model has no memory — day 11's KV cache is reused only within a single generation; a new request recomputes everything at full input price. The bill is quadratic: in a 20-turn chat growing ~600 tokens per turn, the window holds 1k system + 12k history = 13k by turn 20 — but the session's cumulative input isn't 13k, it's the sum of resending all history each turn, ≈146k. You think you 'chatted 20 times'; the bill says you resent a small booklet 20 times."
+     },
+     "deep": {
+      "zh": "为什么按轮重发而不是增量？因为注意力必须是全序的：第 18 轮的每个词都要能看见第 3 轮的每个词，位置编码和注意力矩阵都以「整段序列」为输入。任何「只发增量」的方案，等于要求服务端替你保存并续接上次的注意力状态——少数 API 有会话缓存（第 12 天提过的前缀缓存），能把重复前缀的价格打到一折，但那只是降价，不是改变重发的语义。计费上你仍为整段上下文买单，缓存只是把其中重复的部分打折。",
+      "en": "Why resend per turn instead of incremental updates? Because attention must be total-order: every word of turn 18 must see every word of turn 3, and both positional encoding and the attention matrix take the whole sequence as input. Any 'send only deltas' scheme would require the server to save and resume the previous attention state — a few APIs offer session/prefix caching (day 12) that discounts repeated prefixes to a tenth, but that's a discount, not a change in semantics: you still pay for the full context, the cache just marks the repeated part down."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：13k 窗口，146k 账单",
+      "en": "The math: a 13k window, a 146k bill"
+     },
+     "p": {
+      "zh": "还是那场 20 轮对话：不折叠，窗口最后 13k，累计输入 146k。折叠之后呢？把最旧的 10 轮压成一份约 400 token 的纪要、只保留最近 5 轮原文：窗口最后是 1k 系统 + 0.4k 纪要 + 3k 原文 = 4.4k——省 66%；累计输入 ≈ 52k——省 64%。两个数字对应两种省法：窗口省的是「注意力摊多薄」（第 30 天：窗口越长规则越失忆），账单省的是真金白银。今天动手任务里你会亲手算一遍自己聊天记录的这笔账。",
+      "en": "Same 20-turn chat: unfolded, the window ends at 13k and cumulative input at 146k. With folding — compress the oldest 10 turns into a ~400-token summary, keep only the last 5 turns verbatim — the window ends at 1k system + 0.4k summary + 3k verbatim = 4.4k, a 66% cut; cumulative input ≈52k, a 64% cut. The two numbers buy different things: the window cut is about how thin attention spreads (day 30: rules fade as windows grow), the bill cut is real money. In today's hands-on you'll compute this bill for your own chat log."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Example"
+      },
+      "p": {
+       "zh": "价格按主流 API 输入价 3 美元/百万 token 粗算：不折叠 146k ≈ 0.44 美元，折叠 52k ≈ 0.16 美元，一场会话省 0.28 美元。看着不多——把这个数乘上一个每天接 2000 场对话的客服机器人，一年省 20 万美元级别。第 12 天的前缀缓存还能再砍：系统提示那 1k 在 20 轮里重复 20 次，命中缓存后只按一折计。",
+       "en": "At a typical input price of $3 per million tokens: unfolded 146k ≈ $0.44, folded 52k ≈ $0.16 — $0.28 saved per conversation. Small alone; multiply by a support bot handling 2,000 conversations a day and it's on the order of $200k a year. Day 12's prefix cache cuts further: that 1k system prompt repeats 20 times across the session, billed at a tenth once cached."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：历史不是数据库，折叠有损",
+      "en": "Misconception: history is not a database — folding is lossy"
+     },
+     "p": {
+      "zh": "直觉说「纪要里没提的就是不重要的」。但折叠是一次模型采样：它按「看起来重要」压缩，按训练分布补白——第 33 天刚好说过，压缩掉的信息后面所有环节都救不回来。用户在第 4 轮随口提的「我对花生过敏」，纪要没写下，第 19 轮推荐菜谱时模型就敢放花生。所以纪律是：能决定对错的事实（约束、编号、数字、承诺过的事）不进会被折叠的区域——要么钉在系统提示，要么写进贴在窗口里的文档。历史区只放「过程」，事实区放「结论」。",
+      "en": "Intuition says 'whatever the summary leaves out wasn't important.' But folding is a model sample: it compresses by what looks important and fills gaps from the training distribution — day 33 said it plainly: information dropped in compression can't be recovered downstream. The user mentioned 'I'm allergic to peanuts' in turn 4, the summary didn't write it down, and by turn 19 the recipe recommendation confidently includes peanuts. So the discipline: facts that decide right or wrong (constraints, IDs, numbers, promises) never live in the foldable zone — pin them in the system prompt or write them into a document kept in the window. The history zone holds process; the fact zone holds conclusions."
+     },
+     "misconception": {
+      "h": {
+       "zh": "误区",
+       "en": "Misconception"
+      },
+      "p": {
+       "zh": "「模型记住了 = 事实还在」。模型不核对历史，它引用历史：你中途纠正过一次口误，两个版本都留在窗口里，后面的生成会随机引用其中一个——纠错不是覆盖，是又钉了一条。真要纠错，明确说「撤回上一条，以这条为准」，或者干脆重开会话只带结论。",
+       "en": "'The model remembers = the fact is still there.' The model doesn't verify history, it quotes it: after you correct one slip mid-chat, both versions stay in the window and later turns cite either at random — a correction doesn't overwrite, it pins another line. To truly correct, say explicitly 'retract the previous one, this one stands,' or restart the session carrying only conclusions."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：手工折叠就是记忆系统雏形",
+      "en": "Extension: manual folding is a memory system in embryo"
+     },
+     "p": {
+      "zh": "今天你手动复制粘贴着折叠历史——这套动作就是第 85 天 RAG 和「记忆系统」的雏形：折叠器决定「什么值得留」，文档决定「事实放哪」，检索决定「要用时怎么拿回来」。链管任务拆步，多轮管上下文保鲜，两者在 Agent 身上合体：Agent 每一步工具调用的结果，就是被「钉回窗口」的对话历史。明天讲阶段二收尾的第一课：检索增强——窗口装不下的知识，怎么在要用那一刻精准递进去。",
+      "en": "Today you fold history by hand — that routine is the embryo of day 85's RAG and of memory systems: the folder decides what's worth keeping, the document decides where facts live, retrieval decides how to fetch them back on demand. Chains decompose tasks, multi-turn keeps context fresh, and the two merge in an agent: each tool call's result is dialogue history pinned back into the window. Tomorrow, the first lesson closing stage 2: retrieval-augmented generation — when knowledge won't fit the window, how to hand it in at the exact moment it's needed."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "打开你最近一场 15 轮以上的真实对话，数三笔账：① 整段字数折成 token（中文 ≈ 1.5 字/token），乘以轮数估累计输入；② 找出对话里的「事实句」（约束、数字、承诺）和「过程句」（讨论、试错），各占几成？③ 手动写一份 100 字纪要，然后回答两个问题：纪要漏掉哪条事实会造成后果？你把那条事实该钉进系统提示还是文档？（提示：看它会不会被后续轮次「引用」——会被引用的进系统提示，只是偶尔查的进文档。）",
+     "en": "Open a real conversation of 15+ turns and count three things: (1) total characters as tokens (Chinese ≈1.5 chars/token), times turns, for cumulative input; (2) split the turns into 'fact sentences' (constraints, numbers, promises) vs 'process sentences' (discussion, trial and error) — what's the ratio? (3) hand-write a 100-word summary, then answer: which dropped fact would cause real damage, and should it be pinned in the system prompt or filed into a document? (Hint: ask whether later turns will quote it — quoted facts go in the system prompt, occasionally-checked ones go in the document.)"
+    }
+   },
+   "takeaway": {
+    "zh": "多轮对话没有记忆，只有每轮整段重发的窗口：账单随轮数平方级上涨，模型把历史当事实引用。省法不是删记录，是分区——事实钉进系统提示、历史折叠成纪要、细节放下文。你今天手折的那一页，就是第 85 天 RAG 的雏形。",
+    "en": "Multi-turn dialogue has no memory, only a window re-sent in full every turn: bills grow quadratically with turns, and the model quotes history as fact. The fix isn't deleting history, it's zoning — facts pinned in the system prompt, history folded into a summary, details filed in a document. The page you fold by hand today is day 85's RAG in embryo."
+   },
+   "anim": {
+    "tpl": "turns",
+    "hook": {
+      "zh": "聊了 20 轮，账单是「重发一本小册子 20 遍」。",
+      "en": "20 turns in, the bill says you resent a booklet 20 times."
+    },
+    "question": {
+      "zh": "同一位用户的第 20 轮：窗口里此刻装着什么？",
+      "en": "The same user's turn 20: what is in the window right now?"
+    },
+    "coverHook": {
+     "zh": "同一场 20 轮对话：不折叠累计烧 146k token，分区折叠只烧 52k——省 64%，窗口还缩短 66%。",
+     "en": "Same 20-turn chat: unfolded it burns 146k tokens cumulative; zoning and folding burn 52k — 64% less, with a 66% shorter window."
+    },
+    "systemLabel": {
+     "zh": "系统提示 · 事实钉在这里",
+     "en": "System · facts pinned here"
+    },
+    "systemTokens": [
+     "约束",
+     "编号",
+     "偏好"
+    ],
+    "turns": [
+     {
+      "k": "t1",
+      "capZh": "第 1 轮",
+      "capEn": "turn 1"
+     },
+     {
+      "k": "t2",
+      "capZh": "第 2 轮",
+      "capEn": "turn 2"
+     },
+     {
+      "k": "t3",
+      "capZh": "第 3 轮",
+      "capEn": "turn 3"
+     }
+    ],
+    "historyLabel": {
+     "zh": "历史区 · 整段重发",
+     "en": "History · re-sent in full"
+    },
+    "summaryLabel": {
+     "zh": "纪要 · 旧轮折叠",
+     "en": "Summary · old turns folded"
+    },
+    "summaryTokens": [
+     "纪要 ≈ 400",
+     "过程结论"
+    ],
+    "keepLabel": {
+     "zh": "原文区 · 最近 5 轮",
+     "en": "Verbatim · last 5 turns"
+    },
+    "readoutZh": [
+     {
+      "num": "13k",
+      "cap": "不折叠 · 第 20 轮窗口"
+     },
+     {
+      "num": "4.4k",
+      "cap": "折叠后 · 窗口省 66%"
+     },
+     {
+      "num": "146k",
+      "cap": "不折叠 · 累计输入"
+     },
+     {
+      "num": "52k",
+      "cap": "折叠后 · 累计省 64%"
+     }
+    ],
+    "readoutEn": [
+     {
+      "num": "13k",
+      "cap": "unfolded · window at turn 20"
+     },
+     {
+      "num": "4.4k",
+      "cap": "folded · window −66%"
+     },
+     {
+      "num": "146k",
+      "cap": "unfolded · cumulative input"
+     },
+     {
+      "num": "52k",
+      "cap": "folded · cumulative −64%"
+     }
+    ],
+    "alert": {
+     "failZh": "✗ 纪要没写「花生过敏」——第 19 轮照样推荐",
+     "failEn": "✗ summary missed 'peanut allergy' — turn 19 recommends anyway",
+     "okZh": "✓ 事实钉进系统提示 · 折叠折不掉",
+     "okEn": "✓ fact pinned in system · folding can't drop it"
+    },
+    "note": {
+     "zh": "示意：20 轮对话的窗口构造（每轮 ≈600 token，系统提示 1k，价格 3 美元/百万 token）。历史每轮整段重发是平方级账单的根源；折叠省的是注意力和钱，救不回纪要里没有的事实——所以事实区永远独立于折叠区。",
+     "en": "Illustrative: window construction across a 20-turn chat (~600 tokens/turn, 1k system, $3 per million tokens). Resending the full history each turn is the root of the quadratic bill; folding saves attention and money but can't recover facts missing from the summary — which is why the fact zone never lives inside the fold zone."
+    }
+   }
   }
  ]
 }

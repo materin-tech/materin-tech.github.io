@@ -4961,3 +4961,210 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-body-day.is-stage .materin-learn-chain__stat-num { font-size: 44px; }
 .materin-learn-body-day.is-stage .materin-learn-chain__stat-cap { font-size: 24px; }
 .materin-learn-body-day.is-stage .materin-learn-chain__note { font-size: 28px; max-width: 840px; }
+
+/* turns（第 34 天）：多轮对话的窗口构造——系统行（事实钉这里）/
+   历史行（整段重发，逐轮堆高）/ 折叠行（纪要 + 原文区，折叠后才显形）。
+   格子只动 transform 不动 opacity，任意帧可读；账单读数折叠瞬间切换。 */
+.materin-learn-turns {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 680px;
+}
+
+.materin-learn-turns__question {
+  padding: 10px 22px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 14px;
+  background: var(--materin-glass-bg-subtle);
+  color: var(--materin-text);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.materin-learn-turns__tag {
+  color: var(--materin-text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  align-self: flex-start;
+}
+
+.materin-learn-turns__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 14px;
+  background: var(--materin-glass-bg-subtle);
+}
+
+.materin-learn-turns__row--sys { border-color: var(--materin-accent-border); }
+.materin-learn-turns__row--hist { border-style: dashed; }
+
+.materin-learn-turns__cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  height: 28px;
+  border: 1px solid var(--materin-border);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--materin-text);
+  white-space: nowrap;
+}
+
+.materin-learn-turns__cell--sys {
+  border-color: var(--materin-accent);
+  background: var(--materin-accent-soft);
+  color: var(--materin-accent);
+  opacity: 0.999;
+  transform: translateY(6px) scale(0.9);
+  transition: transform 0.4s var(--materin-ease-standard, ease);
+}
+
+.materin-learn-turns__row--sys.is-in .materin-learn-turns__cell--sys { transform: translateY(0) scale(1); }
+
+.materin-learn-turns__cell--t1,
+.materin-learn-turns__cell--t2,
+.materin-learn-turns__cell--t3 {
+  border-color: var(--materin-secondary-border);
+  background: var(--materin-surface-3);
+  opacity: 0.999;
+  transform: translateY(6px) scale(0.9);
+  transition: transform 0.4s var(--materin-ease-standard, ease);
+}
+
+.materin-learn-turns__cell--t1.is-in,
+.materin-learn-turns__cell--t2.is-in,
+.materin-learn-turns__cell--t3.is-in { transform: translateY(0) scale(1); }
+
+/* 折叠：历史行收窄压扁（过程让位），折叠行现形 */
+.materin-learn-turns__row--hist.is-folded {
+  transform: scaleX(0.62) scaleY(0.55);
+  opacity: 0.999;
+}
+
+.materin-learn-turns__fold {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 10px;
+  width: 100%;
+  padding: 10px 8px;
+  border: 1px solid var(--materin-ok-border);
+  border-radius: 14px;
+  background: var(--materin-ok-soft, var(--materin-surface-2));
+  opacity: 0.999;
+  transform: translateY(-8px) scaleY(0.8);
+  transition: transform 0.5s var(--materin-ease-standard, ease);
+}
+
+.materin-learn-turns__fold.is-in { transform: translateY(0) scaleY(1); }
+
+.materin-learn-turns__cell--sum {
+  border-color: var(--materin-ok-border);
+  background: var(--materin-surface-3);
+  color: var(--materin-ok);
+}
+
+.materin-learn-turns__cell--keep {
+  border-style: dashed;
+  background: transparent;
+  color: var(--materin-text-muted);
+}
+
+.materin-learn-turns__alert {
+  padding: 8px 18px;
+  border: 1px solid var(--materin-warn);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--materin-warn) 14%, transparent);
+  color: var(--materin-warn);
+  font-size: 12.5px;
+  font-weight: 700;
+  transform: scale(0.92);
+  transform-origin: center;
+  transition: transform 0.35s var(--materin-ease-standard, ease),
+              border-color 0.35s ease;
+}
+
+.materin-learn-turns__alert.is-in {
+  transform: scale(1);
+  border-color: var(--materin-ok);
+  color: var(--materin-ok);
+}
+
+.materin-learn-turns__readout {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.materin-learn-turns__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 14px;
+  border: 1px solid var(--materin-glass-border);
+  border-radius: 12px;
+  background: var(--materin-surface-2);
+}
+
+.materin-learn-turns__readout.is-folded .materin-learn-turns__stat { border-color: var(--materin-ok-border); }
+.materin-learn-turns__readout.is-folded .materin-learn-turns__stat--folded { border-color: var(--materin-accent-border); }
+
+.materin-learn-turns__stat-num {
+  color: var(--materin-text);
+  font-size: 19px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.materin-learn-turns__readout.is-folded .materin-learn-turns__stat--folded .materin-learn-turns__stat-num { color: var(--materin-accent); }
+
+.materin-learn-turns__stat-cap {
+  color: var(--materin-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.materin-learn-turns__note {
+  margin: 0;
+  color: var(--materin-text-faint);
+  font-size: 12.5px;
+  text-align: center;
+  max-width: 640px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materin-learn-turns__row--sys .materin-learn-turns__cell--sys,
+  .materin-learn-turns__cell--t1,
+  .materin-learn-turns__cell--t2,
+  .materin-learn-turns__cell--t3,
+  .materin-learn-turns__fold,
+  .materin-learn-turns__alert { transform: none; transition: none; }
+}
+
+/* 竖版舞台（?stage=1）：turns 放大 */
+.materin-learn-body-day.is-stage .materin-learn-turns { gap: 20px; max-width: 900px; }
+.materin-learn-body-day.is-stage .materin-learn-turns__question { font-size: 30px; padding: 18px 34px; border-radius: 22px; }
+.materin-learn-body-day.is-stage .materin-learn-turns__tag { font-size: 24px; }
+.materin-learn-body-day.is-stage .materin-learn-turns__row { min-height: 80px; border-radius: 22px; gap: 14px; }
+.materin-learn-body-day.is-stage .materin-learn-turns__cell { height: 52px; padding: 0 22px; border-radius: 14px; font-size: 28px; }
+.materin-learn-body-day.is-stage .materin-learn-turns__fold { border-radius: 22px; gap: 14px 16px; padding: 18px; }
+.materin-learn-body-day.is-stage .materin-learn-turns__alert { font-size: 27px; padding: 12px 32px; }
+.materin-learn-body-day.is-stage .materin-learn-turns__stat-num { font-size: 44px; }
+.materin-learn-body-day.is-stage .materin-learn-turns__stat-cap { font-size: 23px; }
+.materin-learn-body-day.is-stage .materin-learn-turns__note { font-size: 28px; max-width: 840px; }

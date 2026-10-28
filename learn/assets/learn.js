@@ -2174,6 +2174,111 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* turns：多轮对话的窗口构造（第 34 天）——三区落位 + 折叠收拢：
+       系统提示（事实钉这里）→ 历史区整段重发（逐轮堆高）→ 折叠后
+       纪要格现形、原文区只留最近轮；账单数字折叠瞬间切换，告警徽章
+       演示「纪要漏事实→钉回系统提示」。格子只动 transform 不动
+       opacity，确定性时序，循环重播。 */
+    turns: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-turns');
+      var question = el('div', 'materin-learn-turns__question', t(a.question));
+
+      var sysTag = el('div', 'materin-learn-turns__tag', t(a.systemLabel));
+      var sysRow = el('div', 'materin-learn-turns__row materin-learn-turns__row--sys');
+      a.systemTokens.forEach(function (tok, i) {
+        var cell = el('span', 'materin-learn-turns__cell materin-learn-turns__cell--sys', t({ zh: tok, en: tok }));
+        cell.style.animationDelay = (0.25 + i * 0.12) + 's';
+        sysRow.appendChild(cell);
+      });
+
+      var histTag = el('div', 'materin-learn-turns__tag', t(a.historyLabel));
+      var histRow = el('div', 'materin-learn-turns__row materin-learn-turns__row--hist');
+      var histCells = a.turns.map(function (tr, i) {
+        var cell = el('span', 'materin-learn-turns__cell materin-learn-turns__cell--' + tr.k,
+          lang() === 'en' ? tr.capEn : tr.capZh);
+        histRow.appendChild(cell);
+        return cell;
+      });
+
+      var foldRow = el('div', 'materin-learn-turns__fold');
+      var sumTag = el('div', 'materin-learn-turns__tag', t(a.summaryLabel));
+      var sumCells = a.summaryTokens.map(function (tok, i) {
+        var cell = el('span', 'materin-learn-turns__cell materin-learn-turns__cell--sum', t({ zh: tok, en: tok }));
+        cell.style.animationDelay = (0.15 + i * 0.12) + 's';
+        return cell;
+      });
+      var keepTag = el('div', 'materin-learn-turns__tag', t(a.keepLabel));
+      var keepCells = a.turns.map(function (tr) {
+        return el('span', 'materin-learn-turns__cell materin-learn-turns__cell--keep',
+          lang() === 'en' ? tr.capEn : tr.capZh);
+      });
+
+      var alert = el('div', 'materin-learn-turns__alert',
+        lang() === 'en' ? a.alert.failEn : a.alert.failZh);
+
+      var readout = el('div', 'materin-learn-turns__readout');
+      var rd = lang() === 'en' ? a.readoutEn : a.readoutZh;
+      /* 四格读数：[0] 不折叠窗口 [1] 折叠窗口 [2] 不折叠累计 [3] 折叠累计。
+         折叠瞬间 0→1、2→3 切换（tabular-nums 保宽，不做滚动）。 */
+      var statNums = [];
+      rd.forEach(function (r, i) {
+        var box = el('div', 'materin-learn-turns__stat' + (i % 2 === 1 ? ' materin-learn-turns__stat--folded' : ''));
+        var num = el('span', 'materin-learn-turns__stat-num', r.num);
+        box.appendChild(num);
+        box.appendChild(el('span', 'materin-learn-turns__stat-cap', r.cap));
+        readout.appendChild(box);
+        statNums.push(num);
+      });
+      var note = el('p', 'materin-learn-turns__note', t(a.note));
+
+      /* 时序：问题 0.3s → 系统行 0.8s → 历史格逐轮 1.8s（账单爬升）→
+         折叠收拢 1.2s（纪要格现形、原文区只留最近轮）→ 告警徽章亮 →
+         钉回转绿 → 静置 → 循环。 */
+      var T0 = 300, SYS_AT = 800, HIST_AT = 1800, HIST_STEP = 350,
+          FOLD_AT = HIST_AT + histCells.length * HIST_STEP + 500,
+          ALERT_AT = FOLD_AT + 1200, ALERT_LEN = 1300;
+      var CYCLE = ALERT_AT + ALERT_LEN + 3000;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        sysRow.classList.toggle('is-in', tNow >= SYS_AT);
+        histCells.forEach(function (c, k) {
+          c.classList.toggle('is-in', tNow >= HIST_AT + k * HIST_STEP);
+        });
+        var folded = tNow >= FOLD_AT;
+        histRow.classList.toggle('is-folded', folded);
+        foldRow.classList.toggle('is-in', folded);
+        readout.classList.toggle('is-folded', folded);
+        var alertOn = tNow >= ALERT_AT && tNow < ALERT_AT + ALERT_LEN;
+        alert.classList.toggle('is-in', alertOn);
+        alert.textContent = alertOn
+          ? (lang() === 'en' ? a.alert.okEn : a.alert.okZh)
+          : (lang() === 'en' ? a.alert.failEn : a.alert.failZh);
+        /* 折叠前显示不折叠账（格 0/2），折叠后显示折叠账（格 1/3） */
+        statNums[0].textContent = folded ? rd[1].num : rd[0].num;
+        statNums[1].textContent = folded ? rd[3].num : rd[2].num;
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(question);
+      wrap.appendChild(sysTag);
+      wrap.appendChild(sysRow);
+      wrap.appendChild(histTag);
+      wrap.appendChild(histRow);
+      foldRow.appendChild(sumTag);
+      sumCells.forEach(function (c) { foldRow.appendChild(c); });
+      foldRow.appendChild(keepTag);
+      keepCells.forEach(function (c) { foldRow.appendChild(c); });
+      wrap.appendChild(foldRow);
+      wrap.appendChild(alert);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

@@ -1751,6 +1751,71 @@
         v.appendChild(chnext);
         v.appendChild(el('div', 'materin-learn-viz__label', '今天的手工链就是 Agent 骨架——明天讲链的孪生兄弟：多轮对话不掉链子'));
       }
+    } else if (day.anim && day.anim.tpl === 'turns') {
+      /* turns（第 34 天）：多轮对话——三区窗口构造 / 平方级账单 / 折叠有损 /
+         通向 RAG（与动效页同一组数） */
+      if (idx === 0) {
+        var tnzone = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '系统提示 · 1k（事实钉这里）', cls: '', verdict: '每轮全价重发', vcls: '' },
+          { tag: '历史区 · 19 轮 ≈ 12k（整段重发）', cls: ' materin-learn-viz__route-row--think', verdict: '平方级账单', vcls: ' materin-learn-viz__route-word--bad' },
+          { tag: '第 20 轮新消息 · 0.6k', cls: '', verdict: '本轮增量', vcls: '' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          tnzone.appendChild(row);
+        });
+        v.appendChild(tnzone);
+        v.appendChild(el('div', 'materin-learn-viz__label', '模型没有记忆：每轮把「系统＋全部历史＋新消息」整段重发，注意力全序重算'));
+      } else if (idx === 1) {
+        var tnbill = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '不折叠 · 累计输入', val: 100, cls: '', txt: '≈146k token · 平方级', wide: true },
+          { tag: '分区折叠 · 累计输入', val: 36, cls: ' materin-learn-viz__bar--en', txt: '≈52k · 省 64%', wide: true },
+          { tag: '折叠后窗口', val: 34, cls: '', txt: '4.4k 对 13k · 省 66%', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(3, r.val) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          tnbill.appendChild(row);
+        });
+        v.appendChild(tnbill);
+        v.appendChild(el('div', 'materin-learn-viz__label', '20 轮对话：窗口省的是注意力，账单省的是真金白银（3 美元/百万 token）'));
+      } else if (idx === 2) {
+        var tnloss = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '第 4 轮随口说「花生过敏」', cls: '', verdict: '纪要没写下', vcls: '' },
+          { tag: '第 19 轮推荐菜谱照样放花生', cls: ' materin-learn-viz__route-row--think', verdict: '✗ 折叠有损', vcls: ' materin-learn-viz__route-word--bad' },
+          { tag: '事实钉进系统提示或文档', cls: '', verdict: '✓ 折叠折不掉', vcls: ' materin-learn-viz__route-word--ok' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          tnloss.appendChild(row);
+        });
+        v.appendChild(tnloss);
+        v.appendChild(el('div', 'materin-learn-viz__label', '历史不是数据库：折叠是模型采样，按「看起来重要」压缩——纠错是又钉一条，不是覆盖'));
+      } else {
+        var tnext = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '今天 · 手动折叠历史', cls: '', verdict: '窗口接线纪律', vcls: '' },
+          { tag: '第 85 天 · RAG 检索', cls: ' materin-learn-viz__route-row--think', verdict: '要用时递进去', vcls: ' materin-learn-viz__route-word--ok' },
+          { tag: '第 50 天 · Agent', cls: '', verdict: '工具结果钉回窗口', vcls: '' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          tnext.appendChild(row);
+        });
+        v.appendChild(tnext);
+        v.appendChild(el('div', 'materin-learn-viz__label', '手工折叠就是记忆系统雏形——明天讲检索增强：装不下的知识怎么递进窗口'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));
