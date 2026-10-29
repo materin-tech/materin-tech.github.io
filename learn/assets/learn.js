@@ -2279,6 +2279,75 @@
       wrap.appendChild(readout);
       wrap.appendChild(note);
       return wrap;
+    },
+
+    /* rag：检索增强（第 35 天）——九页知识库先亮出 → 检索箭头落下、
+       命中 3 页点亮飞入窗口行 → 答案行带出处落位 → 读数对照（整库 vs 命中）。
+       格子初始可见只动 transform，无 op 变量不留；循环重播。 */
+    rag: function (day) {
+      var a = day.anim;
+      var wrap = el('div', 'materin-learn-rag');
+      var question = el('div', 'materin-learn-rag__question', t(a.question));
+
+      var docTag = el('div', 'materin-learn-rag__tag', t(a.docTag));
+      var docRow = el('div', 'materin-learn-rag__docrow');
+      a.pages.forEach(function (pg, i) {
+        var cell = el('span', 'materin-learn-rag__page' + (pg.hit ? ' materin-learn-rag__page--hit' : ''),
+          lang() === 'en' ? pg.en : pg.zh);
+        docRow.appendChild(cell);
+      });
+
+      var arrow = el('div', 'materin-learn-rag__arrow', t(a.arrowLabel));
+      var windowTag = el('div', 'materin-learn-rag__tag materin-learn-rag__tag--win', t(a.windowTag));
+      var winRow = el('div', 'materin-learn-rag__winrow');
+      a.pages.forEach(function (pg) {
+        if (!pg.hit) return;
+        var cell = el('span', 'materin-learn-rag__page materin-learn-rag__page--in',
+          lang() === 'en' ? pg.en : pg.zh);
+        winRow.appendChild(cell);
+      });
+      var answer = el('div', 'materin-learn-rag__answer', t(a.answer));
+
+      var readout = el('div', 'materin-learn-rag__readout');
+      var rd = lang() === 'en' ? a.statsEn : a.statsZh;
+      rd.forEach(function (r) {
+        var box = el('div', 'materin-learn-rag__stat');
+        box.appendChild(el('span', 'materin-learn-rag__stat-num', r.num));
+        box.appendChild(el('span', 'materin-learn-rag__stat-cap', r.cap));
+        readout.appendChild(box);
+      });
+      var note = el('p', 'materin-learn-rag__note', t(a.note));
+
+      /* 时序：问题 0.3s → 库行 0.8s → 箭头 2.2s → 命中页点亮 2.6s →
+         窗口行现形 3.4s → 答案 4.6s → 静置 → 循环 */
+      var Q_AT = 300, DOC_AT = 800, ARROW_AT = 2200, HIT_AT = 2600,
+          WIN_AT = 3400, ANS_AT = 4600, ANS_LEN = 1400, HOLD = 3200;
+      var CYCLE = ANS_AT + ANS_LEN + HOLD;
+      var t0 = null;
+      function step(ts) {
+        if (t0 == null) t0 = ts;
+        var tNow = (ts - t0) % CYCLE;
+        question.classList.toggle('is-in', tNow >= Q_AT);
+        docRow.classList.toggle('is-in', tNow >= DOC_AT);
+        arrow.classList.toggle('is-in', tNow >= ARROW_AT);
+        docRow.classList.toggle('is-picked', tNow >= HIT_AT);
+        winRow.classList.toggle('is-in', tNow >= WIN_AT);
+        var ansOn = tNow >= ANS_AT;
+        answer.classList.toggle('is-in', ansOn);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.appendChild(question);
+      wrap.appendChild(docTag);
+      wrap.appendChild(docRow);
+      wrap.appendChild(arrow);
+      wrap.appendChild(windowTag);
+      wrap.appendChild(winRow);
+      wrap.appendChild(answer);
+      wrap.appendChild(readout);
+      wrap.appendChild(note);
+      return wrap;
     }
   };
 

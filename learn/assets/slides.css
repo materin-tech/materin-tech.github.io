@@ -344,6 +344,20 @@
 .materin-learn-viz__route-row .materin-learn-viz__route-dot { flex: 0 0 auto; white-space: nowrap; }
 /* scale（第 25 天）route 行：叙述标签一行放下，防孤字折行（D25/D19 同坑） */
 .materin-learn-viz__route-row .materin-learn-viz__route-word { white-space: nowrap; }
+/* route 行 text 溢出兜底（D35 发现）：nowrap 文本长于 flex 分配盒宽时，
+   26px 行的文字会压到判决徽章（D22 也有 -27px 旧账）——允许 text 收缩、
+   文本换长行并左对齐，徽章永远不吃字 */
+.materin-learn-viz__route-row .materin-learn-viz__route-word {
+  flex-shrink: 1;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+  padding-right: 6px;
+  text-align: left;
+}
+.materin-learn-viz__route-row .materin-learn-viz__route-dot { margin-left: auto; }
+/* 长行不折行的正路：每行自带 think 小字（21px）——长叙述标签一律挂 --think 走小字 */
+.materin-learn-viz__route-row--think .materin-learn-viz__route-word { white-space: nowrap; }
 
 .materin-learn-viz__route-dots { display: flex; gap: 8px; }
 

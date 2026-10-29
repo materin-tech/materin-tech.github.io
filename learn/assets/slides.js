@@ -1816,6 +1816,82 @@
         v.appendChild(tnext);
         v.appendChild(el('div', 'materin-learn-viz__label', '手工折叠就是记忆系统雏形——明天讲检索增强：装不下的知识怎么递进窗口'));
       }
+    } else if (day.anim && day.anim.tpl === 'rag') {
+      /* rag（第 35 天）：检索增强——五步流水线 / 两条路的账 / 三个误区 /
+         通往 Agent 与阶段四（与动效页同一组数） */
+      if (idx === 0) {
+        var rchain = el('div', 'materin-learn-viz__chips');
+        [
+          { tag: '切块建库', alt: false }, { tag: '→', alt: true },
+          { tag: '向量检索 top-3', alt: false }, { tag: '→', alt: true },
+          { tag: '拼进窗口', alt: false }, { tag: '→', alt: true },
+          { tag: '读材料作答', alt: false }, { tag: '→', alt: true },
+          { tag: '带出处', merged: true }
+        ].forEach(function (r) {
+          var cls = 'materin-learn-viz__chip' + (r.merged ? ' materin-learn-viz__chip--merged' : (r.alt ? ' materin-learn-viz__chip--alt' : ''));
+          rchain.appendChild(el('span', cls, r.tag));
+        });
+        v.appendChild(rchain);
+        var rwho = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '模型只负责第 ④ 步：读材料作答', cls: ' materin-learn-viz__route-row--think', verdict: '知识在窗口外', vcls: '' },
+          { tag: '第 9 天的处境被换掉：材料里没有就说没有', cls: ' materin-learn-viz__route-row--think', verdict: '✓ 可核查', vcls: ' materin-learn-viz__route-word--ok' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          rwho.appendChild(row);
+        });
+        v.appendChild(rwho);
+        v.appendChild(el('div', 'materin-learn-viz__label', '检索错了后面全错：top-3 没召回到正确段落，模型再聪明也只能编——调优重心在检索不在模型'));
+      } else if (idx === 1) {
+        var rbill = el('div', 'materin-learn-viz__bars materin-learn-viz__bars--wide');
+        [
+          { tag: '整库塞窗口 · 3.3M token', val: 100, cls: '', txt: '≈$9.8/次 · 而且装不下', wide: true },
+          { tag: '检索后 · 问题 30 + 3 块 2.4k', val: 3, cls: ' materin-learn-viz__bar--en', txt: '≈$0.007/次 · 1/1370', wide: true },
+          { tag: '建库一次性嵌入 · 3.3M', val: 1, cls: '', txt: '≈$0.07 · 一次付清', wide: true }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (r.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + r.cls);
+          bar.style.width = Math.max(2, r.val) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          rbill.appendChild(row);
+        });
+        v.appendChild(rbill);
+        v.appendChild(el('div', 'materin-learn-viz__label', '4096 页知识库的两条路：1000 次/天的内部问答，一条不可行，一条一天 $7.2 还带出处'));
+      } else if (idx === 2) {
+        var rmis = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '贴整份文档 ≠ RAG：注意力摊薄', cls: ' materin-learn-viz__route-row--think', verdict: '✗ 没有预筛选', vcls: '' },
+          { tag: '检索到了 ≠ 模型会用：要加约束', cls: ' materin-learn-viz__route-row--think', verdict: '模板锁「仅据材料」', vcls: ' materin-learn-viz__route-word--ok' },
+          { tag: '向量检索 ≠ 万能：专名编号对不上', cls: ' materin-learn-viz__route-row--think', verdict: '双路检索兜底', vcls: '' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          rmis.appendChild(row);
+        });
+        v.appendChild(rmis);
+        v.appendChild(el('div', 'materin-learn-viz__label', '检索质量的天花板是文档质量，不是检索器参数'));
+      } else {
+        var rnext = el('div', 'materin-learn-viz__routes');
+        [
+          { tag: '明天 · RAG 提示模板实操', cls: '', verdict: '动手搭一条', vcls: '' },
+          { tag: '第 50 天 · Agent 工具调用', cls: '', verdict: '搜库结果钉回窗口', vcls: ' materin-learn-viz__route-word--ok' },
+          { tag: '第 85 天 · RAG 与知识系统', cls: '', verdict: '阶段四正题', vcls: '' }
+        ].forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + r.cls);
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + r.vcls, r.verdict));
+          rnext.appendChild(row);
+        });
+        v.appendChild(rnext);
+        v.appendChild(el('div', 'materin-learn-viz__label', '你今天手动翻资料的动作，就是 Agent 自动翻资料的原型——答错事实先问「检索到了吗」'));
+      }
     } else if (day.sections[idx] && day.sections[idx].example) {
       v.appendChild(el('div', 'materin-learn-viz__num', '✦'));
       v.appendChild(el('div', 'materin-learn-viz__label', '实例拆解'));

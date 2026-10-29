@@ -6584,6 +6584,157 @@
      "en": "Illustrative: window construction across a 20-turn chat (~600 tokens/turn, 1k system, $3 per million tokens). Resending the full history each turn is the root of the quadratic bill; folding saves attention and money but can't recover facts missing from the summary — which is why the fact zone never lives inside the fold zone."
     }
    }
+  },
+  {
+   "n": 35,
+   "stage": 2,
+   "week": 5,
+   "tpl": "rag",
+   "date": "2026-10-29",
+   "title": {
+    "zh": "RAG：先翻资料，再回答",
+    "en": "RAG: look it up first, then answer"
+   },
+   "subtitle": {
+    "zh": "阶段二第七课。模型的知识冻结在训练截止日，窗口也装不下整个知识库——RAG 把「答对」拆成两步：先在窗口外检索出最相关的几段，再让模型对着原文做阅读理解。检索质量的上限，就是回答质量的上限。",
+    "en": "Stage 2, lesson seven. The model's knowledge froze at its training cutoff, and no window holds a whole knowledge base — RAG splits \"answering correctly\" into two steps: retrieve the most relevant passages outside the window, then let the model do reading comprehension against the original text. The ceiling of retrieval quality is the ceiling of answer quality."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：检索加生成，一条两步流水线",
+      "en": "Mechanism: retrieval plus generation, a two-step pipeline"
+     },
+     "p": {
+      "zh": "RAG（Retrieval-Augmented Generation，检索增强生成）的链条是五步：① 离线建库——把文档切块（chunk，常见 200～500 token），全部算成嵌入向量存进向量库（第 2、13 天）；② 在线检索——用户问题同样向量化，在库里取余弦最近的 top-k 块（k 通常 3～8）；③ 组装——把命中的块连同问题拼进提示模板；④ 生成——模型只做「读材料、照着答」；⑤ 引用——命中块标注为出处，让答案可回查。模型在这条链里只负责第 ④ 步：它不再凭参数里的统计印象回忆事实，而是对着一窗口的原文做阅读理解——第 9 天那种「语料里没有就联想补全」的处境，被换成了「材料里没有就只能说没有」。",
+      "en": "The RAG (Retrieval-Augmented Generation) chain has five steps: 1) offline indexing — split documents into chunks (commonly 200–500 tokens), embed them all, and store the vectors (days 2 and 13); 2) online retrieval — embed the user's question the same way and take the cosine-nearest top-k chunks (k usually 3–8); 3) assembly — splice the hits and the question into a prompt template; 4) generation — the model just reads the material and answers from it; 5) citation — hits are labeled as sources so every answer can be checked. The model owns only step 4: instead of recalling facts from statistical impressions in its parameters (day 9's \"nothing in the corpus, so improvise\"), it does reading comprehension against a window of original text — \"not in the material\" becomes an answer it is allowed to give."
+     },
+     "deep": {
+      "zh": "为什么这样设计？把知识从参数搬到外部存储，等于把第 7 天有损压缩丢掉的细节放了回来：知识库更新只需重算增量块的向量，不用重训模型；引用让幻觉有了可核查的锚点——答案要么能指回原文，要么是编的，一眼可辨。代价是链条变长、失败点前移：检索错了后面全错——top-3 没召回到正确段落，模型再聪明也只能编。所以 RAG 产品的调优重心大多不在模型，在检索：切块的边界、嵌入模型的选型、相似度阈值、要不要加关键词检索兜底。",
+      "en": "Why this design? Moving knowledge from parameters to external storage puts back the details day 7's lossy compression dropped: updating the knowledge base means re-embedding only the new chunks, no retraining; citations give hallucination a checkable anchor — an answer either points back to the source or it's fabricated, visibly. The cost is a longer chain with the failure point moved upstream: if retrieval is wrong, everything after is wrong — when top-3 misses the right passage, no amount of model cleverness saves you. That's why RAG tuning effort lands mostly on retrieval, not the model: chunk boundaries, embedding-model choice, similarity thresholds, whether to add keyword search as a fallback."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：4096 页知识库的两条路",
+      "en": "The math: one knowledge base, two routes"
+     },
+     "p": {
+      "zh": "设知识库 4096 页、每页 800 token，共 3.3M token。路线 A（不检索）：每次提问把全库塞进窗口——先不论再大的窗口都装不下（128K 只装 4%，第 4 天的账），就算硬塞 1M 也要截掉七成，单次输入费 3.3M × $3/百万 ≈ $9.8。路线 B（RAG）：问题 30 token + 命中 3 块 2.4k token，单次输入费 ≈ $0.007——是路线 A 的 1/1370。再算建库：3.3M token 一次性嵌入，按嵌入价 $0.02/百万 ≈ $0.07，一次付清，之后随便问。检索这一步本身几乎免费：嵌入一个问题 30 token 可忽略，向量比对是纯算术（第 13 天：向量化之后，找相似从阅读理解变成量距离）。",
+      "en": "Say the knowledge base is 4,096 pages at 800 tokens each — 3.3M tokens total. Route A (no retrieval): stuff the whole library into the window every question — never mind that no window holds it (128K holds 4%, day 4's math); even forcing 1M truncates 70%, and one call bills 3.3M × $3/M ≈ $9.8. Route B (RAG): the question is 30 tokens plus 3 hit chunks at 2.4k tokens, ≈$0.007 per call — 1/1370 of route A. Indexing: 3.3M tokens embedded once at $0.02/M ≈ $0.07, paid once. Retrieval itself is nearly free: embedding a question is 30 tokens, and comparing vectors is pure arithmetic (day 13: after vectorization, finding similar goes from reading comprehension to measuring distance)."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Example"
+      },
+      "p": {
+       "zh": "换成一天 1000 次提问的内部知识库问答：路线 A 每次重发全库，一天 3.3B token、$9,800——而且没有窗口装得下，根本不可行；路线 B 一天 1000 × 2.4k ≈ 2.4M token，约 $7.2，加上建库 $0.07。两者差三个数量级以上，且路线 B 的每条答案都带出处——审计、合规、用户信任，都是白送的。这也解释了为什么企业知识库问答几乎是所有人 RAG 的第一课：账太好算，收益太直观。",
+       "en": "Scale it to an internal KB bot answering 1,000 questions a day: route A resends the whole library each time — 3.3B tokens a day, $9,800, and no window could hold it anyway: not viable. Route B: 1,000 × 2.4k ≈ 2.4M tokens a day, about $7.2, plus $0.07 to index. Three orders of magnitude apart — and every route-B answer carries its source: audit, compliance, and user trust come free. This is why KB Q&A is everyone's first RAG project: the math is easy and the payoff is obvious."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：RAG 不是把书塞给模型",
+      "en": "Misconception: RAG is not stuffing the book into the prompt"
+     },
+     "p": {
+      "zh": "最常见的误解：「把文档贴进提示词就是 RAG」。区别在「选哪几段」：直接贴整份文档是第 4 天的窗口配给制——文档越长，注意力摊得越薄（第 6 天的稀释效应），关键段落沉底；RAG 的核心是检索先做了预筛选，只让最相关的 3～8 段进窗口。第二个误区：「检索到了 = 模型会用」。命中块躺在窗口里，模型仍可能忽略它、或按第 9 天的习惯编一句更顺口的——所以提示模板必须加约束（「仅根据材料回答」「材料未提及就说不知道」），这是第 30 天指令设计的直接应用。第三个误区：「向量检索是万能的」——它按统计相关性找，专有名词、编号、罕见缩写常常对不上，生产系统普遍用向量 + 关键词双路检索再融合。",
+      "en": "The most common misread: \"pasting documents into the prompt IS RAG.\" The difference is which passages get chosen: pasting a whole document is day 4's window rationing — the longer the document, the thinner attention spreads (day 6's dilution) and key passages sink; RAG's core is retrieval pre-screening, letting only the most relevant 3–8 chunks in. Second: \"retrieved = used.\" A hit chunk sits in the window, but the model may still ignore it or, per day 9's habit, invent something smoother — so the template must add constraints (\"answer only from the material\", \"say unknown if the material doesn't cover it\"): day 30's instruction design applied directly. Third: \"vector retrieval is universal\" — it matches by statistical association, so proper nouns, IDs, and rare abbreviations often miss; production systems routinely run vector + keyword search in parallel and merge."
+     },
+     "misconception": {
+      "h": {
+       "zh": "常见误区",
+       "en": "Common misconception"
+      },
+      "p": {
+       "zh": "「RAG 需要微调模型」。不需要——RAG 的全部魔力在窗口外：检索器是独立组件，模型原封不动。反过来也不成立：「有了 RAG 就不用整理文档」——切块的边界决定召回粒度，一份结构混乱的文档切出来的块自带噪声；检索质量的天花板是文档质量，下限才是检索器的参数。",
+       "en": "\"RAG needs model fine-tuning.\" It doesn't — all the magic lives outside the window: the retriever is a standalone component and the model stays untouched. The converse fails too: \"with RAG, no need to clean up the documents\" — chunk boundaries decide recall granularity, and chunks cut from a messy document carry noise; document quality is the ceiling of retrieval quality, retriever settings are merely the floor."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：检索是 Agent 的手，也是记忆的钥匙",
+      "en": "Extension: retrieval is the agent's hand and the key to memory"
+     },
+     "p": {
+      "zh": "RAG 是阶段四（第 85 天起）的名字，但检索这个动作明天就会以完整形态出现——阶段二最后一课就是检索增强的提示模板实操。往后看：阶段三 Agent 的工具调用里，「搜知识库」是最常用的工具之一，工具结果钉回窗口就是今天讲的组装步骤；Agent 的长期记忆同样是「把对话存成向量、按相关性取回」——你今天手动翻资料的动作，就是 Agent 自动翻资料的原型。带着一个判断力走完阶段二：当模型答错事实时，先问「检索到了吗」，而不是急着换模型。",
+      "en": "RAG is the name of stage 4 (from day 85), but retrieval shows up in full tomorrow — stage 2's closing lesson is a hands-on RAG prompt template. Further out: in stage 3's tool calling, \"search the knowledge base\" is among the most-used tools, and pinning tool results back into the window is exactly today's assembly step; an agent's long-term memory is likewise \"store dialogue as vectors, recall by relevance\" — your manual look-up today is the prototype of an agent's automatic one. Carry one judgment into the end of stage 2: when the model gets a fact wrong, first ask \"did retrieval find it?\" before rushing to swap models."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "找一个支持「上传文档问答」的产品（或开源 RAG demo），传一份你熟悉的文档（如公司的报销制度或一份合同），问三个问题：① 一个文档里明确写了的事实；② 一个文档里没有、但听起来合理的「事实」；③ 一个需要跨段落汇总的问题。记录：哪些回答带了出处、哪些编了、哪个答错了？然后回答：问题 ② 的编造，RAG 能防住吗——什么条件下防不住？（提示：区分「引用了材料但材料里没写」和「无视材料」——前者是第 9 天的老问题在检索层重演，说明相似度把相近段落捞上来了但答案段缺席；后者是提示约束没锁住。）",
+     "en": "Use any product with \"upload a document and ask\" (or an open-source RAG demo) and upload a document you know well (e.g. your company's expense policy or a contract). Ask three questions: (1) a fact explicitly written in the document; (2) a plausible-sounding \"fact\" that is not in it; (3) a question requiring cross-passage synthesis. Record: which answers cited sources, which fabricated, which were wrong? Then answer: can RAG prevent fabrication of type (2) — and under what condition does it fail? (Hint: distinguish \"quoted the material but the material lacks it\" from \"ignored the material\" — the former is day 9's old problem replayed at the retrieval layer (similar passages surfaced, the right one absent); the latter means the prompt constraint didn't hold.)"
+    }
+   },
+   "takeaway": {
+    "zh": "RAG = 检索 + 生成：把「记住一切」换成「用时翻书」——知识放窗口外随时更新，每次提问只递最相关的几段，答案带出处可核查。模型只负责读材料；检索质量的上限，就是回答质量的上限。",
+    "en": "RAG = retrieval + generation: swap \"remember everything\" for \"look it up when needed\" — knowledge lives outside the window and updates freely, each question gets only the most relevant passages, and answers carry checkable sources. The model just reads; the ceiling of retrieval quality is the ceiling of answer quality."
+   },
+   "anim": {
+    "tpl": "rag",
+    "hook": {
+     "zh": "模型不知道的事，让它先翻资料。",
+     "en": "What the model doesn't know, it should look up first."
+    },
+    "question": {
+     "zh": "问：出差住宿每晚最多报销多少？",
+     "en": "Q: What's the nightly hotel reimbursement cap?"
+    },
+    "docTag": {
+     "zh": "知识库 · 9 页（示意）",
+     "en": "Knowledge base · 9 pages (illustrative)"
+    },
+    "pages": [
+     { "zh": "薪酬制度", "en": "Payroll", "hit": false },
+     { "zh": "考勤规定", "en": "Attendance", "hit": false },
+     { "zh": "报销流程", "en": "Expenses", "hit": true },
+     { "zh": "差旅标准", "en": "Travel", "hit": true },
+     { "zh": "采购规范", "en": "Procurement", "hit": false },
+     { "zh": "合同模板", "en": "Contracts", "hit": false },
+     { "zh": "培训记录", "en": "Training", "hit": false },
+     { "zh": "财务制度", "en": "Finance", "hit": true },
+     { "zh": "行政流程", "en": "Facilities", "hit": false }
+    ],
+    "arrowLabel": {
+     "zh": "⇣ 检索 · 余弦最近 top-3",
+     "en": "⇣ retrieve · cosine top-3"
+    },
+    "windowTag": {
+     "zh": "窗口 · 只装命中的 3 页",
+     "en": "Window · only the 3 hits"
+    },
+    "answer": {
+     "zh": "答：每晚 400 元上限，凭发票（差旅标准 §3）",
+     "en": "A: ¥400 per night with receipt (Travel Standard §3)"
+    },
+    "statsZh": [
+     { "num": "3.3M", "cap": "整库塞窗口 · 装不下" },
+     { "num": "2.4k", "cap": "检索后 · 命中 3 块" },
+     { "num": "≈1370×", "cap": "每次提问省下的输入" }
+    ],
+    "statsEn": [
+     { "num": "3.3M", "cap": "whole library · won't fit" },
+     { "num": "2.4k", "cap": "after retrieval · 3 chunks" },
+     { "num": "≈1370×", "cap": "less input per question" }
+    ],
+    "note": {
+     "zh": "示意：9 页知识库、命中 3 页（每页 ≈800 token，输入价 3 美元/百万 token）。检索在窗口外先把「最相关的几段」选出来，模型只对窗口里的原文做阅读理解——答不出时，它终于可以说「材料里没有」。",
+     "en": "Illustrative: a 9-page knowledge base, 3 hits (each ≈800 tokens, $3 per million input tokens). Retrieval pre-selects the most relevant passages outside the window; the model does reading comprehension on the originals — and when the answer isn't there, it can finally say \"not in the material\"."
+    },
+    "coverHook": {
+     "zh": "4096 页知识库塞不进窗口——检索只递 3 页，单次提问 $9.8 变 $0.007。",
+     "en": "A 4,096-page library can't fit the window — retrieval hands over 3 pages: $9.8 → $0.007 per question."
+    }
+   }
   }
  ]
 }
