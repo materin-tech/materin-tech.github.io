@@ -1677,6 +1677,47 @@
         v.appendChild(sbridge);
         v.appendChild(el('div', 'materin-learn-viz__label', '输出即接口：接口定了，流水线才敢接——下一课把三种语句拼成完整提示系统'));
       }
+    } else if (day.anim && day.anim.viz && day.anim.viz[idx]) {
+      /* 数据驱动 viz 分支（第 36 天起）：当天特例一律走 anim.viz[idx] 数据字段，
+         不在渲染函数里写页号特例——chips/routes/bars 三种板型按字段自动选型。
+         注意：必须排在所有 tpl 硬编码分支之前，带 viz 数据的天（如 D36 复用 chain
+         模板）否则会落进旧天的硬编码板，渲染出别人的叙事。 */
+      var dpage = day.anim.viz[idx];
+      if (dpage.chips) {
+        var dchips = el('div', 'materin-learn-viz__chips');
+        dpage.chips.forEach(function (r) {
+          var cls = 'materin-learn-viz__chip' +
+            (r.merged ? ' materin-learn-viz__chip--merged' : (r.alt ? ' materin-learn-viz__chip--alt' : ''));
+          dchips.appendChild(el('span', cls, r.tag));
+        });
+        v.appendChild(dchips);
+      }
+      if (dpage.routes) {
+        var droutes = el('div', 'materin-learn-viz__routes');
+        dpage.routes.forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__route-row' + (r.cls || ''));
+          row.appendChild(el('span', 'materin-learn-viz__route-word', r.tag));
+          row.appendChild(el('span', 'materin-learn-viz__route-dot' + (r.vcls || ''), r.verdict));
+          droutes.appendChild(row);
+        });
+        v.appendChild(droutes);
+      }
+      if (dpage.bars) {
+        var dbars = el('div', 'materin-learn-viz__bars' + (dpage.wide ? ' materin-learn-viz__bars--wide' : ''));
+        dpage.bars.forEach(function (r) {
+          var row = el('div', 'materin-learn-viz__bar-row' + (dpage.wide ? ' materin-learn-viz__bar-row--wide' : ''));
+          row.appendChild(el('span', 'materin-learn-viz__bar-tag', r.tag));
+          var track = el('div', 'materin-learn-viz__bar-track');
+          var bar = el('div', 'materin-learn-viz__bar' + (r.cls || ''));
+          bar.style.width = Math.max(2, r.val) + '%';
+          track.appendChild(bar);
+          row.appendChild(track);
+          row.appendChild(el('span', 'materin-learn-viz__bar-val', r.txt));
+          dbars.appendChild(row);
+        });
+        v.appendChild(dbars);
+      }
+      if (dpage.label) v.appendChild(el('div', 'materin-learn-viz__label', dpage.label));
     } else if (day.anim && day.anim.tpl === 'chain') {
       /* chain（第 33 天）：任务拆解——三环流水线 / 84k 对 7k 的账 /
          错误复合率 / 链通向 Agent（与动效页同一组数） */

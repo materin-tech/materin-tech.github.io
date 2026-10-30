@@ -6394,8 +6394,8 @@
    "tpl": "turns",
    "date": "2026-10-28",
    "title": {
-     "zh": "多轮对话：上下文不掉链",
-     "en": "Multi-turn dialogue: keeping context intact"
+    "zh": "多轮对话：上下文不掉链",
+    "en": "Multi-turn dialogue: keeping context intact"
    },
    "subtitle": {
     "zh": "阶段二第六课。链是「程序替你填槽」，多轮对话是「用户不停续写」——同一台机器，风险全变了样：历史每轮整段重发，账单滚雪球；模型把历史当事实引用，一个口误被钉进上下文就反复放大。今天讲窗口的接线纪律：什么进窗口、什么折叠、什么彻底放下文。",
@@ -6484,12 +6484,12 @@
    "anim": {
     "tpl": "turns",
     "hook": {
-      "zh": "聊了 20 轮，账单是「重发一本小册子 20 遍」。",
-      "en": "20 turns in, the bill says you resent a booklet 20 times."
+     "zh": "聊了 20 轮，账单是「重发一本小册子 20 遍」。",
+     "en": "20 turns in, the bill says you resent a booklet 20 times."
     },
     "question": {
-      "zh": "同一位用户的第 20 轮：窗口里此刻装着什么？",
-      "en": "The same user's turn 20: what is in the window right now?"
+     "zh": "同一位用户的第 20 轮：窗口里此刻装着什么？",
+     "en": "The same user's turn 20: what is in the window right now?"
     },
     "coverHook": {
      "zh": "同一场 20 轮对话：不折叠累计烧 146k token，分区折叠只烧 52k——省 64%，窗口还缩短 66%。",
@@ -6694,15 +6694,51 @@
      "en": "Knowledge base · 9 pages (illustrative)"
     },
     "pages": [
-     { "zh": "薪酬制度", "en": "Payroll", "hit": false },
-     { "zh": "考勤规定", "en": "Attendance", "hit": false },
-     { "zh": "报销流程", "en": "Expenses", "hit": true },
-     { "zh": "差旅标准", "en": "Travel", "hit": true },
-     { "zh": "采购规范", "en": "Procurement", "hit": false },
-     { "zh": "合同模板", "en": "Contracts", "hit": false },
-     { "zh": "培训记录", "en": "Training", "hit": false },
-     { "zh": "财务制度", "en": "Finance", "hit": true },
-     { "zh": "行政流程", "en": "Facilities", "hit": false }
+     {
+      "zh": "薪酬制度",
+      "en": "Payroll",
+      "hit": false
+     },
+     {
+      "zh": "考勤规定",
+      "en": "Attendance",
+      "hit": false
+     },
+     {
+      "zh": "报销流程",
+      "en": "Expenses",
+      "hit": true
+     },
+     {
+      "zh": "差旅标准",
+      "en": "Travel",
+      "hit": true
+     },
+     {
+      "zh": "采购规范",
+      "en": "Procurement",
+      "hit": false
+     },
+     {
+      "zh": "合同模板",
+      "en": "Contracts",
+      "hit": false
+     },
+     {
+      "zh": "培训记录",
+      "en": "Training",
+      "hit": false
+     },
+     {
+      "zh": "财务制度",
+      "en": "Finance",
+      "hit": true
+     },
+     {
+      "zh": "行政流程",
+      "en": "Facilities",
+      "hit": false
+     }
     ],
     "arrowLabel": {
      "zh": "⇣ 检索 · 余弦最近 top-3",
@@ -6717,14 +6753,32 @@
      "en": "A: ¥400 per night with receipt (Travel Standard §3)"
     },
     "statsZh": [
-     { "num": "3.3M", "cap": "整库塞窗口 · 装不下" },
-     { "num": "2.4k", "cap": "检索后 · 命中 3 块" },
-     { "num": "≈1370×", "cap": "每次提问省下的输入" }
+     {
+      "num": "3.3M",
+      "cap": "整库塞窗口 · 装不下"
+     },
+     {
+      "num": "2.4k",
+      "cap": "检索后 · 命中 3 块"
+     },
+     {
+      "num": "≈1370×",
+      "cap": "每次提问省下的输入"
+     }
     ],
     "statsEn": [
-     { "num": "3.3M", "cap": "whole library · won't fit" },
-     { "num": "2.4k", "cap": "after retrieval · 3 chunks" },
-     { "num": "≈1370×", "cap": "less input per question" }
+     {
+      "num": "3.3M",
+      "cap": "whole library · won't fit"
+     },
+     {
+      "num": "2.4k",
+      "cap": "after retrieval · 3 chunks"
+     },
+     {
+      "num": "≈1370×",
+      "cap": "less input per question"
+     }
     ],
     "note": {
      "zh": "示意：9 页知识库、命中 3 页（每页 ≈800 token，输入价 3 美元/百万 token）。检索在窗口外先把「最相关的几段」选出来，模型只对窗口里的原文做阅读理解——答不出时，它终于可以说「材料里没有」。",
@@ -6734,6 +6788,312 @@
      "zh": "4096 页知识库塞不进窗口——检索只递 3 页，单次提问 $9.8 变 $0.007。",
      "en": "A 4,096-page library can't fit the window — retrieval hands over 3 pages: $9.8 → $0.007 per question."
     }
+   }
+  },
+  {
+   "n": 36,
+   "stage": 2,
+   "week": 6,
+   "tpl": "chain",
+   "date": "2026-10-30",
+   "title": {
+    "zh": "提示模板：把七课拼成一份",
+    "en": "Prompt template: seven lessons, one file"
+   },
+   "subtitle": {
+    "zh": "阶段二收官课。七课的产物要住进同一份提示——模板把指令、示例、格式拼成「骨架加槽位」的函数：骨架一次付清、走前缀缓存，槽位按数据形态切，每次调用只换 0.3k。模板不是填空题，是可评测、可版本化的接口。",
+    "en": "Stage 2 finale. Seven lessons live in one prompt — a template is a function of skeleton plus slots: instructions, examples, and format pinned into a skeleton paid once (riding the prefix cache), slots cut along data shapes, only 0.3k swapped per call. A template isn't fill-in-the-blanks; it's a testable, versioned interface."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：模板是把七课钉进一个函数",
+      "en": "Mechanism: a template pins seven lessons into one function"
+     },
+     "p": {
+      "zh": "提示模板（prompt template）是把一段提示拆成「固定骨架＋可变槽位」的函数：classify(ticket) 展开永远是同一张图纸——第 29 天的任务拆解决定槽位切在哪（输入槽、上下文槽、输出槽）；第 30 天的指令规格写进固定段；第 31 天的 3 条示例钉在槽位前；第 32 天的格式约束压轴；第 35 天的检索块预留在上下文槽。调用时只有槽位换内容，骨架原样重发——模型看到的每一条提示都出自同一份模板，而不是同一个工程师的临场发挥。",
+      "en": "A prompt template splits a prompt into a fixed skeleton plus variable slots — a function: classify(ticket) always expands to the same blueprint. Day 29's task decomposition decides where slots sit (input, context, output); day 30's instruction spec lives in the fixed segment; day 31's three examples pin in front of the slots; day 32's format constraints close it out; day 35's retrieved chunks reserve the context slot. Each call swaps only slot content and resends the skeleton as-is — every prompt the model sees comes from the same template, not from an engineer's improvisation."
+     },
+     "deep": {
+      "zh": "为什么这样设计？一致性是模板的第一红利：骨架固定，前缀缓存（第 14 天）才能把重复段打折；示例口径一致，输出分布才稳；槽位隔离了「变的」与「不变的」，出错时只需重跑对应那一课——第 33 天链的失败隔离，在模板层重演。一份模板还是一个可回归测试的单元：改一版、跑 20 条、比分数，这正是第 23 天评测纪律的日常形态。",
+      "en": "Why this design? Consistency is the template's first dividend: a fixed skeleton lets the prefix cache (day 14) discount the repeated segment; examples in one voice keep the output distribution steady; slots separate the variable from the invariant, so a failure means rerunning just that lesson — day 33's failure isolation, replayed at the template layer. A template is also a regression-testable unit: edit, run 20 cases, compare scores — day 23's evaluation discipline as a daily habit."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：工单分类模板的一次成型",
+      "en": "The math: one ticket-classifier template, built once"
+     },
+     "p": {
+      "zh": "设客服工单分类任务，200 条实测：裸提示（一句话）类别准确率 78%、格式可解析 82%。套上模板：指令规格 0.4k＋3 条示例 0.9k＋格式约束 0.2k＋槽位 0.3k ≈ 1.8k 输入——准确率 94%，可解析 99%（受限解码兜底）。看着每次多付 1.5k？骨架 1.5k 是固定前缀，前缀缓存打一折（第 14 天），实际增量只有槽位 0.3k。再算修错的账：1000 条/天 × 22% 错率 = 220 次人工重分类，每次 90 秒 ≈ 5.5 小时；模板版错率 6%，60 次 ≈ 1.5 小时。多付的是 0.3k token，买回 4 小时人力——模板是提示工程里回报率最高的「一次付清」。",
+      "en": "Take a support-ticket classifier, 200 real cases: a bare one-line prompt scores 78% category accuracy and 82% parseable output. With a template: spec 0.4k + 3 examples 0.9k + format constraints 0.2k + slot 0.3k ≈ 1.8k input — accuracy 94%, parseable 99% (constrained decoding as backstop). Paying 1.5k more each call? The 1.5k skeleton is a fixed prefix, discounted by the prefix cache (day 14); the real increment is the 0.3k slot. The error bill: 1,000 tickets/day × 22% = 220 manual re-classifications, 90 s each ≈ 5.5 hours; the template's 6% is 60 ≈ 1.5 hours. You pay 0.3k tokens and buy back 4 hours — the highest-ROI \"pay once\" in prompt engineering."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Example"
+      },
+      "p": {
+       "zh": "同一份模板换任务：把工单字段换成报销字段、示例换成财务口径，槽位一换，20 分钟就迁移到新分类任务——这就是为什么团队维护「模板库」而不是「提示收藏夹」：收藏夹存的是一次性的句子，模板库存的是可复用的函数，每个函数都配着它的评测集和版本号。",
+       "en": "Port the same template to a new task: swap ticket fields for expense fields and rewrite the examples in finance's voice — 20 minutes and it runs a new classification task. This is why teams maintain a template library, not a prompt scrapbook: a scrapbook stores one-off sentences; a library stores reusable functions, each with its own eval set and version number."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：模板 ≠ 填空题",
+      "en": "Misconception: a template is not fill-in-the-blanks"
+     },
+     "p": {
+      "zh": "最常见的误解：「模板就是 prompt 里挖几个空」。区别在模板是接口：槽位切在哪，决定这个函数能服务多少种输入——槽位按「数据形态」切（一段工单、一张表、一段检索结果），而不是按字面内容切。第二个误区：「模板越长越好」。示例互相矛盾的模板比没有示例更糟（第 31 天的错误传染），格式约束堆太多会挤压槽位内容的注意力（第 6 天的稀释效应）——骨架里每一段都要能回答「它防住了哪个错误」。第三个误区：「模板可以定稿」。模板是版本化的代码：改一版跑评测、留变更记录，和改代码同一个纪律。",
+      "en": "The most common misread: \"a template is a prompt with blanks dug out.\" The difference: a template is an interface — where you cut slots decides how many kinds of input the function serves. Cut along data shapes (a ticket, a table, a retrieved chunk), not literal content. Second: \"longer is better.\" A template whose examples contradict each other is worse than no examples (day 31's error contagion), and piling on format constraints starves the slot content of attention (day 6's dilution) — every skeleton segment must answer \"which error does it prevent?\" Third: \"templates get finalized.\" A template is versioned code: edit, run the eval, keep a changelog — the same discipline as code."
+     },
+     "misconception": {
+      "h": {
+       "zh": "常见误区",
+       "en": "Common misconception"
+      },
+      "p": {
+       "zh": "「把模板藏起来是竞争优势」。反了——模板的价值在被测：一份敢公开贴出骨架、示例、约束三段的模板，才说明每段都有理由存在。藏起来的多半是「调出来的玄学」；团队共享模板库＋评测集，才是真的快。",
+       "en": "\"Keeping your template secret is an edge.\" Backwards — a template's value is in being tested: one you dare to publish skeleton, examples, and constraints for proves every segment earns its place. Hidden ones are mostly tuning folklore; a shared template library plus a shared eval set is what actually ships fast."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：模板是 Agent 的程序接口",
+      "en": "Extension: the template is the agent's program interface"
+     },
+     "p": {
+      "zh": "阶段二今天收官。往阶段三看：Agent 的每一步都是一次模板调用——第 50 天的 Agent 循环里，「系统提示＋工具清单＋历史纪要＋新观测」这份四件套，就是今天的模板换了槽位内容；工具申请（第 22 天）是输出格式约束的特例；检索块（第 35 天）是上下文槽的固定供应商。你今天把一份模板拆成骨架、示例、格式三层来审，就是在审未来 Agent 的大脑切片。带着这个视角进阶段三：先把模板写好，再谈自动化。",
+      "en": "Stage 2 closes today. Looking at stage 3: every agent step is a template call — in day 50's agent loop, \"system prompt + tool list + history summary + new observation\" is today's template with different slot content; the tool request (day 22) is a special case of output format constraints; retrieved chunks (day 35) are the context slot's standing supplier. Auditing a template in three layers today is auditing the slices of a future agent's brain. Carry that lens into stage 3: write the template well first, then automate."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "把你重复用了三次以上的那条提示升级成模板：① 抄出「每次不变的部分」——指令、示例、格式说明，标出「每次变的槽位」；② 写 3 条口径一致的示例（标准见第 31 天）；③ 用 20 条真实输入各跑一遍新旧两版，记格式可解析数和满意数。然后回答：旧版里哪句话其实一直在「打架」——它和示例的示范不一致？（提示：不一致时模型按示例抄，指令被分布证据压过——第 31 天的结论在模板层重演，砍掉那句话，分数往往不降反升。）",
+     "en": "Promote a prompt you've reused three-plus times into a template: (1) copy out what never changes — instructions, examples, format notes — and mark the slots that change; (2) write three examples in one voice (day 31's standard); (3) run old and new on 20 real inputs, counting parseable outputs and satisfied ones. Then answer: which sentence in the old prompt was quietly fighting the examples? (Hint: on conflict the model copies the examples — day 31's conclusion replayed at the template layer; cut that sentence and the score often goes up, not down.)"
+    }
+   },
+   "takeaway": {
+    "zh": "提示模板 = 骨架＋槽位的函数：指令、示例、格式三课拼进骨架一次付清，槽位按数据形态切、每次只换 0.3k。模板是可评测、可版本化的接口——改一版跑 20 条比分数，这就是提示工程的全部纪律，也是 Agent 每一步的形状。",
+    "en": "A prompt template = a function of skeleton plus slots: instructions, examples, and format pinned into a skeleton paid once; slots cut along data shapes, only 0.3k swapped per call. A template is a testable, versioned interface — edit, run 20 cases, compare scores. That is the whole discipline of prompting, and the shape of every agent step."
+   },
+   "anim": {
+    "tpl": "chain",
+    "hook": {
+     "zh": "七课拼成一份模板：骨架一次付清，槽位每次只换。",
+     "en": "Seven lessons, one template: the skeleton is paid once, only the slots change."
+    },
+    "coverHook": {
+     "zh": "工单分类套上模板：准确率 78%→94%，只多付 0.3k。",
+     "en": "Ticket classifier with a template: accuracy 78%→94%, just 0.3k more."
+    },
+    "question": {
+     "zh": "把「客服工单分类」做成一份可复用的提示",
+     "en": "Turn ticket classification into a reusable prompt"
+    },
+    "steps": [
+     {
+      "k": "gather",
+      "tagZh": "环 1 · 骨架",
+      "tagEn": "Link 1 · skeleton",
+      "capZh": "指令规格＋槽位切位",
+      "capEn": "spec + slot layout",
+      "inZh": "任务需求",
+      "inEn": "task brief",
+      "outZh": "模板骨架 · 3 槽位",
+      "outEn": "skeleton · 3 slots",
+      "tok": "0.4k"
+     },
+     {
+      "k": "outline",
+      "tagZh": "环 2 · 示例",
+      "tagEn": "Link 2 · examples",
+      "capZh": "3 条示例口径一致",
+      "capEn": "3 examples, one voice",
+      "inZh": "模板骨架",
+      "inEn": "skeleton",
+      "outZh": "few-shot 条",
+      "outEn": "few-shot block",
+      "tok": "0.9k"
+     },
+     {
+      "k": "write",
+      "tagZh": "环 3 · 约束",
+      "tagEn": "Link 3 · constraints",
+      "capZh": "输出格式＋边界兜底",
+      "capEn": "format + guard",
+      "inZh": "示例版模板",
+      "inEn": "example'd template",
+      "outZh": "可复用模板 v1",
+      "outEn": "template v1",
+      "tok": "1.6k"
+     }
+    ],
+    "retry": {
+     "link": 2,
+     "failZh": "✗ 示例 2 和 3 口径打架——重写环 2",
+     "failEn": "✗ examples 2 & 3 disagree — rewrite link 2",
+     "okZh": "✓ 口径统一 · 三条示例一个格式",
+     "okEn": "✓ aligned · three examples, one format"
+    },
+    "mergeZh": "模板入库 v1 · 骨架 1.5k 走前缀缓存，每次调用只付槽位 0.3k",
+    "mergeEn": "template v1 shipped · 1.5k skeleton rides the prefix cache, 0.3k slot per call",
+    "readoutZh": [
+     {
+      "num": "94%",
+      "cap": "套模板 · 类别准确率（裸 78%）"
+     },
+     {
+      "num": "99%",
+      "cap": "可解析 · 受限解码兜底（裸 82%）"
+     },
+     {
+      "num": "0.3k",
+      "cap": "每次调用 · 只换槽位"
+     }
+    ],
+    "readoutEn": [
+     {
+      "num": "94%",
+      "cap": "with template · accuracy (bare 78%)"
+     },
+     {
+      "num": "99%",
+      "cap": "parseable · constrained (bare 82%)"
+     },
+     {
+      "num": "0.3k",
+      "cap": "per call · slot only"
+     }
+    ],
+    "note": {
+     "zh": "示意：200 条工单实测的量级。骨架 0.4k＋示例 0.9k＋格式 0.2k 是一次性成本（走前缀缓存，第 14 天）；每次调用只付槽位 0.3k。模板把七课的产物钉成一张图纸——错的从来不是「措辞再改改」，是骨架没分层。",
+     "en": "Illustrative: magnitudes from 200 real tickets. Skeleton 0.4k + examples 0.9k + format 0.2k is a one-time cost (riding the prefix cache, day 14); each call pays only the 0.3k slot. A template pins seven lessons into one blueprint — the fix is never \"reword it again,\" it's layering the skeleton."
+    },
+    "viz": [
+     {
+      "chips": [
+       {
+        "tag": "指令规格"
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "3 条示例"
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "格式约束"
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "槽位",
+        "merged": true
+       }
+      ],
+      "routes": [
+       {
+        "tag": "骨架 1.5k · 固定前缀",
+        "cls": "",
+        "verdict": "前缀缓存打折",
+        "vcls": ""
+       },
+       {
+        "tag": "槽位 0.3k · 每次必付",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✓ 唯一增量",
+        "vcls": " materin-learn-viz__route-word--ok"
+       }
+      ],
+      "label": "模板是函数签名：骨架钉住七课产物，调用只换槽位——同一张图纸，批批同构"
+     },
+     {
+      "wide": true,
+      "bars": [
+       {
+        "tag": "裸提示 · 一句话 · 0k",
+        "val": 78,
+        "cls": "",
+        "txt": "准确率 78% · 解析 82%"
+       },
+       {
+        "tag": "套模板 · 1.8k 输入",
+        "val": 94,
+        "cls": " materin-learn-viz__bar--en",
+        "txt": "准确率 94% · 解析 99%"
+       },
+       {
+        "tag": "缓存后实际增量 · 槽位",
+        "val": 17,
+        "cls": "",
+        "txt": "0.3k / 1.8k · 骨架走缓存"
+       }
+      ],
+      "label": "1000 条/天：220 次人工重分类 → 60 次，5.5 小时 → 1.5 小时——0.3k 买回 4 小时"
+     },
+     {
+      "routes": [
+       {
+        "tag": "挖几个空就是模板？",
+        "cls": "",
+        "verdict": "✗ 槽位按字面切",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "示例互相矛盾的模板",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✗ 比没有更糟",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "每个骨架段都有理由存在",
+        "cls": "",
+        "verdict": "✓ 防住哪个错误",
+        "vcls": " materin-learn-viz__route-word--ok"
+       }
+      ],
+      "label": "模板是接口不是填空题：槽位按数据形态切，骨架段要能一句话说清它防什么"
+     },
+     {
+      "wide": true,
+      "bars": [
+       {
+        "tag": "第 22 天 · 工具申请",
+        "val": 100,
+        "cls": "",
+        "txt": "格式约束的特例"
+       },
+       {
+        "tag": "第 35 天 · 检索块",
+        "val": 62,
+        "cls": "",
+        "txt": "上下文槽的固定供应商"
+       },
+       {
+        "tag": "第 50 天 · Agent 循环",
+        "val": 30,
+        "cls": " materin-learn-viz__bar--en",
+        "txt": "四件套换槽位内容"
+       }
+      ],
+      "label": "今天审模板的三层，就是明天审 Agent 大脑的切片——阶段二收官，阶段三开场"
+     }
+    ]
    }
   }
  ]
