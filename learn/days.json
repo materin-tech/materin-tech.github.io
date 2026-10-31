@@ -7095,6 +7095,275 @@
      }
     ]
    }
+  },
+  {
+   "n": 37,
+   "stage": 2,
+   "week": 6,
+   "tpl": "loop",
+   "date": "2026-10-31",
+   "title": {
+    "zh": "Agent 循环：一图看懂全自动",
+    "en": "The agent loop: one picture for the whole machine"
+   },
+   "subtitle": {
+    "zh": "阶段三第一课。Agent 不是更聪明的模型，是同一个生成循环外面加了一圈：想、调工具、看结果、接着写，缺一步停一步。今天用一张图把这圈拆开——后面 34 天的全部分工，都长在这一圈上。",
+    "en": "Stage 3, lesson one. An agent isn't a smarter model — it's the same generation loop with one more ring wrapped around it: think, call a tool, read the result, keep writing; a missing piece stops the loop. Today we take that ring apart — the next 34 days of work all hang on it."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：生成循环外面又套一圈",
+      "en": "Mechanism: one more ring on the loop"
+     },
+     "p": {
+      "zh": "第 16 天你看过模型内部那圈循环：查表、算注意力、压概率、采样、钉回去，一圈吐一个词。Agent 循环是它的外圈：写答案之前先问一句「窗口里够不够」——不够就调工具（第 22 天的函数调用，申请你的代码执行、结果贴回窗口），够了才进入内圈逐词作答。所以 Agent 的本体只有两样：一份系统提示里写清「你有哪些工具、什么时候用」的策略，和一个「调用—贴回—续写」的外圈。模型权重一个字节没变，变的只是窗口的进出方式。",
+      "en": "Day 16 showed the model's inner loop: look up, attend, squash, sample, append — one token per lap. The agent loop wraps an outer ring around it: before writing the answer, ask \"does the window have enough?\" — if not, call a tool (day 22: file a request, your code executes, the result is pinned back into the window); if enough, fall into the inner loop and answer token by token. An agent is exactly two things: a strategy in the system prompt saying which tools exist and when to use them, and that call–pin-back–continue outer ring. Not one weight changes — only how the window breathes."
+     },
+     "deep": {
+      "zh": "为什么这样设计？因为第 9 天讲过，模型的联想补全管不了「今天的天气」和「你们的库存」——事实类问题必须出窗口取证。而第 14 天的 KV cache 和第 36 天的模板让每一圈的固定段都走缓存，Agent 循环的每一步都便宜：贵的是判断「够不够」，那是第 6 天注意力的一次读题，不到 0.1k token。设计动机是经济而不是智能：让每次「不知道」都变成一次几毛钱的取证，而不是一次编造。",
+      "en": "Why this design? Day 9 showed that associative completion can't settle today's weather or your stock levels — factual questions must leave the window for evidence. And thanks to day 14's KV cache and day 36's template, every lap's fixed segment rides the cache, so each agent step is cheap: the expensive part is judging \"enough?\", one read of the prompt, well under 0.1k tokens. The motive is economics, not intelligence: turn every \"don't know\" into a few-cent evidence trip instead of a fabrication."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：一次查库存问答的三圈成本",
+      "en": "The math: one stock-check Q&A, three laps"
+     },
+     "p": {
+      "zh": "设电商客服问「A4 纸还有货吗」。第 1 圈：模板骨架 1.5k（缓存命中、按 1 折计）＋工具清单 0.3k＋问题 0.05k，输出申请 0.04k——模型说「不够，查 get_stock(sku=831)」。第 2 圈：结果「剩 34 包」0.02k 贴回，输出「有货，预计明天送达」0.06k。第 3 圈确认收尾 0.02k。总输入 ≈2.0k，其中 1.5k 是缓存价，实际付 ≈0.6k，按 3 美元/百万 token 合 ≈0.0006 美元，加一次你方 API 取数 50 毫秒。对照第 9 天：让模型直接「猜」库存，答错一单的售后成本远超一年调用费——循环买的是每个数字都有出处。",
+      "en": "A customer asks \"is A4 paper in stock?\" Lap 1: template skeleton 1.5k (cache-hit, billed at the discount) + tool list 0.3k + question 0.05k; output request 0.04k — the model says \"not enough, call get_stock(sku=831)\". Lap 2: result \"34 packs left\" 0.02k pinned back; output \"in stock, arrives tomorrow\" 0.06k. Lap 3 wraps up for 0.02k. Total input ≈2.0k, of which 1.5k is cache price — really ≈0.6k, ≈$0.0006 at $3/M tokens, plus one 50 ms API call on your side. Against day 9: letting the model \"guess\" stock costs more in one wrong order's after-sales than a year of calls — the loop buys provenance for every number."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "同一套循环换任务：把 get_stock 换成 search_docs，问题换成「报销上限多少」——这就是第 35 天 RAG 的检索块；换成 send_email，就是第 50 天要做的多工具 Agent。循环本体不动，动的只有工具清单和系统提示里的策略段：这正是第 36 天说的「模板是 Agent 的程序接口」。",
+       "en": "Swap the task on the same loop: replace get_stock with search_docs and the question with \"what's the reimbursement cap\" — that's day 35's RAG; replace it with send_email and you have day 50's multi-tool agent. The loop itself never moves; only the tool list and the strategy segment of the system prompt change — exactly day 36's \"the template is the agent's interface\"."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：不是更聪明的模型",
+      "en": "Misconception: not a smarter model"
+     },
+     "p": {
+      "zh": "第一个误解：「Agent 是个更强的模型」。它用的还是第 16 天那个逐词循环，区别全在窗口外——工具清单是第 36 天模板的一个槽，申请格式是第 32 天受限解码锁出来的 JSON，执行永远发生在你的进程里。第二个误解：「圈越多越好」。每多一圈就多一次「窗口里现在有什么」的全量重算（第 6 天注意力是平方级），无意义的第 4、5 圈不但费钱，还会把前面贴回的结果越读越偏——圈内每一步都要能回答「这一圈取证了什么」。第三个误解：「工具越多越强」。工具清单每加一条，策略段的注意力就被多摊一分（第 6 天的稀释），申请写错的概率也随之上升——清单按「最近 30 天调用分布」裁剪，比堆满更稳。",
+      "en": "First misread: \"an agent is a stronger model.\" It runs the very same token-by-token loop from day 16; everything different lives outside the window — the tool list is one slot in day 36's template, the request format is JSON locked by day 32's constrained decoding, and execution always happens in your process. Second: \"more laps are better.\" Each extra lap re-attends over the whole window (day 6's quadratic attention); pointless laps 4 and 5 don't just cost money, they drift the reading of earlier pinned results — every lap must answer \"what did this lap go out to check?\" Third: \"more tools, more power.\" Each tool added spreads the strategy segment's attention thinner (day 6's dilution) and raises the odds of a malformed request — prune the list by the last 30 days of call distribution rather than piling it up."
+     },
+     "misconception": {
+      "h": {
+       "zh": "常见误区",
+       "en": "Common misconception"
+      },
+      "p": {
+       "zh": "「Agent 会自己学会用工具」。不会——它只按系统提示里的策略续写：没写「库存低于 10 时提醒补货」，它就不会提醒。所谓「涌现的工具用法」，几乎都是提示策略里已经写明的规则在长任务里显形。策略是代码，不是期待。",
+       "en": "\"The agent will learn to use tools on its own.\" It won't — it continues text under the strategy in the system prompt: if \"remind to restock when stock < 10\" isn't written, no reminder happens. What looks like emergent tool use is almost always a rule already written in the strategy, surfacing over long tasks. Strategy is code, not hope."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：这一圈是 34 天的地图",
+      "en": "Extension: this ring maps the next 34 days"
+     },
+     "p": {
+      "zh": "Agent 循环的每一站，都是后面某一天的正题：申请格式怎么锁——受限解码（第 32 天）已在手；「调哪个工具、何时停」的策略怎么写——第 52 天提示策略；多工具怎么编排、失败了重跑哪段——第 55 天工作流编排；窗口被多圈挤爆怎么折叠——第 34 天的折叠纪律直接搬进来；第 85 天的 RAG，是「搜知识库」这个工具的深度版；第 113 天起讲的认知，先按下不表。今天先把这一圈看熟：之后 34 天，你都是在给这张图的某一段接线。",
+      "en": "Every station on the agent loop is a full lesson ahead: locking the request format — day 32, already in hand; writing the strategy for which tool and when to stop — day 52; orchestrating many tools and retrying the failed segment — day 55; folding a window crushed by many laps — day 34's discipline, imported directly; day 85's RAG is the deep version of the search-knowledge-base tool. Get familiar with the ring today: for the next 34 days you'll be wiring one segment of this diagram at a time."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "挑一个你最近想让 AI 干、但它答不利索的任务（比如「查一下这个题型的最新考纲」）：① 写下它的「外圈剧本」——模型该调哪个工具、结果贴回后内圈干什么、什么条件停；② 数一数这个任务在无工具时模型会编几个数、走一圈外圈后还剩几个；③ 给外圈加一条「最多 3 圈」的上限，想想哪类任务会被这条上限误伤？（提示：需要「取证→计算→再取证」的两段式任务——第 55 天讲编排时会给它们专用的接法。）",
+     "en": "Pick a task where AI flails for lack of facts (say \"check the latest exam syllabus for this topic\"): (1) write its outer-ring script — which tool to call, what the inner loop does with the pinned result, when to stop; (2) count how many numbers the model invents without tools, and how many remain after one outer lap; (3) add a \"3 laps max\" cap — which kind of task does that cap unfairly break? (Hint: two-stage tasks needing evidence → compute → more evidence; day 55's orchestration gives them a dedicated wiring.)"
+    }
+   },
+   "takeaway": {
+    "zh": "Agent = 生成循环外面再套一圈：内圈逐词作答（第 16 天），外圈「查窗口→调工具→贴结果→续写」；权重零改动，贵在策略不在模型。圈内每一步都要能回答「这一圈取证了什么」——这就是后面 34 天的总地图。",
+    "en": "An agent = the generation loop with one more ring: the inner loop writes token by token (day 16); the outer ring checks the window, calls a tool, pins the result, and continues. Zero weight changes; the cost lives in strategy, not the model. Every lap must answer \"what did it go out to check?\" — that's the map for the next 34 days."
+   },
+   "anim": {
+    "tpl": "loop",
+    "hook": {
+     "zh": "Agent 没换发动机——只是给循环加了一圈「先取证」。",
+     "en": "No new engine — just one more ring that fetches evidence first."
+    },
+    "promptTokens": [
+     "有货吗",
+     "？",
+     "[工具清单]",
+     "get_stock",
+     "…"
+    ],
+    "genTokens": [
+     "申请",
+     "查库存",
+     "贴回",
+     "34 包",
+     "→",
+     "有货"
+    ],
+    "lapsZh": "本次问答：3 圈 × 每圈先查窗口",
+    "lapsEn": "This run: 3 laps × check-the-window first",
+    "stepsZh": [
+     "查窗口",
+     "够？走",
+     "不够？",
+     "调工具",
+     "贴回来"
+    ],
+    "stepsEn": [
+     "check window",
+     "enough? go",
+     "not yet?",
+     "call tool",
+     "pin result"
+    ],
+    "readoutZh": {
+     "laps": "圈",
+     "cacheNote": "骨架 1.5k 走前缀缓存（第 14 天），每圈实际只付增量"
+    },
+    "readoutEn": {
+     "laps": "laps",
+     "cacheNote": "The 1.5k skeleton rides the prefix cache (day 14); each lap pays only its increment"
+    },
+    "note": {
+     "zh": "内圈（第 16 天）逐词作答，外圈只在「窗口不够」时加转：调工具、结果贴回、继续写。权重零改动——Agent 的全部智能都在系统提示的策略段里。循环唯一的退出条件：窗口够了、采到答案，或到达圈数上限。",
+     "en": "The inner loop (day 16) answers token by token; the outer ring turns only when the window is short: call a tool, pin the result back, keep writing. Zero weight changes — all of the agent's intelligence lives in the strategy segment of the system prompt. The loop's only exits: the window is enough, an answer is sampled, or the lap cap is hit."
+    },
+    "coverHook": {
+     "zh": "查库存走 3 圈：≈0.0006 美元，每个数字都有出处",
+     "en": "A stock check takes 3 laps: ≈$0.0006, every number sourced"
+    },
+    "viz": [
+     {
+      "chips": [
+       {
+        "tag": "查窗口",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "调工具",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "贴回结果",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "续写",
+        "merged": true
+       }
+      ],
+      "routes": [
+       {
+        "tag": "内圈 · 逐词作答（第 16 天）",
+        "cls": "",
+        "verdict": "每圈都在转",
+        "vcls": ""
+       },
+       {
+        "tag": "外圈 · 不够才调工具（第 22 天）",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✓ 按需加转",
+        "vcls": " materin-learn-viz__route-word--ok"
+       }
+      ],
+      "label": "Agent 没换发动机：外圈只在缺事实时加转一圈"
+     },
+     {
+      "wide": true,
+      "bars": [
+       {
+        "tag": "无工具 · 直接猜库存",
+        "val": 100,
+        "cls": "",
+        "txt": "编造风险 · 售后成本远超调用费"
+       },
+       {
+        "tag": "三圈外圈 · 实际付 ≈0.6k",
+        "val": 30,
+        "cls": " materin-learn-viz__bar--en",
+        "txt": "≈$0.0006/次 · 数字全带出处"
+       },
+       {
+        "tag": "骨架缓存折扣 · 1.5k 按 1 折",
+        "val": 12,
+        "cls": "",
+        "txt": "每圈的固定段几乎免费"
+       }
+      ],
+      "label": "循环买的是出处：错一单售后够付一年调用费"
+     },
+     {
+      "routes": [
+       {
+        "tag": "「圈越多越好」",
+        "cls": "",
+        "verdict": "✗ 平方级重算",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「工具越多越强」",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✗ 注意力被摊薄",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "每圈都能答「取证了什么」",
+        "cls": "",
+        "verdict": "✓ 圈圈有据",
+        "vcls": " materin-learn-viz__route-word--ok"
+       }
+      ],
+      "label": "Agent 不是更聪明的模型：策略是代码不是期待"
+     },
+     {
+      "wide": true,
+      "bars": [
+       {
+        "tag": "申请格式 · 第 32 天",
+        "val": 100,
+        "cls": "",
+        "txt": "受限解码已锁好"
+       },
+       {
+        "tag": "策略与编排 · 第 52/55 天",
+        "val": 62,
+        "cls": "",
+        "txt": "调哪个、何时停、坏了重跑哪段"
+       },
+       {
+        "tag": "窗口折叠 · 第 34 天",
+        "val": 30,
+        "cls": " materin-learn-viz__bar--en",
+        "txt": "多圈挤爆窗口的解法"
+       }
+      ],
+      "label": "这一圈是 34 天的地图：RAG 就是「搜库」的深度版"
+     }
+    ]
+   }
   }
  ]
 }
