@@ -323,10 +323,13 @@
       }
     } else if (day.anim && day.anim.tpl === 'duel') {
       if (idx === 0) {
-        /* 对决页：与动效页同一套左右对决卡（第 1 轮） */
+        /* 对决页：与动效页同一套左右对决卡（第 1 轮）；必须补 round-no 序号——
+           duel__round 网格是 34px 1fr 1fr 三列，缺序号会把卡片挤进 34px 列，
+           压成一字一行（D38 抓到，D31 同病） */
         var r0 = day.anim.rounds[0];
         var duel = el('div', 'materin-learn-duel');
         var round = el('div', 'materin-learn-duel__round is-picked');
+        round.appendChild(el('span', 'materin-learn-duel__round-no', '#1'));
         ['a', 'b'].forEach(function (side) {
           round.appendChild(el('div', 'materin-learn-duel__card materin-learn-duel__card--' + side, t(r0[side])));
         });
