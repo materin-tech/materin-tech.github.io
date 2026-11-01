@@ -7364,6 +7364,229 @@
      }
     ]
    }
+  },
+  {
+   "n": 38,
+   "stage": 2,
+   "week": 7,
+   "tpl": "duel",
+   "date": "2026-11-01",
+   "title": {
+    "zh": "装配提示：调线不调模",
+    "en": "Prompt assembly: fix the line, not the model"
+   },
+   "subtitle": {
+    "zh": "阶段二最后一课。第 29 天说提示是程序——程序不是一句灵感，是按层拼出来的：角色定语气、规则定边界、示例定格式，模板（第 36 天）负责把它们钉进骨架。今天把这条装配线拆开看：为什么调提示比调模型便宜两个数量级。",
+    "en": "Stage 2, final lesson. Day 29 called a prompt a program — and a program isn't one flash of inspiration but layers bolted together: role sets tone, rules set boundaries, examples set format, and the template (day 36) pins them into the skeleton. Today we take the assembly line apart: why tuning the prompt is two orders of magnitude cheaper than tuning the model."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：五层各管一件事，从上往下压",
+      "en": "Mechanism: five layers, each owning one thing"
+     },
+     "p": {
+      "zh": "一份装配好的提示，从上到下五层：角色（第 30 天的人设）——告诉模型「用谁的身份说话」，影响语气与默认立场；任务与输入——变量槽里塞进当天的问题（第 36 天的模板做这件事）；规则与边界——「只依据材料、答不出就说没有」（第 35 天 RAG 的约束句写在这层）；示例——3～6 条输入/输出对，把格式和判断「演」一遍（第 31 天示例工程）；输出格式——JSON 结构或固定字段（第 32 天格式工程锁的那段）。装配的关键不是写得多，而是**每层只管一件事**：语气问题改角色层，格式跑偏改示例层——改动永远发生在对应层，而不是全文重写。",
+      "en": "An assembled prompt runs five layers top to bottom: role (day 30's persona) — who the model speaks as, setting tone and default stance; task and input — the day's question slotted into variables (day 36's template); rules and boundaries — \"only from the material; say so when absent\" (day 35's RAG constraint lives here); examples — 3–6 input/output pairs that demonstrate format and judgment (day 31); output format — the JSON structure day 32 locks in. Assembly isn't about writing more; each layer owns exactly one thing: tone drift, fix the role layer; format drift, fix the examples — the edit lands on its own layer, never a full rewrite."
+     },
+     "deep": {
+      "zh": "为什么是五层而不是一段话？因为注意力是按位置摊的（第 6 天的稀释）：一段混写的提示里，规则句和闲聊句抢同一份注意力；分层后每一层的 token 职责单一，窗口读题时各层互不稀释。也为什么固定层放前面：前缀缓存（第 14 天）只对「逐字节相同的前缀」生效——角色、规则、示例拼成不变的前缀，变量槽放最后，命中缓存的部分按 1 折计价。装配线省的钱，一半来自分层省注意力，一半来自顺序省缓存。",
+      "en": "Why five layers and not one paragraph? Attention dilutes by position (day 6): in a mixed paragraph, rule sentences and chit-chat fight over the same attention; layered, each layer's tokens have one job and don't dilute each other when the window reads the prompt. And why fixed layers go first: the prefix cache (day 14) only hits on byte-identical prefixes — role, rules, and examples form the invariant prefix, variable slots go last, and everything cache-hit is billed at one tenth. The assembly line saves money two ways: layering saves attention, ordering saves cache."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：千条工单，两条装配线的钱",
+      "en": "The math: 1,000 tickets, two assembly lines"
+     },
+     "p": {
+      "zh": "同一条工单分类流水线，每天 1000 条，提示构成不变：固定骨架 1.45k（角色 0.2k＋规则 0.4k＋示例 0.8k），变量槽 0.35k，输出 40 token，价格 3 美元/百万。裸指令版把全部内容塞进变量、每次重算：每条付 1.84k 输入＋0.04k 输出，一天 ≈1.84M token ≈ **5.5 美元**。装配版把 1.45k 骨架钉成前缀走缓存（按 1 折）：每条实际付 0.145＋0.35＋0.04 ≈ 0.54k，一天 ≈0.54M token ≈ **1.6 美元**——省 71%，一年省下约 1400 美元，而两个版本输出的格式完全相同。回归验证更便宜：骨架改一版，重跑 200 条历史工单对拍，成本 1.1 美元、几分钟出结果；让 200 条改由人工读一遍，至少 1 小时起步。",
+      "en": "The same ticket-classification line, 1,000 tickets a day, prompt unchanged: fixed skeleton 1.45k (role 0.2k + rules 0.4k + examples 0.8k), variable slots 0.35k, output 40 tokens, $3 per million. The bare version stuffs everything into variables and recomputes each time: 1.84k input + 0.04k output per ticket, ≈1.84M tokens a day ≈ **$5.5**. The assembled version pins the 1.45k skeleton as a cache-hit prefix (billed at one tenth): ≈0.54k effective per ticket, ≈0.54M tokens a day ≈ **$1.6** — 71% saved, about $1,400 a year, for byte-identical output quality. Regression is cheaper still: change the skeleton once, rerun 200 historical tickets to compare, $1.10 in minutes; having a human read 200 outputs takes an hour at least."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "把第 36 天的报销模板套上这五层，你会认出每一层都已在手：角色层写「你是费用合规审核员」，任务槽塞 {{报销描述}}，规则层写「仅据公司制度判断、制度未覆盖输出 OTHER」，示例层放 2 条已判工单，格式层锁 JSON。所谓「装配」，就是把这七课各自教的零件按固定顺序拧进一份提示——今天之前你已经集齐全部零件。",
+       "en": "Fit day 36's reimbursement template onto these five layers and you'll recognize every part: role says \"you are an expense-compliance auditor\", the task slot takes {{description}}, rules say \"judge only by company policy; output OTHER if not covered\", examples hold 2 judged tickets, format locks the JSON. Assembly is just bolting the parts from the last seven lessons into one prompt, in a fixed order — as of today you already own every part."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：调提示是碰运气，不如调模型",
+      "en": "Misconception: prompt tuning is luck, tune the model instead"
+     },
+     "p": {
+      "zh": "第一个误解：「改提示就是碰运气」。碰运气的是不分层的改法——全文重写后你不知道哪个改动起了作用。装配线下每层职责单一，回归集对拍能把效果归因到层：示例层换 2 条，解析成功率从 82% 到 100%，其余层一个字没动。第二个误解：「效果不够就换更大的模型」。第 25 天的规模定律说的是预训练损失，不是你的任务格式——格式跑偏靠示例层就能压到 0，为此升级模型是多付 10 倍单价买你已经有能力。第三个误解：「装配好后不用再管」。角色和规则是长前缀，模型或供应商一升级，同一份骨架的行为可能漂移——把 200 条回归集留在仓库里，升级当天跑一遍对拍，比事后发现线上格式全崩便宜得多。",
+      "en": "First misread: \"prompt edits are luck.\" Luck is what undifferentiated edits are — rewrite everything and you can't attribute what worked. On an assembly line each layer owns one thing, so a regression set attributes the effect to its layer: swap 2 examples, parse success goes 82% → 100%, every other layer untouched. Second: \"if it's not good enough, get a bigger model.\" Day 25's scaling law is about pretraining loss, not your task's format — the examples layer drives format misses to zero, and upgrading the model for that pays 10× the price for capability you already have. Third: \"assemble once, ignore forever.\" Role and rules are a long prefix; a model or vendor upgrade can drift the same skeleton's behavior — keep the 200-ticket regression set in the repo and run it the day of any upgrade; that beats discovering production format collapse after the fact."
+     },
+     "misconception": {
+      "h": {
+       "zh": "常见误区",
+       "en": "Common misconception"
+      },
+      "p": {
+       "zh": "「提示越装配越僵，模型会被锁死在模板里」。恰恰相反：变量槽里的输入每条都不同，被固定的只是格式和边界——正是你希望它每次都相同的部分。僵化的感觉来自把「会变的事实」错放进了固定层：把「今天的日期」「当前用户」写死在骨架里，缓存按旧前缀计价还算小事，答错才是大事。会变的进槽，不变的进层——装配线不锁内容，只锁纪律。",
+       "en": "\"Assembly locks the model into a rigid template.\" Quite the opposite: every input in the variable slots differs; only format and boundaries are pinned — exactly the parts you want identical every time. Rigidity comes from misplacing changing facts into fixed layers: hard-coding \"today's date\" or \"the current user\" into the skeleton means stale cache pricing at best, wrong answers at worst. Variables go in slots; invariants go in layers — the line locks discipline, not content."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：装配线是阶段的毕业证",
+      "en": "Extension: the assembly line is stage 2's diploma"
+     },
+     "p": {
+      "zh": "阶段二到此闭环：29 天把提示当程序，30 天指令定语气，31 天示例定格式，32 天格式定接口，33 天拆链定结构，34 天折叠定窗口，35 天检索定边界，36 天模板把全部零件拼成骨架——今天把它们按五层排成装配线。这条线下一站直接开进阶段三：第 52 天「提示策略」就是把装配线写进系统提示、让 Agent 循环（第 37 天）照着执行的部分；第 55 天的编排，坏一环重跑一环，靠的是今天「改动归因到层」的同一套纪律。明天进阶段三，第一课从「工具」开始——你的提示第一次要指挥的不再是文字，而是动作。",
+      "en": "Stage 2 closes here: day 29 made the prompt a program, 30 set tone by instruction, 31 format by examples, 32 the interface by schema, 33 structure by chains, 34 the window by folding, 35 boundaries by retrieval, 36 the skeleton by template — today they line up as an assembly line. The next stop drives straight into stage 3: day 52's \"prompt strategy\" is this line written into the system prompt for the agent loop (day 37) to execute; day 55's orchestration — rerun only the broken link — rides the same layer-attributed discipline. Tomorrow stage 3 begins with tools: your prompt will direct actions, not just words."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "拿你手头一份常用的长提示做五层拆解：① 逐句标注它属于哪一层（角色/任务/规则/示例/格式），标不出来的句子就是该删的闲聊——算算删掉省多少 token；② 把固定层挪到最前、变量槽集中到结尾，数一数这样改后哪些片段能进前缀缓存；③ 设计一个 10 条的回归集（含 2 条边界样本），写下「骨架改动后先对拍哪三个指标」。（提示：边界样本选「制度未覆盖」和「多问题混在一条」——第 32 天格式工程里最容易翻车的两类。）",
+     "en": "Take one of your own long prompts and run the five-layer teardown: (1) tag every sentence with its layer (role/task/rules/examples/format); untaggable sentences are chit-chat to delete — count the tokens saved; (2) move fixed layers to the front and pool variable slots at the end, then list which segments become cache-hit prefix; (3) design a 10-case regression set (with 2 boundary cases) and write down the three metrics you'd diff after any skeleton change. (Hint: pick \"policy doesn't cover it\" and \"multiple questions in one ticket\" as boundary cases — the two formats day 32 most often trips on.)"
+    }
+   },
+   "takeaway": {
+    "zh": "装配提示＝五层各管一件事：角色定语气、变量槽塞输入、规则定边界、示例定格式、格式锁接口；固定层在前走缓存（1 折），变量在后。改提示不是碰运气——每层职责单一，回归集对拍能把效果归因到层，1000 条/天的流水线装配版省 71% 的钱。",
+    "en": "Assembled prompt = five layers, one job each: role sets tone, slots take input, rules set boundaries, examples set format, format locks the interface; fixed layers first for the 0.1× cache, variables last. Prompt edits aren't luck — each layer owns one thing, a regression set attributes effects to layers, and a 1,000-ticket-a-day line runs 71% cheaper assembled."
+   },
+   "anim": {
+    "tpl": "duel",
+    "hook": {
+     "zh": "别把提示当灵感，把它当装配线：五层各管一件事。",
+     "en": "Don't treat the prompt as inspiration — treat it as an assembly line: five layers, one job each."
+    },
+    "prompt": {
+     "zh": "任务：工单分类。「图片打不开，重新传一次也不行，处理一下」属于哪类？",
+     "en": "Task: classify the ticket. \"Image won't load, re-upload didn't help either, please fix\" — which category?"
+    },
+    "rounds": [
+     {
+      "a": {
+       "zh": "您好，图片无法打开的问题可能有多种原因，建议您先检查网络连接，或尝试清除缓存后重新登录……",
+       "en": "Hello, image issues can have several causes. Please check your network or clear the cache and log in again…"
+      },
+      "b": {
+       "zh": "类别：功能异常（附件）",
+       "en": "Category: functional bug (attachment)"
+      }
+     },
+     {
+      "a": {
+       "zh": "这应该是一个图片上传的问题，我帮您转给相关团队处理。（若为网络问题请另行反馈。）",
+       "en": "This looks like an image upload issue; forwarding to the team. (If it's a network issue, please file separately.)"
+      },
+      "b": {
+       "zh": "类别：功能异常（主诉：附件加载，重试未恢复）",
+       "en": "Category: functional bug (primary: attachment fails to load, retry didn't help)"
+      }
+     },
+     {
+      "a": {
+       "zh": "可能是功能问题，也可能是用户网络问题，建议人工复核。",
+       "en": "Could be a product issue or the user's network; suggest human review."
+      },
+      "b": {
+       "zh": "类别：功能异常（主诉：附件加载）——网络类已由规则层排除",
+       "en": "Category: functional bug (attachment load) — network causes excluded by the rules layer"
+      }
+     }
+    ],
+    "winrates": [
+     50,
+     68,
+     82,
+     92
+    ],
+    "meterLabel": {
+     "zh": "装配条件下可直接进下游的比率",
+     "en": "share usable downstream under assembly"
+    },
+    "note": {
+     "zh": "示意：同一个分类任务，裸指令（左，任务句孤零零进变量、无规则层无示例层）vs 装配提示（右，角色＋规则＋示例＋格式分层钉好）的输出对照。左边三条输出没有一条能直接进下游流水线；右边的输出格式、边界处理全部符合规格——差别不在模型，在装配线。",
+     "en": "Illustrative: the same classification task, bare instruction (left — a lone task sentence in the variable slot, no rules, no examples) vs assembled prompt (right — role + rules + examples + format layered and pinned). None of the left outputs would survive downstream; the right column meets spec on format and boundaries. The difference isn't the model — it's the assembly line."
+    },
+    "coverHook": {
+        "zh": "装配版每天省 71%——一年约 1400 美元",
+        "en": "Assembled: 71% cheaper daily — about $1,400 a year"
+    },
+    "duelCoverLabel": {
+     "zh": "同一道分类题：裸指令的输出 vs 装配提示的输出"
+    },
+    "duelViz": [
+     [
+      {
+       "tag": "裸指令 · 可直接进下游",
+       "val": 0,
+       "cls": "",
+       "txt": "0/3 条 · 全部需人工捞回"
+      },
+      {
+       "tag": "装配版 · 可直接进下游",
+       "val": 100,
+       "cls": " materin-learn-viz__bar--en",
+       "txt": "3/3 条 · 格式边界全达标"
+      },
+      {
+       "tag": "差异来源 · 模型或装配",
+       "val": 82,
+       "cls": "",
+       "txt": "同一模型 · 只换了提示的装法"
+      }
+     ],
+     [
+      {
+       "tag": "裸指令 · 全量重算 1.84M/天",
+       "val": 100,
+       "cls": "",
+       "txt": "≈$5.5/天 · $2023/年"
+      },
+      {
+       "tag": "装配版 · 骨架走前缀缓存",
+       "val": 29,
+       "cls": " materin-learn-viz__bar--en",
+       "txt": "≈$1.6/天 · 省 71%"
+      },
+      {
+       "tag": "回归对拍 · 200 条历史工单",
+       "val": 20,
+       "cls": "",
+       "txt": "$1.10 · 几分钟出结果"
+      }
+     ],
+     [
+      {
+       "tag": "不分层 · 全文重写",
+       "val": 15,
+       "cls": "",
+       "txt": "效果无法归因 · 只能碰运气"
+      },
+      {
+       "tag": "分层 · 只改对应层",
+       "val": 88,
+       "cls": " materin-learn-viz__bar--en",
+       "txt": "换 2 条示例 · 解析 82%→100%"
+      }
+     ]
+    ],
+    "duelVizLabels": [
+     "装配实验：同一模型的两种装法——输出差距全在装配线",
+     "成本账：同样的输出质量，装配版一天省 3.9 美元",
+     "纪律账：改动归因到层，回归集把碰运气变成工程"
+    ],
+    "duelTailLabel": {
+     "zh": "阶段二毕业：提示是程序，装配线就是它的工程纪律"
+    }
+   }
   }
  ]
 }
