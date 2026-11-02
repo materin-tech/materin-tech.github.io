@@ -7516,8 +7516,8 @@
      "en": "Illustrative: the same classification task, bare instruction (left — a lone task sentence in the variable slot, no rules, no examples) vs assembled prompt (right — role + rules + examples + format layered and pinned). None of the left outputs would survive downstream; the right column meets spec on format and boundaries. The difference isn't the model — it's the assembly line."
     },
     "coverHook": {
-        "zh": "装配版每天省 71%——一年约 1400 美元",
-        "en": "Assembled: 71% cheaper daily — about $1,400 a year"
+     "zh": "装配版每天省 71%——一年约 1400 美元",
+     "en": "Assembled: 71% cheaper daily — about $1,400 a year"
     },
     "duelCoverLabel": {
      "zh": "同一道分类题：裸指令的输出 vs 装配提示的输出"
@@ -7586,6 +7586,256 @@
     "duelTailLabel": {
      "zh": "阶段二毕业：提示是程序，装配线就是它的工程纪律"
     }
+   }
+  },
+  {
+   "n": 39,
+   "stage": 2,
+   "week": 8,
+   "tpl": "moe",
+   "date": "2026-11-02",
+   "title": {
+    "zh": "工具菜单：让模型自己选活干",
+    "en": "The tool menu: let the model pick the job"
+   },
+   "subtitle": {
+    "zh": "阶段三第一课。第 22 天的函数调用是人递申请、人按回车——今天把申请清单写进系统提示，模型在每个词上都自己打分选路：读哪个工具、调不调、传什么参数。这层「逐词重选」的机制，和第 17 天 MoE 的路由器是同一台机器。",
+    "en": "Stage 3, lesson one. Day 22's function call had a human in the loop — today the request list goes into the system prompt and the model scores its own route at every token: which tool, whether to call, what arguments. That per-token re-selection is the same machine as day 17's MoE router."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：工具清单就是系统提示里的路由表",
+      "en": "Mechanism: the tool list is a routing table in the system prompt"
+     },
+     "p": {
+      "zh": "把第 22 天的申请行放大看：模型在写 get_weather 之前，其实先做了一次「选择题」。系统提示里的工具清单（名称＋描述＋参数 schema）作为普通 token 进窗口；生成到「该干活了」的位置时，每个工具名都是一个候选 token，工具描述里的每个词都参与对下一个 token 的注意力打分——描述写得越贴近当前问题，对应工具名被采出的概率越高。这和第 17 天 MoE 的门控是同构的：路由器给每个专家打 0～1 的分，top-2 点亮；生成层给每个工具名打概率分，top-1 落笔。区别只有一处——MoE 的分数决定算力走哪条车道，工具分决定申请表写给谁。所以「模型会挑工具」不是理解了工具的用途，而是描述文本把正确的名字推成了最高分 token。",
+      "en": "Zoom in on day 22's request line: before the model writes get_weather, it takes a multiple-choice test. The tool list in the system prompt (names + descriptions + argument schemas) enters the window as ordinary tokens; when generation reaches the \"time to act\" spot, every tool name is a candidate token, and every word of each description participates in scoring the next token via attention — the closer a description sits to the current question, the higher its tool name's sampling probability. This is isomorphic to day 17's MoE gating: the router scores each expert 0–1 and lights up the top-2; the generator scores each tool name and the top-1 lands. One difference: MoE scores route compute, tool scores address the request. So \"the model picks the right tool\" isn't understanding purpose — the description text pushed the right name to the top token."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：三个工具与三个描述版本",
+      "en": "The math: three tools, three description drafts"
+     },
+     "p": {
+      "zh": "同一道 200 题的分类任务，工具清单只有描述文案不同，模型不变：A 版描述写「查询天气信息」（命中率 71%）——太泛，用户问「要不要带伞」时它觉得不算查天气；B 版描述写「获取某城市某日期的实时天气、温度与降水概率」（命中率 94%）——把触发词（城市、日期、降水）写进了描述，注意力一打分就对上号；C 版再写上「仅限查询，不能下单、不能改设置」（命中率 96%，误调率 0.3%）——边界句把「相近但错误」的工具名压了下去。成本上工具清单每次请求固定多付约 120 token：3 个工具的名称加描述加 schema，按 3 美元/百万约 0.00036 美元/次，每天 1000 次约 0.36 美元——一份描述文案的 A/B 测试（200 题 × 两版 ≈ 0.12 美元）就能换 25 个点的命中率，是提示工程里性价比最高的改动之一。第 30 天指令设计的四条原则，在描述文案上同样逐条适用。",
+      "en": "Same 200-question routing task, tool list differing only in description wording, model unchanged: draft A says \"query weather info\" (71% hit) — too vague; \"should I take an umbrella\" doesn't register as weather. Draft B: \"get real-time weather, temperature and precipitation probability for a city and date\" (94%) — the trigger words (city, date, precipitation) live in the description, so attention lines up. Draft C adds \"query only; cannot order or change settings\" (96% hit, 0.3% miscall) — the boundary sentence pushes down near-miss names. Cost: the list adds a fixed ~120 tokens per request — 3 tools' names, descriptions, schemas ≈ $0.00036 per call at $3/M, ≈$0.36 per 1,000 calls a day. An A/B on 200 questions across two drafts costs ≈$0.12 and buys 25 points of hit rate — among the highest-leverage prompt edits. Day 30's instruction principles apply verbatim to description copy."
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：工具越多，能力越强",
+      "en": "Misconception: more tools make the agent stronger"
+     },
+     "p": {
+      "zh": "第一个误解：「把所有工具都挂上，模型就什么都会」。工具清单每加一个，选择题就多一个干扰项——实测从 5 个工具加到 30 个，命中率从 94% 掉到 76%：描述之间语义互相稀释（第 6 天的摊薄效应在工具清单上重演），相近工具还会抢票——「查天气」和「查空气质量」在没有边界句时经常调串。第二个误解：「模型调错工具，说明它不够聪明」。多数时候是描述的锅：模型对「证据」的偏好永远大于对「猜测」的偏好，描述没写清触发条件，它就只能按字面相似度猜。第三个误解：「描述写一次就不用改」。工具清单和第 34 天的折叠区一样会随使用漂移——新增工具、改了参数、用户换了问法，命中率就会滑坡；把 200 题回归集留在仓库里（第 38 天的纪律），每次改清单当天对拍一遍。",
+      "en": "First misread: \"hook up every tool and it can do everything.\" Each added tool is one more distractor in the multiple-choice test — measured, going from 5 to 30 tools drops hit rate from 94% to 76%: descriptions dilute each other (day 6's spreading effect replayed on the tool list), and near-synonym tools steal votes — \"weather\" vs \"air quality\" get swapped without boundary lines. Second: \"a wrong tool call means a dumb model.\" Usually it's the description's fault: the model always prefers evidence over guesses, and a description without trigger conditions leaves it to match on surface similarity. Third: \"write descriptions once, done.\" Like day 34's folded region, the tool list drifts with use — new tools, changed parameters, new user phrasings all slide hit rate; keep the 200-question regression set in the repo (day 38's discipline) and diff after every list change."
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：菜单是编排的接口，也是阶段三的入口",
+      "en": "Extension: the menu is orchestration's interface and stage 3's door"
+     },
+     "p": {
+      "zh": "今天把第 22 天的一次调用，升级成模型自己看菜单点菜——这就是 Agent 循环（第 37 天）第一个自主决策点：外圈每转一圈，模型都要重新看一遍菜单决定「调不调、调哪个」。往后看：第 52 天「提示策略」会把这些菜单、边界句、调用纪律整体写进系统提示的策略段；第 55 天的编排，把多个工具串成工作流——上一步的工具输出就是下一步的工具输入，靠的正是今天「工具名＝申请表地址」的确定性。再往后，第 85 天 RAG 的「搜知识库」在 Agent 眼里也只是菜单上的一道菜。带着一个判断力走进阶段三：模型每一步的自主性，都是你提前在提示里授权好的——菜单写多细，它就多可控。",
+      "en": "Today day 22's single call becomes the model reading the menu and ordering itself — the agent loop's (day 37) first autonomous decision: every lap, it re-reads the menu to decide whether and what to call. Further out: day 52's \"prompt strategy\" writes menus, boundary lines and call discipline into the system prompt's strategy segment; day 55's orchestration chains tools into workflows — one tool's output is the next tool's input, riding today's certainty that a tool name is a request's address. And day 85's RAG \"search the knowledge base\" is just another dish on the menu. Walk into stage 3 with this judgment: every step of the model's autonomy is authorization you pre-wrote in the prompt — the finer the menu, the more controllable the agent."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "给你最常用的一家模型 API 挂一个 3 工具的小菜单（get_weather / search_docs / create_ticket）：① 先只用名称挂上、描述留空，跑 10 道「该调哪个」的测试题记下命中率；② 逐个补描述（写清触发词和参数含义），重跑同一组题对比提升；③ 给最容易被调串的那对工具加边界句（「仅限……，不能……」），再跑一遍。（提示：第 ② 步提升最大的题，往往是描述里出现了用户原话里的词——这就是注意力对号在起作用；第 38 天的五层拆解里，工具清单属于规则与边界层。）",
+     "en": "Hang a 3-tool menu on the API you use most (get_weather / search_docs / create_ticket): (1) mount names only, leave descriptions empty, run 10 \"which tool\" tests and record the hit rate; (2) add descriptions one by one (trigger words, argument meanings) and rerun the same set to compare; (3) add a boundary line to the most confusable pair (\"query only; cannot …\") and rerun. (Hint: the biggest step-2 gains come from questions whose wording appears in the description — that's attention matching at work; in day 38's five-layer teardown, the tool list lives in the rules-and-boundaries layer.)"
+    }
+   },
+   "takeaway": {
+    "zh": "工具菜单＝系统提示里的路由表：描述写触发词，命中率从 71% 到 96%；清单每加一个工具就多一个干扰项，5 到 30 个工具命中率掉 18 个点。模型「会挑工具」不是理解了用途——是描述文本把正确的名字推成了最高分 token。菜单写多细，Agent 就多可控。",
+    "en": "The tool menu is a routing table in the system prompt: trigger words in descriptions lift hit rate 71% → 96%; every added tool is one more distractor, 5→30 tools costs 18 points. The model doesn't understand tools — the description text pushed the right name to the top token. The finer the menu, the more controllable the agent."
+   },
+   "anim": {
+    "tpl": "moe",
+    "hook": {
+     "zh": "工具清单挂进系统提示后，模型在生成流里自己点菜——机制和第 17 天的路由器同一台。",
+     "en": "Once the tool list hangs in the system prompt, the model orders by itself mid-stream — same machine as day 17's router."
+    },
+    "tokens": [
+     "用户问",
+     "：",
+     "合同",
+     "该走",
+     "哪个",
+     "流程？"
+    ],
+    "expertCount": 4,
+    "topK": 1,
+    "expertLabel": {
+     "zh": "工具",
+     "en": "Tool"
+    },
+    "gateLabelZh": "生成中的工具名打分（逐位置重算，最高分落笔成申请）",
+    "gateLabelEn": "Tool-name scores mid-generation (rescored per position; the top one becomes the request)",
+    "readoutZh": {
+     "total": {
+      "num": "4 个",
+      "cap": "候选工具 · 清单 ≈120 token"
+     },
+     "active": {
+      "num": "1 个",
+      "cap": "落笔工具 · top-1"
+     },
+     "ratio": {
+      "num": "96%",
+      "cap": "描述写触发词后的命中率"
+     }
+    },
+    "readoutEn": {
+     "total": {
+      "num": "4",
+      "cap": "candidate tools · list ≈120 tokens"
+     },
+     "active": {
+      "num": "1",
+      "cap": "chosen tool · top-1"
+     },
+     "ratio": {
+      "num": "96%",
+      "cap": "hit rate with trigger-word descriptions"
+     }
+    },
+    "note": {
+     "zh": "示意：工具名的得分来自描述文本与当前问题的注意力重合度——合同问题把 review_contract 推成最高分，其余工具保持低分落选。分数是概率，不是理解：描述改一个词，排名就重排。",
+     "en": "Illustrative: a tool's score comes from how much its description overlaps the current question under attention — the contract question pushes review_contract to the top while the others fall away. The score is probability, not understanding: change one word and the ranking reshuffles."
+    },
+    "coverHook": {
+     "zh": "同一份清单换文案：命中率 71% 到 96%，每天 1000 次调用只多花 0.36 美元。",
+     "en": "Same list, new wording: hit rate 71% → 96% for about $0.36 a day per 1,000 calls."
+    },
+    "viz": [
+     {
+      "chips": [
+       {
+        "tag": "工具清单进系统提示",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "生成到动手位",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "逐名打分",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "top-1 成申请",
+        "merged": true
+       }
+      ],
+      "routes": [
+       {
+        "tag": "MoE 路由（第 17 天）：分数决定算力走哪条车道",
+        "cls": "",
+        "verdict": "top-2 点亮",
+        "vcls": ""
+       },
+       {
+        "tag": "工具选择（今天）：分数决定申请写给谁",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✓ top-1 落笔",
+        "vcls": " materin-learn-viz__route-word--ok"
+       }
+      ],
+      "label": "同构机制：会挑工具不是理解用途，是描述把名字推成最高分 token"
+     },
+     {
+      "wide": true,
+      "bars": [
+       {
+        "tag": "A 版 · 「查询天气信息」",
+        "val": 71,
+        "cls": "",
+        "txt": "太泛 ·「带伞吗」对不上号"
+       },
+       {
+        "tag": "B 版 · 写全触发词与参数",
+        "val": 94,
+        "cls": "",
+        "txt": "城市/日期/降水进描述"
+       },
+       {
+        "tag": "C 版 · B ＋ 边界句",
+        "val": 96,
+        "cls": " materin-learn-viz__bar--en",
+        "txt": "误调率 0.3% · 相近工具被压下"
+       }
+      ],
+      "label": "200 题同一模型：描述文案的 A/B 花 0.12 美元，换 25 个点命中率"
+     },
+     {
+      "routes": [
+       {
+        "tag": "「工具全挂上就什么都会」",
+        "cls": "",
+        "verdict": "✗ 5→30 个 · 94%→76%",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「调错工具是模型不聪明」",
+        "cls": "",
+        "verdict": "✗ 多数是描述没写触发条件",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "改清单当天跑 200 题回归集",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✓ 漂移当天发现",
+        "vcls": " materin-learn-viz__route-word--ok"
+       }
+      ],
+      "label": "干扰项随清单变多：描述互相稀释，相近工具还会抢票"
+     },
+     {
+      "wide": true,
+      "bars": [
+       {
+        "tag": "第 52 天 · 提示策略",
+        "val": 100,
+        "cls": "",
+        "txt": "菜单＋边界句＋纪律写进策略段"
+       },
+       {
+        "tag": "第 55 天 · 编排",
+        "val": 62,
+        "cls": "",
+        "txt": "上一步输出＝下一步输入"
+       },
+       {
+        "tag": "第 85 天 · RAG 搜库",
+        "val": 30,
+        "cls": " materin-learn-viz__bar--en",
+        "txt": "菜单上的一道菜"
+       }
+      ],
+      "label": "菜单是编排的接口：模型每一步的自主性，都是提示里提前授权的"
+     }
+    ]
    }
   }
  ]
