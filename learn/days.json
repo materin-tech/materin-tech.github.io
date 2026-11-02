@@ -7713,8 +7713,8 @@
      "en": "Illustrative: a tool's score comes from how much its description overlaps the current question under attention — the contract question pushes review_contract to the top while the others fall away. The score is probability, not understanding: change one word and the ranking reshuffles."
     },
     "coverHook": {
-     "zh": "同一份清单换文案：命中率 71% 到 96%，每天 1000 次调用只多花 0.36 美元。",
-     "en": "Same list, new wording: hit rate 71% → 96% for about $0.36 a day per 1,000 calls."
+     "zh": "同一份清单换文案：命中率 71% 到 96%",
+     "en": "Same list, new wording: hit rate 71% → 96%"
     },
     "viz": [
      {
