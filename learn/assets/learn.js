@@ -1614,8 +1614,8 @@
       });
       var verdict = el('div', 'materin-learn-bench__verdict',
         lang() === 'en'
-          ? 'No weight changed — the rank did. Score = model × exam × grader.'
-          : '权重一个字节没动，名次反转了——分数 = 模型 × 题集 × 判分尺。');
+          ? (a.verdictEn || 'No weight changed — the rank did. Score = model × exam × grader.')
+          : (a.verdictZh || '权重一个字节没动，名次反转了——分数 = 模型 × 题集 × 判分尺。'));
       var note = el('p', 'materin-learn-bench__note', t(a.note));
 
       var MAX = 100;

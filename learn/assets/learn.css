@@ -3527,7 +3527,9 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 
 .materin-learn-bench__row {
   display: grid;
-  grid-template-columns: 64px 44px 1fr 40px;
+  /* 首列 auto：第 40 天的 4-5 字行名（可验收规则等）比 64px 宽，定宽会把
+     文本挤进名次列（D40 抓到）——D23 的 3 字名不受影响 */
+  grid-template-columns: minmax(64px, auto) 44px 1fr 40px;
   align-items: center;
   gap: 10px;
   min-height: 40px;

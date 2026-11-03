@@ -7837,6 +7837,300 @@
      }
     ]
    }
+  },
+  {
+   "n": 40,
+   "stage": 2,
+   "week": 8,
+   "tpl": "bench",
+   "date": "2026-11-03",
+   "title": {
+    "zh": "上下文排布：位置就是权重",
+    "en": "Context layout: position is weight"
+   },
+   "subtitle": {
+    "zh": "第 39 天把分数交给注意力打分，今天补上被忽略的一维：位置。同一条信息放在窗口开头、中间还是结尾，召回率能差 23 个点——中段是谷底。这不是缺陷，是位置编码加覆盖次数挤出的 U 形；排布纪律一句话：要紧的挪出谷底，用到才查的沉进去。",
+    "en": "Day 39 handed scoring to attention; today adds the dimension it ignored: position. The same fact placed at the window's head, middle, or tail swings recall by 23 points — the middle is a trough. Not a defect but a U squeezed out by positional encoding plus coverage counts; layout discipline in one line: move what matters out of the trough, sink the check-only-when-needed below."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：两条力挤出一条 U 形",
+      "en": "Mechanism: two forces bend one U"
+     },
+     "p": {
+      "zh": "第 39 天说模型在逐词打分，今天补上打分的坐标：位置。机制上是两条同向的力。第一，覆盖次数：第 i 个位置的 token 只能被它后面的 n−i 个生成位置回看——窗口中段的 token 被最少的后续位置「见过」，开头的信息几乎所有位置都能回看。第二，距离衰减：生成点永远贴在窗口末尾，旋转位置编码给每个位置一个正比于序号的相位角，两个 token 距离越远、相位差越大、注意力内积天然越小——刚写完的句子最响。两条力叠出 U 形：首位效应撑起开头，近因效应撑起结尾，中段两头不沾、塌进谷底。第 15 天图里那条对照（首尾约 95%、中段约 65%）就是这条曲线的实测形状；2023 年 Liu 等人的论文把它命名为 lost in the middle——20 页文档里埋同一条事实，座位决定召回。",
+      "en": "Day 39 said the model scores word by word; today adds the coordinates of that scoring: position. Two forces point the same way. First, coverage: a token at position i can be looked back at by only the n−i generation positions after it — mid-window tokens are seen by the fewest downstream positions, while opening text is visible to nearly all of them. Second, distance decay: the generation point always sits at the window's tail, and rotary position encoding gives each position a phase angle proportional to its index — the farther apart two tokens, the larger the phase gap and the smaller the attention inner product — what was just written rings loudest. Stack the two and you get a U: primacy holds up the head, recency holds up the tail, the middle touches neither and sinks. Day 15's comparison (head/tail ≈95%, middle ≈65%) is this curve measured; the 2023 paper by Liu et al. named it lost in the middle — bury the same fact in a 20-page document and its seat decides recall."
+     },
+     "deep": {
+      "zh": "为什么模型不「公平」地看每个位置？因为注意力本来就不是公平的检索器，它是打分器（第 6 天）：分数来自查询与键的相似度，而键的表示里已经揉进了位置相位——近处相位相近，内积天然偏大。这个设计不是疏忽：训练语料里「要点在开头、结论在结尾」的分布太稳定，位置成了可学习的信号，模型学到「开头的话更可能算数」。要在架构层抹平曲线，等于改位置编码的训练分布——重训级别的事。所以工程上从不治曲线，只排座位。",
+      "en": "Why doesn't the model treat every position fairly? Because attention was never a fair retriever — it's a scorer (day 6): scores come from query-key similarity, and the key's representation already carries position phase — nearby phases align, so inner products run large. The design is no accident: in training corpora 'key points first, conclusions last' is so stable that position became a learnable signal — the model learned that words at the top are more likely to count. Flattening the curve at the architecture level means changing the training distribution of positional encoding — a retraining-scale job. So engineering never cures the curve; it books better seats."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：同一条信息，三个座位",
+      "en": "The math: one fact, three seats"
+     },
+     "p": {
+      "zh": "把座位差换成一道真实的算术。20k 的客服窗口：1k 系统提示＋18k 历史工单与规范＋1k 问题，同一台模型回答 50 个需要引用原始条款的问题。关键条款在窗口开头或结尾：引用准确率 94%；条款落在窗口中段：71%——差 23 个点，而每次调用的价格一分未变（3 美元/百万下 20k 输入约 0.06 美元）。这是提示工程里唯一免费的旋钮：想在模型层买回同样的 23 个点，按第 25 天的规模账，参数要往上翻一个数量级、单价乘十；在窗口层，它只值一次拖拽。注意分化的形状：可验收规则只掉 6 个点——指令和示例在反复呼应它；格式要求几乎不掉——它贴着生成点，吃满近因；纯粹的参考事实摔得最狠。座位账要分开算，不能平均。",
+      "en": "Turn seat distance into real arithmetic. A 20k support window: 1k system prompt + 18k ticket history and rules + 1k question; the same model answers 50 questions that require citing original clauses. Key clause at the window's head or tail: 94% citation accuracy. Clause parked mid-window: 71% — a 23-point gap, while the per-call price doesn't move a cent (~$0.06 for 20k input at $3/M). This is the only free knob in prompt engineering: buying back 23 points at the model level means, per day 25's scale math, an order of magnitude more parameters at ten times the unit price; at the window level it costs one drag-and-drop. Note the shape of the spread: hard rules drop only 6 points — instructions and examples keep echoing them; format specs barely drop — they hug the generation point and feast on recency; pure reference facts fall hardest. Book seats per item, never on average."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "错误处理才是大头：中段座位下 29% 的引用错误，每条要人工核对原文 3 分钟；100 条/天的客服线一天烧约 87 分钟人力——一年 500 小时，全花在「把信息挪个座位」本来就能免掉的事上。第 30 天算过含糊指令的返工账，座位账是它的位置版：钱不在生成里，在你没排好的座位上。",
+       "en": "Error handling is the real bill: a 29% citation-error rate mid-window, each error needing a 3-minute manual check against the source; a 100-conversation-a-day line burns ≈87 minutes of labor daily — 500 hours a year, all spent on what moving information to a better seat would have avoided. Day 30 priced vague instructions' rework; the seat bill is its positional twin: the money isn't in the generation, it's in the seats you didn't assign."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：把窗口当书架，塞满就行",
+      "en": "Misconception: full shelf, full recall?"
+     },
+     "p": {
+      "zh": "第一个误解：「窗口 128K，装得下就读得进」。装得下和读得进是两回事——塞满的窗口把关键信息挤进谷底，第 6 天的稀释效应在座位维度重演。第二个误解：「重要的话重复三遍就钉住了」。重复确实加锚，但锚点也占注意力预算：同一份材料把关键句在中段重复 3 遍，召回只涨 4 个点，输出开始复读模板腔——座位免费，重复不免费。第三个误解：「模型会自己找到重点」。排序是生成前的工程决策，不是模型的责任：它只见 token 序列，不知道你心里那条规则值多少钱。第 30 天说指令要具体，今天补上后半句——具体的字，还要坐在响的座位上。",
+      "en": "First misread: \"a 128K window — if it fits, it's read.\" Fitting and reading are different things — a stuffed window squeezes key information into the trough, day 6's dilution replayed along the seat axis. Second: \"repeat what matters three times and it's pinned.\" Repetition adds anchors, but anchors also spend attention budget: repeating the key sentence 3 times mid-window lifts recall by 4 points while the output starts chanting boilerplate — the seat is free, repetition isn't. Third: \"the model will find the point itself.\" Ordering is an engineering decision made before generation, not the model's responsibility: it sees only the token sequence and doesn't know what your rule is worth. Day 30 said instructions must be specific; today adds the second half — specific words also need loud seats."
+     },
+     "misconception": {
+      "h": {
+       "zh": "常见误区",
+       "en": "Common misconception"
+      },
+      "p": {
+       "zh": "「排布优化要等评测体系成熟了再做」。反了：座位是唯一免费的旋钮，第一天就该拧。做法也轻——写模板时对每段问一句「这段必须每次都被看见吗」：答案为是，钉进系统提示（前排）；为「用到才查」，交给检索（第 35 天），从不默认躺在中段。",
+       "en": "\"Layout tuning can wait until the eval system matures.\" Backwards: the seat is the only free knob — turn it on day one. The method is light: for every block ask 'must this be seen every single time?' If yes, pin it into the system prompt (front row); if it's check-only-when-needed, hand it to retrieval (day 35) — never let it default into the middle."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：座位是手艺的一半",
+      "en": "Extension: the seat is half the craft"
+     },
+     "p": {
+      "zh": "第 29 天的阶段地图里，「上下文排布与压缩」是一门手艺——今天交出排布的一半：座位；另一半「压缩」第 34 天讲过（折叠有损，事实区独立）。往后看：第 43 天前后的思维工程把「多想」变成产品参数，思考段要占掉窗口的黄金座位，到时的新账是「草稿纸放哪」；第 85 天 RAG 把检索块递进窗口，块放头还是放尾，用的就是今天的曲线——贴着问题放，吃近因。带走一条纪律：窗口不是仓库是会场，前排坐要员，后排坐材料，中段不留任何要紧的。",
+      "en": "Day 29's stage map called 'context layout and compression' a craft — today hands in layout's half: the seat; the other half, compression, day 34 covered (folding is lossy, the fact zone stands alone). Looking ahead: around day 43, thinking engineering turns 'think longer' into a product parameter, and the thinking track will occupy the window's prime seats — the new bill will be 'where does the scratchpad sit'; day 85's RAG hands retrieved chunks into the window, and whether a chunk goes to head or tail follows today's curve — place it next to the question and feed on recency. Leave with one discipline: the window is not a warehouse, it's a hall — VIPs in the front row, materials in the back, and nothing critical ever parked in the middle."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "拆一份你现有的提示模板，做三步座位审计：① 画出五层的实际位置——角色、规则、示例、输入槽、输出格式，各自的首行离窗口开头多远；② 找出躺在中段的可验收约束——能决定对错的句子（编号、金额门槛、禁止项）有没有被示例和长输入夹在中间；③ 做一次对调：把最关键的一条规则挪进系统提示开头，用 10 道历史用例对拍前后差异。（提示：如果提升不明显，先查那条规则是不是本来就贴着头；真正塌进谷底的模板，通常把规则写在了示例后面、输入槽前面。）",
+     "en": "Take one of your existing prompt templates and run a three-step seat audit: (1) map the five layers' actual positions — role, rules, examples, input slot, output format — and how far each one's first line sits from the window's head; (2) find verifiable constraints lying mid-window — sentences that decide right or wrong (IDs, money thresholds, prohibitions) sandwiched between examples and long inputs; (3) run one swap: move the single most critical rule to the top of the system prompt and diff before/after on 10 historical cases. (Hint: if the lift is small, first check whether that rule already hugged the head; templates that truly collapse into the trough usually write the rules after the examples and before the input slot.)"
+    }
+   },
+   "takeaway": {
+    "zh": "注意力不是公平的检索器：覆盖次数加距离衰减挤出 U 形——关键条款在首尾引用准确 94%、挪到中段 71%，差 23 个点，一分钱不花。排布纪律：能决定对错的钉进系统提示（前排），格式约束钉在窗口最后（近因），用到才查的交给检索——别让任何要紧的东西默认躺在谷底。",
+    "en": "Attention is not a fair retriever: coverage counts plus distance decay squeeze out a U — the key clause cited at 94% from the head/tail, 71% from the middle, a 23-point swing that costs nothing. Layout discipline: pin what decides right or wrong into the system prompt (front row), pin format at the window's very end (recency), hand check-only-when-needed to retrieval — never let anything critical default into the trough."
+   },
+   "anim": {
+    "tpl": "bench",
+    "hook": {
+     "zh": "同一条信息换个座位，召回差 23 个点——而且一分钱不花。",
+     "en": "Same fact, different seat: recall swings 23 points — for free."
+    },
+    "coverHook": {
+     "zh": "关键信息放窗口中段：召回 94% 掉到 71%",
+     "en": "Key fact parked mid-window: recall falls 94% → 71%"
+    },
+    "models": [
+     {
+      "k": "rule",
+      "name": {
+       "zh": "可验收规则",
+       "en": "Hard rule"
+      }
+     },
+     {
+      "k": "fact",
+      "name": {
+       "zh": "参考事实",
+       "en": "Reference fact"
+      }
+     },
+     {
+      "k": "format",
+      "name": {
+       "zh": "格式要求",
+       "en": "Format spec"
+      }
+     }
+    ],
+    "recipes": [
+     {
+      "k": "head",
+      "tag": {
+       "zh": "座位 A · 关键内容钉在窗口开头",
+       "en": "Seat A · key content pinned at the window head"
+      },
+      "scores": [
+       92,
+       94,
+       96
+      ]
+     },
+     {
+      "k": "mid",
+      "tag": {
+       "zh": "座位 B · 同样的内容躺在窗口中段",
+       "en": "Seat B · the same content parked mid-window"
+      },
+      "scores": [
+       86,
+       71,
+       94
+      ]
+     }
+    ],
+    "readoutZh": {
+     "recipe": {
+      "num": "2 个",
+      "cap": "座位 · 头部 vs 中段"
+     },
+     "flip": {
+      "num": "23 点",
+      "cap": "事实召回落差 · 名次反转"
+     },
+     "noise": {
+      "num": "+4 点",
+      "cap": "中段重复 3 遍 · 锚不如座"
+     }
+    },
+    "readoutEn": {
+     "recipe": {
+      "num": "2",
+      "cap": "seats · head vs middle"
+     },
+     "flip": {
+      "num": "23 pts",
+      "cap": "fact recall drop · ranks flip"
+     },
+     "noise": {
+      "num": "+4 pts",
+      "cap": "3× repeat mid-window · anchors < seats"
+     }
+    },
+    "verdictZh": "权重一个字节没动，掉的只是座位——分数 = 内容 × 座位。",
+    "verdictEn": "Not one weight changed — only the seat did. Score = content × seat.",
+    "note": {
+     "zh": "示意：同一个 20k 窗口（1k 系统提示＋18k 材料＋1k 问题），只有关键内容的座位不同。规则被指令与示例反复呼应，摔得轻；格式要求贴着生成点吃近因，几乎不掉；纯粹的参考事实摔得最狠——谷底在中段。座位是唯一免费的旋钮。",
+     "en": "Illustrative: the same 20k window (1k system + 18k material + 1k question), only the key content's seat changes. Rules echo through instructions and examples, so they fall gently; format specs hug the generation point and feast on recency, barely moving; pure reference facts fall hardest — the trough is the middle. The seat is the only free knob."
+    },
+    "viz": [
+     {
+      "chips": [
+       {
+        "tag": "位置相位写入键表示",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "中段被最少位置回看",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "近处相位相近更响",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "U 形：首尾高中间塌",
+        "merged": true
+       }
+      ],
+      "label": "两条力同向：覆盖次数（中段最少）× 距离衰减（生成点贴末尾）"
+     },
+     {
+      "wide": true,
+      "bars": [
+       {
+        "tag": "关键条款在开头/结尾",
+        "val": 94,
+        "cls": "",
+        "txt": "引用准确 94%"
+       },
+       {
+        "tag": "关键条款在中段",
+        "val": 71,
+        "cls": " materin-learn-viz__bar--en",
+        "txt": "71% · 差 23 个点"
+       },
+       {
+        "tag": "中段重复 3 遍",
+        "val": 75,
+        "cls": "",
+        "txt": "仅 +4 点 · 还招复读"
+       }
+      ],
+      "label": "20k 窗口同一模型：座位免费，重复不免费"
+     },
+     {
+      "routes": [
+       {
+        "tag": "「装得下就读得进」",
+        "cls": "",
+        "verdict": "✗ 塞满 · 关键句沉谷底",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「重复三遍就钉住」",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✗ +4 点 · 注意力被占",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「模型自己会找重点」",
+        "cls": "",
+        "verdict": "✗ 它只见序列不知轻重",
+        "vcls": " materin-learn-viz__route-word--bad"
+       }
+      ],
+      "label": "座位是生成前的工程决策：具体的字要坐在响的座位上"
+     },
+     {
+      "routes": [
+       {
+        "tag": "能决定对错的 · 系统提示",
+        "cls": "",
+        "verdict": "前排 · 每轮都响",
+        "vcls": " materin-learn-viz__route-word--ok"
+       },
+       {
+        "tag": "输出格式 · 窗口最后",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "近因 · 贴生成点",
+        "vcls": ""
+       },
+       {
+        "tag": "用到才查的 · 检索",
+        "cls": "",
+        "verdict": "要用时递进来",
+        "vcls": ""
+       }
+      ],
+      "label": "窗口不是仓库是会场：前排要员，后排材料，中段不留要紧的"
+     }
+    ]
+   }
   }
  ]
 }
