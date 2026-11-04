@@ -384,7 +384,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 160px;
+  /* 底部留出页脚带（footer 顶在 y=1000）：内容块居中算出的 top 若小于 0，
+     next 行会压进页脚——给 108px 底部兜底（D41 抓到，takeaway+hint 偏长时触发） */
+  padding: 24px 160px 108px;
   gap: 36px;
 }
 
