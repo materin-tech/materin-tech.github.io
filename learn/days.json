@@ -8420,6 +8420,300 @@
      }
     ]
    }
+  },
+  {
+   "n": 42,
+   "stage": 2,
+   "week": 8,
+   "tpl": "bench",
+   "date": "2026-11-05",
+   "title": {
+    "zh": "提示回归：改动要过题集",
+    "en": "Prompt regression: every change runs the suite"
+   },
+   "subtitle": {
+    "zh": "第 29 天说提示是程序——程序要测试，提示也要。今天补上阶段二欠的最后一块工程纪律：漂移不报错，只对拍才现形；一次省 18 个 token 的「优化」让解析成功率 91% 掉到 82%，模型和代码一行没动。200 条回归集当验收关，改动先跑再合。",
+    "en": "Day 29 called the prompt a program — and programs get tests. Today adds the last piece of engineering discipline stage 2 owes: drift never throws an error; only a head-to-head rerun reveals it. A token-saving 'optimization' dropped parse accuracy from 91% to 82% with the model and code untouched. A 200-case regression suite is the gate: run first, ship second."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：提示漂移不报错，只对拍才现形",
+      "en": "Mechanism: drift throws no error — only a rerun catches it"
+     },
+     "p": {
+      "zh": "先回答「提示为什么会漂」。第 38 天的装配线里，角色和规则是长前缀、示例和格式是中间层，而第 40 天说过位置就是权重——这意味着任何一层的措辞变动，都会改变整个窗口里的注意力打分场。把示例层里的「工单 58291」改成「工单号 58291」，表面上等义，实际上改变了每个演示样本的 key 向量：所有注意力头的打分一起挪，输出分布整体平移。模型版本升级同理——供应商换底座、调默认参数、改缓存策略，同一份前缀的行为就换一批。漂移最阴险的地方是它静默：输出合法、格式没错、日志干净，没有异常可报警——只是成功率从 91% 掉到 82%。代码有编译器和异常，提示什么都没有：唯一的检出器，是把同一套题集跑两遍的对拍。",
+      "en": "First, why prompts drift. In day 38's assembly line, role and rules form the long prefix and examples and format sit mid-stack — and day 40 said position is weight. So a wording change in any layer reshapes the attention scoring field across the whole window. Rewriting the example's 'ticket 58291' as 'ticket no. 58291' looks equivalent, but it changes every demo sample's key vector: all attention heads re-score together and the output distribution shifts wholesale. Model upgrades work the same way — a new base model, new default params, a new caching policy, and the same prefix behaves differently. The nastiest part of drift is its silence: output legal, format intact, logs clean, nothing to alert on — accuracy just slid from 91% to 82%. Code has compilers and exceptions; a prompt has neither. The only detector is running the same suite twice and diffing."
+     },
+     "deep": {
+      "zh": "为什么必须是「同一套题集」，而不是「再看看效果」？第 23 天讲过：分数是「模型 × 题集 × 判分尺」的函数。换个题集再评估，差异里分不清是改动起效还是题集换人——两个变量一起动，结论作废。回归集的全部意义就是钉死其中两个变量：题集固定、判分尺固定（逐条对错可判），改动成为唯一变量，分数差就纯归因到你的 diff 上。这和单元测试隔离依赖是同一件事——只不过这里的依赖是示例、措辞和模型版本。",
+      "en": "Why must it be the same suite, not just 'take another look'? Day 23: a score is a function of model × test set × grader. Re-evaluate on a different set and you can't tell whether the delta came from your change or from the set — two variables moved, the conclusion is void. The whole point of a regression suite is pinning two of them: fixed cases, fixed per-case grading, so your diff is the only variable and the score delta attributes purely to it. That's unit-test dependency isolation — except the dependencies here are examples, wording, and model versions."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：一个词的改动，隔天掉 9 分",
+      "en": "The math: one word trimmed, 9 points gone"
+     },
+     "p": {
+      "zh": "还用第 41 天那条 2000 条/天的客服分诊线，现在给它的提示做一次「无害优化」：把示例层的错误示范「错误示范：工单 58291 被误分为 P3，因为正文只写『空调不制冷』」精简成「错误示范：误分 P3，因为没写原因」——省 18 个 token，语义一个没丢。跑 200 条回归集：解析成功率 91% → 82%。为什么？删掉的那句里带着「正文只写 X」这个完整形态，它正是 few-shot 里反例的对照锚——第 31 天说过示例教的是形态不是语义；形态残了，模型把「没写原因」的短工单也当成正常样本。算成本：200 条 × 0.3k = 60k token，3 美元/百万，一次对拍 0.18 美元、5 分钟出结果；而 91% → 82% 意味着 180 条/天走错分支，每条错标下游复核 3 分钟 = 540 分钟/天。一个省 18 token 的「优化」，一天烧掉 9 小时。回归集先跑再合——0.18 美元的保险丝，拦 9 小时的漏。",
+      "en": "Take day 41's 2,000-ticket triage line and 'harmlessly optimize' its prompt: compress the example-layer anti-pattern from 'bad example: ticket 58291 misrouted to P3 because the body only says the AC isn't cooling' to 'bad example: misrouted to P3, no reason given' — 18 tokens saved, zero semantics dropped. Run the 200-case suite: parse accuracy 91% → 82%. Why? The deleted sentence carried the full shape 'body contains only X' — the contrast anchor of the few-shot anti-pattern. Day 31 said it: examples teach shape, not semantics; the shape broke, and short 'no reason given' tickets got read as normal samples. The ledger: 200 cases × 0.3k = 60k tokens at $3/M — one regression run costs $0.18 and 5 minutes. But 91% → 82% misroutes 180 tickets a day, each costing 3 minutes of downstream review = 540 minutes a day. An 'optimization' saving 18 tokens burns 9 hours daily. Run the suite before merging — an $0.18 fuse against a 9-hour leak."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "上线当天才对拍的后果，长这样：改动周三合入，周四线上解析错误悄悄爬到 18%，周五人工复核队列积压 4 小时才有人倒查 diff——从改动到发现 48 小时，期间 3600 条工单走错分支。周三花 0.18 美元跑一次对拍，5 分钟就出红：同一笔账，差在「哪个环节先看见」。",
+       "en": "What catching it on production day looks like: the change merges Wednesday; by Thursday the online parse error has quietly climbed to 18%; Friday, after review queues back up 4 hours, someone finally traces the diff — 48 hours from change to discovery, 3,600 tickets misrouted meanwhile. The Wednesday regression run would have flagged red in 5 minutes for $0.18: same ledger, different place of first sight."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：模型升级不归我管，漂移是运气",
+      "en": "Misconception: upgrades aren't my problem; drift is luck"
+     },
+     "p": {
+      "zh": "三个常见误区，逐一拆。其一：「提示上线就完事了」。装配线把行为挂在长前缀上，供应商升模型、切参数、调缓存策略，都可能让同一份骨架换一批打分——漂移是时间函数，不是操作函数，什么都不改它也来。其二：「人工看几条没问题就行」。第 23 天的 ±2 分噪声讲过：抽 10 条看看，检出不了 9 个点的系统性下滑——人眼看的是单条，看不见分布；今天动效里抽查把 91→82 的塌方显示成 92 分第一名，就是这件事。其三：「回归集要大才有效」。统计上 200 条就足以把 9 个点的差距钉死，真正难的不是条数是覆盖：每个失败模式至少 10 条——超长正文、注入句（第 41 天）、空输入、外语文本，各占一栏；漏一个模式，跑一万次也是白测。",
+      "en": "Three misconceptions, dismantled. First: 'ship the prompt and you're done.' The assembly line hangs behavior on a long prefix; a vendor upgrade, a param switch, a caching change can all re-deal the same skeleton's scores — drift is a function of time, not of your actions; it arrives even when you change nothing. Second: 'a human eyeballing a few outputs is enough.' Day 23's ±2 noise applies: eyeballing 10 cases cannot detect a systematic 9-point slide — humans see single outputs, not distributions; in today's animation the 10-case spot-check shows the 91→82 collapse as a 92-point first place. Third: 'the suite must be huge to work.' Statistically, 200 cases pin a 9-point gap just fine; the hard part is coverage, not count — at least 10 cases per failure mode: overlong bodies, injection lines (day 41), empty inputs, foreign-language text, each its own column. Miss a mode and ten thousand runs test nothing."
+     },
+     "misconception": {
+      "h": {
+       "zh": "常见误区",
+       "en": "Common misconception"
+      },
+      "p": {
+       "zh": "「回归测试太贵——每次 0.18 美元，还要维护题集」。反着算：一次对拍 0.18 美元，一次漏检漂移 540 分钟/天。维护成本也被高估了：线上错例每周回流 10 条进题集，回归集自己会长大——这比代码测试的用例维护便宜得多，因为错例是线上免费送上门的。",
+       "en": "'Regression testing is expensive — $0.18 a run plus suite maintenance.' Run the ledger the other way: $0.18 per run versus 540 minutes a day per missed drift. Maintenance is overestimated too: 10 online failure cases flow back into the suite each week — it grows itself, far cheaper than code-test curation, because production hands you the cases for free."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：题集是阶段三的地基",
+      "en": "Extension: the suite is stage 3's foundation"
+     },
+     "p": {
+      "zh": "第 38 天说装配线是阶段二的毕业证，今天补上它的验收章：没有回归集，「改动归因到层」只是口号——你永远在凭感觉判断是哪层起的效。往前连：第 52 天「提示策略」把回归集写进 Agent 的上线流程，策略改动先对拍、红了不合；第 55 天编排的「坏一环重跑一环」，判断「坏」的标准就是题集里的验收点；而模型升级当天复跑 200 条，是第 41 天注入防线之外的第二条安全带——供应商的更新日志不会写行为变化，你的题集会写。带走一条纪律：提示没有编译器，回归集就是——改动不过题集不上线，这是阶段二九门课合上的最后一个铆钉。",
+      "en": "Day 38 called the assembly line stage 2's diploma; today stamps its acceptance seal. Without a regression suite, 'attribute changes to layers' is a slogan — you're always judging by gut feel. Wiring it forward: day 52's 'prompt strategy' writes the suite into the agent's release flow — policy changes run the diff first, red means no merge; day 55's orchestration 'reruns the broken link' using exactly the suite's acceptance points as its definition of broken; and rerunning 200 cases on model-upgrade day is the second seatbelt beyond day 41's injection defenses — vendor changelogs never record behavior shifts; your suite does. Leave with one discipline: a prompt has no compiler, the suite is one — no merge without green; the last rivet on stage 2's nine lessons."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "给自己的提示建一套 20 条迷你回归集：① 从真实历史输出里挑 20 条——12 条正常、8 条坑（含 1 条超长、1 条注入句「忽略以上规则」、1 条空输入）；② 存成对照表：输入｜期望输出｜对错（一眼可判，不打分）；③ 跑一遍当前提示记下基线；④ 改动提示里任何一个词，重跑对拍——问：被撬动的是第 38 天五层里的哪一层？（提示：先定位改动所在层，再解释分数为什么动；解释不了的分数变化，比解释了的更值得记下来。）",
+     "en": "Build a 20-case mini suite for your own prompt: (1) pick 20 real historical outputs — 12 normal, 8 traps (1 overlong, 1 with the line 'ignore all previous instructions', 1 empty); (2) store a table: input | expected output | pass/fail (judgable at a glance, no scoring); (3) run the current prompt, record the baseline; (4) change any single word in the prompt, rerun, diff — ask: which of day 38's five layers did that word move? (Hint: locate the layer first, then explain the delta; an unexplainable score shift is the one worth writing down.)"
+    }
+   },
+   "takeaway": {
+    "zh": "提示没有编译器，漂移是静默的：省 18 个 token 的措辞优化让解析成功率 91%→82%，一天烧 9 小时人工。回归集钉死题集与判分尺，让分数差纯归因到改动：200 条对拍 0.18 美元，先跑再合；每个失败模式至少 10 条，线上错例每周回流。改动不过题集，不上线。",
+    "en": "A prompt has no compiler, and drift is silent: an 18-token wording 'optimization' dropped parse accuracy 91%→82% and burns 9 hours of human review a day. The suite pins test set and grader so the delta attributes purely to your change: 200 cases for $0.18 a run, green before merge; ≥10 cases per failure mode, online failures flowing back weekly. No green, no ship."
+   },
+   "anim": {
+    "tpl": "bench",
+    "hook": {
+     "zh": "同一份提示，改一个词：回归集 91→82，人工抽查 92 分第一名——分数是「提示 × 题集 × 判分尺」的属性。",
+     "en": "Same prompt, one word changed: 91→82 on the suite, yet 92 and first place on the eyeball check — a score belongs to prompt × test set × grader."
+    },
+    "models": [
+     {
+      "k": "v10",
+      "name": {
+       "zh": "基线 v1.0",
+       "en": "Baseline v1.0"
+      }
+     },
+     {
+      "k": "v11",
+      "name": {
+       "zh": "精简 v1.1",
+       "en": "Trimmed v1.1"
+      }
+     },
+     {
+      "k": "v12",
+      "name": {
+       "zh": "修复 v1.2",
+       "en": "Fixed v1.2"
+      }
+     }
+    ],
+    "recipes": [
+     {
+      "k": "suite",
+      "tag": {
+       "zh": "验收集 A · 200 条回归集 · 逐条对拍",
+       "en": "Suite A · 200-case regression · judged case by case"
+      },
+      "scores": [
+       91,
+       82,
+       95
+      ]
+     },
+     {
+      "k": "eyeball",
+      "tag": {
+       "zh": "验收集 B · 线上抽 10 条 · 人眼判",
+       "en": "Suite B · 10 online samples · eyeballed"
+      },
+      "scores": [
+       90,
+       92,
+       91
+      ]
+     }
+    ],
+    "verdictZh": "抽查看不见漂移：验收要钉死题集和判分尺——改动先过 200 条回归集，再上线。",
+    "verdictEn": "Eyeballing can't see drift: pin the set and the grader — 200 regression cases before anything ships.",
+    "readoutZh": {
+     "recipe": {
+      "num": "2 套",
+      "cap": "验收集 · 回归 200 条 / 抽查 10 条"
+     },
+     "flip": {
+      "num": "9 分",
+      "cap": "同一次改动 · 只有回归集暴露的塌方"
+     },
+     "noise": {
+      "num": "±2 分",
+      "cap": "抽查噪声 · 三个版本全被盖住"
+     }
+    },
+    "readoutEn": {
+     "recipe": {
+      "num": "2",
+      "cap": "suites · 200-case regression / 10-case eyeball"
+     },
+     "flip": {
+      "num": "9 pts",
+      "cap": "one change · the collapse only the suite shows"
+     },
+     "noise": {
+      "num": "±2",
+      "cap": "spot-check noise · covers all three versions"
+     }
+    },
+    "note": {
+     "zh": "示意分数：三个提示版本在两套验收集下的得分。真实工程里，措辞微调、示例增删、供应商升级都会引发静默漂移——输出合法、日志干净，只有同一套题集的对拍能检出。抽查的 92 分不是错：它真实反映了「10 条样本」上的表现，只是那个分布太窄，看不见塌方。",
+     "en": "Illustrative: three prompt versions under two suites. In real projects, wording tweaks, example edits, and vendor upgrades all cause silent drift — legal output, clean logs; only a same-suite diff detects it. The eyeball suite's 92 isn't wrong: it faithfully reflects 10 samples — that distribution is just too narrow to see the collapse."
+    },
+    "coverHook": {
+     "zh": "改一个词，成功率 91%→82%——抽查看不见",
+     "en": "One word, 91%→82% — the spot-check can't see it"
+    },
+    "viz": [
+     {
+      "chips": [
+       {
+        "tag": "改一个词",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "示例形态残了",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "打分场整体挪",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "漂移静默不报错",
+        "merged": true
+       }
+      ],
+      "label": "提示没有编译器：唯一的检出器是同一套题集对拍"
+     },
+     {
+      "wide": true,
+      "bars": [
+       {
+        "tag": "一次对拍 · 200 条",
+        "val": 4,
+        "cls": "",
+        "txt": "0.18 美元 · 5 分钟"
+       },
+       {
+        "tag": "漏检 · 180 条/天错标",
+        "val": 100,
+        "cls": " materin-learn-viz__bar--en",
+        "txt": "540 分钟/天人工"
+       },
+       {
+        "tag": "线上才发现 · 拖 48 小时",
+        "val": 76,
+        "cls": "",
+        "txt": "3600 条已走错分支"
+       }
+      ],
+      "label": "0.18 美元的保险丝，拦 9 小时/天的漏"
+     },
+     {
+      "routes": [
+       {
+        "tag": "「上线就完事了」",
+        "cls": "",
+        "verdict": "✗ 漂移是时间函数",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「人眼看几条就行」",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✗ 眼睛看不见分布",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「题集越大越好」",
+        "cls": "",
+        "verdict": "✗ 要覆盖不要堆条数",
+        "vcls": " materin-learn-viz__route-word--bad"
+       }
+      ],
+      "label": "回归集测的是失败模式：每个坑至少 10 条，不是越大越好"
+     },
+     {
+      "routes": [
+       {
+        "tag": "第 38 天 · 装配线",
+        "cls": "",
+        "verdict": "归因到层 · 今天上验收章",
+        "vcls": " materin-learn-viz__route-word--ok"
+       },
+       {
+        "tag": "第 52 天 · 提示策略",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "策略改动先对拍再合",
+        "vcls": ""
+       },
+       {
+        "tag": "模型升级日",
+        "cls": "",
+        "verdict": "200 条当天复跑",
+        "vcls": ""
+       }
+      ],
+      "label": "供应商的更新日志不写行为变化，你的题集会写"
+     }
+    ]
+   }
   }
  ]
 }
