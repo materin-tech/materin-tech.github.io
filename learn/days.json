@@ -8714,6 +8714,283 @@
      }
     ]
    }
+  },
+  {
+   "n": 43,
+   "stage": 2,
+   "week": 8,
+   "tpl": "chain",
+   "date": "2026-11-06",
+   "title": {
+    "zh": "输出校验：坏产出不出门",
+    "en": "Output validation: nothing broken ships"
+   },
+   "subtitle": {
+    "zh": "第 32 天锁死了语法，今天补上它锁不住的那一半：语义。语法全锁的分诊线仍有 6% 字段「合法但错」——编造工单号、矛盾判级。校验器是流水线里唯一不会幻觉的裁判；错误清单喂回去重试一次，84% 当场修好，6% 压到 1%。",
+    "en": "Day 32 locked the syntax; today covers the half it openly couldn't: semantics. Even with syntax fully locked, 6% of fields on the triage line are 'legal but wrong' — invented ticket IDs, contradictory priorities. An external validator is the only judge in the pipeline that cannot hallucinate; feed the error list back and one retry repairs 84%, taking 6% down to 1%."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：语法锁得住，语义锁不住",
+      "en": "Mechanism: syntax locks, semantics doesn't"
+     },
+     "p": {
+      "zh": "受限解码（第 32 天）在每个采样位置把非法 token 从菜单里删掉——它管的是「这一个位置能吐什么」。语义违约是另一种东西：工单号不在输入里、判了 P1 但正文没命中任何触发词——每个字段单看都合法，合在一起自相矛盾。语法是逐位置的局部约束，语义是覆盖整个输出对象的全局谓词；受限解码看不到「整个对象」，因为它每次只做一件事：选下一个 token。所以第二道闸必须建在输出之后：schema 校验器——一段 20 行的确定性代码，逐字段查类型、枚举、范围，再查跨字段规则。它不是模型，不会幻觉，判决只有过与不过两种。",
+      "en": "Constrained decoding (day 32) removes illegal tokens from the menu at each sampling position — it governs 'what this one position may emit'. A semantic violation is a different animal: a ticket ID that appears nowhere in the input, a P1 priority whose body matches no trigger word — each field is legal alone, together they contradict. Syntax is a local, per-position constraint; semantics is a global predicate over the whole output object. Constrained decoding cannot see 'the whole object' because it does exactly one thing at a time: pick the next token. So the second gate must sit after the output: a schema validator — 20 lines of deterministic code checking each field's type, enum and range, then cross-field rules. It is not a model, it cannot hallucinate, and its verdict has exactly two values: pass or fail."
+     },
+     "deep": {
+      "zh": "为什么不让模型「顺带」保证语义？因为生成过程没有任何承诺机制：模型不是先决定「我要输出一个真实工单号」再去找，而是逐 token 流出来的——工单号的形状（第 31 天：示例教形态）学得极好，具体的号却只有窗口里有才抄得对。要在生成时保证全局谓词成立，得把谓词编译进解码器本身（语义受限解码是前沿研究），生产上没有。所以分工只有一种现实解：模型负责候选，代码负责验收。",
+      "en": "Why can't the model 'also' guarantee semantics? Generation has no commitment mechanism: the model doesn't first decide 'I will emit a real ticket ID' and then look one up — tokens simply flow one at a time. The shape of a ticket ID is learned superbly (day 31: examples teach shape), but the specific digits copy correctly only when they exist in the window. Enforcing a global predicate during generation means compiling it into the decoder itself (semantic constrained decoding is frontier research); nothing in production does it. So only one division of labor is realistic: the model proposes, the code accepts."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：120 条带错的下游",
+      "en": "The math: 120 bad fields a day reach downstream"
+     },
+     "p": {
+      "zh": "还用那条 2000 条/天的分诊线。语法全锁之后，语义违约率实测 6%——每天 120 条带着「合法但错」的字段进下游：编造的工单号让复核找不到原始记录，矛盾的判级让紧急通道空跑。每条错标的下游成本 3 分钟：360 分钟/天，一年约 2,190 小时。装上校验环：120 条全被代码拦下，每条生成一个修复请求——草稿 0.1k＋错误清单 0.05k＋schema 0.2k 约 0.35k 输入、0.1k 输出，120 条约 54k token，合 0.16 美元/天（3 美元/百万）。带错误清单的一次重试修好 84%，残余 19 条/天进人工队列，合 57 分钟。账面：360 分钟变 57 分钟加 0.16 美元；性质变化更大——残余的 19 条每条都带着机器可读的错误类型，周报直接回流进第 42 天的回归集。",
+      "en": "Back to the 2,000-ticket triage line. With syntax fully locked, measured semantic violation is 6% — 120 tickets a day carry 'legal but wrong' fields downstream: invented ticket IDs send reviewers hunting for records that don't exist, contradictory priorities send the urgent lane on a wild run. At 3 minutes of downstream cost each: 360 minutes a day, about 2,190 hours a year. Install the validation loop: all 120 get stopped by code, each spawning a repair request — draft 0.1k + error list 0.05k + schema 0.2k, roughly 0.35k in and 0.1k out; 120 tickets ≈ 54k tokens ≈ $0.16 a day ($3/M). One retry carrying the error list repairs 84%; the remaining 19 a day enter the human queue = 57 minutes. The ledger: 360 minutes becomes 57 minutes plus $0.16. The bigger change is in kind — all 19 residual failures carry a machine-readable error type that flows straight back into day 42's regression suite."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "为什么修复请求必须带错误清单：盲重试（原样重发、只调温度）的修复率实测只有 35%——温度大于 0 等于重新掷骰子，模型并不知道哪里错了，掷出来的还是同一批错；温度 0 更糟，逐 token 分布相同，输出一字不差地复现。带清单重试把错误变成窗口里最近、最显眼的条件（第 40 天的位置权重这次站在我们这边），修复率 84%。修复提示还有一条纪律：只许改被点名的字段——不设这条，模型会顺手「优化」其他字段，把修好的一处换成新错的一处。",
+       "en": "Why the repair request must carry the error list: blind retries (resending as-is, temperature tweaked) repair only 35% in practice — temperature above 0 re-rolls dice without knowing what's wrong, so the same errors come back; temperature 0 is worse: identical token distribution, byte-identical output. Retrying with the list turns the errors into the nearest, loudest context in the window (day 40's position weight finally works for us) — 84% repair. One more discipline: only the flagged fields may change — without that clause the model 'helpfully' rewrites others, trading one fixed error for a fresh one."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：温度 0、自检、盲重发",
+      "en": "Misconception: temp 0, self-check, blind retry"
+     },
+     "p": {
+      "zh": "三个常见误区，逐一拆。其一：「温度调 0 就不会错了」。温度 0 只保证可复现，不保证正确——贪心解码会稳定地塌缩到同一个「看起来对」的错误字段上，而且一致性错误比随机错误更难被抽样指标发现。其二：「让模型自己检查一遍」。自检是同一套权重给同一段内容再打一次分——第 23 天说过 judge 有多软；模型系统性偏向给自己的输出盖「合格」章。校验器是确定性代码，是整条流水线里唯一不会幻觉的裁判，这个位置不能还给模型。其三：「校验不过就再跑一次」。不带错误信息的重试是重新掷骰子（35%），带错误信息的重试是把条件分布整体挪走（84%）——重试的价值全在带什么回去，不在多跑几次。",
+      "en": "Three misconceptions, dismantled. First: 'set temperature to 0 and errors disappear.' Temperature 0 guarantees reproducibility, not correctness — greedy decoding stably collapses onto the same plausible-looking wrong field, and consistent errors are harder to catch by sampling metrics than random ones. Second: 'have the model check its own output.' Self-checking is the same weights scoring the same content again — day 23 said how soft judges are; models systematically lean toward stamping their own output 'qualified'. The validator is deterministic code, the only judge in the pipeline that cannot hallucinate — that seat cannot be handed back to the model. Third: 'if validation fails, just run it again.' A retry without the error list re-rolls the dice (35%); a retry carrying the list moves the whole conditional distribution (84%) — the value of retrying is in what you bring back, not in how many times you roll."
+     },
+     "misconception": {
+      "h": {
+       "zh": "常见误区",
+       "en": "Common misconception"
+      },
+      "p": {
+       "zh": "「校验规则要维护，太贵了」。反着算：schema 是本来就有的——第 32 天的格式说明升级成显式字段表就是它；跨字段规则每周从线上错例里长一两句。20 行代码一次写好，0.16 美元/天的重试费——比它换回的 303 分钟便宜四个数量级。",
+       "en": "'Validation rules need maintenance — too expensive.' Run it the other way: the schema is something you already have — day 32's format notes upgraded into an explicit field table; cross-field rules grow by a line or two a week from online failures. 20 lines of code written once, $0.16 a day of retries — four orders of magnitude cheaper than the 303 minutes it buys back."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：候选与答案的分界线",
+      "en": "Extension: the line between candidate and answer"
+     },
+     "p": {
+      "zh": "阶段二的工程课到这里拼成完整的一道闸：第 32 天受限解码锁语法（生成时），第 42 天回归题集验离线（合入前），第 43 天——今天——schema 校验守在线（每次调用后）。三道工序共用一句话：模型的输出是候选，不是答案。往前连：第 50 天 Agent 循环里，「工具参数校验失败、带错误重试」是 Agent 自己纠错的第一种反射，今天的修复环就是它的原型；第 52 天提示策略把校验器写进上线清单；第 55 天编排的「坏一环重跑一环」，「坏」字的定义就交给校验器——题集定义离线坏，校验器定义在线坏。带走一条：从今天起，任何模型输出进你的系统之前，先问一句——它过没过那 20 行代码。",
+      "en": "Stage 2's engineering lessons now assemble into one complete gate: day 32's constrained decoding locks syntax (during generation), day 42's regression suite verifies offline (before merge), day 43 — today — schema validation guards online (after every call). All three share one sentence: the model's output is a candidate, not an answer. Wiring forward: in day 50's agent loop, 'tool arguments fail validation, retry with the error' is the agent's first self-correction reflex, and today's repair loop is its prototype; day 52's prompt strategy writes the validator into the release checklist; day 55's orchestration 'rerun the broken link' gets its definition of broken from the validator — the suite defines offline-broken, the validator defines online-broken. Leave with one rule: from today on, before any model output enters your system, ask — did it pass those 20 lines of code?"
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "给自己的输出加一道校验闸：① 把第 32 天的格式说明升级成显式 schema（字段、类型、枚举、范围、必填）；② 写 20 行校验代码，加两条跨字段规则（如 P1 必须命中触发词）；③ 喂 3 条坑输入跑一遍（超长、注入句、空正文）；④ 校验不过时把错误清单贴回去重试一次——问：哪类错误重试修得好，哪类修不好？（提示：看错误是「格式类」还是「事实类」——事实类错误模型自己也不知道对的值，重试修不了，得回窗口补材料。）",
+     "en": "Add a validation gate to your own output: (1) upgrade day 32's format notes into an explicit schema (fields, types, enums, ranges, required); (2) write 20 lines of validation code plus two cross-field rules (e.g. P1 must hit a trigger word); (3) run 3 trap inputs (overlong, injection line, empty body); (4) on failure, paste the error list back and retry once — ask: which errors does a retry fix, and which can't it? (Hint: tell format errors from fact errors — a fact error means the model doesn't know the right value either; retrying can't fix it, refill the window instead.)"
+    }
+   },
+   "takeaway": {
+    "zh": "受限解码锁语法，schema 校验守语义：语法全锁后仍有 6%「合法但错」。校验器是确定性代码——流水线里唯一不会幻觉的裁判。错误清单喂回去重试，84% 当场修好，6% 压到 1%。模型出候选，代码做验收。",
+    "en": "Constrained decoding locks syntax; schema validation guards semantics: even fully syntax-locked, 6% of fields are 'legal but wrong'. The validator is deterministic code — the only judge in the pipeline that cannot hallucinate. Retry with the error list: 84% repaired on the spot, 6% down to 1%. The model proposes; the code accepts."
+   },
+   "anim": {
+    "tpl": "chain",
+    "hook": {
+     "zh": "校验器是流水线里唯一不会幻觉的裁判——它 100% 可靠，因为它根本不是模型。",
+     "en": "The validator is the only judge in the pipeline that cannot hallucinate — 100% reliable because it isn't a model at all."
+    },
+    "steps": [
+     {
+      "k": "gather",
+      "tagZh": "生成草稿",
+      "tagEn": "Draft",
+      "capZh": "受限解码 · 语法 100%",
+      "capEn": "constrained decoding · syntax 100%",
+      "inZh": "工单正文",
+      "inEn": "ticket body",
+      "outZh": "JSON 草稿",
+      "outEn": "JSON draft",
+      "tok": "0.1k"
+     },
+     {
+      "k": "outline",
+      "tagZh": "schema 校验",
+      "tagEn": "Schema check",
+      "capZh": "逐字段 · 类型/枚举/范围/跨字段",
+      "capEn": "per field · type/enum/range/cross",
+      "inZh": "JSON 草稿",
+      "inEn": "JSON draft",
+      "outZh": "错误清单",
+      "outEn": "error list",
+      "tok": "20 行代码"
+     },
+     {
+      "k": "write",
+      "tagZh": "带错修复",
+      "tagEn": "Repair",
+      "capZh": "错误清单喂回去 · 一次重试 84%",
+      "capEn": "error list fed back · one retry 84%",
+      "inZh": "草稿＋错误清单",
+      "inEn": "draft + errors",
+      "outZh": "合格输出",
+      "outEn": "valid output",
+      "tok": "≈0.45k"
+     }
+    ],
+    "retry": {
+     "failZh": "✗ 校验不过 · 只重跑这一环",
+     "failEn": "✗ check failed · rerun this link only",
+     "okZh": "✓ 修复 · 残余 1% 进人工",
+     "okEn": "✓ repaired · residual 1% to humans"
+    },
+    "mergeZh": "坏产出不出门：模型出候选，代码做验收",
+    "mergeEn": "Nothing broken ships: the model proposes, the code accepts",
+    "readoutZh": [
+     {
+      "num": "6%→1%",
+      "cap": "语义违约率 · 校验环前后"
+     },
+     {
+      "num": "84%",
+      "cap": "一次重试修复率 · 带错误清单"
+     },
+     {
+      "num": "$0.16/天",
+      "cap": "修复环成本 · 换回 303 分钟"
+     }
+    ],
+    "readoutEn": [
+     {
+      "num": "6%→1%",
+      "cap": "semantic violations · before/after the gate"
+     },
+     {
+      "num": "84%",
+      "cap": "one-retry repair · with the error list"
+     },
+     {
+      "num": "$0.16/day",
+      "cap": "repair loop · buys back 303 minutes"
+     }
+    ],
+    "note": {
+     "zh": "示意：一条分诊线的三环——生成环被受限解码锁住语法，校验环是 20 行确定性代码，修复环把错误清单喂回去只重跑一次。校验器不是模型：它不会幻觉，判决只有过与不过。盲重试（不带错误重发）修复率仅 35%，因为模型并不知道哪里错了。",
+     "en": "Illustrative: a triage line's three links — the draft link is syntax-locked by constrained decoding, the check link is 20 lines of deterministic code, the repair link feeds the error list back and reruns once. The validator is not a model: it cannot hallucinate, and its verdict is pass or fail. Blind retries (no error list) repair only 35% — the model doesn't know what's wrong."
+    },
+    "coverHook": {
+     "zh": "语法全锁后，仍有 6% 的字段「合法但错」",
+     "en": "Syntax fully locked, yet 6% of fields are 'legal but wrong'"
+    },
+    "viz": [
+     {
+      "routes": [
+       {
+        "tag": "受限解码：逐位置的菜单",
+        "cls": "",
+        "verdict": "锁语法",
+        "vcls": ""
+       },
+       {
+        "tag": "schema 校验：全对象的谓词",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✓ 锁语义",
+        "vcls": " materin-learn-viz__route-word--ok"
+       }
+      ],
+      "label": "语法是逐位置的菜单，语义是全对象的谓词——两道闸各管一件事"
+     },
+     {
+      "wide": true,
+      "bars": [
+       {
+        "tag": "无校验：120 条/天错标",
+        "val": 100,
+        "cls": "",
+        "txt": "360 分钟/天"
+       },
+       {
+        "tag": "盲重试：残余 78 条/天",
+        "val": 65,
+        "cls": "",
+        "txt": "234 分钟/天"
+       },
+       {
+        "tag": "带错修复：残余 19 条/天",
+        "val": 16,
+        "cls": " materin-learn-viz__bar--en",
+        "txt": "57 分钟/天 · $0.16"
+       }
+      ],
+      "label": "一次修复环 0.16 美元——把 303 分钟/天还给下游"
+     },
+     {
+      "routes": [
+       {
+        "tag": "温度 0 就不会错",
+        "cls": "",
+        "verdict": "✗ 可复现≠正确",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "模型自己检查一遍",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✗ 同一权重打分",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "校验不过原样重发",
+        "cls": "",
+        "verdict": "✗ 盲重试只修 35%",
+        "vcls": " materin-learn-viz__route-word--bad"
+       }
+      ],
+      "label": "重试的价值在带什么回去：错误清单喂回去才 84%"
+     },
+     {
+      "routes": [
+       {
+        "tag": "第 32 天 · 受限解码",
+        "cls": "",
+        "verdict": "锁语法",
+        "vcls": ""
+       },
+       {
+        "tag": "第 42 天 · 回归题集",
+        "cls": "",
+        "verdict": "验离线",
+        "vcls": ""
+       },
+       {
+        "tag": "第 50 天 · Agent 循环",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✓ 校验即反射",
+        "vcls": " materin-learn-viz__route-word--ok"
+       }
+      ],
+      "label": "模型出候选，代码做验收——三道工序拼成一道闸"
+     }
+    ],
+    "question": {
+     "zh": "模型说这张工单是 P1、工单号 58291——这段 JSON 能直接信吗？",
+     "en": "The model says this ticket is P1, ID 58291 — can that JSON be trusted as-is?"
+    }
+   }
   }
  ]
 }
