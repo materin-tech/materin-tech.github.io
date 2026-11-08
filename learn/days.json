@@ -9233,6 +9233,227 @@
         ],
         "cols": 6
       }
+    },
+    {
+      "n": 45,
+      "stage": 2,
+      "week": 8,
+      "tpl": "kvcache",
+      "date": "2026-11-08",
+      "title": {
+        "zh": "提示缓存：前缀钉死在最前",
+        "en": "Prompt caching: pin the static prefix up front"
+      },
+      "subtitle": {
+        "zh": "第 14 天算过 KV cache 的显存账，今天算它的账单面：服务商把「开头完全相同」的请求做成缓存命中，命中部分输入价约 1/10。可昨天批处理的 63 批里，只要有一批的包装顺序变了，折扣就全灭——缓存不打折内容，只打折「一字不差的重复」。排版规则只有一条：不变的前缀钉死在最前面，每次变的贴着生成点放。",
+        "en": "Day 14 did the KV cache's memory math; today does its billing math: providers sell bit-identical openings as cache hits at roughly 1/10 input price. But in yesterday's 63 batches, one changed packaging order kills the discount — the cache doesn't discount content, only word-for-word repetition. One layout rule: pin the static prefix first; put what changes last, next to the generation point."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：逐块比对，一块不同全盘作废",
+            "en": "Mechanism: block-by-block match — one changed block voids the rest"
+          },
+          "p": {
+            "zh": "服务商侧的缓存按块工作：请求进来，先取开头的 1024 token 算一次指纹，和缓存里的块逐一比对；开头一致才继续比下一个块。所以命中的最小单位是 1024 token 的前缀块，而且是从第 0 格起连续命中——中间改一个字，后面所有块的指纹全部对不上，哪怕后面 90% 的内容和上次一模一样，也按全价重算。这就是「不变的内容放最前面」这条排版铁律的机制出处：K/V 只由「它自己和它之前的内容」决定（第 14 天），前缀一动，其后每一格的 K/V 全部作废。缓存记的是「位置＋内容」的双重指纹，不是内容的集合——同一份 3k 文档，放在开头每次命中，挪到中间永远 miss。",
+            "en": "The provider-side cache works in blocks: a request arrives, the first 1,024 tokens get fingerprinted and compared block by block against the cache; matching continues only while the opening stays identical. So the smallest hit unit is a 1,024-token prefix block, and hits are consecutive from token 0 — change one character mid-window and every later block's fingerprint mismatches; even if 90% of what follows is identical to last time, it's recomputed at full price. That is the mechanical origin of the layout rule 'static content first': K/V depends only on a token and what precedes it (day 14), so once the prefix moves, every later slot's K/V is void. The cache keys on position + content, not content as a set — the same 3k document hits every time at the front and misses forever in the middle."
+          },
+          "deep": {
+            "zh": "为什么不做「内容寻址」的缓存？工程上有三个理由：① 位置就是语义——第 40 天说过同一个 token 换座位注意力就变，K/V 是「内容×位置」的函数，内容寻址会算错注意力；② 比对成本——逐 token 找相同内容要 O(n²) 的匹配，逐块指纹只要 O(n/1024) 次哈希；③ 计费边界清晰——命中块、未命中块、输出 token 三种价目，逐块指纹让账单可复算。所以缓存的语义是「前缀续算」，不是「去重」：它假设你的请求是「同一段开场白 + 一个新问题」，不假设你聪明地复用碎片。",
+            "en": "Why not content-addressed caching? Three engineering reasons: (1) position is semantics — day 40 showed the same token at a different seat changes attention, so K/V is a function of content × position and content addressing would compute wrong attention; (2) comparison cost — finding matching content per token takes O(n²) matching, while per-block fingerprints take O(n/1024) hashes; (3) clean billing — hit blocks, miss blocks, and output tokens are three price lines, and block fingerprints make the bill recomputable. So the cache's semantics is 'prefix continuation', not 'deduplication': it assumes your requests are 'same opening + a new question', not clever fragment reuse."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：同一个文档问答台的两排座位",
+            "en": "The math: one doc-QA bench, two seatings"
+          },
+          "p": {
+            "zh": "还是那条分诊线的兄弟业务：文档问答台，每天 1000 次调用，每次 3k 系统提示＋2k 产品手册（两部分都不变）＋0.5k 当次问题，输出 0.3k，输入价 3 美元/百万、命中价按 1/10 计。座位 A（不变内容全在开头）：每次命中 5k、未命中 0.5k——输入账 5×1/10＋0.5 全价＝1.0k 等效/次，1000 次/天＝10 美元。座位 B（问题拼在前缀前面，不变内容排后面）：每次全价 5.5k，1000 次/天＝16.5 美元——同样的模型、同样的问题，一天多付 6.5 美元，一年 2,373 美元，全部付给「座位」。再加一层：把 A 的 5k 前缀按 0.5k 一段抽掉重排（模拟「每次微调措辞」），指纹全断，立刻退回 16.5 美元——缓存收益是一整块蛋糕，咬一口就全没了。吞吐还有一份：命中块免预填充，首 token 延迟从 1～3 秒降到几百毫秒，问答台的体感差距比账单更大。",
+            "en": "The triage line's sibling: a doc-QA bench, 1,000 calls a day, each with a 3k system prompt + 2k product manual (both static) + 0.5k question, 0.3k output; input $3/M, hits at 1/10. Seating A (all static content up front): 5k hit + 0.5k full-price per call — 1.0k token-equivalents per call, $10/day per 1,000 calls. Seating B (question prepended, static content after): full price 5.5k every call — $16.50/day. Same model, same questions: $6.50/day more, $2,373 a year, all paid to the seat. One more layer: shuffle A's 5k prefix in 0.5k chunks (simulating 'tiny wording tweaks') and every fingerprint snaps — instantly back to $16.50. Cache savings are one whole cake; one bite voids it. Throughput adds a bonus: hit blocks skip prefill, first-token latency drops from 1–3 s to a few hundred ms — a felt gap bigger than the bill."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "把两排座位放大到多轮对话。客服机器人固定前缀 5k，第 1 轮命中；第 2 轮如果直接把新问题接在对话历史末尾——前缀没动，5k 照样命中，只有增量按全价；第 2 轮如果有人「优化」了系统提示的措辞——哪怕只改 8 个字，5k 前缀从改字那块起全断，5k 全价重付。多轮对话的缓存曲线是阶梯：每轮命中上一轮的全部前缀，账单只随「新增的那一节」增长。措辞的每次手痒，都是从阶梯上跳下来一层。",
+              "en": "Scale the two seatings to a multi-turn chat. A support bot's fixed 5k prefix hits on turn 1; on turn 2, appending the new question after the history leaves the prefix untouched — the 5k still hits, only the increment bills at full price. But if someone 'polishes' the system prompt's wording — even 8 characters — the prefix breaks from that block on and the whole 5k bills at full price. A multi-turn cache curve is a staircase: each turn hits the entire previous prefix, and the bill grows only by the newly appended slice. Every wording itch jumps the account down one step."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：缓存是自动的、稳定的、无害的",
+            "en": "Misconception: caching is automatic, stable, and harmless"
+          },
+          "p": {
+            "zh": "三个想当然，逐一拆。其一：「缓存是自动的，不用管」。命中与否完全由你的 token 序列决定——服务商只保证「相同前缀会命中」，不保证「你的前缀相同」：示例顺序、时间戳、随机 ID、检索结果次序，任何一个混进前缀的变量都是指纹杀手（第 38 天的装配线为什么把变量槽全部钉在尾部，就是为这一刻）。其二：「命中了就该便宜，账单不对是服务商错」。缓存命中通常有 5～10 分钟的生命周期，低流量时段缓存过期、命中率先跌——账单波动先查时间间隔，再怀疑别人。其三：「缓存无害，随手开」。写入缓存有的供应商另收费，而且前缀缓存把「最贵的部分」变成「最不愿动的部分」——第 42 天的回归集从此多一条铁律：任何提示改动都要在「缓存命中」和「缓存全断」两种状态下各跑一遍，否则你测的折扣率和线上的不是同一个。",
+            "en": "Three assumptions, dismantled. First: 'caching is automatic — nothing to manage.' Hits are decided entirely by your token sequence; the provider guarantees 'identical prefixes hit', not 'your prefix is identical': example order, timestamps, random IDs, retrieval ordering — any variable that slips into the prefix is a fingerprint killer (day 38's assembly line pins every variable slot at the tail precisely for this moment). Second: 'a hit should be cheap — if the bill looks wrong it's the provider's fault.' Cache entries usually live 5–10 minutes; in low-traffic windows entries expire and hit rates sag — check the time gap before blaming anyone. Third: 'caching is harmless — just turn it on.' Some providers charge for cache writes, and prefix caching turns your most expensive part into your least changeable part: day 42's regression suite gains an iron rule — every prompt change runs twice, once warm and once cold, or the discount rate you test is not the one you ship."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「缓存折扣是性能优化的事，等量大了再说」。反着算：排版规则是第 0 天就该写的——把系统提示和长文档钉在最前面，是免费的动作；等业务长到每天 1000 次调用再回头改模板，模板已经被十处下游代码引用，改动成本比省下的钱贵。座位规则没有实施成本，只有不做的成本。",
+              "en": "'Cache discounts are a performance-optimization chore — wait until volume grows.' Run it the other way: the layout rule should be written on day 0 — pinning the system prompt and long docs at the front is free; retrofit the template at 1,000 calls a day and it's referenced from ten downstream places, costing more than the discount saves. The seat rule has no implementation cost, only a cost for skipping it."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：缓存省重复，压缩省内容——两条正交的轴",
+            "en": "Extension: caching saves repetition, compression saves content — orthogonal axes"
+          },
+          "p": {
+            "zh": "把阶段二的三门省钱课拼成一张地图。批处理（第 44 天）省「跨请求的重复」：同一份包装付一次，惠及 63 批；前缀缓存（今天）省「请求内的重复」：同样的开头按 1/10 计价，惠及每一次调用；上下文压缩（第 34 天的折叠）省「内容本身」：纪要替换原文，账面直接变小。三者正交——批处理的每一条请求内部仍要排座位，缓存命中的窗口仍可以太长，折叠过的前缀照样能命中。往后连：第 52 天提示策略把「不变前缀＋变量尾槽」写成模板交付规范；第 55 天工作流编排里，「批处理→缓存→校验」是批量管线的三件套；第 85 天 RAG 建库前，先检查检索结果的排序是否稳定——检索次序每次都变，窗口前缀就永远命中不了。带走一条纪律：先批处理、再缓存、最后才压缩——每一层都假设你已经拿走了下一层的折扣。",
+            "en": "Stage 2's three money lessons now map onto one board. Batching (day 44) saves cross-request repetition: one packaging fee for 63 batches. Prefix caching (today) saves within-request repetition: identical openings bill at 1/10, every call benefits. Context compression (day 34's folding) saves the content itself: summaries replace verbatim text and the ledger shrinks. All three are orthogonal — batched requests still need seating inside, a cache-hit window can still be too long, and folded prefixes still hit. Wiring forward: day 52's prompt strategy ships 'static prefix + variable tail slots' as the template spec; day 55's orchestration runs 'batch → cache → validate' as the pipeline trio; before day 85's RAG indexing, check that retrieval ordering is stable — reorder on every call and the window prefix never hits. Leave with one rule: batch first, cache second, compress last — each layer assumes you already banked the previous layer's discount."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "给你调用量最大的提示做一次缓存审计：① 打开 API 的响应明细，找缓存命中的字段（hit/cached tokens），记下昨天的命中率；② 对着模板逐段问「这段每次都一样吗」——把系统提示、长文档、少样本示例按不变程度重排：最不变的钉在最前，当次输入贴最后；③ 在前缀中段故意插一个时间戳，跑 20 次对比命中率，再删掉重跑。（提示：命中率波动 20 次内就有结论；如果重排后命中率没涨，先查响应明细里命中的最小块数——不够 1024 token 的前缀按规则不命中。）",
+          "en": "Run a cache audit on your highest-volume prompt: (1) open the API response detail, find the cache-hit field (hit/cached tokens), and record yesterday's hit rate; (2) go through your template asking 'is this segment identical every time' — reorder by immutability: most static pinned first, per-call input last; (3) deliberately insert a timestamp mid-prefix, run 20 calls and compare hit rates, then remove it and rerun. (Hint: 20 calls are enough to see the swing; if reordering doesn't lift the hit rate, check the minimum hit block count in the response detail — prefixes under 1,024 tokens don't qualify.)"
+        }
+      },
+      "takeaway": {
+        "zh": "缓存命中按 1024 token 的前缀块逐块比对，从第 0 格起连续命中：中段改一个字，后面全按全价重算。同一个文档问答台，不变内容钉在开头 10 美元/天，座位排错 16.5 美元/天——一年 2,373 美元付给座位。排版铁律：不变的前缀钉死在最前，变量钉在尾部，措辞手痒一次，阶梯塌一层。",
+        "en": "Cache hits compare 1,024-token prefix blocks in order, from token 0: change one character mid-window and everything after bills at full price. The same doc-QA bench costs $10/day with static content pinned up front and $16.50/day with the seat wrong — $2,373 a year paid to seating. Iron rule: pin the static prefix first, pin variables at the tail; every wording itch collapses one step of the staircase."
+      },
+      "anim": {
+        "tpl": "kvcache",
+        "hook": {
+          "zh": "命中按 1024 token 的前缀块逐块比对：中段改一个字，后面全部按全价重算。",
+          "en": "Hits compare 1,024-token prefix blocks in order: change one character mid-window and everything after bills at full price."
+        },
+        "sentence": {
+          "zh": "同一天的 1000 次调用：前缀没动，5k 格 K/V 直接复用",
+          "en": "1,000 calls the same day: prefix untouched, 5k slots' K/V reused as-is"
+        },
+        "promptN": 12,
+        "genN": 6,
+        "note": {
+          "zh": "示意：文档问答台的窗口。左侧 12 格是 5k 不变前缀（系统提示＋手册，一次算好跨请求复用，按 1/10 计价）；右侧逐格追加的是当次问题与回答（全价）。中段插一个时间戳，左侧指纹全断——右侧警示数字就是那笔全价账。",
+          "en": "Illustrative: a doc-QA window. The left 12 slots are the 5k static prefix (system prompt + manual, computed once, reused across requests, billed at 1/10); the right slots append the per-call question and answer (full price). Insert one timestamp mid-prefix and the left fingerprints snap — the red figure is that full-price bill."
+        },
+        "coverHook": {
+          "zh": "座位排错：同一天多付 65%——中段改一字，全价重来",
+          "en": "Wrong seat: 65% more the same day — one changed character, full price again"
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "前缀逐块指纹",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "1024 token 一块",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "中段改一字",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "后面全部全价",
+                "merged": true
+              }
+            ],
+            "label": "缓存记的是「位置＋内容」：命中从第 0 格起连续"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "座位 A · 前缀钉在最前",
+                "val": 61,
+                "cls": "",
+                "txt": "10 美元/天 · TTFT 数百毫秒"
+              },
+              {
+                "tag": "座位 B · 问题拼在前缀前",
+                "val": 100,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "16.5 美元/天 · 一年多 2,373 美元"
+              },
+              {
+                "tag": "座位 A＋中段时间戳",
+                "val": 100,
+                "cls": "",
+                "txt": "指纹全断 · 立刻退回全价"
+              }
+            ],
+            "label": "1000 次/天、5k 前缀：收益是一整块蛋糕，咬一口全没"
+          },
+          {
+            "routes": [
+              {
+                "tag": "「缓存是自动的」",
+                "cls": "",
+                "verdict": "✗ 命中由你的序列决定",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「账单不对是服务商错」",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 缓存有 5–10 分钟寿命",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "回归集冷热各跑一遍",
+                "cls": "",
+                "verdict": "✓ 折扣率才测得准",
+                "vcls": " materin-learn-viz__route-word--ok"
+              }
+            ],
+            "label": "变量槽（时间戳/随机 ID/检索次序）混进前缀，是指纹杀手"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 44 天 · 批处理",
+                "cls": "",
+                "verdict": "省跨请求重复",
+                "vcls": ""
+              },
+              {
+                "tag": "今天 · 前缀缓存",
+                "cls": "",
+                "verdict": "省请求内重复",
+                "vcls": ""
+              },
+              {
+                "tag": "第 34 天 · 折叠压缩",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✓ 省内容本身",
+                "vcls": " materin-learn-viz__route-word--ok"
+              }
+            ],
+            "label": "先批处理、再缓存、最后压缩——每层拿走上一层的折扣"
+          }
+        ]
+      }
     }
   ]
 }
