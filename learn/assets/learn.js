@@ -2410,7 +2410,7 @@
       var next = document.getElementById('pager-next');
       if (n > 1) { prev.href = 'day.html?d=' + (n - 1); prev.removeAttribute('aria-disabled'); }
       else prev.setAttribute('aria-disabled', 'true');
-      var published = window.LEARN.days.map(function (d) { return d.n; });
+      var published = window.LEARN.days.map(function (d) { return d.n; }).sort(function (a, b) { return a - b; });
       var nextN = published.find(function (x) { return x > n; });
       if (nextN) { next.href = 'day.html?d=' + nextN; next.removeAttribute('aria-disabled'); }
       else {

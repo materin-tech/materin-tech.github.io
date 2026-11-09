@@ -9235,6 +9235,299 @@
       }
     },
     {
+      "n": 46,
+      "stage": 2,
+      "week": 8,
+      "tpl": "chain",
+      "date": "2026-11-09",
+      "title": {
+        "zh": "失败处理：重试不成便降级",
+        "en": "Failure handling: retry, then degrade"
+      },
+      "subtitle": {
+        "zh": "修复环修好 84%，残余的 1% 不是垃圾桶是分流口：带清单的重试已经用掉，再盲试是负期望。重试买方差，降级买确定性——退避加抖动防踩踏，白名单把错标压到 0。底线不是零失败，是每条失败都有确定的去处。",
+        "en": "The repair loop fixes 84%; the last 1% isn't a dump — it's a junction: the guided retry is spent, and more blind retries have negative expected value. Retries buy variance, degradation buys certainty — backoff with jitter prevents stampedes, a whitelist zeroes mislabels. The bar isn't zero failures; it's a fixed destination for every one."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：重试买方差，降级买确定性",
+            "en": "Mechanism: retries buy variance, degradation buys certainty"
+          },
+          "p": {
+            "zh": "第 43 天的流水线走到最后一格：修复环带清单重试一次，120 条语义错误修走 101 条，剩 19 条——这 19 条已经证明「再给一次同样上下文」没用，它们缺的不是运气，是流水线给不了的东西（超长正文被截断、字段在库里查无此人、正文自相矛盾）。所以失败处理分三支，各管一种错误。重试管「随机性」：错误来自采样掷骰子时，温度大于 0 的重新采样有正期望——35% 的盲重试修复率全部来自这一类。退避管「节奏」：429 和超时是共享容量的信号，立即重发等于在事故现场加塞；指数退避（0.5 秒起、翻倍、3 次封顶）加抖动把重试相位打散。降级管「系统性」：错误是确定性的，就换确定性路径——规则引擎、人工队列、缓存旧答案，用便宜但可预测的方式接住。混用就是灾难：给系统性错误上重试烧 token，给随机性错误上人工烧人。",
+            "en": "Day 43's pipeline reaches its last slot: the repair loop retries once with the error list and clears 101 of 120 semantic errors — 19 remain. These 19 have already proven that 'the same context once more' doesn't work; what they lack isn't luck but something the pipeline cannot give (an overlong body that got truncated, a field that exists nowhere in the store, a self-contradicting ticket). So failure handling splits into three branches, one per error class. Retries own randomness: when the error came from rolling dice during sampling, resampling at temperature above 0 has positive expected value — all of the 35% blind-retry repair rate comes from this class. Backoff owns tempo: 429s and timeouts are signals about shared capacity, and instant resends cut into the accident scene; exponential backoff (0.5 s base, doubling, capped at 3) with jitter staggers the retry phases. Degradation owns systematics: when the error is deterministic, switch to a deterministic path — a rule engine, the human queue, a cached prior answer — catching the work in a cheap but predictable way. Mixing them is the disaster: retries on systemic errors burn tokens, humans on random errors burn people."
+          },
+          "deep": {
+            "zh": "为什么降级不算「认输」？回到目标函数：流水线的产出不是「每条都由模型处理」，是「单位时间正确产出的期望」。一次降级等于放弃这一条的概率收益（0.45k token 乘不到 10% 的修复率），换取确定交付。为什么退避必须加抖动？没有 jitter，所有客户端在同一时刻失败、同一时刻重发——限流窗口永远满格，故障从瞬时变成同步雪崩；±20% 的抖动把重试钉到不同相位，代价为零。这也是为什么重试逻辑要做成共享组件而不是每处调用自己写：横切关注点不集中，参数必然漂移成十种版本（第 38 天装配线的教训在代码侧重演）。",
+            "en": "Why isn't degradation 'defeat'? Return to the objective: the pipeline's product is not 'every item processed by the model' but 'expected correct output per unit time'. One degradation means giving up this item's probabilistic payoff (0.45k tokens times an under-10% repair chance) in exchange for certain delivery. Why must backoff jitter? Without it, all clients fail at the same instant and resend at the same instant — the rate-limit window stays full and the incident turns from transient into a synchronized avalanche; ±20% jitter pins retries to different phases at zero cost. This is also why retry logic belongs in a shared component, not at each call site: scattered cross-cutting parameters inevitably drift into ten versions (day 38's assembly-line lesson, replayed on the code side)."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：19 条残余的三个去向",
+            "en": "The math: three destinations for 19 residuals"
+          },
+          "p": {
+            "zh": "19 条残余的三个去向，逐一算账。去向 A——盲重试 3 次：35% 的修复率是「随机误差」的期望，这 19 条是带清单都没修好的系统性错误，实测每次盲重试只剩约 10%；三次期望修回 5 条，19×3×0.45k≈26k token≈0.08 美元，延迟拉长 3 倍，仍漏 14 条。去向 B——降级白名单：19 条直接进人工队列，3 分钟/条共 57 分钟，0 token，错标 0。去向 C——不处理放行：14 条错标直接上路，每条下游返工 3 分钟共 42 分钟，而且错数据进了库。对比 A 和 B：B 多付 15 分钟人工（57 对 42），买到 14 条错标清零和确定的交付时间——A 省下的钱全在返工里赔回去。再算 429 的账：第 44 天的 63 批把并发抬到 8 之后每天撞 40 次限流，无退避的立即重发让限流窗口连续满格、批次整体变慢；加退避＋抖动后同一配额限流降到 3 次/天，批处理「50 分钟压到 100 秒」的吞吐才保得住。",
+            "en": "Three destinations for the 19 residuals, each priced. Destination A — three blind retries: the 35% repair rate is the expectation for random errors; these 19 are systemic errors that survived a guided retry, measuring only about 10% per blind attempt. Three retries expect to recover 5; 19×3×0.45k ≈ 26k tokens ≈ $0.08, latency ×3, and 14 still leak. Destination B — the degrade whitelist: all 19 go straight to the human queue, 3 minutes each = 57 minutes, 0 tokens, zero mislabels. Destination C — no handling: 14 mislabels ship downstream, 3 minutes of rework each = 42 minutes, and wrong data enters the store. A versus B: B pays 15 extra minutes of labor (57 vs 42) to zero out 14 mislabels and fix delivery time — the money A saved all comes back as rework. Now the 429 ledger: after day 44's 63 batches raised concurrency to 8, the line hits 40 rate limits a day; instant resends keep the limit window continuously full and slow every batch. With backoff + jitter the same quota sees 3 a day — only then does batching's '50 minutes → 100 seconds' throughput survive."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "把退避参数落成真实数字：指数退避 base 0.5 秒、factor 2、最多 3 次——重试间隔 0.5、1、2 秒，各加 ±20% 抖动；第四次仍 429 就熔断 60 秒，期间新请求直接走降级路径。没有熔断时，一次 3 分钟的服务故障会让重试队列堆出几万条，恢复的瞬间雪崩式重放，把第二次故障按排在恢复后的第一秒；有熔断时，故障期间的活由降级路径平稳吸收，恢复后队列从零起步。停机税的差异不在故障当时，在故障之后的第一分钟。",
+              "en": "Put real numbers on the backoff: exponential base 0.5 s, factor 2, max 3 tries — intervals of 0.5, 1, 2 s, each with ±20% jitter; a fourth 429 trips the breaker for 60 s, and new requests take the degrade path meanwhile. Without a breaker, one 3-minute service outage piles tens of thousands of retries into the queue, and the moment service recovers they avalanche-replay, scheduling the second failure into the first second after recovery. With a breaker, the degrade path absorbs the outage smoothly and the queue starts from zero. The downtime tax isn't paid during the outage — it's paid in the first minute after."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：多试几次总能过",
+            "en": "Misconception: a few more tries always pass"
+          },
+          "p": {
+            "zh": "其一：「多试几次总能过」。重试解决随机性，不解决系统性——校验环拦下的是语义错误，采样一百次也编不出一个真实的工单号；对系统性残余重试是负期望（0.08 美元换 5 条，漏 14 条）。其二：「降级等于认输，能自动就别人工」。降级是预算决策：人工 3 分钟/条是这条线上最便宜的修复器，比它的账更贵的是错标上路的隐性成本。其三：「重试写在业务代码里就行」。重试是横切关注点：散在各调用点的退避参数必然漂移——有的 3 次、有的 7 次、有的没有抖动，故障日的行为不可预测；做成共享组件，参数一次审计、全线生效。附一个数据点：把修复环重试从 1 次加到 4 次，修复率只从 84% 爬到 91%，token 成本 ×4——重试的边际收益第一刀最大，之后就只是账单。",
+            "en": "First: 'a few more tries always pass.' Retries solve randomness, not systematics — the validator caught semantic errors, and no amount of resampling invents a real ticket ID; retrying systemic residue is negative-expectation ($0.08 for 5, leaking 14). Second: 'degradation means defeat — keep it automated.' Degradation is a budget decision: 3 human minutes per item is the cheapest repairer on this line, and the hidden cost of mislabels shipping outweighs its bill. Third: 'retry logic lives in the business code.' Retrying is a cross-cutting concern: backoff parameters scattered across call sites inevitably drift — some 3 tries, some 7, some without jitter — making failure-day behavior unpredictable; make it a shared component and one audit covers the whole line. One data point: pushing the repair loop from 1 retry to 4 lifts repair only from 84% to 91% at 4× token cost — the first cut of retries is the deepest; the rest is just the bill."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「失败处理等出了事故再补」。反着算：事故日你现场调的是失败路径，而失败路径从上线起就没被真正执行过——没测试、没对拍（第 42 天回归集里那 1 条空输入、1 条注入句，本来就是为它准备的）。失败路径要在没有故障的日子建成并演练：故意把校验环改成必不过，看降级队列里每条都带上了错误类型和序号，才算建成。",
+              "en": "'Failure handling can wait for the first incident.' Run it the other way: on incident day you're tuning the failure path live — a path that has never executed since launch, untested and unrehearsed (the regression suite's 1 empty input and 1 injection line — day 42 — were stocked for exactly this). Build and drill the failure path on days without failures: force the validator to always fail and check that every item in the degrade queue carries its error type and index — only then is it built."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：Agent 把重试写成授权",
+            "en": "Extension: the agent writes retries as authorization"
+          },
+          "p": {
+            "zh": "阶段二的生产线三门课拼齐了：批处理管形状（第 44 天）、缓存管价格（第 45 天）、失败处理管节奏（今天）。往前连：第 50 天 Agent 循环里，重试和降级从代码里的 if 升级成提示里的授权——重试几次、什么条件下降级为「问用户」，写进系统提示的策略段（第 52 天）；第 55 天编排里熔断器是工作流的守门人，坏一环重跑一环（第 33 天）之前先问熔断器放不放行；第 85 天 RAG 检索为空时的降级路径——「直说不知道」而不是硬编（第 9 天）——就是今天那道题的单句版。带走一条纪律：重试买方差，降级买确定性，先问这条线要什么，再决定钱花在哪。",
+            "en": "Stage 2's production-line trio is complete: batching owns shape (day 44), caching owns price (day 45), failure handling owns tempo (today). Wiring forward: in day 50's agent loop, retries and degradation upgrade from an if in code to authorization in the prompt — how many retries, under what condition to degrade to 'ask the user' — written into the system prompt's strategy segment (day 52); in day 55's orchestration the circuit breaker guards the workflow, and before 'rerun the broken link' (day 33) you ask the breaker first; day 85's RAG degrade path when retrieval comes up empty — 'say I don't know' instead of confabulating (day 9) — is today's problem in one sentence. Leave with one rule: retries buy variance, degradation buys certainty — ask what the line needs, then decide where the money goes."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "给你调用量最大的一条流水线做失败审计：① 在日志里数昨天的失败各有多少——校验不过、超时、429——以及每条的最终去向；② 给重试加退避＋抖动（0.5 秒起、翻倍、3 次封顶），对比加前后 429 的次数；③ 给校验环定降级白名单——带清单重试 1 次不过就进人工队列，写死在代码里。（提示：先查你们的重试是不是裸 while——没有退避的重试在故障日放大故障 10 倍；再数人工队列条数，按每条 3 分钟算这道闸每天替你挡了多少分钟。）",
+          "en": "Run a failure audit on your highest-volume pipeline: (1) count yesterday's failures by kind in the logs — validation fails, timeouts, 429s — and where each finally went; (2) add backoff + jitter (0.5 s base, factor 2, capped at 3) and compare 429 counts before/after; (3) define the degrade whitelist for the validation loop — one failed guided retry and the item goes to the human queue, hardcoded. (Hint: first check whether your retries are a bare while — retries without backoff amplify an outage 10× on a bad day; then count the human-queue items and price the gate at 3 minutes each to see how many minutes it saves daily.)"
+        }
+      },
+      "takeaway": {
+        "zh": "修复环修好 84%，残余的 1% 不是垃圾桶是分流口：带清单的重试已用掉，盲重试是负期望（0.08 美元换 5 条、漏 14 条）。重试买方差，降级买确定性：退避加抖动防踩踏，白名单把错标压到 0——人工 3 分钟/条是这条线上最便宜的修复器。失败路径要在没有故障的日子建成。",
+        "en": "The repair loop fixes 84%; the last 1% isn't a dump but a junction: the guided retry is spent and blind retries are negative-expectation ($0.08 for 5, leaking 14). Retries buy variance, degradation buys certainty: backoff with jitter prevents stampedes, the whitelist zeroes mislabels — 3 human minutes per item is the cheapest repairer on the line. Build the failure path on days without failures."
+      },
+      "anim": {
+        "tpl": "chain",
+        "hook": {
+          "zh": "重试买方差，降级买确定性——残余的 1% 要一个确定的去处。",
+          "en": "Retries buy variance, degradation buys certainty — the last 1% needs a fixed destination."
+        },
+        "steps": [
+          {
+            "k": "gather",
+            "tagZh": "带错重试",
+            "tagEn": "Guided retry",
+            "capZh": "错误清单喂回 · 修复 84%",
+            "capEn": "error list fed back · repairs 84%",
+            "inZh": "草稿＋错误清单",
+            "inEn": "draft + errors",
+            "outZh": "合格输出",
+            "outEn": "valid output",
+            "tok": "≈0.45k"
+          },
+          {
+            "k": "outline",
+            "tagZh": "退避重发",
+            "tagEn": "Backoff resend",
+            "capZh": "0.5s→1s→2s＋抖动 · 防 429 踩踏",
+            "capEn": "0.5s→1s→2s + jitter · no 429 stampede",
+            "inZh": "超时/限流请求",
+            "inEn": "timed-out / throttled calls",
+            "outZh": "错峰重发",
+            "outEn": "staggered resends",
+            "tok": "3 次封顶"
+          },
+          {
+            "k": "write",
+            "tagZh": "降级白名单",
+            "tagEn": "Degrade gate",
+            "capZh": "重试不过进人工 · 错标不出门",
+            "capEn": "no pass → human queue · nothing broken ships",
+            "inZh": "残余 19 条",
+            "inEn": "19 residuals",
+            "outZh": "人工队列",
+            "outEn": "human queue",
+            "tok": "0 token"
+          }
+        ],
+        "retry": {
+          "failZh": "✗ 三次不过 · 走降级白名单",
+          "failEn": "✗ 3 fails · take the degrade gate",
+          "okZh": "✓ 人工接手 · 错标清零",
+          "okEn": "✓ humans take over · zero mislabels"
+        },
+        "mergeZh": "重试买方差，降级买确定性",
+        "mergeEn": "Retries buy variance; degradation buys certainty",
+        "readoutZh": [
+          {
+            "num": "1%→0",
+            "cap": "错标进下游 · 降级白名单前后"
+          },
+          {
+            "num": "0.08 美元/天",
+            "cap": "盲重试 3 次 · 只换回 5 条"
+          },
+          {
+            "num": "57 分钟/天",
+            "cap": "降级人工 · 19 条全接住"
+          }
+        ],
+        "readoutEn": [
+          {
+            "num": "1%→0",
+            "cap": "mislabels downstream · before/after the gate"
+          },
+          {
+            "num": "$0.08/day",
+            "cap": "3 blind retries · buys back only 5"
+          },
+          {
+            "num": "57 min/day",
+            "cap": "human queue · all 19 handled"
+          }
+        ],
+        "note": {
+          "zh": "示意：同一条分诊线，修复环之后的两道去处——退避重发管超时与限流（0.5s→1s→2s 加抖动，三次封顶），降级白名单管语义错误（三次不过进人工，0 token）。盲重试解决不了系统性错误：三次仍漏约 14 条，而带清单一次重试已修好 84%。",
+          "en": "Illustrative: the same triage line after the repair loop — backoff resends own timeouts and rate limits (0.5s→1s→2s with jitter, capped at 3), the degrade gate owns semantic errors (three fails → human queue, 0 tokens). Blind retries can't fix systemic errors: three of them still leak about 14, while one guided retry already repaired 84%."
+        },
+        "coverHook": {
+          "zh": "裸重试 3 次只换回 5 条：错标清零靠降级",
+          "en": "3 blind retries buy back 5 — the degrade gate zeroes mislabels"
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "修复环修好 84%",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "残余 1% 是语义错误",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "裸重试 3 次仍漏 14 条",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "降级白名单 · 错标 0",
+                "merged": true
+              }
+            ],
+            "label": "重试解决随机性，不解决系统性——语义错误要有确定去处"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "A · 盲重试 3 次",
+                "val": 42,
+                "cls": "",
+                "txt": "42 分钟返工 · 0.08 美元 · 漏 14 条"
+              },
+              {
+                "tag": "B · 降级白名单",
+                "val": 57,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "57 分钟人工 · 接住 19 条 · 错标 0"
+              },
+              {
+                "tag": "C · 不处理放行",
+                "val": 57,
+                "cls": "",
+                "txt": "57 分钟返工 · 错标上路 · 纯漏"
+              }
+            ],
+            "label": "多付 15 分钟买错标清零：A 省的钱在返工里赔回去"
+          },
+          {
+            "routes": [
+              {
+                "tag": "「多试几次总能过」",
+                "cls": "",
+                "verdict": "✗ 系统错误重试无用",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「降级就是认输」",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 降级是预算决策",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「失败处理出事再补」",
+                "cls": "",
+                "verdict": "✗ 失败路径没人测过",
+                "vcls": " materin-learn-viz__route-word--bad"
+              }
+            ],
+            "label": "重试 1 次加到 4 次：修复率 84%→91%，成本 ×4——第一刀最值"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 44/45 天 · 形状与价格",
+                "cls": "",
+                "verdict": "批处理＋缓存",
+                "vcls": ""
+              },
+              {
+                "tag": "第 50 天 · Agent 循环",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✓ 授权写进策略段",
+                "vcls": " materin-learn-viz__route-word--ok"
+              },
+              {
+                "tag": "第 85 天 · RAG 空检索",
+                "cls": "",
+                "verdict": "降级为「直说不知道」",
+                "vcls": ""
+              }
+            ],
+            "label": "重试买方差，降级买确定性——先问这条线要什么"
+          }
+        ],
+        "question": {
+          "zh": "第 43 天的修复环修好 84%——剩下那 1% 该去哪？",
+          "en": "Day 43's repair loop fixes 84% — where should the last 1% go?"
+        }
+      }
+    },
+    {
       "n": 45,
       "stage": 2,
       "week": 8,
