@@ -9235,6 +9235,300 @@
       }
     },
     {
+      "n": 47,
+      "stage": 2,
+      "week": 8,
+      "tpl": "bench",
+      "date": "2026-11-10",
+      "title": {
+        "zh": "集成验收：全链过一遍",
+        "en": "Integration acceptance: run the whole line"
+      },
+      "subtitle": {
+        "zh": "阶段二收官：四道闸各自全绿，不等于整条流水线能上线。串位发生在两条工单的交界处，缺陷藏在一千二百条之外——单环验收看不见接缝。给这条 2000 条的分诊线做一次全链对拍：总账 17.4 美元压到 12.8，50 分钟压到 100 秒，错标压到 0；省下的 26% 不在某个旋钮，在四道闸按序全开。",
+        "en": "Stage 2 closes: four gates each green does not mean the line can ship. The shift happens at the seam between two tickets, the defect hides beyond item 1,200 — single-gate checks never see the joints. Run one end-to-end diff over this 2,000-ticket triage line: the ledger drops from $17.40 to $12.80, 50 minutes to 100 seconds, mislabels to zero. The 26% saved lives not in one knob but in four gates opened in order."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：四道闸，顺序就是依赖",
+            "en": "Mechanism: four gates, the order is the dependency"
+          },
+          "p": {
+            "zh": "上线的前一晚做一次全链验收：把第 43 天的校验环、第 44 天的批处理、第 45 天的缓存串成一条线，从原始工单走到降级队列，跑完整 2000 条。四道闸的分工在各自的天里都讲过，串起来才看出依赖顺序：批处理管形状——把 2000 次请求装成 63 批，形状不对，缓存的「相同前缀」无从谈起；缓存管价格——63 批共享的 5k 系统提示按命中价 1/10 计费，价格不先钉住，校验环每多跑一遍都在烧全价；校验管缺陷——序号核对、字段抽查、拦下语义错误，缺陷不清出来，降级就没有名单；降级管残局——白名单接住修复环修不好的 19 条。顺序反了不是变慢，是静默失效：先开缓存后改批处理，批内拼接顺序一变，前缀指纹全断（第 45 天的蛋糕咬一口全没）；先做校验后定格式，校验器对拍的是旧的输出接口（第 32 天），上线第一天就要返工。",
+            "en": "The night before launch, run one end-to-end acceptance: chain day 43's validation loop, day 44's batching, and day 45's caching into a single line, from raw ticket to degrade queue, and run all 2,000. Each gate's job had its own day; chained together, the dependency order shows. Batching owns shape — packing 2,000 requests into 63 batches; with the shape wrong, the cache has no 'identical prefix' to speak of. Caching owns price — the 5k system prompt shared by all 63 batches bills at the 1/10 hit rate; with price unpinned, every extra validation pass burns full fare. Validation owns defects — index checks, field spot-checks, catching semantic errors; without a clean defect list, degradation has nothing to route. Degradation owns the endgame — the whitelist catching the 19 the repair loop can't fix. Reversing the order isn't slower, it's silent failure: cache before batching and any change to in-batch assembly snaps every prefix fingerprint (day 45's cake — one bite voids it); validate before fixing the format and the validator diff-checks the old output interface (day 32), reworked on day one."
+          },
+          "deep": {
+            "zh": "为什么单环全绿还可能翻车？因为流水线的产出是链条的乘积，不是环节的求和：批处理 99 分 × 校验 99 分 × 降级 99 分，端到端是 0.99³≈97 分——而真实系统里最弱环往往远低于 99。抽样验收为什么测不出来？抽 50 条只命中每条工单的正文，串位发生在批内第 17 条和第 18 条的交界处，缺陷藏在第 1200 条——样本越小、越随机，越像「一切正常」。这就是全链卷必须整批跑、逐条对拍的原因：它量的不是平均质量，是最弱环节在真实分布下的表现。",
+            "en": "Why can every gate pass and the launch still fail? Because a pipeline's output is the product of its links, not the sum of its stages: 99 × 99 × 99 ends at 0.99³ ≈ 97 — and in real systems the weakest link sits far below 99. Why can't sampling catch it? Fifty sampled tickets touch only each ticket's body; the shift happens at the boundary between items 17 and 18, and the defect hides in item 1,200 — the smaller and more random the sample, the more it looks like 'all normal.' That's why the end-to-end paper must run whole batches and diff every item: it measures not average quality but the weakest link's behavior under the real distribution."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：四道闸合上总账",
+            "en": "The math: four gates, one ledger"
+          },
+          "p": {
+            "zh": "把四道闸的账合成一张总表，逐项相加。基线（逐条、无缓存、无校验）：输入 2.8M token——包装 1.6M（0.8k×2000 遍）＋正文 1.2M——按 3 美元/百万＝8.4 美元；输出 300k 按 30 美元/百万＝9.0 美元；合计 17.4 美元/天、50 分钟、错标率未知。上线版逐项替换：批处理把包装从 2000 遍砍到 63 遍，输入降到 1.25M×3 美元/百万＝3.8 美元；缓存把 63 遍包装再按 1/10 打折（50.4k 前缀省约 0.02 美元——这条线前缀只占输入 4%，省得少；前缀占 90% 的问答台才是缓存的大客户，第 45 天的 6.5 美元/天）；校验与降级 0 token，人工预算 57 分钟（19 条×3 分钟）。合计 3.8＋9.0＝12.8 美元/天，省 26%；50 分钟压到 100 秒；错标 0。再算风险端：不跑全链直接上线，裸批版的串位没人重跑——63 批×3%≈2 批整批错标，2000 条里约 64 条坏数据进库，按第 30 天的返工账 3 分钟一条，一天 190 分钟起步。",
+            "en": "Fold the four gates into one ledger, added line by line. Baseline (per-ticket, no cache, no validation): input 2.8M tokens — packaging 1.6M (0.8k × 2,000 passes) + bodies 1.2M — at $3/M = $8.40; output 300k at $30/M = $9.00; total $17.40/day, 50 minutes, mislabel rate unknown. The launch build swaps each line: batching cuts packaging from 2,000 passes to 63, input drops to 1.25M × $3/M = $3.80; caching discounts those 63 passes at 1/10 (the 50.4k prefix saves about $0.02 — this line's prefix is only 4% of input, so the cut is small; a QA bench whose prefix is 90% of input is caching's best customer, day 45's $6.50/day); validation and degradation cost 0 tokens with a 57-minute human budget (19 × 3 minutes). Total: 3.8 + 9.0 = $12.80/day, 26% saved; 50 minutes → 100 seconds; mislabels 0. Now the risk side: ship without the full-line run and the bare-batch build's shifts go unrerun — 63 batches × 3% ≈ 2 batches mislabeled wholesale, about 64 bad records into the store, at day 30's 3-minute rework each ≈ 190 minutes a day."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "验收本身也要有验收标准，写成四条硬门：① 总账对上——当天 token 账与预估差不超过 5%（对不上先查缓存命中率，第 45 天的时间戳陷阱最常见）；② 全量核对——2000 条输出序号无一缺失、无一重复（丢条是批处理最安静的故障）；③ 错标为零——降级队列条条带错误类型与序号，没有一条「原因不明」；④ 时延达标——100 秒全链跑完，熔断器零触发。四条全过才签字；任何一条不过，按第 46 天的分诊表分流——这正是它第一次实战。",
+              "en": "Acceptance needs its own acceptance criteria — four hard gates: (1) the ledger reconciles — the day's token bill within 5% of estimate (if not, check the cache hit rate first; day 45's timestamp trap is the usual suspect); (2) full count — none of the 2,000 output indexes missing or duplicated (dropped items are batching's quietest failure); (3) zero mislabels — every item in the degrade queue carries its error type and index, none 'cause unknown'; (4) latency — the full line finishes in 100 seconds with zero breaker trips. Sign off only when all four pass; any failure routes by day 46's triage table — its first live drill."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：单环绿了就能上线",
+            "en": "Misconception: green gates mean shippable"
+          },
+          "p": {
+            "zh": "其一：「单环都测过了，串起来肯定没问题」。集成恰恰是单环测不出的那层：格式对的输出接进校验器可能序号错位，批内正确的缓存前缀换个拼装顺序就断——误差不在环节里，在接缝上。其二：「验收越严格越好，多加指标」。指标不是护栏是靶子：对拍口径一多，团队开始对着指标调线（第 23 天的刷榜教训），一个端到端指标顶十条代理指标——总账、错标、时延，三条够了。其三：「验收过了就一劳永逸」。全链卷是活卷：提示模板每改一行（第 42 天的回归集），缓存的指纹、校验的对拍规则、降级的白名单都在同一张卷上重考——第 42 天说改动要过题集，今天补全：要过的是全链的题集。",
+            "en": "First: 'every stage was tested — chaining them is fine.' Integration is precisely the layer single-stage tests can't see: a format-valid output can misalign indexes inside the validator, and a cache prefix correct in isolation snaps when the assembly order changes — the error lives in the seams, not the stages. Second: 'stricter acceptance is better — add more metrics.' Metrics aren't guardrails, they're targets: pile up proxies and the team starts tuning toward them (day 23's benchmark-chasing lesson); one end-to-end metric beats ten proxies — ledger, mislabels, latency, three is enough. Third: 'pass once, safe forever.' The end-to-end paper is a living paper: change one line of the prompt template (day 42's regression set) and the cache fingerprint, the validator's diff rules, and the degrade whitelist all re-sit the same exam — day 42 said changes must pass the suite; today completes it: the suite is the whole line's."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「全链验收是大上线才做的事，平时跑跑抽样就行」。反着算：抽样卷给裸批版打出 88 分、全链卷只给 41 分——平时靠抽样，等于带着 47 分的盲区运行。全链卷跑一次 2000 条只要 100 秒、12.8 美元，比它拦下的坏数据便宜两个数量级；把全链卷做成每次改动后的自动步骤，才是「平时」该有的样子。",
+              "en": "'End-to-end acceptance is for the big launch; sampling suffices day to day.' Run the numbers: sampling scores the bare-batch build 88, the full-line paper gives it 41 — running on sampling means operating with a 47-point blind spot. One full-line run of 2,000 takes 100 seconds and $12.80 — two orders of magnitude cheaper than the bad data it stops; making the full-line paper an automatic step after every change is what 'day to day' should look like."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：阶段二的毕业考",
+            "en": "Extension: stage 2's final exam"
+          },
+          "p": {
+            "zh": "阶段二到今天收官：第 29–33 天把提示写成程序（指令、示例、格式、拆解），第 34–36 天让上下文不掉链（多轮、检索、模板），第 37–39 天接上工具与循环，第 40–46 天压成本、稳质量（座位、注入、回归、校验、批处理、缓存、失败处理）。全链验收是这一阶段的毕业考：七件工具在同一条 2000 条的线上同时工作。往前连：第 50 天 Agent 循环里，「验收」从批量对拍变成逐会话判定——Agent 的产出没有固定 schema，全链卷变成「结果是否达成目标」的目标回归；第 52 天提示策略里，验收红线（错标为零、丢条为零）写进系统提示的策略段，让模型在生成时就对着红线写；第 55 天工作流编排里，全链卷变成回放测试——工作流每次改环，先回放历史批次再上线。带走一条纪律：单环绿灯是入场券，全链对拍才是上线判据。",
+            "en": "Stage 2 closes today: days 29–33 wrote prompts as programs (instructions, examples, formats, decomposition); days 34–36 kept context from dropping (multi-turn, retrieval, templates); days 37–39 attached tools and loops; days 40–46 pressed cost and steadied quality (seats, injection, regression, validation, batching, caching, failure handling). End-to-end acceptance is the stage's final exam: seven tools working at once on one 2,000-ticket line. Wiring forward: in day 50's agent loop, acceptance turns from batch diffing into per-session judgment — an agent's output has no fixed schema, and the end-to-end paper becomes a goal regression ('did it achieve the objective'); in day 52's prompt strategy, the acceptance red lines (zero mislabels, zero drops) go into the system prompt's strategy segment so the model writes against them at generation time; in day 55's workflow orchestration, the paper becomes replay testing — change a link, replay historical batches before shipping. Leave with one rule: single-gate green is the entry ticket; end-to-end diffing is the launch criterion."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "给你的主流程做一次 30 分钟的全链验收彩排：① 画出链路图——从输入到交付经过哪几道闸，各吃进什么、吐出什么；② 造一张全链卷——用真实历史数据端到端跑 100 条，逐条核对序号与字段，记录坏条去向；③ 找最弱环——坏条集中在哪道闸，就先给那道闸补硬校验（序号、金额、禁用词各设一条）。（提示：坏条在每道闸都零散出现，多半不是闸的问题，是接缝的问题——先查上一道闸的输出格式和这一道闸的解析是否同版本；全链跑不出坏条就把卷子加难：塞 3 条第 41 天的注入句再跑。）",
+          "en": "Run a 30-minute end-to-end acceptance rehearsal on your main pipeline: (1) draw the link map — which gates does the work pass from input to delivery, what each consumes and emits; (2) build an end-to-end paper — run 100 real historical items through the whole chain, check every index and field, and log where bad items went; (3) find the weakest link — whichever gate clusters the bad items gets the next hard check (one each for indexes, amounts, forbidden terms). (Hint: bad items scattered thinly across every gate usually means the seams, not the gates — first check whether the upstream gate's output format and this gate's parser are the same version; if the run finds nothing, harden the paper: plant 3 injection lines from day 41 and run again.)"
+        }
+      },
+      "takeaway": {
+        "zh": "四道闸各管一层：批处理管形状、缓存管价格、校验管缺陷、降级管残局。同一条 2000 条的分诊线：17.4 美元/天、50 分钟、错标未知——上线版 12.8 美元、100 秒、错标 0。省下的 26% 不在某个旋钮，在四道闸按序全开；单环绿灯是入场券，全链对拍才是上线判据。",
+        "en": "Four gates, one layer each: batching owns shape, caching owns price, validation owns defects, degradation owns the endgame. The same 2,000-ticket line: $17.40/day, 50 minutes, mislabels unknown — the launch build: $12.80, 100 seconds, zero mislabels. The 26% saved lives not in any single knob but in all four gates opened in order; single-gate green is the entry ticket, end-to-end diffing is the launch criterion."
+      },
+      "anim": {
+        "tpl": "bench",
+        "hook": {
+          "zh": "四道闸各自全绿不等于整条流水线能上线——单环验收看不见最弱环，全链对拍才现形。",
+          "en": "Four green gates don't mean a shippable line — single-gate checks can't see the weakest link; end-to-end acceptance can."
+        },
+        "coverHook": {
+          "zh": "上线首日 0 事故：答卷是 4 道闸，不是运气",
+          "en": "Day-one zero incidents: the answer sheet is 4 gates, not luck"
+        },
+        "models": [
+          {
+            "k": "bare",
+            "name": {
+              "zh": "裸批版",
+              "en": "Bare batch"
+            }
+          },
+          {
+            "k": "retry",
+            "name": {
+              "zh": "重试版",
+              "en": "Blind retry"
+            }
+          },
+          {
+            "k": "full",
+            "name": {
+              "zh": "全链版",
+              "en": "Full line"
+            }
+          }
+        ],
+        "recipes": [
+          {
+            "k": "sample",
+            "tag": {
+              "zh": "卷 A · 抽样 50 条 · 看单件质量",
+              "en": "Paper A · sample 50 · item quality"
+            },
+            "scores": [
+              88,
+              91,
+              93
+            ]
+          },
+          {
+            "k": "e2e",
+            "tag": {
+              "zh": "卷 B · 全链 2000 条 · 端到端对拍",
+              "en": "Paper B · full 2,000 · end-to-end"
+            },
+            "scores": [
+              41,
+              58,
+              94
+            ]
+          }
+        ],
+        "readoutZh": {
+          "recipe": {
+            "num": "47 分",
+            "cap": "裸批版两卷落差 · 抽样看不见"
+          },
+          "flip": {
+            "num": "0 条",
+            "cap": "错标上路 · 全链版上线首日"
+          },
+          "noise": {
+            "num": "−26%",
+            "cap": "总账 17.4→12.8 美元/天"
+          }
+        },
+        "readoutEn": {
+          "recipe": {
+            "num": "47 pts",
+            "cap": "bare-batch gap between papers · sampling can't see it"
+          },
+          "flip": {
+            "num": "0",
+            "cap": "mislabels shipped · full line, day one"
+          },
+          "noise": {
+            "num": "−26%",
+            "cap": "ledger $17.40→$12.80/day"
+          }
+        },
+        "verdictZh": "抽样给的是入场券，全链对拍才是上线判据：分数 = 最弱的一环。",
+        "verdictEn": "Sampling grants entry; end-to-end diffing clears launch — the score is the weakest link.",
+        "note": {
+          "zh": "示意：三个候选版本在两张考卷上的得分。卷 A 抽 50 条看单件质量，三版接近、裸批也能拿 88 分；卷 B 全链 2000 条逐条对拍，裸批版的串位与漏标全部现形（41 分），盲重试烧 0.08 美元仍漏 14 条（58 分），四闸齐开的全链版 94 分。验收口径选错，绿灯就是错觉。",
+          "en": "Illustrative: three candidate builds on two papers. Paper A samples 50 items for per-item quality — the versions bunch up, bare batch scoring 88. Paper B runs the full 2,000 with per-item diffing: bare batch's shifts and leaks all surface (41), blind retries burn $0.08 yet leak 14 (58), and the full line with all four gates scores 94. Wrong acceptance lens, green lights are an illusion."
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "批处理 · 形状",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "缓存 · 价格",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "校验 · 缺陷",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "降级 · 残局",
+                "merged": true
+              }
+            ],
+            "label": "四道闸各管一层：顺序就是依赖——先形状，后价格，再质量"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "基线 · 逐条提交",
+                "val": 100,
+                "cls": "",
+                "txt": "17.4 美元/天 · 50 分钟"
+              },
+              {
+                "tag": "批＋缓存 · 形状与价格",
+                "val": 74,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "12.8 美元/天 · 100 秒"
+              },
+              {
+                "tag": "全链 · 加校验与降级",
+                "val": 74,
+                "cls": "",
+                "txt": "账单不变 · 错标 0 · 57 分钟人工"
+              }
+            ],
+            "label": "总账 17.4→12.8 美元/天：省 26%，错标从未知到 0"
+          },
+          {
+            "routes": [
+              {
+                "tag": "「单环全绿就能上线」",
+                "cls": "",
+                "verdict": "✗ 最弱环在全链才现形",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「指标越多越保险」",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 一个端到端顶十条代理",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「验收是一次性的」",
+                "cls": "",
+                "verdict": "✗ 每次改动重跑全链卷",
+                "vcls": " materin-learn-viz__route-word--bad"
+              }
+            ],
+            "label": "裸批版抽样 88 分、全链 41 分——抽样的绿灯会撒谎"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 50 天 · Agent 循环",
+                "cls": "",
+                "verdict": "验收从批变会话",
+                "vcls": ""
+              },
+              {
+                "tag": "第 52 天 · 策略段",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✓ 红线写进系统提示",
+                "vcls": " materin-learn-viz__route-word--ok"
+              },
+              {
+                "tag": "第 55 天 · 工作流编排",
+                "cls": "",
+                "verdict": "全链卷回放护每次改动",
+                "vcls": ""
+              }
+            ],
+            "label": "阶段二收官：成本、质量、节奏三门课，全链对拍盖章"
+          }
+        ]
+      }
+    },
+    {
       "n": 46,
       "stage": 2,
       "week": 8,
