@@ -10370,13 +10370,13 @@
           {
             "routes": [
               {
-                "tag": "「维护就是别乱动」",
+                "tag": "维护就是别乱动",
                 "cls": "",
                 "verdict": "✗ 不敢动的系统三个月就烂",
                 "vcls": " materin-learn-viz__route-word--bad"
               },
               {
-                "tag": "「文档全就是维护好」",
+                "tag": "文档全就是维护好",
                 "cls": " materin-learn-viz__route-row--think",
                 "verdict": "✗ 三问答不上＝没想清",
                 "vcls": " materin-learn-viz__route-word--bad"
