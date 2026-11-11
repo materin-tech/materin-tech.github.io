@@ -9235,42 +9235,42 @@
       }
     },
     {
-      "n": 47,
+      "n": 45,
       "stage": 2,
       "week": 8,
-      "tpl": "bench",
-      "date": "2026-11-10",
+      "tpl": "kvcache",
+      "date": "2026-11-08",
       "title": {
-        "zh": "集成验收：全链过一遍",
-        "en": "Integration acceptance: run the whole line"
+        "zh": "提示缓存：前缀钉死在最前",
+        "en": "Prompt caching: pin the static prefix up front"
       },
       "subtitle": {
-        "zh": "阶段二收官：四道闸各自全绿，不等于整条流水线能上线。串位发生在两条工单的交界处，缺陷藏在一千二百条之外——单环验收看不见接缝。给这条 2000 条的分诊线做一次全链对拍：总账 17.4 美元压到 12.8，50 分钟压到 100 秒，错标压到 0；省下的 26% 不在某个旋钮，在四道闸按序全开。",
-        "en": "Stage 2 closes: four gates each green does not mean the line can ship. The shift happens at the seam between two tickets, the defect hides beyond item 1,200 — single-gate checks never see the joints. Run one end-to-end diff over this 2,000-ticket triage line: the ledger drops from $17.40 to $12.80, 50 minutes to 100 seconds, mislabels to zero. The 26% saved lives not in one knob but in four gates opened in order."
+        "zh": "第 14 天算过 KV cache 的显存账，今天算它的账单面：服务商把「开头完全相同」的请求做成缓存命中，命中部分输入价约 1/10。可昨天批处理的 63 批里，只要有一批的包装顺序变了，折扣就全灭——缓存不打折内容，只打折「一字不差的重复」。排版规则只有一条：不变的前缀钉死在最前面，每次变的贴着生成点放。",
+        "en": "Day 14 did the KV cache's memory math; today does its billing math: providers sell bit-identical openings as cache hits at roughly 1/10 input price. But in yesterday's 63 batches, one changed packaging order kills the discount — the cache doesn't discount content, only word-for-word repetition. One layout rule: pin the static prefix first; put what changes last, next to the generation point."
       },
       "sections": [
         {
           "h": {
-            "zh": "机制：四道闸，顺序就是依赖",
-            "en": "Mechanism: four gates, the order is the dependency"
+            "zh": "机制：逐块比对，一块不同全盘作废",
+            "en": "Mechanism: block-by-block match — one changed block voids the rest"
           },
           "p": {
-            "zh": "上线的前一晚做一次全链验收：把第 43 天的校验环、第 44 天的批处理、第 45 天的缓存串成一条线，从原始工单走到降级队列，跑完整 2000 条。四道闸的分工在各自的天里都讲过，串起来才看出依赖顺序：批处理管形状——把 2000 次请求装成 63 批，形状不对，缓存的「相同前缀」无从谈起；缓存管价格——63 批共享的 5k 系统提示按命中价 1/10 计费，价格不先钉住，校验环每多跑一遍都在烧全价；校验管缺陷——序号核对、字段抽查、拦下语义错误，缺陷不清出来，降级就没有名单；降级管残局——白名单接住修复环修不好的 19 条。顺序反了不是变慢，是静默失效：先开缓存后改批处理，批内拼接顺序一变，前缀指纹全断（第 45 天的蛋糕咬一口全没）；先做校验后定格式，校验器对拍的是旧的输出接口（第 32 天），上线第一天就要返工。",
-            "en": "The night before launch, run one end-to-end acceptance: chain day 43's validation loop, day 44's batching, and day 45's caching into a single line, from raw ticket to degrade queue, and run all 2,000. Each gate's job had its own day; chained together, the dependency order shows. Batching owns shape — packing 2,000 requests into 63 batches; with the shape wrong, the cache has no 'identical prefix' to speak of. Caching owns price — the 5k system prompt shared by all 63 batches bills at the 1/10 hit rate; with price unpinned, every extra validation pass burns full fare. Validation owns defects — index checks, field spot-checks, catching semantic errors; without a clean defect list, degradation has nothing to route. Degradation owns the endgame — the whitelist catching the 19 the repair loop can't fix. Reversing the order isn't slower, it's silent failure: cache before batching and any change to in-batch assembly snaps every prefix fingerprint (day 45's cake — one bite voids it); validate before fixing the format and the validator diff-checks the old output interface (day 32), reworked on day one."
+            "zh": "服务商侧的缓存按块工作：请求进来，先取开头的 1024 token 算一次指纹，和缓存里的块逐一比对；开头一致才继续比下一个块。所以命中的最小单位是 1024 token 的前缀块，而且是从第 0 格起连续命中——中间改一个字，后面所有块的指纹全部对不上，哪怕后面 90% 的内容和上次一模一样，也按全价重算。这就是「不变的内容放最前面」这条排版铁律的机制出处：K/V 只由「它自己和它之前的内容」决定（第 14 天），前缀一动，其后每一格的 K/V 全部作废。缓存记的是「位置＋内容」的双重指纹，不是内容的集合——同一份 3k 文档，放在开头每次命中，挪到中间永远 miss。",
+            "en": "The provider-side cache works in blocks: a request arrives, the first 1,024 tokens get fingerprinted and compared block by block against the cache; matching continues only while the opening stays identical. So the smallest hit unit is a 1,024-token prefix block, and hits are consecutive from token 0 — change one character mid-window and every later block's fingerprint mismatches; even if 90% of what follows is identical to last time, it's recomputed at full price. That is the mechanical origin of the layout rule 'static content first': K/V depends only on a token and what precedes it (day 14), so once the prefix moves, every later slot's K/V is void. The cache keys on position + content, not content as a set — the same 3k document hits every time at the front and misses forever in the middle."
           },
           "deep": {
-            "zh": "为什么单环全绿还可能翻车？因为流水线的产出是链条的乘积，不是环节的求和：批处理 99 分 × 校验 99 分 × 降级 99 分，端到端是 0.99³≈97 分——而真实系统里最弱环往往远低于 99。抽样验收为什么测不出来？抽 50 条只命中每条工单的正文，串位发生在批内第 17 条和第 18 条的交界处，缺陷藏在第 1200 条——样本越小、越随机，越像「一切正常」。这就是全链卷必须整批跑、逐条对拍的原因：它量的不是平均质量，是最弱环节在真实分布下的表现。",
-            "en": "Why can every gate pass and the launch still fail? Because a pipeline's output is the product of its links, not the sum of its stages: 99 × 99 × 99 ends at 0.99³ ≈ 97 — and in real systems the weakest link sits far below 99. Why can't sampling catch it? Fifty sampled tickets touch only each ticket's body; the shift happens at the boundary between items 17 and 18, and the defect hides in item 1,200 — the smaller and more random the sample, the more it looks like 'all normal.' That's why the end-to-end paper must run whole batches and diff every item: it measures not average quality but the weakest link's behavior under the real distribution."
+            "zh": "为什么不做「内容寻址」的缓存？工程上有三个理由：① 位置就是语义——第 40 天说过同一个 token 换座位注意力就变，K/V 是「内容×位置」的函数，内容寻址会算错注意力；② 比对成本——逐 token 找相同内容要 O(n²) 的匹配，逐块指纹只要 O(n/1024) 次哈希；③ 计费边界清晰——命中块、未命中块、输出 token 三种价目，逐块指纹让账单可复算。所以缓存的语义是「前缀续算」，不是「去重」：它假设你的请求是「同一段开场白 + 一个新问题」，不假设你聪明地复用碎片。",
+            "en": "Why not content-addressed caching? Three engineering reasons: (1) position is semantics — day 40 showed the same token at a different seat changes attention, so K/V is a function of content × position and content addressing would compute wrong attention; (2) comparison cost — finding matching content per token takes O(n²) matching, while per-block fingerprints take O(n/1024) hashes; (3) clean billing — hit blocks, miss blocks, and output tokens are three price lines, and block fingerprints make the bill recomputable. So the cache's semantics is 'prefix continuation', not 'deduplication': it assumes your requests are 'same opening + a new question', not clever fragment reuse."
           }
         },
         {
           "h": {
-            "zh": "算一笔账：四道闸合上总账",
-            "en": "The math: four gates, one ledger"
+            "zh": "算一笔账：同一个文档问答台的两排座位",
+            "en": "The math: one doc-QA bench, two seatings"
           },
           "p": {
-            "zh": "把四道闸的账合成一张总表，逐项相加。基线（逐条、无缓存、无校验）：输入 2.8M token——包装 1.6M（0.8k×2000 遍）＋正文 1.2M——按 3 美元/百万＝8.4 美元；输出 300k 按 30 美元/百万＝9.0 美元；合计 17.4 美元/天、50 分钟、错标率未知。上线版逐项替换：批处理把包装从 2000 遍砍到 63 遍，输入降到 1.25M×3 美元/百万＝3.8 美元；缓存把 63 遍包装再按 1/10 打折（50.4k 前缀省约 0.02 美元——这条线前缀只占输入 4%，省得少；前缀占 90% 的问答台才是缓存的大客户，第 45 天的 6.5 美元/天）；校验与降级 0 token，人工预算 57 分钟（19 条×3 分钟）。合计 3.8＋9.0＝12.8 美元/天，省 26%；50 分钟压到 100 秒；错标 0。再算风险端：不跑全链直接上线，裸批版的串位没人重跑——63 批×3%≈2 批整批错标，2000 条里约 64 条坏数据进库，按第 30 天的返工账 3 分钟一条，一天 190 分钟起步。",
-            "en": "Fold the four gates into one ledger, added line by line. Baseline (per-ticket, no cache, no validation): input 2.8M tokens — packaging 1.6M (0.8k × 2,000 passes) + bodies 1.2M — at $3/M = $8.40; output 300k at $30/M = $9.00; total $17.40/day, 50 minutes, mislabel rate unknown. The launch build swaps each line: batching cuts packaging from 2,000 passes to 63, input drops to 1.25M × $3/M = $3.80; caching discounts those 63 passes at 1/10 (the 50.4k prefix saves about $0.02 — this line's prefix is only 4% of input, so the cut is small; a QA bench whose prefix is 90% of input is caching's best customer, day 45's $6.50/day); validation and degradation cost 0 tokens with a 57-minute human budget (19 × 3 minutes). Total: 3.8 + 9.0 = $12.80/day, 26% saved; 50 minutes → 100 seconds; mislabels 0. Now the risk side: ship without the full-line run and the bare-batch build's shifts go unrerun — 63 batches × 3% ≈ 2 batches mislabeled wholesale, about 64 bad records into the store, at day 30's 3-minute rework each ≈ 190 minutes a day."
+            "zh": "还是那条分诊线的兄弟业务：文档问答台，每天 1000 次调用，每次 3k 系统提示＋2k 产品手册（两部分都不变）＋0.5k 当次问题，输出 0.3k，输入价 3 美元/百万、命中价按 1/10 计。座位 A（不变内容全在开头）：每次命中 5k、未命中 0.5k——输入账 5×1/10＋0.5 全价＝1.0k 等效/次，1000 次/天＝10 美元。座位 B（问题拼在前缀前面，不变内容排后面）：每次全价 5.5k，1000 次/天＝16.5 美元——同样的模型、同样的问题，一天多付 6.5 美元，一年 2,373 美元，全部付给「座位」。再加一层：把 A 的 5k 前缀按 0.5k 一段抽掉重排（模拟「每次微调措辞」），指纹全断，立刻退回 16.5 美元——缓存收益是一整块蛋糕，咬一口就全没了。吞吐还有一份：命中块免预填充，首 token 延迟从 1～3 秒降到几百毫秒，问答台的体感差距比账单更大。",
+            "en": "The triage line's sibling: a doc-QA bench, 1,000 calls a day, each with a 3k system prompt + 2k product manual (both static) + 0.5k question, 0.3k output; input $3/M, hits at 1/10. Seating A (all static content up front): 5k hit + 0.5k full-price per call — 1.0k token-equivalents per call, $10/day per 1,000 calls. Seating B (question prepended, static content after): full price 5.5k every call — $16.50/day. Same model, same questions: $6.50/day more, $2,373 a year, all paid to the seat. One more layer: shuffle A's 5k prefix in 0.5k chunks (simulating 'tiny wording tweaks') and every fingerprint snaps — instantly back to $16.50. Cache savings are one whole cake; one bite voids it. Throughput adds a bonus: hit blocks skip prefill, first-token latency drops from 1–3 s to a few hundred ms — a felt gap bigger than the bill."
           },
           "example": {
             "h": {
@@ -9278,19 +9278,19 @@
               "en": "Worked example"
             },
             "p": {
-              "zh": "验收本身也要有验收标准，写成四条硬门：① 总账对上——当天 token 账与预估差不超过 5%（对不上先查缓存命中率，第 45 天的时间戳陷阱最常见）；② 全量核对——2000 条输出序号无一缺失、无一重复（丢条是批处理最安静的故障）；③ 错标为零——降级队列条条带错误类型与序号，没有一条「原因不明」；④ 时延达标——100 秒全链跑完，熔断器零触发。四条全过才签字；任何一条不过，按第 46 天的分诊表分流——这正是它第一次实战。",
-              "en": "Acceptance needs its own acceptance criteria — four hard gates: (1) the ledger reconciles — the day's token bill within 5% of estimate (if not, check the cache hit rate first; day 45's timestamp trap is the usual suspect); (2) full count — none of the 2,000 output indexes missing or duplicated (dropped items are batching's quietest failure); (3) zero mislabels — every item in the degrade queue carries its error type and index, none 'cause unknown'; (4) latency — the full line finishes in 100 seconds with zero breaker trips. Sign off only when all four pass; any failure routes by day 46's triage table — its first live drill."
+              "zh": "把两排座位放大到多轮对话。客服机器人固定前缀 5k，第 1 轮命中；第 2 轮如果直接把新问题接在对话历史末尾——前缀没动，5k 照样命中，只有增量按全价；第 2 轮如果有人「优化」了系统提示的措辞——哪怕只改 8 个字，5k 前缀从改字那块起全断，5k 全价重付。多轮对话的缓存曲线是阶梯：每轮命中上一轮的全部前缀，账单只随「新增的那一节」增长。措辞的每次手痒，都是从阶梯上跳下来一层。",
+              "en": "Scale the two seatings to a multi-turn chat. A support bot's fixed 5k prefix hits on turn 1; on turn 2, appending the new question after the history leaves the prefix untouched — the 5k still hits, only the increment bills at full price. But if someone 'polishes' the system prompt's wording — even 8 characters — the prefix breaks from that block on and the whole 5k bills at full price. A multi-turn cache curve is a staircase: each turn hits the entire previous prefix, and the bill grows only by the newly appended slice. Every wording itch jumps the account down one step."
             }
           }
         },
         {
           "h": {
-            "zh": "误区：单环绿了就能上线",
-            "en": "Misconception: green gates mean shippable"
+            "zh": "误区：缓存是自动的、稳定的、无害的",
+            "en": "Misconception: caching is automatic, stable, and harmless"
           },
           "p": {
-            "zh": "其一：「单环都测过了，串起来肯定没问题」。集成恰恰是单环测不出的那层：格式对的输出接进校验器可能序号错位，批内正确的缓存前缀换个拼装顺序就断——误差不在环节里，在接缝上。其二：「验收越严格越好，多加指标」。指标不是护栏是靶子：对拍口径一多，团队开始对着指标调线（第 23 天的刷榜教训），一个端到端指标顶十条代理指标——总账、错标、时延，三条够了。其三：「验收过了就一劳永逸」。全链卷是活卷：提示模板每改一行（第 42 天的回归集），缓存的指纹、校验的对拍规则、降级的白名单都在同一张卷上重考——第 42 天说改动要过题集，今天补全：要过的是全链的题集。",
-            "en": "First: 'every stage was tested — chaining them is fine.' Integration is precisely the layer single-stage tests can't see: a format-valid output can misalign indexes inside the validator, and a cache prefix correct in isolation snaps when the assembly order changes — the error lives in the seams, not the stages. Second: 'stricter acceptance is better — add more metrics.' Metrics aren't guardrails, they're targets: pile up proxies and the team starts tuning toward them (day 23's benchmark-chasing lesson); one end-to-end metric beats ten proxies — ledger, mislabels, latency, three is enough. Third: 'pass once, safe forever.' The end-to-end paper is a living paper: change one line of the prompt template (day 42's regression set) and the cache fingerprint, the validator's diff rules, and the degrade whitelist all re-sit the same exam — day 42 said changes must pass the suite; today completes it: the suite is the whole line's."
+            "zh": "三个想当然，逐一拆。其一：「缓存是自动的，不用管」。命中与否完全由你的 token 序列决定——服务商只保证「相同前缀会命中」，不保证「你的前缀相同」：示例顺序、时间戳、随机 ID、检索结果次序，任何一个混进前缀的变量都是指纹杀手（第 38 天的装配线为什么把变量槽全部钉在尾部，就是为这一刻）。其二：「命中了就该便宜，账单不对是服务商错」。缓存命中通常有 5～10 分钟的生命周期，低流量时段缓存过期、命中率先跌——账单波动先查时间间隔，再怀疑别人。其三：「缓存无害，随手开」。写入缓存有的供应商另收费，而且前缀缓存把「最贵的部分」变成「最不愿动的部分」——第 42 天的回归集从此多一条铁律：任何提示改动都要在「缓存命中」和「缓存全断」两种状态下各跑一遍，否则你测的折扣率和线上的不是同一个。",
+            "en": "Three assumptions, dismantled. First: 'caching is automatic — nothing to manage.' Hits are decided entirely by your token sequence; the provider guarantees 'identical prefixes hit', not 'your prefix is identical': example order, timestamps, random IDs, retrieval ordering — any variable that slips into the prefix is a fingerprint killer (day 38's assembly line pins every variable slot at the tail precisely for this moment). Second: 'a hit should be cheap — if the bill looks wrong it's the provider's fault.' Cache entries usually live 5–10 minutes; in low-traffic windows entries expire and hit rates sag — check the time gap before blaming anyone. Third: 'caching is harmless — just turn it on.' Some providers charge for cache writes, and prefix caching turns your most expensive part into your least changeable part: day 42's regression suite gains an iron rule — every prompt change runs twice, once warm and once cold, or the discount rate you test is not the one you ship."
           },
           "misconception": {
             "h": {
@@ -9298,19 +9298,19 @@
               "en": "Common misconception"
             },
             "p": {
-              "zh": "「全链验收是大上线才做的事，平时跑跑抽样就行」。反着算：抽样卷给裸批版打出 88 分、全链卷只给 41 分——平时靠抽样，等于带着 47 分的盲区运行。全链卷跑一次 2000 条只要 100 秒、12.8 美元，比它拦下的坏数据便宜两个数量级；把全链卷做成每次改动后的自动步骤，才是「平时」该有的样子。",
-              "en": "'End-to-end acceptance is for the big launch; sampling suffices day to day.' Run the numbers: sampling scores the bare-batch build 88, the full-line paper gives it 41 — running on sampling means operating with a 47-point blind spot. One full-line run of 2,000 takes 100 seconds and $12.80 — two orders of magnitude cheaper than the bad data it stops; making the full-line paper an automatic step after every change is what 'day to day' should look like."
+              "zh": "「缓存折扣是性能优化的事，等量大了再说」。反着算：排版规则是第 0 天就该写的——把系统提示和长文档钉在最前面，是免费的动作；等业务长到每天 1000 次调用再回头改模板，模板已经被十处下游代码引用，改动成本比省下的钱贵。座位规则没有实施成本，只有不做的成本。",
+              "en": "'Cache discounts are a performance-optimization chore — wait until volume grows.' Run it the other way: the layout rule should be written on day 0 — pinning the system prompt and long docs at the front is free; retrofit the template at 1,000 calls a day and it's referenced from ten downstream places, costing more than the discount saves. The seat rule has no implementation cost, only a cost for skipping it."
             }
           }
         },
         {
           "h": {
-            "zh": "延伸：阶段二的毕业考",
-            "en": "Extension: stage 2's final exam"
+            "zh": "延伸：缓存省重复，压缩省内容——两条正交的轴",
+            "en": "Extension: caching saves repetition, compression saves content — orthogonal axes"
           },
           "p": {
-            "zh": "阶段二到今天收官：第 29–33 天把提示写成程序（指令、示例、格式、拆解），第 34–36 天让上下文不掉链（多轮、检索、模板），第 37–39 天接上工具与循环，第 40–46 天压成本、稳质量（座位、注入、回归、校验、批处理、缓存、失败处理）。全链验收是这一阶段的毕业考：七件工具在同一条 2000 条的线上同时工作。往前连：第 50 天 Agent 循环里，「验收」从批量对拍变成逐会话判定——Agent 的产出没有固定 schema，全链卷变成「结果是否达成目标」的目标回归；第 52 天提示策略里，验收红线（错标为零、丢条为零）写进系统提示的策略段，让模型在生成时就对着红线写；第 55 天工作流编排里，全链卷变成回放测试——工作流每次改环，先回放历史批次再上线。带走一条纪律：单环绿灯是入场券，全链对拍才是上线判据。",
-            "en": "Stage 2 closes today: days 29–33 wrote prompts as programs (instructions, examples, formats, decomposition); days 34–36 kept context from dropping (multi-turn, retrieval, templates); days 37–39 attached tools and loops; days 40–46 pressed cost and steadied quality (seats, injection, regression, validation, batching, caching, failure handling). End-to-end acceptance is the stage's final exam: seven tools working at once on one 2,000-ticket line. Wiring forward: in day 50's agent loop, acceptance turns from batch diffing into per-session judgment — an agent's output has no fixed schema, and the end-to-end paper becomes a goal regression ('did it achieve the objective'); in day 52's prompt strategy, the acceptance red lines (zero mislabels, zero drops) go into the system prompt's strategy segment so the model writes against them at generation time; in day 55's workflow orchestration, the paper becomes replay testing — change a link, replay historical batches before shipping. Leave with one rule: single-gate green is the entry ticket; end-to-end diffing is the launch criterion."
+            "zh": "把阶段二的三门省钱课拼成一张地图。批处理（第 44 天）省「跨请求的重复」：同一份包装付一次，惠及 63 批；前缀缓存（今天）省「请求内的重复」：同样的开头按 1/10 计价，惠及每一次调用；上下文压缩（第 34 天的折叠）省「内容本身」：纪要替换原文，账面直接变小。三者正交——批处理的每一条请求内部仍要排座位，缓存命中的窗口仍可以太长，折叠过的前缀照样能命中。往后连：第 52 天提示策略把「不变前缀＋变量尾槽」写成模板交付规范；第 55 天工作流编排里，「批处理→缓存→校验」是批量管线的三件套；第 85 天 RAG 建库前，先检查检索结果的排序是否稳定——检索次序每次都变，窗口前缀就永远命中不了。带走一条纪律：先批处理、再缓存、最后才压缩——每一层都假设你已经拿走了下一层的折扣。",
+            "en": "Stage 2's three money lessons now map onto one board. Batching (day 44) saves cross-request repetition: one packaging fee for 63 batches. Prefix caching (today) saves within-request repetition: identical openings bill at 1/10, every call benefits. Context compression (day 34's folding) saves the content itself: summaries replace verbatim text and the ledger shrinks. All three are orthogonal — batched requests still need seating inside, a cache-hit window can still be too long, and folded prefixes still hit. Wiring forward: day 52's prompt strategy ships 'static prefix + variable tail slots' as the template spec; day 55's orchestration runs 'batch → cache → validate' as the pipeline trio; before day 85's RAG indexing, check that retrieval ordering is stable — reorder on every call and the window prefix never hits. Leave with one rule: batch first, cache second, compress last — each layer assumes you already banked the previous layer's discount."
           }
         }
       ],
@@ -9320,112 +9320,39 @@
           "en": "Hands-on (15 min)"
         },
         "p": {
-          "zh": "给你的主流程做一次 30 分钟的全链验收彩排：① 画出链路图——从输入到交付经过哪几道闸，各吃进什么、吐出什么；② 造一张全链卷——用真实历史数据端到端跑 100 条，逐条核对序号与字段，记录坏条去向；③ 找最弱环——坏条集中在哪道闸，就先给那道闸补硬校验（序号、金额、禁用词各设一条）。（提示：坏条在每道闸都零散出现，多半不是闸的问题，是接缝的问题——先查上一道闸的输出格式和这一道闸的解析是否同版本；全链跑不出坏条就把卷子加难：塞 3 条第 41 天的注入句再跑。）",
-          "en": "Run a 30-minute end-to-end acceptance rehearsal on your main pipeline: (1) draw the link map — which gates does the work pass from input to delivery, what each consumes and emits; (2) build an end-to-end paper — run 100 real historical items through the whole chain, check every index and field, and log where bad items went; (3) find the weakest link — whichever gate clusters the bad items gets the next hard check (one each for indexes, amounts, forbidden terms). (Hint: bad items scattered thinly across every gate usually means the seams, not the gates — first check whether the upstream gate's output format and this gate's parser are the same version; if the run finds nothing, harden the paper: plant 3 injection lines from day 41 and run again.)"
+          "zh": "给你调用量最大的提示做一次缓存审计：① 打开 API 的响应明细，找缓存命中的字段（hit/cached tokens），记下昨天的命中率；② 对着模板逐段问「这段每次都一样吗」——把系统提示、长文档、少样本示例按不变程度重排：最不变的钉在最前，当次输入贴最后；③ 在前缀中段故意插一个时间戳，跑 20 次对比命中率，再删掉重跑。（提示：命中率波动 20 次内就有结论；如果重排后命中率没涨，先查响应明细里命中的最小块数——不够 1024 token 的前缀按规则不命中。）",
+          "en": "Run a cache audit on your highest-volume prompt: (1) open the API response detail, find the cache-hit field (hit/cached tokens), and record yesterday's hit rate; (2) go through your template asking 'is this segment identical every time' — reorder by immutability: most static pinned first, per-call input last; (3) deliberately insert a timestamp mid-prefix, run 20 calls and compare hit rates, then remove it and rerun. (Hint: 20 calls are enough to see the swing; if reordering doesn't lift the hit rate, check the minimum hit block count in the response detail — prefixes under 1,024 tokens don't qualify.)"
         }
       },
       "takeaway": {
-        "zh": "四道闸各管一层：批处理管形状、缓存管价格、校验管缺陷、降级管残局。同一条 2000 条的分诊线：17.4 美元/天、50 分钟、错标未知——上线版 12.8 美元、100 秒、错标 0。省下的 26% 不在某个旋钮，在四道闸按序全开；单环绿灯是入场券，全链对拍才是上线判据。",
-        "en": "Four gates, one layer each: batching owns shape, caching owns price, validation owns defects, degradation owns the endgame. The same 2,000-ticket line: $17.40/day, 50 minutes, mislabels unknown — the launch build: $12.80, 100 seconds, zero mislabels. The 26% saved lives not in any single knob but in all four gates opened in order; single-gate green is the entry ticket, end-to-end diffing is the launch criterion."
+        "zh": "缓存命中按 1024 token 的前缀块逐块比对，从第 0 格起连续命中：中段改一个字，后面全按全价重算。同一个文档问答台，不变内容钉在开头 10 美元/天，座位排错 16.5 美元/天——一年 2,373 美元付给座位。排版铁律：不变的前缀钉死在最前，变量钉在尾部，措辞手痒一次，阶梯塌一层。",
+        "en": "Cache hits compare 1,024-token prefix blocks in order, from token 0: change one character mid-window and everything after bills at full price. The same doc-QA bench costs $10/day with static content pinned up front and $16.50/day with the seat wrong — $2,373 a year paid to seating. Iron rule: pin the static prefix first, pin variables at the tail; every wording itch collapses one step of the staircase."
       },
       "anim": {
-        "tpl": "bench",
+        "tpl": "kvcache",
         "hook": {
-          "zh": "四道闸各自全绿不等于整条流水线能上线——单环验收看不见最弱环，全链对拍才现形。",
-          "en": "Four green gates don't mean a shippable line — single-gate checks can't see the weakest link; end-to-end acceptance can."
+          "zh": "命中按 1024 token 的前缀块逐块比对：中段改一个字，后面全部按全价重算。",
+          "en": "Hits compare 1,024-token prefix blocks in order: change one character mid-window and everything after bills at full price."
+        },
+        "sentence": {
+          "zh": "同一天的 1000 次调用：前缀没动，5k 格 K/V 直接复用",
+          "en": "1,000 calls the same day: prefix untouched, 5k slots' K/V reused as-is"
+        },
+        "promptN": 12,
+        "genN": 6,
+        "note": {
+          "zh": "示意：文档问答台的窗口。左侧 12 格是 5k 不变前缀（系统提示＋手册，一次算好跨请求复用，按 1/10 计价）；右侧逐格追加的是当次问题与回答（全价）。中段插一个时间戳，左侧指纹全断——右侧警示数字就是那笔全价账。",
+          "en": "Illustrative: a doc-QA window. The left 12 slots are the 5k static prefix (system prompt + manual, computed once, reused across requests, billed at 1/10); the right slots append the per-call question and answer (full price). Insert one timestamp mid-prefix and the left fingerprints snap — the red figure is that full-price bill."
         },
         "coverHook": {
-          "zh": "上线首日 0 事故：答卷是 4 道闸，不是运气",
-          "en": "Day-one zero incidents: the answer sheet is 4 gates, not luck"
-        },
-        "models": [
-          {
-            "k": "bare",
-            "name": {
-              "zh": "裸批版",
-              "en": "Bare batch"
-            }
-          },
-          {
-            "k": "retry",
-            "name": {
-              "zh": "重试版",
-              "en": "Blind retry"
-            }
-          },
-          {
-            "k": "full",
-            "name": {
-              "zh": "全链版",
-              "en": "Full line"
-            }
-          }
-        ],
-        "recipes": [
-          {
-            "k": "sample",
-            "tag": {
-              "zh": "卷 A · 抽样 50 条 · 看单件质量",
-              "en": "Paper A · sample 50 · item quality"
-            },
-            "scores": [
-              88,
-              91,
-              93
-            ]
-          },
-          {
-            "k": "e2e",
-            "tag": {
-              "zh": "卷 B · 全链 2000 条 · 端到端对拍",
-              "en": "Paper B · full 2,000 · end-to-end"
-            },
-            "scores": [
-              41,
-              58,
-              94
-            ]
-          }
-        ],
-        "readoutZh": {
-          "recipe": {
-            "num": "47 分",
-            "cap": "裸批版两卷落差 · 抽样看不见"
-          },
-          "flip": {
-            "num": "0 条",
-            "cap": "错标上路 · 全链版上线首日"
-          },
-          "noise": {
-            "num": "−26%",
-            "cap": "总账 17.4→12.8 美元/天"
-          }
-        },
-        "readoutEn": {
-          "recipe": {
-            "num": "47 pts",
-            "cap": "bare-batch gap between papers · sampling can't see it"
-          },
-          "flip": {
-            "num": "0",
-            "cap": "mislabels shipped · full line, day one"
-          },
-          "noise": {
-            "num": "−26%",
-            "cap": "ledger $17.40→$12.80/day"
-          }
-        },
-        "verdictZh": "抽样给的是入场券，全链对拍才是上线判据：分数 = 最弱的一环。",
-        "verdictEn": "Sampling grants entry; end-to-end diffing clears launch — the score is the weakest link.",
-        "note": {
-          "zh": "示意：三个候选版本在两张考卷上的得分。卷 A 抽 50 条看单件质量，三版接近、裸批也能拿 88 分；卷 B 全链 2000 条逐条对拍，裸批版的串位与漏标全部现形（41 分），盲重试烧 0.08 美元仍漏 14 条（58 分），四闸齐开的全链版 94 分。验收口径选错，绿灯就是错觉。",
-          "en": "Illustrative: three candidate builds on two papers. Paper A samples 50 items for per-item quality — the versions bunch up, bare batch scoring 88. Paper B runs the full 2,000 with per-item diffing: bare batch's shifts and leaks all surface (41), blind retries burn $0.08 yet leak 14 (58), and the full line with all four gates scores 94. Wrong acceptance lens, green lights are an illusion."
+          "zh": "座位排错：同一天多付 65%——中段改一字，全价重来",
+          "en": "Wrong seat: 65% more the same day — one changed character, full price again"
         },
         "viz": [
           {
             "chips": [
               {
-                "tag": "批处理 · 形状",
+                "tag": "前缀逐块指纹",
                 "alt": false
               },
               {
@@ -9433,7 +9360,7 @@
                 "alt": true
               },
               {
-                "tag": "缓存 · 价格",
+                "tag": "1024 token 一块",
                 "alt": false
               },
               {
@@ -9441,7 +9368,7 @@
                 "alt": true
               },
               {
-                "tag": "校验 · 缺陷",
+                "tag": "中段改一字",
                 "alt": false
               },
               {
@@ -9449,81 +9376,81 @@
                 "alt": true
               },
               {
-                "tag": "降级 · 残局",
+                "tag": "后面全部全价",
                 "merged": true
               }
             ],
-            "label": "四道闸各管一层：顺序就是依赖——先形状，后价格，再质量"
+            "label": "缓存记的是「位置＋内容」：命中从第 0 格起连续"
           },
           {
             "wide": true,
             "bars": [
               {
-                "tag": "基线 · 逐条提交",
+                "tag": "座位 A · 前缀钉在最前",
+                "val": 61,
+                "cls": "",
+                "txt": "10 美元/天 · TTFT 数百毫秒"
+              },
+              {
+                "tag": "座位 B · 问题拼在前缀前",
+                "val": 100,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "16.5 美元/天 · 一年多 2,373 美元"
+              },
+              {
+                "tag": "座位 A＋中段时间戳",
                 "val": 100,
                 "cls": "",
-                "txt": "17.4 美元/天 · 50 分钟"
-              },
-              {
-                "tag": "批＋缓存 · 形状与价格",
-                "val": 74,
-                "cls": " materin-learn-viz__bar--en",
-                "txt": "12.8 美元/天 · 100 秒"
-              },
-              {
-                "tag": "全链 · 加校验与降级",
-                "val": 74,
-                "cls": "",
-                "txt": "账单不变 · 错标 0 · 57 分钟人工"
+                "txt": "指纹全断 · 立刻退回全价"
               }
             ],
-            "label": "总账 17.4→12.8 美元/天：省 26%，错标从未知到 0"
+            "label": "1000 次/天、5k 前缀：收益是一整块蛋糕，咬一口全没"
           },
           {
             "routes": [
               {
-                "tag": "「单环全绿就能上线」",
+                "tag": "「缓存是自动的」",
                 "cls": "",
-                "verdict": "✗ 最弱环在全链才现形",
+                "verdict": "✗ 命中由你的序列决定",
                 "vcls": " materin-learn-viz__route-word--bad"
               },
               {
-                "tag": "「指标越多越保险」",
+                "tag": "「账单不对是服务商错」",
                 "cls": " materin-learn-viz__route-row--think",
-                "verdict": "✗ 一个端到端顶十条代理",
+                "verdict": "✗ 缓存有 5–10 分钟寿命",
                 "vcls": " materin-learn-viz__route-word--bad"
               },
               {
-                "tag": "「验收是一次性的」",
+                "tag": "回归集冷热各跑一遍",
                 "cls": "",
-                "verdict": "✗ 每次改动重跑全链卷",
-                "vcls": " materin-learn-viz__route-word--bad"
-              }
-            ],
-            "label": "裸批版抽样 88 分、全链 41 分——抽样的绿灯会撒谎"
-          },
-          {
-            "routes": [
-              {
-                "tag": "第 50 天 · Agent 循环",
-                "cls": "",
-                "verdict": "验收从批变会话",
-                "vcls": ""
-              },
-              {
-                "tag": "第 52 天 · 策略段",
-                "cls": " materin-learn-viz__route-row--think",
-                "verdict": "✓ 红线写进系统提示",
+                "verdict": "✓ 折扣率才测得准",
                 "vcls": " materin-learn-viz__route-word--ok"
-              },
-              {
-                "tag": "第 55 天 · 工作流编排",
-                "cls": "",
-                "verdict": "全链卷回放护每次改动",
-                "vcls": ""
               }
             ],
-            "label": "阶段二收官：成本、质量、节奏三门课，全链对拍盖章"
+            "label": "变量槽（时间戳/随机 ID/检索次序）混进前缀，是指纹杀手"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 44 天 · 批处理",
+                "cls": "",
+                "verdict": "省跨请求重复",
+                "vcls": ""
+              },
+              {
+                "tag": "今天 · 前缀缓存",
+                "cls": "",
+                "verdict": "省请求内重复",
+                "vcls": ""
+              },
+              {
+                "tag": "第 34 天 · 折叠压缩",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✓ 省内容本身",
+                "vcls": " materin-learn-viz__route-word--ok"
+              }
+            ],
+            "label": "先批处理、再缓存、最后压缩——每层拿走上一层的折扣"
           }
         ]
       }
@@ -9822,42 +9749,42 @@
       }
     },
     {
-      "n": 45,
+      "n": 47,
       "stage": 2,
       "week": 8,
-      "tpl": "kvcache",
-      "date": "2026-11-08",
+      "tpl": "bench",
+      "date": "2026-11-10",
       "title": {
-        "zh": "提示缓存：前缀钉死在最前",
-        "en": "Prompt caching: pin the static prefix up front"
+        "zh": "集成验收：全链过一遍",
+        "en": "Integration acceptance: run the whole line"
       },
       "subtitle": {
-        "zh": "第 14 天算过 KV cache 的显存账，今天算它的账单面：服务商把「开头完全相同」的请求做成缓存命中，命中部分输入价约 1/10。可昨天批处理的 63 批里，只要有一批的包装顺序变了，折扣就全灭——缓存不打折内容，只打折「一字不差的重复」。排版规则只有一条：不变的前缀钉死在最前面，每次变的贴着生成点放。",
-        "en": "Day 14 did the KV cache's memory math; today does its billing math: providers sell bit-identical openings as cache hits at roughly 1/10 input price. But in yesterday's 63 batches, one changed packaging order kills the discount — the cache doesn't discount content, only word-for-word repetition. One layout rule: pin the static prefix first; put what changes last, next to the generation point."
+        "zh": "阶段二收官：四道闸各自全绿，不等于整条流水线能上线。串位发生在两条工单的交界处，缺陷藏在一千二百条之外——单环验收看不见接缝。给这条 2000 条的分诊线做一次全链对拍：总账 17.4 美元压到 12.8，50 分钟压到 100 秒，错标压到 0；省下的 26% 不在某个旋钮，在四道闸按序全开。",
+        "en": "Stage 2 closes: four gates each green does not mean the line can ship. The shift happens at the seam between two tickets, the defect hides beyond item 1,200 — single-gate checks never see the joints. Run one end-to-end diff over this 2,000-ticket triage line: the ledger drops from $17.40 to $12.80, 50 minutes to 100 seconds, mislabels to zero. The 26% saved lives not in one knob but in four gates opened in order."
       },
       "sections": [
         {
           "h": {
-            "zh": "机制：逐块比对，一块不同全盘作废",
-            "en": "Mechanism: block-by-block match — one changed block voids the rest"
+            "zh": "机制：四道闸，顺序就是依赖",
+            "en": "Mechanism: four gates, the order is the dependency"
           },
           "p": {
-            "zh": "服务商侧的缓存按块工作：请求进来，先取开头的 1024 token 算一次指纹，和缓存里的块逐一比对；开头一致才继续比下一个块。所以命中的最小单位是 1024 token 的前缀块，而且是从第 0 格起连续命中——中间改一个字，后面所有块的指纹全部对不上，哪怕后面 90% 的内容和上次一模一样，也按全价重算。这就是「不变的内容放最前面」这条排版铁律的机制出处：K/V 只由「它自己和它之前的内容」决定（第 14 天），前缀一动，其后每一格的 K/V 全部作废。缓存记的是「位置＋内容」的双重指纹，不是内容的集合——同一份 3k 文档，放在开头每次命中，挪到中间永远 miss。",
-            "en": "The provider-side cache works in blocks: a request arrives, the first 1,024 tokens get fingerprinted and compared block by block against the cache; matching continues only while the opening stays identical. So the smallest hit unit is a 1,024-token prefix block, and hits are consecutive from token 0 — change one character mid-window and every later block's fingerprint mismatches; even if 90% of what follows is identical to last time, it's recomputed at full price. That is the mechanical origin of the layout rule 'static content first': K/V depends only on a token and what precedes it (day 14), so once the prefix moves, every later slot's K/V is void. The cache keys on position + content, not content as a set — the same 3k document hits every time at the front and misses forever in the middle."
+            "zh": "上线的前一晚做一次全链验收：把第 43 天的校验环、第 44 天的批处理、第 45 天的缓存串成一条线，从原始工单走到降级队列，跑完整 2000 条。四道闸的分工在各自的天里都讲过，串起来才看出依赖顺序：批处理管形状——把 2000 次请求装成 63 批，形状不对，缓存的「相同前缀」无从谈起；缓存管价格——63 批共享的 5k 系统提示按命中价 1/10 计费，价格不先钉住，校验环每多跑一遍都在烧全价；校验管缺陷——序号核对、字段抽查、拦下语义错误，缺陷不清出来，降级就没有名单；降级管残局——白名单接住修复环修不好的 19 条。顺序反了不是变慢，是静默失效：先开缓存后改批处理，批内拼接顺序一变，前缀指纹全断（第 45 天的蛋糕咬一口全没）；先做校验后定格式，校验器对拍的是旧的输出接口（第 32 天），上线第一天就要返工。",
+            "en": "The night before launch, run one end-to-end acceptance: chain day 43's validation loop, day 44's batching, and day 45's caching into a single line, from raw ticket to degrade queue, and run all 2,000. Each gate's job had its own day; chained together, the dependency order shows. Batching owns shape — packing 2,000 requests into 63 batches; with the shape wrong, the cache has no 'identical prefix' to speak of. Caching owns price — the 5k system prompt shared by all 63 batches bills at the 1/10 hit rate; with price unpinned, every extra validation pass burns full fare. Validation owns defects — index checks, field spot-checks, catching semantic errors; without a clean defect list, degradation has nothing to route. Degradation owns the endgame — the whitelist catching the 19 the repair loop can't fix. Reversing the order isn't slower, it's silent failure: cache before batching and any change to in-batch assembly snaps every prefix fingerprint (day 45's cake — one bite voids it); validate before fixing the format and the validator diff-checks the old output interface (day 32), reworked on day one."
           },
           "deep": {
-            "zh": "为什么不做「内容寻址」的缓存？工程上有三个理由：① 位置就是语义——第 40 天说过同一个 token 换座位注意力就变，K/V 是「内容×位置」的函数，内容寻址会算错注意力；② 比对成本——逐 token 找相同内容要 O(n²) 的匹配，逐块指纹只要 O(n/1024) 次哈希；③ 计费边界清晰——命中块、未命中块、输出 token 三种价目，逐块指纹让账单可复算。所以缓存的语义是「前缀续算」，不是「去重」：它假设你的请求是「同一段开场白 + 一个新问题」，不假设你聪明地复用碎片。",
-            "en": "Why not content-addressed caching? Three engineering reasons: (1) position is semantics — day 40 showed the same token at a different seat changes attention, so K/V is a function of content × position and content addressing would compute wrong attention; (2) comparison cost — finding matching content per token takes O(n²) matching, while per-block fingerprints take O(n/1024) hashes; (3) clean billing — hit blocks, miss blocks, and output tokens are three price lines, and block fingerprints make the bill recomputable. So the cache's semantics is 'prefix continuation', not 'deduplication': it assumes your requests are 'same opening + a new question', not clever fragment reuse."
+            "zh": "为什么单环全绿还可能翻车？因为流水线的产出是链条的乘积，不是环节的求和：批处理 99 分 × 校验 99 分 × 降级 99 分，端到端是 0.99³≈97 分——而真实系统里最弱环往往远低于 99。抽样验收为什么测不出来？抽 50 条只命中每条工单的正文，串位发生在批内第 17 条和第 18 条的交界处，缺陷藏在第 1200 条——样本越小、越随机，越像「一切正常」。这就是全链卷必须整批跑、逐条对拍的原因：它量的不是平均质量，是最弱环节在真实分布下的表现。",
+            "en": "Why can every gate pass and the launch still fail? Because a pipeline's output is the product of its links, not the sum of its stages: 99 × 99 × 99 ends at 0.99³ ≈ 97 — and in real systems the weakest link sits far below 99. Why can't sampling catch it? Fifty sampled tickets touch only each ticket's body; the shift happens at the boundary between items 17 and 18, and the defect hides in item 1,200 — the smaller and more random the sample, the more it looks like 'all normal.' That's why the end-to-end paper must run whole batches and diff every item: it measures not average quality but the weakest link's behavior under the real distribution."
           }
         },
         {
           "h": {
-            "zh": "算一笔账：同一个文档问答台的两排座位",
-            "en": "The math: one doc-QA bench, two seatings"
+            "zh": "算一笔账：四道闸合上总账",
+            "en": "The math: four gates, one ledger"
           },
           "p": {
-            "zh": "还是那条分诊线的兄弟业务：文档问答台，每天 1000 次调用，每次 3k 系统提示＋2k 产品手册（两部分都不变）＋0.5k 当次问题，输出 0.3k，输入价 3 美元/百万、命中价按 1/10 计。座位 A（不变内容全在开头）：每次命中 5k、未命中 0.5k——输入账 5×1/10＋0.5 全价＝1.0k 等效/次，1000 次/天＝10 美元。座位 B（问题拼在前缀前面，不变内容排后面）：每次全价 5.5k，1000 次/天＝16.5 美元——同样的模型、同样的问题，一天多付 6.5 美元，一年 2,373 美元，全部付给「座位」。再加一层：把 A 的 5k 前缀按 0.5k 一段抽掉重排（模拟「每次微调措辞」），指纹全断，立刻退回 16.5 美元——缓存收益是一整块蛋糕，咬一口就全没了。吞吐还有一份：命中块免预填充，首 token 延迟从 1～3 秒降到几百毫秒，问答台的体感差距比账单更大。",
-            "en": "The triage line's sibling: a doc-QA bench, 1,000 calls a day, each with a 3k system prompt + 2k product manual (both static) + 0.5k question, 0.3k output; input $3/M, hits at 1/10. Seating A (all static content up front): 5k hit + 0.5k full-price per call — 1.0k token-equivalents per call, $10/day per 1,000 calls. Seating B (question prepended, static content after): full price 5.5k every call — $16.50/day. Same model, same questions: $6.50/day more, $2,373 a year, all paid to the seat. One more layer: shuffle A's 5k prefix in 0.5k chunks (simulating 'tiny wording tweaks') and every fingerprint snaps — instantly back to $16.50. Cache savings are one whole cake; one bite voids it. Throughput adds a bonus: hit blocks skip prefill, first-token latency drops from 1–3 s to a few hundred ms — a felt gap bigger than the bill."
+            "zh": "把四道闸的账合成一张总表，逐项相加。基线（逐条、无缓存、无校验）：输入 2.8M token——包装 1.6M（0.8k×2000 遍）＋正文 1.2M——按 3 美元/百万＝8.4 美元；输出 300k 按 30 美元/百万＝9.0 美元；合计 17.4 美元/天、50 分钟、错标率未知。上线版逐项替换：批处理把包装从 2000 遍砍到 63 遍，输入降到 1.25M×3 美元/百万＝3.8 美元；缓存把 63 遍包装再按 1/10 打折（50.4k 前缀省约 0.02 美元——这条线前缀只占输入 4%，省得少；前缀占 90% 的问答台才是缓存的大客户，第 45 天的 6.5 美元/天）；校验与降级 0 token，人工预算 57 分钟（19 条×3 分钟）。合计 3.8＋9.0＝12.8 美元/天，省 26%；50 分钟压到 100 秒；错标 0。再算风险端：不跑全链直接上线，裸批版的串位没人重跑——63 批×3%≈2 批整批错标，2000 条里约 64 条坏数据进库，按第 30 天的返工账 3 分钟一条，一天 190 分钟起步。",
+            "en": "Fold the four gates into one ledger, added line by line. Baseline (per-ticket, no cache, no validation): input 2.8M tokens — packaging 1.6M (0.8k × 2,000 passes) + bodies 1.2M — at $3/M = $8.40; output 300k at $30/M = $9.00; total $17.40/day, 50 minutes, mislabel rate unknown. The launch build swaps each line: batching cuts packaging from 2,000 passes to 63, input drops to 1.25M × $3/M = $3.80; caching discounts those 63 passes at 1/10 (the 50.4k prefix saves about $0.02 — this line's prefix is only 4% of input, so the cut is small; a QA bench whose prefix is 90% of input is caching's best customer, day 45's $6.50/day); validation and degradation cost 0 tokens with a 57-minute human budget (19 × 3 minutes). Total: 3.8 + 9.0 = $12.80/day, 26% saved; 50 minutes → 100 seconds; mislabels 0. Now the risk side: ship without the full-line run and the bare-batch build's shifts go unrerun — 63 batches × 3% ≈ 2 batches mislabeled wholesale, about 64 bad records into the store, at day 30's 3-minute rework each ≈ 190 minutes a day."
           },
           "example": {
             "h": {
@@ -9865,19 +9792,19 @@
               "en": "Worked example"
             },
             "p": {
-              "zh": "把两排座位放大到多轮对话。客服机器人固定前缀 5k，第 1 轮命中；第 2 轮如果直接把新问题接在对话历史末尾——前缀没动，5k 照样命中，只有增量按全价；第 2 轮如果有人「优化」了系统提示的措辞——哪怕只改 8 个字，5k 前缀从改字那块起全断，5k 全价重付。多轮对话的缓存曲线是阶梯：每轮命中上一轮的全部前缀，账单只随「新增的那一节」增长。措辞的每次手痒，都是从阶梯上跳下来一层。",
-              "en": "Scale the two seatings to a multi-turn chat. A support bot's fixed 5k prefix hits on turn 1; on turn 2, appending the new question after the history leaves the prefix untouched — the 5k still hits, only the increment bills at full price. But if someone 'polishes' the system prompt's wording — even 8 characters — the prefix breaks from that block on and the whole 5k bills at full price. A multi-turn cache curve is a staircase: each turn hits the entire previous prefix, and the bill grows only by the newly appended slice. Every wording itch jumps the account down one step."
+              "zh": "验收本身也要有验收标准，写成四条硬门：① 总账对上——当天 token 账与预估差不超过 5%（对不上先查缓存命中率，第 45 天的时间戳陷阱最常见）；② 全量核对——2000 条输出序号无一缺失、无一重复（丢条是批处理最安静的故障）；③ 错标为零——降级队列条条带错误类型与序号，没有一条「原因不明」；④ 时延达标——100 秒全链跑完，熔断器零触发。四条全过才签字；任何一条不过，按第 46 天的分诊表分流——这正是它第一次实战。",
+              "en": "Acceptance needs its own acceptance criteria — four hard gates: (1) the ledger reconciles — the day's token bill within 5% of estimate (if not, check the cache hit rate first; day 45's timestamp trap is the usual suspect); (2) full count — none of the 2,000 output indexes missing or duplicated (dropped items are batching's quietest failure); (3) zero mislabels — every item in the degrade queue carries its error type and index, none 'cause unknown'; (4) latency — the full line finishes in 100 seconds with zero breaker trips. Sign off only when all four pass; any failure routes by day 46's triage table — its first live drill."
             }
           }
         },
         {
           "h": {
-            "zh": "误区：缓存是自动的、稳定的、无害的",
-            "en": "Misconception: caching is automatic, stable, and harmless"
+            "zh": "误区：单环绿了就能上线",
+            "en": "Misconception: green gates mean shippable"
           },
           "p": {
-            "zh": "三个想当然，逐一拆。其一：「缓存是自动的，不用管」。命中与否完全由你的 token 序列决定——服务商只保证「相同前缀会命中」，不保证「你的前缀相同」：示例顺序、时间戳、随机 ID、检索结果次序，任何一个混进前缀的变量都是指纹杀手（第 38 天的装配线为什么把变量槽全部钉在尾部，就是为这一刻）。其二：「命中了就该便宜，账单不对是服务商错」。缓存命中通常有 5～10 分钟的生命周期，低流量时段缓存过期、命中率先跌——账单波动先查时间间隔，再怀疑别人。其三：「缓存无害，随手开」。写入缓存有的供应商另收费，而且前缀缓存把「最贵的部分」变成「最不愿动的部分」——第 42 天的回归集从此多一条铁律：任何提示改动都要在「缓存命中」和「缓存全断」两种状态下各跑一遍，否则你测的折扣率和线上的不是同一个。",
-            "en": "Three assumptions, dismantled. First: 'caching is automatic — nothing to manage.' Hits are decided entirely by your token sequence; the provider guarantees 'identical prefixes hit', not 'your prefix is identical': example order, timestamps, random IDs, retrieval ordering — any variable that slips into the prefix is a fingerprint killer (day 38's assembly line pins every variable slot at the tail precisely for this moment). Second: 'a hit should be cheap — if the bill looks wrong it's the provider's fault.' Cache entries usually live 5–10 minutes; in low-traffic windows entries expire and hit rates sag — check the time gap before blaming anyone. Third: 'caching is harmless — just turn it on.' Some providers charge for cache writes, and prefix caching turns your most expensive part into your least changeable part: day 42's regression suite gains an iron rule — every prompt change runs twice, once warm and once cold, or the discount rate you test is not the one you ship."
+            "zh": "其一：「单环都测过了，串起来肯定没问题」。集成恰恰是单环测不出的那层：格式对的输出接进校验器可能序号错位，批内正确的缓存前缀换个拼装顺序就断——误差不在环节里，在接缝上。其二：「验收越严格越好，多加指标」。指标不是护栏是靶子：对拍口径一多，团队开始对着指标调线（第 23 天的刷榜教训），一个端到端指标顶十条代理指标——总账、错标、时延，三条够了。其三：「验收过了就一劳永逸」。全链卷是活卷：提示模板每改一行（第 42 天的回归集），缓存的指纹、校验的对拍规则、降级的白名单都在同一张卷上重考——第 42 天说改动要过题集，今天补全：要过的是全链的题集。",
+            "en": "First: 'every stage was tested — chaining them is fine.' Integration is precisely the layer single-stage tests can't see: a format-valid output can misalign indexes inside the validator, and a cache prefix correct in isolation snaps when the assembly order changes — the error lives in the seams, not the stages. Second: 'stricter acceptance is better — add more metrics.' Metrics aren't guardrails, they're targets: pile up proxies and the team starts tuning toward them (day 23's benchmark-chasing lesson); one end-to-end metric beats ten proxies — ledger, mislabels, latency, three is enough. Third: 'pass once, safe forever.' The end-to-end paper is a living paper: change one line of the prompt template (day 42's regression set) and the cache fingerprint, the validator's diff rules, and the degrade whitelist all re-sit the same exam — day 42 said changes must pass the suite; today completes it: the suite is the whole line's."
           },
           "misconception": {
             "h": {
@@ -9885,19 +9812,19 @@
               "en": "Common misconception"
             },
             "p": {
-              "zh": "「缓存折扣是性能优化的事，等量大了再说」。反着算：排版规则是第 0 天就该写的——把系统提示和长文档钉在最前面，是免费的动作；等业务长到每天 1000 次调用再回头改模板，模板已经被十处下游代码引用，改动成本比省下的钱贵。座位规则没有实施成本，只有不做的成本。",
-              "en": "'Cache discounts are a performance-optimization chore — wait until volume grows.' Run it the other way: the layout rule should be written on day 0 — pinning the system prompt and long docs at the front is free; retrofit the template at 1,000 calls a day and it's referenced from ten downstream places, costing more than the discount saves. The seat rule has no implementation cost, only a cost for skipping it."
+              "zh": "「全链验收是大上线才做的事，平时跑跑抽样就行」。反着算：抽样卷给裸批版打出 88 分、全链卷只给 41 分——平时靠抽样，等于带着 47 分的盲区运行。全链卷跑一次 2000 条只要 100 秒、12.8 美元，比它拦下的坏数据便宜两个数量级；把全链卷做成每次改动后的自动步骤，才是「平时」该有的样子。",
+              "en": "'End-to-end acceptance is for the big launch; sampling suffices day to day.' Run the numbers: sampling scores the bare-batch build 88, the full-line paper gives it 41 — running on sampling means operating with a 47-point blind spot. One full-line run of 2,000 takes 100 seconds and $12.80 — two orders of magnitude cheaper than the bad data it stops; making the full-line paper an automatic step after every change is what 'day to day' should look like."
             }
           }
         },
         {
           "h": {
-            "zh": "延伸：缓存省重复，压缩省内容——两条正交的轴",
-            "en": "Extension: caching saves repetition, compression saves content — orthogonal axes"
+            "zh": "延伸：阶段二的毕业考",
+            "en": "Extension: stage 2's final exam"
           },
           "p": {
-            "zh": "把阶段二的三门省钱课拼成一张地图。批处理（第 44 天）省「跨请求的重复」：同一份包装付一次，惠及 63 批；前缀缓存（今天）省「请求内的重复」：同样的开头按 1/10 计价，惠及每一次调用；上下文压缩（第 34 天的折叠）省「内容本身」：纪要替换原文，账面直接变小。三者正交——批处理的每一条请求内部仍要排座位，缓存命中的窗口仍可以太长，折叠过的前缀照样能命中。往后连：第 52 天提示策略把「不变前缀＋变量尾槽」写成模板交付规范；第 55 天工作流编排里，「批处理→缓存→校验」是批量管线的三件套；第 85 天 RAG 建库前，先检查检索结果的排序是否稳定——检索次序每次都变，窗口前缀就永远命中不了。带走一条纪律：先批处理、再缓存、最后才压缩——每一层都假设你已经拿走了下一层的折扣。",
-            "en": "Stage 2's three money lessons now map onto one board. Batching (day 44) saves cross-request repetition: one packaging fee for 63 batches. Prefix caching (today) saves within-request repetition: identical openings bill at 1/10, every call benefits. Context compression (day 34's folding) saves the content itself: summaries replace verbatim text and the ledger shrinks. All three are orthogonal — batched requests still need seating inside, a cache-hit window can still be too long, and folded prefixes still hit. Wiring forward: day 52's prompt strategy ships 'static prefix + variable tail slots' as the template spec; day 55's orchestration runs 'batch → cache → validate' as the pipeline trio; before day 85's RAG indexing, check that retrieval ordering is stable — reorder on every call and the window prefix never hits. Leave with one rule: batch first, cache second, compress last — each layer assumes you already banked the previous layer's discount."
+            "zh": "阶段二到今天收官：第 29–33 天把提示写成程序（指令、示例、格式、拆解），第 34–36 天让上下文不掉链（多轮、检索、模板），第 37–39 天接上工具与循环，第 40–46 天压成本、稳质量（座位、注入、回归、校验、批处理、缓存、失败处理）。全链验收是这一阶段的毕业考：七件工具在同一条 2000 条的线上同时工作。往前连：第 50 天 Agent 循环里，「验收」从批量对拍变成逐会话判定——Agent 的产出没有固定 schema，全链卷变成「结果是否达成目标」的目标回归；第 52 天提示策略里，验收红线（错标为零、丢条为零）写进系统提示的策略段，让模型在生成时就对着红线写；第 55 天工作流编排里，全链卷变成回放测试——工作流每次改环，先回放历史批次再上线。带走一条纪律：单环绿灯是入场券，全链对拍才是上线判据。",
+            "en": "Stage 2 closes today: days 29–33 wrote prompts as programs (instructions, examples, formats, decomposition); days 34–36 kept context from dropping (multi-turn, retrieval, templates); days 37–39 attached tools and loops; days 40–46 pressed cost and steadied quality (seats, injection, regression, validation, batching, caching, failure handling). End-to-end acceptance is the stage's final exam: seven tools working at once on one 2,000-ticket line. Wiring forward: in day 50's agent loop, acceptance turns from batch diffing into per-session judgment — an agent's output has no fixed schema, and the end-to-end paper becomes a goal regression ('did it achieve the objective'); in day 52's prompt strategy, the acceptance red lines (zero mislabels, zero drops) go into the system prompt's strategy segment so the model writes against them at generation time; in day 55's workflow orchestration, the paper becomes replay testing — change a link, replay historical batches before shipping. Leave with one rule: single-gate green is the entry ticket; end-to-end diffing is the launch criterion."
           }
         }
       ],
@@ -9907,39 +9834,112 @@
           "en": "Hands-on (15 min)"
         },
         "p": {
-          "zh": "给你调用量最大的提示做一次缓存审计：① 打开 API 的响应明细，找缓存命中的字段（hit/cached tokens），记下昨天的命中率；② 对着模板逐段问「这段每次都一样吗」——把系统提示、长文档、少样本示例按不变程度重排：最不变的钉在最前，当次输入贴最后；③ 在前缀中段故意插一个时间戳，跑 20 次对比命中率，再删掉重跑。（提示：命中率波动 20 次内就有结论；如果重排后命中率没涨，先查响应明细里命中的最小块数——不够 1024 token 的前缀按规则不命中。）",
-          "en": "Run a cache audit on your highest-volume prompt: (1) open the API response detail, find the cache-hit field (hit/cached tokens), and record yesterday's hit rate; (2) go through your template asking 'is this segment identical every time' — reorder by immutability: most static pinned first, per-call input last; (3) deliberately insert a timestamp mid-prefix, run 20 calls and compare hit rates, then remove it and rerun. (Hint: 20 calls are enough to see the swing; if reordering doesn't lift the hit rate, check the minimum hit block count in the response detail — prefixes under 1,024 tokens don't qualify.)"
+          "zh": "给你的主流程做一次 30 分钟的全链验收彩排：① 画出链路图——从输入到交付经过哪几道闸，各吃进什么、吐出什么；② 造一张全链卷——用真实历史数据端到端跑 100 条，逐条核对序号与字段，记录坏条去向；③ 找最弱环——坏条集中在哪道闸，就先给那道闸补硬校验（序号、金额、禁用词各设一条）。（提示：坏条在每道闸都零散出现，多半不是闸的问题，是接缝的问题——先查上一道闸的输出格式和这一道闸的解析是否同版本；全链跑不出坏条就把卷子加难：塞 3 条第 41 天的注入句再跑。）",
+          "en": "Run a 30-minute end-to-end acceptance rehearsal on your main pipeline: (1) draw the link map — which gates does the work pass from input to delivery, what each consumes and emits; (2) build an end-to-end paper — run 100 real historical items through the whole chain, check every index and field, and log where bad items went; (3) find the weakest link — whichever gate clusters the bad items gets the next hard check (one each for indexes, amounts, forbidden terms). (Hint: bad items scattered thinly across every gate usually means the seams, not the gates — first check whether the upstream gate's output format and this gate's parser are the same version; if the run finds nothing, harden the paper: plant 3 injection lines from day 41 and run again.)"
         }
       },
       "takeaway": {
-        "zh": "缓存命中按 1024 token 的前缀块逐块比对，从第 0 格起连续命中：中段改一个字，后面全按全价重算。同一个文档问答台，不变内容钉在开头 10 美元/天，座位排错 16.5 美元/天——一年 2,373 美元付给座位。排版铁律：不变的前缀钉死在最前，变量钉在尾部，措辞手痒一次，阶梯塌一层。",
-        "en": "Cache hits compare 1,024-token prefix blocks in order, from token 0: change one character mid-window and everything after bills at full price. The same doc-QA bench costs $10/day with static content pinned up front and $16.50/day with the seat wrong — $2,373 a year paid to seating. Iron rule: pin the static prefix first, pin variables at the tail; every wording itch collapses one step of the staircase."
+        "zh": "四道闸各管一层：批处理管形状、缓存管价格、校验管缺陷、降级管残局。同一条 2000 条的分诊线：17.4 美元/天、50 分钟、错标未知——上线版 12.8 美元、100 秒、错标 0。省下的 26% 不在某个旋钮，在四道闸按序全开；单环绿灯是入场券，全链对拍才是上线判据。",
+        "en": "Four gates, one layer each: batching owns shape, caching owns price, validation owns defects, degradation owns the endgame. The same 2,000-ticket line: $17.40/day, 50 minutes, mislabels unknown — the launch build: $12.80, 100 seconds, zero mislabels. The 26% saved lives not in any single knob but in all four gates opened in order; single-gate green is the entry ticket, end-to-end diffing is the launch criterion."
       },
       "anim": {
-        "tpl": "kvcache",
+        "tpl": "bench",
         "hook": {
-          "zh": "命中按 1024 token 的前缀块逐块比对：中段改一个字，后面全部按全价重算。",
-          "en": "Hits compare 1,024-token prefix blocks in order: change one character mid-window and everything after bills at full price."
-        },
-        "sentence": {
-          "zh": "同一天的 1000 次调用：前缀没动，5k 格 K/V 直接复用",
-          "en": "1,000 calls the same day: prefix untouched, 5k slots' K/V reused as-is"
-        },
-        "promptN": 12,
-        "genN": 6,
-        "note": {
-          "zh": "示意：文档问答台的窗口。左侧 12 格是 5k 不变前缀（系统提示＋手册，一次算好跨请求复用，按 1/10 计价）；右侧逐格追加的是当次问题与回答（全价）。中段插一个时间戳，左侧指纹全断——右侧警示数字就是那笔全价账。",
-          "en": "Illustrative: a doc-QA window. The left 12 slots are the 5k static prefix (system prompt + manual, computed once, reused across requests, billed at 1/10); the right slots append the per-call question and answer (full price). Insert one timestamp mid-prefix and the left fingerprints snap — the red figure is that full-price bill."
+          "zh": "四道闸各自全绿不等于整条流水线能上线——单环验收看不见最弱环，全链对拍才现形。",
+          "en": "Four green gates don't mean a shippable line — single-gate checks can't see the weakest link; end-to-end acceptance can."
         },
         "coverHook": {
-          "zh": "座位排错：同一天多付 65%——中段改一字，全价重来",
-          "en": "Wrong seat: 65% more the same day — one changed character, full price again"
+          "zh": "上线首日 0 事故：答卷是 4 道闸，不是运气",
+          "en": "Day-one zero incidents: the answer sheet is 4 gates, not luck"
+        },
+        "models": [
+          {
+            "k": "bare",
+            "name": {
+              "zh": "裸批版",
+              "en": "Bare batch"
+            }
+          },
+          {
+            "k": "retry",
+            "name": {
+              "zh": "重试版",
+              "en": "Blind retry"
+            }
+          },
+          {
+            "k": "full",
+            "name": {
+              "zh": "全链版",
+              "en": "Full line"
+            }
+          }
+        ],
+        "recipes": [
+          {
+            "k": "sample",
+            "tag": {
+              "zh": "卷 A · 抽样 50 条 · 看单件质量",
+              "en": "Paper A · sample 50 · item quality"
+            },
+            "scores": [
+              88,
+              91,
+              93
+            ]
+          },
+          {
+            "k": "e2e",
+            "tag": {
+              "zh": "卷 B · 全链 2000 条 · 端到端对拍",
+              "en": "Paper B · full 2,000 · end-to-end"
+            },
+            "scores": [
+              41,
+              58,
+              94
+            ]
+          }
+        ],
+        "readoutZh": {
+          "recipe": {
+            "num": "47 分",
+            "cap": "裸批版两卷落差 · 抽样看不见"
+          },
+          "flip": {
+            "num": "0 条",
+            "cap": "错标上路 · 全链版上线首日"
+          },
+          "noise": {
+            "num": "−26%",
+            "cap": "总账 17.4→12.8 美元/天"
+          }
+        },
+        "readoutEn": {
+          "recipe": {
+            "num": "47 pts",
+            "cap": "bare-batch gap between papers · sampling can't see it"
+          },
+          "flip": {
+            "num": "0",
+            "cap": "mislabels shipped · full line, day one"
+          },
+          "noise": {
+            "num": "−26%",
+            "cap": "ledger $17.40→$12.80/day"
+          }
+        },
+        "verdictZh": "抽样给的是入场券，全链对拍才是上线判据：分数 = 最弱的一环。",
+        "verdictEn": "Sampling grants entry; end-to-end diffing clears launch — the score is the weakest link.",
+        "note": {
+          "zh": "示意：三个候选版本在两张考卷上的得分。卷 A 抽 50 条看单件质量，三版接近、裸批也能拿 88 分；卷 B 全链 2000 条逐条对拍，裸批版的串位与漏标全部现形（41 分），盲重试烧 0.08 美元仍漏 14 条（58 分），四闸齐开的全链版 94 分。验收口径选错，绿灯就是错觉。",
+          "en": "Illustrative: three candidate builds on two papers. Paper A samples 50 items for per-item quality — the versions bunch up, bare batch scoring 88. Paper B runs the full 2,000 with per-item diffing: bare batch's shifts and leaks all surface (41), blind retries burn $0.08 yet leak 14 (58), and the full line with all four gates scores 94. Wrong acceptance lens, green lights are an illusion."
         },
         "viz": [
           {
             "chips": [
               {
-                "tag": "前缀逐块指纹",
+                "tag": "批处理 · 形状",
                 "alt": false
               },
               {
@@ -9947,7 +9947,7 @@
                 "alt": true
               },
               {
-                "tag": "1024 token 一块",
+                "tag": "缓存 · 价格",
                 "alt": false
               },
               {
@@ -9955,7 +9955,7 @@
                 "alt": true
               },
               {
-                "tag": "中段改一字",
+                "tag": "校验 · 缺陷",
                 "alt": false
               },
               {
@@ -9963,81 +9963,455 @@
                 "alt": true
               },
               {
-                "tag": "后面全部全价",
+                "tag": "降级 · 残局",
                 "merged": true
               }
             ],
-            "label": "缓存记的是「位置＋内容」：命中从第 0 格起连续"
+            "label": "四道闸各管一层：顺序就是依赖——先形状，后价格，再质量"
           },
           {
             "wide": true,
             "bars": [
               {
-                "tag": "座位 A · 前缀钉在最前",
-                "val": 61,
+                "tag": "基线 · 逐条提交",
+                "val": 100,
                 "cls": "",
-                "txt": "10 美元/天 · TTFT 数百毫秒"
+                "txt": "17.4 美元/天 · 50 分钟"
               },
               {
-                "tag": "座位 B · 问题拼在前缀前",
-                "val": 100,
+                "tag": "批＋缓存 · 形状与价格",
+                "val": 74,
                 "cls": " materin-learn-viz__bar--en",
-                "txt": "16.5 美元/天 · 一年多 2,373 美元"
+                "txt": "12.8 美元/天 · 100 秒"
               },
               {
-                "tag": "座位 A＋中段时间戳",
-                "val": 100,
+                "tag": "全链 · 加校验与降级",
+                "val": 74,
                 "cls": "",
-                "txt": "指纹全断 · 立刻退回全价"
+                "txt": "账单不变 · 错标 0 · 57 分钟人工"
               }
             ],
-            "label": "1000 次/天、5k 前缀：收益是一整块蛋糕，咬一口全没"
+            "label": "总账 17.4→12.8 美元/天：省 26%，错标从未知到 0"
           },
           {
             "routes": [
               {
-                "tag": "「缓存是自动的」",
+                "tag": "「单环全绿就能上线」",
                 "cls": "",
-                "verdict": "✗ 命中由你的序列决定",
+                "verdict": "✗ 最弱环在全链才现形",
                 "vcls": " materin-learn-viz__route-word--bad"
               },
               {
-                "tag": "「账单不对是服务商错」",
+                "tag": "「指标越多越保险」",
                 "cls": " materin-learn-viz__route-row--think",
-                "verdict": "✗ 缓存有 5–10 分钟寿命",
+                "verdict": "✗ 一个端到端顶十条代理",
                 "vcls": " materin-learn-viz__route-word--bad"
               },
               {
-                "tag": "回归集冷热各跑一遍",
+                "tag": "「验收是一次性的」",
                 "cls": "",
-                "verdict": "✓ 折扣率才测得准",
-                "vcls": " materin-learn-viz__route-word--ok"
+                "verdict": "✗ 每次改动重跑全链卷",
+                "vcls": " materin-learn-viz__route-word--bad"
               }
             ],
-            "label": "变量槽（时间戳/随机 ID/检索次序）混进前缀，是指纹杀手"
+            "label": "裸批版抽样 88 分、全链 41 分——抽样的绿灯会撒谎"
           },
           {
             "routes": [
               {
-                "tag": "第 44 天 · 批处理",
+                "tag": "第 50 天 · Agent 循环",
                 "cls": "",
-                "verdict": "省跨请求重复",
+                "verdict": "验收从批变会话",
                 "vcls": ""
               },
               {
-                "tag": "今天 · 前缀缓存",
-                "cls": "",
-                "verdict": "省请求内重复",
-                "vcls": ""
-              },
-              {
-                "tag": "第 34 天 · 折叠压缩",
+                "tag": "第 52 天 · 策略段",
                 "cls": " materin-learn-viz__route-row--think",
-                "verdict": "✓ 省内容本身",
+                "verdict": "✓ 红线写进系统提示",
+                "vcls": " materin-learn-viz__route-word--ok"
+              },
+              {
+                "tag": "第 55 天 · 工作流编排",
+                "cls": "",
+                "verdict": "全链卷回放护每次改动",
+                "vcls": ""
+              }
+            ],
+            "label": "阶段二收官：成本、质量、节奏三门课，全链对拍盖章"
+          }
+        ]
+      }
+    },
+    {
+      "n": 48,
+      "stage": 2,
+      "week": 8,
+      "tpl": "atlas",
+      "date": "2026-11-11",
+      "title": {
+        "zh": "运行手册：会呼吸的提示系统",
+        "en": "Runbook: a living prompt system"
+      },
+      "subtitle": {
+        "zh": "第 47 天验收的是一次发布，今天验收这套系统能不能长期活着：资产图三根线——冻层钉住「不变的钱」（装配五层＋缓存前缀）、活层养「会变的手艺」（变量槽＋回归集＋校验环）、守层管「会坏的时辰」（分诊表＋白名单）。给 19 天攒下的系统画一张 12 站运行图：谁钉死、谁生长、谁站岗，一眼看清。",
+        "en": "Day 47 accepted one launch; today accepts whether the system can live long: three lines on the asset map — a frozen layer pinning 'unchanging money' (the five-layer assembly plus the cached prefix), a living layer growing 'changing craft' (variable slots, the regression set, the repair loop), and a guard layer watching 'moments of failure' (triage table and whitelist). One 12-station runbook map for 19 days of output: pinned, growing, or on duty at a glance."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：一张图分三根线——冻、活、守",
+            "en": "Mechanism: one map, three lines — frozen, living, guarded"
+          },
+          "p": {
+            "zh": "验收把「改动」分成三类，图就长出来了。冻层（蓝色）：装配五层里不该动的部分——角色、规则、示例骨架（第 38 天），连同缓存前缀和模板接口（第 36 天）——它们变一次，缓存折扣清零（第 45 天）、回归集全部重考（第 42 天），所以「钉死」本身就是资产：边界句也住这层（第 41 天）。活层（绿色）：本来就该天天变的——变量槽的当日输入、回归集里每周回流 10 条的线上错例、校验环里每周长一两句的跨字段规则、白名单的触发词表。它们不是混乱，是设计好的生长点：改动全走 200 条对拍，改完即合。守层（橙色）：只在故障时刻亮——第 46 天的分诊表、重试退避、降级白名单。三根线的读法与第 28 天同一套：先读线（每根管一类改动），再读站（它钉住、生长、拦截什么），最后读边（哪个活站挂在哪条冻边上）。",
+            "en": "Acceptance sorts changes into three kinds, and the map grows out of that. Frozen layer (blue): the parts of the five-layer assembly that must not move — role, rules, example skeleton (day 38) — plus the cached prefix and the template interface (day 36). Moving any of them voids the cache discount (day 45) and re-sits the whole regression set (day 42), so pinning is itself the asset; boundary sentences live here too (day 41). Living layer (green): what should change often — each day's variable-slot input, the 10 online failures flowing back into the regression set weekly, the one-or-two cross-field rules the repair loop grows weekly, the whitelist's trigger table. Not chaos but designed growth: every change goes through the 200-item diff and ships same-day. Guard layer (orange): lights only at failure moments — day 46's triage table, retry backoff, degrade whitelist. Reading is day 28's: read the line (which class of change it owns), then the station (what it pins, grows, or intercepts), then the edge (which living station hangs off which frozen edge)."
+          },
+          "deep": {
+            "zh": "为什么用「会呼吸」形容这套系统？因为它的健康指标不是「不变」，是「改变的秩序」：冻层每月动零到两次（每次都要走全链卷），活层每周动十几次（每次只走 200 条对拍），守层只在告警时动（动完写进复盘）。三类节奏各行其道，系统就在进化而不失控；一旦某类改动串了层——有人顺手改了冻层里的示例措辞（第 42 天 91%→82% 的塌方），或者把当日数据硬写进守层的白名单——呼吸就乱了，账单和错标会在一周内告诉你。",
+            "en": "Why 'living'? Because its health metric is not stillness but the order of change: the frozen layer moves zero to twice a month (each move takes the full-line paper), the living layer moves a dozen times a week (each through the 200-item diff), the guard layer moves only when paged (each move written into the postmortem). Three rhythms, each on its own lane — the system evolves without slipping; the moment a change crosses layers — a casual rewording of a frozen example (day 42's 91%→82% collapse) or today's data hard-coded into the guard whitelist — the breathing breaks, and the bill and the mislabels will say so within a week."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：三类改动的月度账单",
+            "en": "The math: a month of three change classes"
+          },
+          "p": {
+            "zh": "给这套系统算一个月的「改动账」。冻层：每月 1 次配方级改动——跑 200 条对拍（0.18 美元）＋一次全链卷（100 秒、12.8 美元）＝12.98 美元/月。活层：每周 12 次变量槽与规则生长（对拍 0.18×12＝2.16 美元/周），月约 8.6 美元；其中线上错例回流是免费的——错例本来就是生产免费送上门的（第 42 天）。守层：每月约 2 次告警触发，人工 57 分钟的队列预算不变，0 token。合计这套系统的「维护电费」约 21.6 美元/月，管住的是第 30 天那条 190 分钟/天的返工账（约 5,700 分钟/月）——1:264 的杠杆。对照反例：把这些改动全塞回「全文重写」的老路，每次改动约 1 小时人工＋结果不可归因（第 38 天），一个月 40 次改动就是 40 个小时，外加不知道哪个改动砸了哪一版——省下的 21.6 美元电费，买回的是「敢改」。",
+            "en": "A month of 'change bills' for this system. Frozen: one recipe-level change a month — a 200-item diff ($0.18) plus one full-line run (100 s, $12.80) = $12.98. Living: 12 slot-and-rule growths a week (0.18 × 12 = $2.16), about $8.60 a month; the failure backflow is free — production hands you those cases (day 42). Guard: about two pages a month, the 57-minute human budget unchanged, 0 tokens. Total upkeep ≈ $21.60 a month, holding down day 30's 190-minutes-a-day rework bill (≈5,700 a month) — a 1:264 lever. The counterfactual: cram all changes back into full rewrites, about an hour each with unattributable results (day 38) — 40 changes a month is 40 hours, plus no idea which change broke which version. The $21.60 of electricity buys the right to change things at all."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "上线的第一个月，这套系统的运行日志长这样：第 1 周平静，错例回流 10 条进回归集；第 2 周业务方要求新增「VIP 工单优先」判级——活层改动：变量槽加一个 is_vip 字段，200 条对拍通过当天上线，0 全链重跑；第 3 周供应商静默升了模型（第 42 天的剧情），回归集检出解析率 94%→89%，按分诊表走重试环参数微调，当天恢复；第 4 周有人想「优化」冻层里的示例措辞——被运行手册拦下：走全链卷或改活层，二选一。月底盘点：冻层动 0 次、活层 41 次、守层 2 次，错标 0，总维护成本 19.8 美元。这就是「可维护」三个字的具体长相：不是没人碰，是每次碰都碰在对的层。",
+              "en": "The first month's run log: week 1 quiet, 10 failures flow back; week 2 the business asks for a VIP priority flag — a living-layer change: an is_vip field in the slot, same-day ship after the 200-item diff, zero full-line reruns; week 3 the provider silently bumps the model (day 42's plot), the regression set catches 94%→89%, the triage table routes a retry-parameter tweak, recovered same day; week 4 someone wants to 'optimize' a frozen example — the runbook says no: full-line paper or a living-layer change, pick one. Month-end: frozen 0 moves, living 41, guard 2, zero mislabels, $19.80 total upkeep. That is what 'maintainable' concretely looks like: not untouched, but every touch lands on the right layer."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：可维护等于改得少",
+            "en": "Misconception: maintainable means touching it less"
+          },
+          "p": {
+            "zh": "其一：「维护就是别乱动」。反了——不敢动的系统才会烂：回归集不回流就覆盖不了新问法，校验规则不生长就拦不住新错误，三个月后它守的还是第一个月的战场。「会呼吸」恰恰要求活层高频改。其二：「文档写得全就维护得好」。运行手册不是文档，是一张带判据的图：每个站都要回答「你钉住什么、多久动一次、动了走哪条验收」，答不上来的站就是还没想清楚的部分——文档再厚也替代不了这三问。其三：「等 Agent 阶段再整理也不迟」。顺序反了：第 50 天起 Agent 的系统提示就是这张图上「策略段」那一站的展开——现在不把冻、活、守分开，Agent 的每圈循环都会把三类改动搅在一起授权，第 52 天的策略段就写不出层次。",
+            "en": "First: 'maintenance means not touching it.' Backwards — a system nobody dares touch rots: a regression set that never takes backflow can't cover new phrasings, rules that never grow can't stop new errors, and three months on it's still defending month one's battlefield. 'Living' demands the living layer change often. Second: 'good documentation means good maintenance.' The runbook is not prose but a map with verdicts: every station must answer 'what do you pin, how often do you move, which acceptance do you take' — a station that can't answer is a part not yet thought through, and no amount of prose substitutes for the three questions. Third: 'tidy it up when we hit agents.' Order reversed: from day 50 the agent's system prompt is this map's strategy station unfolded — without frozen/living/guarded separated now, every loop grants all three change classes at once, and day 52's strategy section will have no layers to write."
+          },
+          "misconception": {
+            "h": {
+              "zh": "常见误区",
+              "en": "Common misconception"
+            },
+            "p": {
+              "zh": "「运行手册是给运维写的，提示工程师用不上」。这套系统的运维面恰恰全在提示层：缓存折扣由 token 顺序决定（第 45 天），错标率由白名单决定（第 41 天），账单由批处理形状决定（第 44 天）——你今天画的这张图，就是这套系统唯一的「运维界面」。真到第 55 天工作流编排，熔断器和重跑策略也只是把守层那三站接进编排器，图不用重画。",
+              "en": "'Runbooks are for ops; a prompt engineer doesn't need one.' This system's ops surface lives entirely in the prompt layer: the cache discount is set by token order (day 45), the mislabel rate by the whitelist (day 41), the bill by batch shape (day 44) — the map you draw today is this system's only ops interface. Come day 55's orchestration, breakers and rerun policies simply wire the guard layer's three stations into the orchestrator; the map itself never needs redrawing."
+            }
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "把你自己的提示系统画成 12 站资产图：① 三根横带写上「冻层·不变的钱」「活层·会变的手艺」「守层·会坏的时辰」；② 把你的角色、规则、示例、变量槽、回归集、校验环、白名单、分诊表各落成一个站（day 号换成你的版本号）；③ 每站标注「月动次数＋验收方式」，然后回答三个问题：① 哪个站现在动得最频繁？它在活的层还是被你塞进了冻层？（提示：每周都变的措辞是活层资产，钉在冻层只会天天断缓存——第 45 天的蛋糕咬一口全没。）② 你的回归集和校验环之间有边吗？（提示：错例要能从校验环流进回归集——没这条边，两站各自为政，第 43 天的 19 条就只是工单不是资产。）③ 哪个站答不上「动了走哪条验收」？（提示：答不上来的站就是下个月的 91%→82%——先给它配 20 条对拍再谈别的。）",
+          "en": "Draw your own prompt system as a 12-station asset map: (1) three bands labeled 'frozen · unchanging money', 'living · changing craft', 'guarded · moments of failure'; (2) land your role, rules, examples, variable slot, regression set, repair loop, whitelist, and triage table as stations (swap day numbers for your version numbers); (3) annotate each station 'moves per month + acceptance route', then answer: (i) which station moves most often — is it on the living line, or have you wedged it into frozen? (Hint: wording that changes weekly is a living asset; pinned in frozen it snaps the cache daily — day 45's cake, one bite voids it.) (ii) Is there an edge between your regression set and your repair loop? (Hint: failures must flow from the loop into the set — without that edge, the two stations don't speak, and day 43's 19 items stay tickets instead of becoming assets.) (iii) Which station can't answer 'which acceptance do I take'? (Hint: the station that can't answer is next month's 91%→82% — give it 20 diff items before anything else.)"
+        }
+      },
+      "takeaway": {
+        "zh": "第 48 天不学新零件，给 19 天的产出装一张运行图：冻层钉「不变的钱」（装配五层＋缓存前缀，动了清折扣），活层养「会变的手艺」（变量槽＋回归集回流＋规则生长，每次走对拍），守层管「会坏的时辰」（分诊表＋白名单，告警才亮）。维护电费约 21.6 美元/月，杠杆 1:264——可维护不是改得少，是每类改动走对层、走对验收。",
+        "en": "Day 48 adds no new part; it fits 19 days of output with a runbook map: the frozen layer pins 'unchanging money' (assembly + cached prefix — a move voids the discount), the living layer grows 'changing craft' (slots, regression backflow, rule growth — each change diffed), the guard layer watches 'moments of failure' (triage + whitelist — lit only when paged). Upkeep ≈ $21.60/month at a 1:264 lever — maintainable is not touching less; it is every change class on its own layer and its own acceptance."
+      },
+      "anim": {
+        "tpl": "atlas",
+        "hook": {
+          "zh": "第 47 天验收一次发布，今天验收「可持续」：12 站 12 边的资产图，把 19 天的产出装进冻、活、守三根线。",
+          "en": "Day 47 accepted one launch; today accepts sustainability: a 12-station, 12-edge asset map fitting 19 days of output into frozen, living, and guarded lines."
+        },
+        "coverHook": {
+          "zh": "维护电费 21.6 美元/月，拦下 5,700 分钟返工",
+          "en": "$21.60 a month of upkeep stops 5,700 minutes of rework"
+        },
+        "clusters": [
+          {
+            "k": "read",
+            "zh": "冻层 · 不变的钱",
+            "en": "Frozen · unchanging money"
+          },
+          {
+            "k": "learn",
+            "zh": "活层 · 会变的手艺",
+            "en": "Living · changing craft"
+          },
+          {
+            "k": "use",
+            "zh": "守层 · 会坏的时辰",
+            "en": "Guarded · moments of failure"
+          }
+        ],
+        "nodes": [
+          {
+            "d": 30,
+            "k": "read",
+            "zh": "角色层",
+            "en": "Role",
+            "x": 8,
+            "y": 9
+          },
+          {
+            "d": 38,
+            "k": "read",
+            "zh": "规则与边界",
+            "en": "Rules",
+            "x": 24,
+            "y": 9
+          },
+          {
+            "d": 31,
+            "k": "read",
+            "zh": "示例骨架",
+            "en": "Examples",
+            "x": 42,
+            "y": 9
+          },
+          {
+            "d": 36,
+            "k": "read",
+            "zh": "模板接口",
+            "en": "Template",
+            "x": 68,
+            "y": 9
+          },
+          {
+            "d": 41,
+            "k": "read",
+            "zh": "边界句",
+            "en": "Boundary",
+            "x": 88,
+            "y": 9
+          },
+          {
+            "d": 45,
+            "k": "read",
+            "zh": "缓存前缀",
+            "en": "Cached prefix",
+            "x": 30,
+            "y": 28
+          },
+          {
+            "d": 29,
+            "k": "learn",
+            "zh": "变量槽",
+            "en": "Slots",
+            "x": 8,
+            "y": 50
+          },
+          {
+            "d": 42,
+            "k": "learn",
+            "zh": "回归集",
+            "en": "Regression set",
+            "x": 30,
+            "y": 50
+          },
+          {
+            "d": 43,
+            "k": "learn",
+            "zh": "校验环",
+            "en": "Repair loop",
+            "x": 58,
+            "y": 50
+          },
+          {
+            "d": 26,
+            "k": "learn",
+            "zh": "ICL 手感",
+            "en": "ICL feel",
+            "x": 79,
+            "y": 50
+          },
+          {
+            "d": 46,
+            "k": "use",
+            "zh": "失败处理",
+            "en": "Failure handling",
+            "x": 30,
+            "y": 84
+          },
+          {
+            "d": 41,
+            "k": "use",
+            "zh": "出口白名单",
+            "en": "Whitelist",
+            "x": 70,
+            "y": 84
+          }
+        ],
+        "edges": [
+          {
+            "a": 30,
+            "b": 38,
+            "k": "read"
+          },
+          {
+            "a": 38,
+            "b": 31,
+            "k": "read"
+          },
+          {
+            "a": 31,
+            "b": 36,
+            "k": "read"
+          },
+          {
+            "a": 36,
+            "b": 41,
+            "k": "read"
+          },
+          {
+            "a": 36,
+            "b": 45,
+            "k": "read"
+          },
+          {
+            "a": 29,
+            "b": 42,
+            "k": "learn"
+          },
+          {
+            "a": 42,
+            "b": 43,
+            "k": "learn"
+          },
+          {
+            "a": 43,
+            "b": 26,
+            "k": "learn"
+          },
+          {
+            "a": 46,
+            "b": 41,
+            "k": "bridge"
+          },
+          {
+            "a": 43,
+            "b": 46,
+            "k": "bridge"
+          },
+          {
+            "a": 42,
+            "b": 36,
+            "k": "bridge"
+          },
+          {
+            "a": 41,
+            "b": 46,
+            "k": "use"
+          }
+        ],
+        "note": {
+          "zh": "示意：12 站 12 边——冻层 6 站牵成一条钱线，活层 4 站各自生长并互相供血（错例从校验环流回回归集），守层 3 站接住活层漏下来的残局；黄虚线是三根线之间的交接边。",
+          "en": "Illustrative: 12 stations, 12 edges — 6 frozen stations chained into one money line, 4 living stations each growing and feeding each other (failures flow from the repair loop back into the regression set), 3 guard stations catching what the living layer leaks; yellow dashes are the hand-off edges."
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "冻层 · 钉住",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "活层 · 生长",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "守层 · 站岗",
+                "merged": true
+              }
+            ],
+            "label": "三类改动三根线：谁钉死、谁生长、谁站岗，一眼分清"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "冻层 · 每月 ≤1 次",
+                "val": 13,
+                "cls": "",
+                "txt": "200 条对拍＋全链卷 · 12.98 美元"
+              },
+              {
+                "tag": "活层 · 每周 12 次",
+                "val": 40,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "单次 200 条对拍 · 0.18 美元"
+              },
+              {
+                "tag": "守层 · 告警才动",
+                "val": 18,
+                "cls": "",
+                "txt": "57 分钟人工预算 · 0 token"
+              }
+            ],
+            "label": "维护电费 ≈21.6 美元/月：管住 5,700 分钟返工，杠杆 1:264"
+          },
+          {
+            "routes": [
+              {
+                "tag": "「维护就是别乱动」",
+                "cls": "",
+                "verdict": "✗ 不敢动的系统三个月就烂",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「文档全就是维护好」",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 三问答不上＝没想清",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "错例每周回流 10 条",
+                "cls": "",
+                "verdict": "✓ 回归集自己会长大",
                 "vcls": " materin-learn-viz__route-word--ok"
               }
             ],
-            "label": "先批处理、再缓存、最后压缩——每层拿走上一层的折扣"
+            "label": "可维护不是改得少：是每类改动走对层、走对验收"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 49 天 · 终点",
+                "cls": "",
+                "verdict": "零件装成系统",
+                "vcls": ""
+              },
+              {
+                "tag": "第 50 天 · Agent 循环",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✓ 图上的策略段展开",
+                "vcls": " materin-learn-viz__route-word--ok"
+              },
+              {
+                "tag": "第 55 天 · 编排",
+                "cls": "",
+                "verdict": "守层三站接进编排器",
+                "vcls": ""
+              }
+            ],
+            "label": "阶段二第 19 课：把「能跑」升级成「能养」，明天合龙"
           }
         ]
       }
