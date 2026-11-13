@@ -10415,6 +10415,275 @@
           }
         ]
       }
+    },
+    {
+      "n": 49,
+      "stage": 2,
+      "week": 8,
+      "tpl": "bench",
+      "date": "2026-11-12",
+      "title": {
+        "zh": "迁移考：手艺跟着走吗",
+        "en": "Transfer exam: does the craft travel?"
+      },
+      "subtitle": {
+        "zh": "阶段二最后一课：把 19 天攒下的手艺换个考场重考。同一套方法从分诊线搬到合同审查——装配类只掉 8 分，质量类几乎不掉，流量类塌了 32 分。毕业判据不是背熟结论，是方法跟着你走、参数跟着任务重标定；掉分最多的地方，正是明天 Agent 循环接管的第一个岗位。",
+        "en": "Stage 2's last lesson: re-sit the craft in a new room. The same methods move from ticket triage to contract review — assembly drops 8 points, quality barely moves, traffic collapses 32. Graduation isn't reciting conclusions; it's methods that travel with you and parameters that re-calibrate with the task — and the biggest drop marks where tomorrow's agent loop takes over first."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：迁移验收怎么考",
+            "en": "Mechanism: how a transfer exam works"
+          },
+          "p": {
+            "zh": "毕业考不考记忆，考搬家：把第 38 天的五层装配、第 44/45 天的批处理与缓存、第 42/43 天的回归与校验原样搬到新任务——100 份合同的条款审查——先跑一遍第 47 天的全链卷，再看分数掉在哪。考法分两卷：卷 A 原任务重考（分诊线，2000 条），确认手艺还在；卷 B 新任务首跑（合同审查，100 份），看手艺过不过得了考场变化。三类手艺分别记分：装配类（指令、示例、格式、模板——第 30–38 天）、流量类（批处理、缓存、失败处理——第 44–46 天）、质量类（回归、校验、降级——第 42–43 天）。卷面只回答一个问题：掉分的是手艺本身，还是手艺的参数。",
+            "en": "The graduation exam doesn't test recall, it tests relocation: carry day 38's five-layer assembly, days 44/45's batching and caching, and days 42/43's regression and validation, unchanged, onto a new task — clause review over 100 contracts — run day 47's full-line paper once, and see where the points fall. Two papers: Paper A re-sits the old task (triage, 2,000 tickets) to confirm the craft is intact; Paper B first-runs the new task (contract review, 100 documents) to see whether the craft survives a change of room. Three craft families are scored separately: assembly (instructions, examples, format, templates — days 30–38), traffic (batching, caching, failure handling — days 44–46), and quality (regression, validation, degradation — days 42–43). The papers answer one question: is it the craft that dropped, or the craft's parameters?"
+          },
+          "deep": {
+            "zh": "为什么这样考？手艺其实分两层：方法层（「示例要演不要讲」「不变前缀钉最前」「坏产出不出门」）和参数层（示例选哪三条、前缀有多长、白名单放哪些触发词）。方法层跨任务成立——它是从「模型怎么工作」推出来的，模型没换，方法就不换；参数层是任务形状的函数——批大小取决于到达率，缓存折扣取决于前缀占比，白名单取决于这个任务的错误目录。迁移验收就是把两层拆开量：方法不动，只重新标定参数，落差才反映真实的「要重付多少」。",
+            "en": "Why exam it this way? Craft has two layers: the method layer ('show examples, don't describe them', 'pin the unchanged prefix first', 'nothing broken ships') and the parameter layer (which three examples, how long the prefix, which trigger words in the whitelist). Methods hold across tasks — they derive from how the model works, and the model didn't change; parameters are functions of task shape — batch size tracks arrival rate, cache discount tracks prefix share, the whitelist tracks this task's error catalog. The transfer exam splits the layers and measures each: keep the methods, re-calibrate only the parameters, and the drop shows exactly how much re-paying is due."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：迁移落差清单",
+            "en": "The math: a transfer ledger"
+          },
+          "p": {
+            "zh": "三类手艺各记两卷分。装配类：卷 A 96、卷 B 88——五层骨架直接复用，掉的分在示例要换（分诊线的示例对合同审查毫无用处，重挑 3 条花 2 小时）和边界句重写（花 1 小时），共掉 8 分、重标 3 小时。质量类：卷 A 92、卷 B 90——校验器是 20 行确定性代码，字段目录换成条款编号即可，回归集先空跑 200 条再回流（第 42 天的规矩），只掉 2 分、重标 1.5 小时。流量类：卷 A 94、卷 B 62——塌 32 分，塌在三处：批大小 32 是按分诊线到达率标的，合同审查一次一批只有 5 份，批窗重标（2 小时）；缓存前缀从 5k 缩到 1.2k，折扣从每天 6.5 美元变成 0.4 美元，座位重排（1 小时）；失败目录整个换了——分诊线怕串位，合同审查怕漏条款，降级白名单重写（8 小时）。三类合计：重标 15.5 小时、重学 0 小时。",
+            "en": "Score both papers per family. Assembly: 96 → 88 — the five-layer skeleton carries over; the drop is examples (triage examples are useless for contract review; re-picking 3 costs 2 hours) and boundary sentences (1 hour): 8 points, 3 hours. Quality: 92 → 90 — the validator is 20 lines of deterministic code; swap the field catalog for clause numbers and blank-run 200 items into the regression set first (day 42's rule): 2 points, 1.5 hours. Traffic: 94 → 62 — a 32-point collapse in three places: batch size 32 was calibrated to the triage line's arrival rate, contract review delivers 5 documents per batch, so the batch window re-calibrates (2 hours); the cached prefix shrinks from 5k to 1.2k and the daily discount falls from $6.50 to $0.40, so the seating re-arranges (1 hour); the failure catalog changes — triage feared shifts, review fears missed clauses — so the degrade whitelist rewrites entirely (8 hours). Three families combined: 15.5 hours re-calibrating, 0 hours relearning."
+          },
+          "deep": {
+            "zh": "分项加总对账：3＋1.5＋11＝15.5 小时（批窗 2＋缓存 1＋白名单 8＝11 归流量；示例 2＋边界 1＋校验字段 0.5＋回归空跑 1＝4.5 归装配与质量——总账一致）。对比口径：假如不分两层、把 19 天全部重学一遍，按每天 2 小时算是 38 小时——迁移验收把「重学」砍成「重标」，省下近六成工时，而且省掉的正是最容易学错的那部分（把第 45 天的前缀结论背成「前缀越长越好」）。流量类塌 32 分不丢人：它是唯一跟任务形状绑定的手艺，也正是它最先被第 50 天的循环接管。",
+            "en": "The line items sum: 3 + 1.5 + 11 = 15.5 hours (batching 2 + caching 1 + whitelist 8 = 11 to traffic; examples 2 + boundaries 1 + validator fields 0.5 + blank run 1 = 4.5 to assembly and quality — ledger consistent). The comparison: relearn all 19 days from scratch at 2 hours a day is 38 hours — the transfer exam cuts 'relearning' to 're-calibrating', saving nearly 60%, and what it saves is precisely the easiest part to learn wrong (memorizing day 45's prefix result as 'the longer the prefix the better'). Traffic's 32-point drop is no shame: it's the only craft bound to task shape — and the first one day 50's loop takes over."
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：把手艺当答案背",
+            "en": "Misconception: memorizing the craft"
+          },
+          "p": {
+            "zh": "其一：「学完了，背熟结论就毕业」。背下来的是参数层的答案——「批 32 最优」「前缀 5k 折扣 1/10」——换个考场全部作废，卷 B 的 32 分落差就是背答案者的分数。其二：「迁移等于重学，从头再来」。方法层不用重学：第 43 天的「模型出候选、代码做验收」搬到合同审查一字不改，重学的只有参数——而参数标定是小时级工作（15.5 小时），不是天级的重新推导。其三：「新任务先上线再调」。迁移验收的顺序不能反：先跑全链卷再上线（第 47 天），否则批窗错标、缓存全价、漏条款直接上路——卷 B 那 62 分就是裸上线的分数，回头修复花的工时比重标多三倍。",
+            "en": "First: 'learn it, recite the conclusions, graduate.' What you recite is the parameter layer — 'batch 32 is optimal', '5k prefix discounts to 1/10' — void in every new room; Paper B's 32-point collapse is the reciter's score. Second: 'transfer means relearning from scratch.' The method layer doesn't relearn: day 43's 'the model proposes, the code accepts' moves to contract review word for word; only parameters re-calibrate — hours of work (15.5), not days of re-derivation. Third: 'ship the new task, tune later.' Order matters: run the full-line paper before launch (day 47), or mis-set batch windows, full-price caches, and missed clauses go straight to production — Paper B's 62 is the ship-first score, and repairing it costs three times the re-calibration."
+          },
+          "deep": {
+            "zh": "为什么背答案是陷阱？因为参数层的结论有半衰期：模型换一代、任务换一类、价格表换一张，参数全要重标。方法层的结论来自机制（注意力、前缀 KV、确定性代码），半衰期跟机制一样长。判断一句结论属于哪层，用它能不能回答「为什么」来验：答得出机制的是方法（能带走），只报得出数字的是参数（到考场重新标）。",
+            "en": "Why is reciting a trap? Parameter conclusions have a half-life: change the model generation, the task family, or the price sheet, and every parameter re-calibrates. Method conclusions come from mechanism — attention, prefix K/V, deterministic code — and their half-life matches the mechanism's. To classify a conclusion, test whether it can answer 'why': an answer with a mechanism behind it is a method (it travels); one that only reports a number is a parameter (re-calibrate it in the new room)."
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：明天，交给循环",
+            "en": "Extension: tomorrow, hand it to the loop"
+          },
+          "p": {
+            "zh": "阶段二的 20 课到此合龙：装配给窗口喂对的东西，流量让账单付得起，质量拦住坏产出，验收证明三者能一起活。明天开学阶段三——Agent 与工作流（第 50–84 天）——第一课就是 Agent 循环：把「人按回车」换成「模型在循环里自己决定」。这 19 天攒的手艺不作废，只是换岗位：装配类的五层骨架变成循环的策略段，质量类的校验环变成循环每圈的体检，流量类的批处理与缓存变成循环的省钱引擎；而今天卷 B 掉 32 分的流量重标定，正是循环最擅长自动化的活——试参数、跑对拍、记录结果，一圈一圈自己迭代。手艺跟着你走，循环替你标参数。",
+            "en": "Stage 2's twenty lessons close here: assembly feeds the window the right things, traffic keeps the bill payable, quality stops broken output, and acceptance proved the three can live together. Tomorrow stage three opens — Agents & Workflows (days 50–84) — with the agent loop: swap 'you press Enter' for 'the model decides inside a loop'. The craft from these 19 days isn't obsolete, just re-posted: assembly's five layers become the loop's policy section, quality's validation loop becomes each tick's check-up, traffic's batching and caching become the loop's cost engine. And today's 32-point traffic drop is exactly what the loop automates best — trying parameters, running the diff, logging results, iterating lap by lap. The craft travels with you; the loop calibrates the parameters."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "给你的手艺做一次迁移预演：挑一个和你当前任务不同形状的新任务（比如从分类搬到摘要），把第 48 天资产图上的站逐一过堂，分成两栏——方法层（能直接带走）和参数层（要重标定），参数栏每个站写上「重标什么＋估计工时」。然后回答：① 哪个站你答不出「它为什么成立」？（提示：答不出的多半是背来的参数，到新考场它会先塌。）② 哪个站的参数依赖任务形状（到达率、前缀占比、错误目录）？（提示：这些就是流量类，重标工时最大的站。）③ 如果明天换成 Agent 循环跑，哪个站最先被自动化？（提示：找「试参数→跑对拍→记录」能成环的站。）",
+          "en": "Rehearse a transfer: pick a new task shaped differently from yours (say, classification → summarization), walk every station on day 48's asset map, and split it into two columns — method layer (carries over as-is) and parameter layer (needs re-calibration) — writing 'what to re-calibrate + estimated hours' on each parameter station. Then: (i) which station can't answer 'why does it hold'? (Hint: what you can't justify is a memorized parameter — first to collapse in the new room.) (ii) Which stations' parameters depend on task shape (arrival rate, prefix share, error catalog)? (Hint: those are traffic — the biggest re-calibration hours.) (iii) If tomorrow an agent loop runs this, which station automates first? (Hint: find the station where 'try → diff → log' closes into a cycle.)"
+        }
+      },
+      "takeaway": {
+        "zh": "第 49 天把 19 天的手艺换个考场重考：装配掉 8 分、质量掉 2 分、流量塌 32 分——方法层重学 0 小时，重标合计 15.5 小时。答得出「为什么」的结论是方法，跟着你走；只报数字的是参数，跟着任务重标。明天循环开学，掉分最多的流量站第一个交给它。",
+        "en": "Day 49 re-sits 19 days of craft in a new room: assembly drops 8, quality 2, traffic collapses 32 — zero hours relearning methods, 15.5 hours re-calibrating parameters. Conclusions that answer 'why' are methods and travel with you; ones that only report numbers are parameters and re-calibrate with the task. Tomorrow the loop opens — and the biggest dropper goes to it first."
+      },
+      "anim": {
+        "tpl": "bench",
+        "hook": {
+          "zh": "毕业不考记忆考搬家：同一套手艺换个考场重考，掉分处就是参数重标定清单。",
+          "en": "Graduation tests relocation, not recall: re-sit the craft in a new room; every dropped point is a parameter to re-calibrate."
+        },
+        "coverHook": {
+          "zh": "手艺搬家考：装配只掉 8 分，流量塌 32",
+          "en": "Craft moves rooms: assembly drops 8, traffic collapses 32"
+        },
+        "models": [
+          {
+            "name": {
+              "zh": "装配类",
+              "en": "Assembly"
+            }
+          },
+          {
+            "name": {
+              "zh": "流量类",
+              "en": "Traffic"
+            }
+          },
+          {
+            "name": {
+              "zh": "质量类",
+              "en": "Quality"
+            }
+          }
+        ],
+        "recipes": [
+          {
+            "tag": {
+              "zh": "卷 A · 原任务重考 · 分诊线 2000 条",
+              "en": "Paper A · old task · 2,000 tickets"
+            },
+            "scores": [
+              96,
+              94,
+              92
+            ]
+          },
+          {
+            "tag": {
+              "zh": "卷 B · 新任务首跑 · 合同审查 100 份",
+              "en": "Paper B · new task · 100 contracts"
+            },
+            "scores": [
+              88,
+              62,
+              90
+            ]
+          }
+        ],
+        "readoutZh": {
+          "recipe": {
+            "num": "32 分",
+            "cap": "流量类两卷落差 · 参数重标 11 小时"
+          },
+          "flip": {
+            "num": "0 小时",
+            "cap": "重学工时 · 方法层全部带走"
+          },
+          "noise": {
+            "num": "15.5 小时",
+            "cap": "重标总工时 · 对比重学 38 小时"
+          }
+        },
+        "readoutEn": {
+          "recipe": {
+            "num": "32 pts",
+            "cap": "traffic's paper gap · 11 hours re-calibration"
+          },
+          "flip": {
+            "num": "0 hrs",
+            "cap": "relearning time · every method carries over"
+          },
+          "noise": {
+            "num": "15.5 hrs",
+            "cap": "re-calibration total · vs 38 hours relearning"
+          }
+        },
+        "verdictZh": "手艺分两层：方法跟着你走，参数跟着任务走——迁移不是重学，是重标定。",
+        "verdictEn": "Craft has two layers: methods travel with you, parameters stay with the task — transfer is re-calibration, not relearning.",
+        "note": {
+          "zh": "示意：三类手艺在两张考卷上的得分。卷 A 原任务重考，三类都在 92 分以上——19 天的手艺还在；卷 B 合同审查首跑，装配掉 8 分（示例与边界句要重写），质量只掉 2 分（校验器换个字段目录），流量塌 32 分（批窗、缓存座位、白名单都是任务形状的函数）。掉分处全部对应参数层：方法层零重学，重标合计 15.5 小时。",
+          "en": "Illustrative: three craft families on two papers. Paper A re-sits the old task — all three above 92; the 19 days of craft is intact. Paper B first-runs contract review: assembly drops 8 (examples and boundary sentences rewritten), quality drops 2 (the validator swaps its field catalog), traffic collapses 32 (batch window, cache seating, and whitelist are all functions of task shape). Every drop maps to the parameter layer: zero method relearning, 15.5 hours of re-calibration in total."
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "装配 · 指令示例格式",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "流量 · 批缓存失败",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "质量 · 回归校验降级",
+                "merged": true
+              }
+            ],
+            "label": "手艺分三层记卷：方法层带走，参数层重标——落差就是重标清单"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "装配 · 96→88",
+                "val": 88,
+                "cls": "",
+                "txt": "示例重挑 2h＋边界 1h · 掉 8 分"
+              },
+              {
+                "tag": "流量 · 94→62",
+                "val": 62,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "批窗 2h＋缓存 1h＋白名单 8h · 掉 32 分"
+              },
+              {
+                "tag": "质量 · 92→90",
+                "val": 90,
+                "cls": "",
+                "txt": "校验字段 0.5h＋回归空跑 1h · 掉 2 分"
+              }
+            ],
+            "label": "落差即工时：15.5 小时全部重标到顶，方法层重学 0 小时"
+          },
+          {
+            "routes": [
+              {
+                "tag": "「背熟结论就毕业」",
+                "cls": "",
+                "verdict": "✗ 参数半衰期最短",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「迁移等于重学」",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 方法层一字不改",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「新任务先上线再调」",
+                "cls": "",
+                "verdict": "✗ 62 分就是裸上线",
+                "vcls": " materin-learn-viz__route-word--bad"
+              }
+            ],
+            "label": "判断结论属于哪层：答得出「为什么」的带走，只报得出数字的重标"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 50 天 · Agent 循环",
+                "cls": "",
+                "verdict": "✓ 手艺装进循环",
+                "vcls": " materin-learn-viz__route-word--ok"
+              },
+              {
+                "tag": "第 55 天 · 工作流编排",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "流量站接进编排器",
+                "vcls": ""
+              },
+              {
+                "tag": "第 85 天 · RAG 知识系统",
+                "cls": "",
+                "verdict": "装配类第二个考场",
+                "vcls": ""
+              }
+            ],
+            "label": "阶段二合龙：20 课一座桥——明天开学，循环替你标参数"
+          }
+        ]
+      }
     }
   ]
 }
