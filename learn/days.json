@@ -10692,7 +10692,7 @@
    "tpl": "chain",
    "date": "2026-11-13",
    "title": {
-    "zh": "Agent 循环：模型在圈里自己转",
+    "zh": "Agent 循环：圈里自己转",
     "en": "The agent loop: the model turns inside the circle"
    },
    "subtitle": {
@@ -10765,12 +10765,12 @@
      "en": "Hands-on (15 min)"
     },
     "p": {
-     "zh": "找一个支持工具调用的对话产品（没有的话，把三个工具写成提示让模型「假装调用」也行），给模型配三个工具——查订单状态、查退款政策、写回复草稿——让它处理一条退单申请，然后回答三个问题：① 它第一次采样出的是什么申请？调用顺序和你预想的一致吗？（提示：模型挑工具靠的是工具描述里的触发词——第 30 天的指令设计，描述含糊它就会挑错道。）② 故意给它一个会报错的工具（比如查一个不存在的订单号），它下一圈做了什么？（提示：报错文本也是观察结果——钉回窗口后模型自己改道，这是循环比链多出来的能力；如果它没改道，说明你的停止条件写得太松。）③ 数一数它总共跑了几圈才给出最终回复，找出其中可以省掉的一圈。（提示：观察结果里已经带着答案的那一圈，是出口阀门没拧紧——任务完成判定写晚了。）",
-     "en": "In a chat product that supports tool calls (or write the three tools into the prompt and let the model 'pretend to call them'), give the model three tools — query order status, query refund policy, draft reply — and have it handle one refund request. Then answer: ① What application did it sample first? Does the call order match your expectation? (Hint: the model picks tools by the trigger words in their descriptions — day 30's instruction design; vague descriptions send it down the wrong path.) ② Deliberately give it a tool that errors (query a nonexistent order number) — what does it do next lap? (Hint: the error text is also an observation — pinned back, the model reroutes itself; that's the loop's edge over a chain. If it doesn't reroute, your stop condition is too loose.) ③ Count the laps it took to reach the final reply and find one lap that could have been skipped. (Hint: a lap whose observation already contained the answer means your exit valve was late — the task-complete test was written too loosely.)"
+     "zh": "找一个支持工具调用的对话产品（没有就把三个工具写进提示让模型「假装调用」），给模型配查订单、查退款政策、写回复草稿三个工具，让它处理一条退单申请，然后回答：① 它第一次采样出什么申请？顺序和你预想一致吗？（提示：模型挑工具靠描述里的触发词——第 30 天的指令设计。）② 故意查一个不存在的订单号，它下一圈做了什么？（提示：报错也是观察——钉回窗口它自己改道；没改道就是停止条件太松。）③ 数数它跑了几圈，找出可省的一圈。（提示：观察已带答案还继续跑，是出口阀门写晚了。）",
+     "en": "In a chat product with tool calls (or write three tools into the prompt and let the model pretend), give it query-order, query-policy and draft-reply tools, and have it handle one refund request. Then answer: 1) What does it sample first — does the order match your expectation? (Hint: it picks tools by the trigger words in their descriptions — day 30.) 2) Query a nonexistent order number — what does it do next lap? (Hint: the error is also an observation — pinned back, it reroutes; if not, your stop condition is too loose.) 3) Count the laps and find one that could be skipped. (Hint: running on after the observation already answers means the exit valve was written too late.)"
     }
    },
    "takeaway": {
-    "zh": "Agent 循环＝第 16 天的生成循环＋每圈两步：工具申请交给执行器、观察钉回窗口；工具目录和停止条件都是你写的，圈数就是账单——20 条退单 54 圈，比单轮硬答省 23% token、87% 人工，错账 0 流出。",
+    "zh": "Agent 循环＝生成循环＋每圈两步：工具申请交给执行器、观察钉回窗口；工具目录和停止条件都是你写的，圈数就是账单——20 条退单 54 圈，比单轮硬答省 23% token、87% 人工，错账 0 流出。",
     "en": "Agent loop = day 16's generation loop + two steps per lap: hand the tool application to an executor, pin the observation back into the window. The tool catalog and stop conditions are yours to write, and laps are the bill — 20 refunds in 54 laps: 23% fewer tokens and 87% less human time than one giant prompt, with zero wrong amounts slipping out."
    },
    "anim": {
@@ -10939,7 +10939,8 @@
         "vcls": " materin-learn-viz__route-word--ok"
        }
       ],
-      "label": "循环纠显式失败（工具报错自己改道）；语义错它不知道自己错"
+      "label": "循环纠显式失败，语义错靠校验环拦、拦不住转人工",
+      "en": "The loop fixes explicit failures; semantic errors need the checkpoint"
      },
      {
       "routes": [
