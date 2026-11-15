@@ -10967,6 +10967,274 @@
      }
     ]
    }
+  },
+  {
+   "n": 51,
+   "stage": 3,
+   "week": 9,
+   "tpl": "strform",
+   "date": "2026-11-14",
+   "title": {
+    "zh": "策略段：给循环换语法",
+    "en": "The strategy segment: new grammar for the loop"
+   },
+   "subtitle": {
+    "zh": "阶段三第二课。第 30–38 天的五层装配不作废，只是在循环里重新排座：骨架和工具钉成 1.8k 前缀吃 1 折缓存，示例从教格式改成教出口，边界句从「不许做什么」改成「几圈内必须给交代」。同一个 54 圈的退单任务，座位排对每天省 131 美元——策略段是循环里唯一你写了就算数的代码。",
+    "en": "Stage 3, lesson two. Day 30–38's five-layer assembly isn't obsolete — it re-seats in the loop: skeleton and tool catalog pin into a 1.8k prefix riding the 1/10 cache, examples switch from teaching format to teaching exits, and boundary sentences change from 'never do X' to 'account within N laps'. For the same 54-lap refund run, the right seats save $131 a day — the strategy segment is the only code in the loop that counts just because you wrote it."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：五层换三席",
+      "en": "Mechanism: five layers, three seats"
+     },
+     "p": {
+      "zh": "循环里的窗口每圈都重装一遍，所以策略段的语法只有一条：按「变的频率」排座。第 38 天的五层拆开重新入座——角色、规则骨架、工具目录钉进前缀（变一次，缓存折扣清零，第 45 天的阶梯说了算）；示例坐中间席，任务从「教格式」换成「教路线」：一条示例演的不是输出长什么样，而是「看到什么观察就该出口」——第 26 天的上下文学习照常工作，只是学的对象从格式变成了决策；边界句坐守门席，语法跟着换：从「不许做什么」换成「几圈内必须给交代」（第 50 天的三个出口阀门，现在写进文本）。第五层格式锁最特殊：它整体搬出窗口——申请格式由受限解码钉（第 32 天），输出质量由校验环守（第 43 天），策略段里一行都不用写。于是五层变三席：固定的钉前缀、教路线的挂中间、要守的押尾部，每圈重读窗口时注意力顺着这条座次扫下去。",
+      "en": "The loop's window is rebuilt every lap, so the strategy segment has one grammar: seat by rate of change. Day 38's five layers split and re-seat — role, rule skeleton, and the tool catalog pin into the prefix (change them once and the cache discount zeroes out; day 45's ladder rules). Examples take the middle seat with a new job: instead of teaching format, they teach routes — one example shows not what the output looks like but which observation should trigger the exit; day 26's in-context learning works as always, only now it learns decisions instead of formats. Boundary sentences take the guard seat, grammar changed: from 'never do X' to 'account for yourself within N laps' (day 50's three exit valves, now written as text). The fifth layer, the format lock, is special: it moves out of the window entirely — the application format is pinned by constrained decoding (day 32), output quality is guarded by the validation loop (day 43), and the strategy segment writes none of it. Five layers become three seats: pin the fixed into the prefix, hang the route-teachers in the middle, hold the guarded at the tail — and every lap the window is re-read, attention sweeps down that seating order."
+     },
+     "deep": {
+      "zh": "为什么座位就是语法？因为循环把「每次调用」变成了「每圈调用」，窗口里任何一块内容的成本都乘上了圈数——同样 1.8k 的系统提示，单轮任务付 1 次，54 圈的任务付 54 次。这时候「写什么」和「放哪里」是同一道题：放在前缀里的每 1k 都在吃 1 折（第 45 天），放在前缀后面的每 1k 都在付全价。第 30 天说指令是注意力锚点，循环给这条原则加了一半价格标签：锚点不但要具体，还要坐对位置——同样的措辞，前缀里是资产，中间是租金。",
+      "en": "Why is seating the grammar? Because the loop turns 'per call' into 'per lap': every block in the window has its cost multiplied by the lap count — the same 1.8k system prompt is paid once in a single-shot task and 54 times in a 54-lap run. At that point 'what to write' and 'where to put it' are the same question: every 1k inside the prefix rides the 1/10 discount (day 45); every 1k after it pays full price. Day 30 said instructions are attention anchors; the loop adds a price tag to half of that principle: an anchor must be concrete AND seated right — the same wording is an asset in the prefix and rent in the middle."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：座位贵过措辞",
+      "en": "The math: seats cost more than wording"
+     },
+     "p": {
+      "zh": "接着第 50 天那单 20 条退单的任务算：系统提示 1.8k（骨架 1.2k＋路线示例 0.36k＋边界与出口 0.24k），输入价 3 美元/百万，54 圈。座位 A（三层全钉前缀，观察全在尾部）：每圈前缀等效 1.8k×1/10＝0.18k，54 圈合计 9.7k 等效——一次任务 0.029 美元，日均 500 次任务 14.6 美元。座位 B（观察拼在前缀前面，策略段被挤到后面——常见的错误接法）：缓存指纹从第 0 格就断，每圈付全价 1.8k，54 圈 97.2k——一次 0.29 美元，日均 145.8 美元。同一个模型、同一套措辞，一天差 131.2 美元，一年 4.8 万美元，全部付给「座位」。再算一遍措辞的手痒价：座位 A 下只改中间席一句示例的措辞，前缀指纹从那一格断起——按 1024 token 的块比对，1.8k 前缀按两块算，后面一块全价——单圈等效从 0.18k 涨到 1.08k，6 倍。分项对账：座位差 145.8−14.6＝131.2 美元/天；措辞差 1.08/0.18＝6 倍/圈；观察堆积 0.35k×54≈18.9k 归第 34 天的折叠管，不归座位管。",
+      "en": "Continue day 50's 20-refund run: system prompt 1.8k (skeleton 1.2k + route examples 0.36k + boundary/exit 0.24k), input at $3 per million tokens, 54 laps. Seat A (all three layers pinned in the prefix, observations at the tail): per lap the prefix costs 1.8k×1/10 = 0.18k equivalent; 54 laps ≈ 9.7k — $0.029 per run, $14.6 a day at 500 runs. Seat B (observation spliced in front of the prefix, strategy pushed behind — the common mis-wiring): the cache fingerprint breaks at token 0, every lap pays full 1.8k, 54 laps = 97.2k — $0.29 per run, $145.8 a day. Same model, same wording, $131.2 a day apart — $48k a year, all paid to the seats. Now the wording itch: in seat A, rewriting one example in the middle seat breaks the prefix fingerprint from that block — cache compares in 1024-token blocks, the 1.8k prefix counts as two, and the block after the edit reverts to full price — per-lap equivalent jumps 0.18k→1.08k, sixfold. Ledger check: seats 145.8−14.6 = $131.2/day; wording 1.08/0.18 = 6×/lap; observation pileup 0.35k×54 ≈ 18.9k belongs to day 34's folding, not to seating."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "同一份策略段的三种写法，跑同一个「查完订单就退款」的单圈任务：写法一「你要谨慎处理退款」（含糊授权，第 30 天：含糊是授权按均值交卷）——模型查完订单后多转一圈问「需要我继续吗」，2 圈收工；写法二「不要问用户，直接退款」（禁令式边界句）——遇到 2400 元的定制商品单它照退，语义错校验环才拦住；写法三「看到订单金额与政策无冲突的观察，一圈内出口；定制商品或金额超 5000，直接转人工并附冲突点」（路线式：观察→出口的映射表）——标准单 1 圈、冲突单 0 圈硬算直接转人工。三种写法的 token 账：写法一 2 圈 1.36k、写法二 1 圈但事后人工修 24 分钟、写法三 1 圈 0.68k 且 0 语义错。措辞差一倍的钱只是小头——出口映射表写没写，决定的是错账流出不流出。",
+       "en": "Three wordings of the same strategy segment on the same 'refund after order check' task. Wording 1, 'handle refunds carefully' (vague delegation — day 30: vagueness authorizes the mean): the model checks the order, then spends another lap asking 'shall I proceed?' — 2 laps. Wording 2, 'never ask, just refund' (prohibition-style boundary): on a 2,400-yuan custom item it refunds anyway — the semantic error surfaces only when the validation loop blocks it. Wording 3, 'if the observation shows no conflict between amount and policy, exit within one lap; for custom items or amounts over 5,000, escalate with the conflict attached' (route-style: an observation→exit map): standard cases 1 lap, conflicts escalate without a forced compute. Token ledger: wording 1 costs 2 laps/1.36k; wording 2 costs 1 lap but 24 human minutes of cleanup; wording 3 costs 1 lap/0.68k with zero semantic errors. The doubled tokens are the small loss — whether the exit map exists decides whether wrong refunds flow out."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：策略段是给模型写的散文",
+      "en": "Misconception: the strategy segment is prose for the model"
+     },
+     "p": {
+      "zh": "其一：「策略段越全越好」。反了——它是循环里唯一每圈都重读的文本，每加一句都向全窗口的注意力收一次租（第 6 天的稀释）：工具清单每加一条，申请写错的概率随之上浮（第 39 天：5 到 30 个工具掉 18 个点）；规则每长一句，中间席示例的权重就被摊薄一分。策略段的预算和批大小一样要标定：1.8k 不是起点是结论。其二：「写好了就不用再动」。策略段是三层座位的活文档：前缀席每月动一次（动一次付一次对拍），中间席每周回流线上错例改路线示例（第 42 天的回流，现在回流的对象是「该出口没出口」的圈），尾部席跟出口阀门一起调。三个月不改的策略段，守的还是第一个月的战场。其三：「措辞优化随时做」。座位错了，措辞优化是在给错账单打磨字句——先排座（钉前缀），再抠词（中间席一句一句改，改一次付 6 倍单圈的代价跑对拍）。顺序反了，每句优化都在给缓存放血。",
+      "en": "One: 'the fuller the strategy segment, the better.' Backwards — it's the only text re-read every lap, and every added sentence collects attention rent across the whole window (day 6's dilution): each tool added to the catalog raises the odds of a mis-applied call (day 39: 5→30 tools drops 18 points); each rule sentence thins the middle-seat examples. The segment's budget needs calibrating like a batch size: 1.8k isn't a starting point, it's a conclusion. Two: 'write it once and leave it.' The strategy segment is a living document across three seats: the prefix seat moves monthly (one move, one regression bill), the middle seat absorbs weekly online misses as new route examples (day 42's backflow — now backflowing 'laps that should have exited'), and the tail seat tunes with the exit valves. A segment untouched for three months guards month one's battlefield. Three: 'polish wording anytime.' With wrong seats, wording polish is calligraphing the wrong bill — seat first (pin the prefix), then words (one middle-seat sentence at a time, each edit costing 6× a single lap to A/B). Reversed, every optimization bleeds the cache."
+     },
+     "deep": {
+      "zh": "为什么说策略段是「你写了就算数的代码」？第 50 天说工具目录和停止条件都是外环里你写的代码——但那时代码长在 Python 里；策略段是代码搬进文本的第一站：出口映射表就是 if-else，几圈上限就是 while 条件，降级授权就是异常处理。区别只有一条：这段代码不是解释器逐行执行，是注意力逐 token 打分——所以它会「多半」执行而不是「必然」执行。这也解释了为什么第 43 天的校验环必须留在循环里：策略段写得再好也只是把语义错的概率压低，压不到零；概率性的代码需要一段确定性的代码兜底，这一对搭档就是 Agent 时代的「模型出候选、代码做验收」。",
+      "en": "Why is the strategy segment 'code that counts just because you wrote it'? Day 50 said the tool catalog and stop conditions are your code in the outer ring — but that code lived in Python; the strategy segment is code's first migration into text: the exit map is an if-else, the lap cap is a while condition, the escalation grant is exception handling. One difference: this code isn't executed line by line by an interpreter but scored token by token by attention — so it runs 'mostly', not 'always'. Which is exactly why day 43's validation loop must stay in the loop: however good the segment, it only lowers the odds of semantic errors, never to zero; probabilistic code needs deterministic code behind it — that pair is the agent era's 'model proposes, code disposes'."
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：明天，提示策略交付",
+      "en": "Extension: tomorrow, prompt strategy ships"
+     },
+     "p": {
+      "zh": "今天把五层重新排进了三席，明天（第 52 天「提示策略」）把整套东西写成正式交付物：三席合成一份策略段文档——菜单（工具目录与触发词，第 39 天）、边界句（数据钉成数据，第 41 天）、出口校验（几圈必须交代＋降级授权，第 46 天）——外加第 42 天的回归集：策略段每次改动先对拍、红了不合入。再往后第 55 天的编排课，会把今天的座位表接进工作流：多个循环接力时，前缀席跟着整条流水线吃缓存，尾部席的出口阀门变成熔断器的输入。今天的三席座位表，就是那两课的图纸。",
+      "en": "Today the five layers re-seated into three; tomorrow (day 52, 'prompt strategy') ships the whole thing as a formal deliverable: the three seats become one strategy-segment document — the menu (tool catalog and trigger words, day 39), boundary sentences (data pinned as data, day 41), and exit validation (account within N laps + escalation grants, day 46) — plus day 42's regression set: every strategy change runs the diff first, red means no merge. Further out, day 55's orchestration wires today's seating chart into the workflow: when loops relay, the prefix seat rides the cache across the whole pipeline, and the tail seat's exit valves become the circuit breaker's inputs. Today's three-seat chart is the blueprint for both lessons."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "把你昨天给退单任务写过的提示（或任何一段系统提示）按三席重排一遍，然后回答：① 角色和规则里有每周都在变的措辞吗？（提示：它坐错了席——挪去中间席，前缀才能钉住吃 1 折。）② 你的示例在教格式还是在教出口？（提示：把示例改成「看到什么观察就出口」的对照对——第 26 天的上下文学习会照抄路线。）③ 把系统提示挪到用户消息之后跑一次同题，数圈数。（提示：圈数变多或答案变差，就是座位在收租——第 45 天的指纹从第 0 格就断了。）",
+     "en": "Take the refund prompt you wrote yesterday (or any system prompt) and re-seat it into the three seats, then answer: 1) Is there weekly-changing wording inside your role and rules? (Hint: it's mis-seated — move it to the middle seat so the prefix can pin and ride the 1/10 cache.) 2) Do your examples teach format or exits? (Hint: rewrite them as observation→exit contrast pairs — day 26's in-context learning copies routes.) 3) Move the system prompt after the user message and rerun the same task; count the laps. (Hint: more laps or a worse answer means the seats are collecting rent — day 45's fingerprint broke at token 0.)"
+    }
+   },
+   "takeaway": {
+    "zh": "策略段＝五层换三席：骨架和工具钉前缀吃 1 折、示例改教出口、边界句改「几圈内交代」，格式锁搬出窗口交给受限解码和校验环。座位错一天多付 131 美元，措辞手痒一次单圈贵 6 倍——先排座，再抠词。",
+    "en": "Strategy segment = five layers re-seated into three: skeleton and tools pin into the 1/10-cached prefix, examples switch to teaching exits, boundary sentences demand an account within N laps, and the format lock leaves the window to constrained decoding and the validation loop. Wrong seats cost $131 a day; an itchy rewording costs 6× per lap — seat first, word later."
+   },
+   "anim": {
+    "tpl": "strform",
+    "hook": {
+     "zh": "五层不搬家，只换座位——坐对位置，每圈都在吃 1 折。",
+     "en": "The five layers don't move out — they re-seat. The right seats ride the 1/10 discount every lap."
+    },
+    "coverHook": {
+     "zh": "同一份策略段：坐对席省 131 美元/天",
+     "en": "Same segment, right seats: $131 a day"
+    },
+    "question": {
+     "zh": "同一个 54 圈退单任务，策略段怎么落座？",
+     "en": "The same 54-lap refund run — how does the strategy segment seat itself?"
+    },
+    "layers": [
+     {
+      "k": "spec",
+      "tagZh": "前缀席 · 骨架＋工具清单",
+      "tagEn": "Prefix seat · skeleton + tool catalog",
+      "capZh": "钉死不变 · 每圈吃 1 折缓存",
+      "capEn": "pinned unchanged · rides the 1/10 cache",
+      "noteZh": "措辞手痒一次，指纹从那一块断起",
+      "noteEn": "one itchy rewording breaks the fingerprint at that block",
+      "acc": 90
+     },
+     {
+      "k": "lock",
+      "tagZh": "守门席 · 边界与出口",
+      "tagEn": "Guard seat · boundary + exits",
+      "capZh": "几圈内必须交代 · 降级写授权",
+      "capEn": "account within N laps · grants for escalation",
+      "noteZh": "格式锁不在这——受限解码与校验环接管",
+      "noteEn": "the format lock isn't here — decoding + validation took it",
+      "acc": 100
+     },
+     {
+      "k": "example",
+      "tagZh": "中间席 · 路线示例",
+      "tagEn": "Middle seat · route examples",
+      "capZh": "教出口不教格式 · 演什么时候走人",
+      "capEn": "teach exits, not format · show when to walk",
+      "noteZh": "每周回流线上错例改写（第 42 天）",
+      "noteEn": "rewritten weekly from online misses (day 42)",
+      "acc": 95
+     }
+    ],
+    "mergeZh": "五层换三席：坐对席 14.6 美元/天 · 坐错席 145.8 美元/天",
+    "mergeEn": "Five layers, three seats: right seats $14.6/day · wrong seats $145.8/day",
+    "readoutZh": {
+     "spec": {
+      "num": "1/10",
+      "cap": "前缀席缓存折扣 · 每圈都吃"
+     },
+     "example": {
+      "num": "6×",
+      "cap": "措辞手痒 · 单圈等效暴涨"
+     },
+     "lock": {
+      "num": "131 美元",
+      "cap": "坐错席的日账单 · 一年 4.8 万"
+     }
+    },
+    "readoutEn": {
+     "spec": {
+      "num": "1/10",
+      "cap": "prefix cache discount · every lap"
+     },
+     "example": {
+      "num": "6×",
+      "cap": "one itchy rewording · per-lap equivalent"
+     },
+     "lock": {
+      "num": "$131",
+      "cap": "daily bill of wrong seats · $48k a year"
+     }
+    },
+    "note": {
+     "zh": "示意：54 圈退单任务（前缀 1.8k＝骨架 1.2k＋示例 0.36k＋边界 0.24k，输入价 3 美元/百万，日均 500 次）。座位 A 三层全钉前缀，每圈等效 0.18k；座位 B 观察拼在前缀前面，指纹从第 0 格断，每圈全价 1.8k——一天差 131.2 美元。中间席改一句措辞，缓存按 1024-token 块断一块，单圈等效 0.18k→1.08k。观察堆积 18.9k 归第 34 天折叠管，不归座位管。",
+     "en": "Illustrative: the 54-lap refund run (prefix 1.8k = skeleton 1.2k + examples 0.36k + boundary 0.24k; $3 per million tokens; 500 runs/day). Seat A pins all three layers into the prefix: 0.18k equivalent per lap. Seat B splices the observation in front of the prefix: the fingerprint breaks at token 0 and every lap pays full 1.8k — $131.2 a day apart. Rewriting one middle-seat sentence breaks one 1024-token block: 0.18k→1.08k per lap. The 18.9k observation pileup belongs to day 34's folding, not to seating."
+    },
+    "viz": [
+     {
+      "chips": [
+       {
+        "tag": "前缀席 · 骨架＋工具",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "中间席 · 路线示例",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "守门席 · 边界与出口",
+        "merged": true
+       }
+      ],
+      "label": "五层换三席：固定钉前缀、路线挂中间、守门押尾部"
+     },
+     {
+      "wide": true,
+      "bars": [
+       {
+        "tag": "座位 A · 三层钉前缀",
+        "val": 10,
+        "cls": "",
+        "txt": "0.18k 等效/圈 · 14.6 美元/天"
+       },
+       {
+        "tag": "座位 B · 观察拼在前",
+        "val": 100,
+        "cls": "",
+        "txt": "1.8k 全价/圈 · 145.8 美元/天"
+       },
+       {
+        "tag": "手痒一次 · 改中间一句",
+        "val": 60,
+        "cls": " materin-learn-viz__bar--en",
+        "txt": "指纹断一块 · 单圈 0.18k→1.08k"
+       }
+      ],
+      "label": "座位差 131.2 美元/天、一年 4.8 万——先排座，再抠词"
+     },
+     {
+      "routes": [
+       {
+        "tag": "「策略段越全越好」",
+        "cls": "",
+        "verdict": "✗ 每句都在收注意力租",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「写好就不用再动」",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✗ 三个月守旧战场",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「先抠词再排座」",
+        "cls": "",
+        "verdict": "✗ 顺序反了缓存放血",
+        "vcls": " materin-learn-viz__route-word--bad"
+       }
+      ],
+      "label": "它是每圈重读的代码：预算要标定，错账靠校验环兜底",
+      "en": "It's code re-read every lap: budget like a batch size, and let the checkpoint catch what it can't"
+     },
+     {
+      "routes": [
+       {
+        "tag": "第 52 天 · 提示策略",
+        "cls": "",
+        "verdict": "三席合成正式交付物",
+        "vcls": ""
+       },
+       {
+        "tag": "第 52 天 · 回归集",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✓ 改动先对拍红了不合",
+        "vcls": " materin-learn-viz__route-word--ok"
+       },
+       {
+        "tag": "第 55 天 · 编排",
+        "cls": "",
+        "verdict": "座位表接进工作流",
+        "vcls": ""
+       }
+      ],
+      "label": "阶段三第 2 课：策略段是代码搬进文本的第一站"
+     }
+    ]
+   }
   }
  ]
 }
