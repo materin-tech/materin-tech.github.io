@@ -11235,6 +11235,286 @@
      }
     ]
    }
+  },
+  {
+   "n": 52,
+   "stage": 3,
+   "week": 9,
+   "tpl": "recipe",
+   "date": "2026-11-15",
+   "title": {
+    "zh": "提示策略：能上线的文档",
+    "en": "Prompt strategy: a document that ships"
+   },
+   "subtitle": {
+    "zh": "阶段三第三课。把三席座位表写成一份正式交付物：前缀席 1.2k 骨架（角色＋规则＋工具菜单）、中间席 0.36k 路线示例、守门席 0.24k 边界与出口，外加一页版本头——指纹、回归集号、红线。改动先对拍：0.18 美元的闸门，拦 73 美元/天的缓存放血。策略段从「写过的提示」变成「可上线的文档」。",
+    "en": "Stage 3, lesson three. The three-seat chart becomes a formal deliverable: a 1.2k prefix-seat skeleton (role + rules + tool menu), 0.36k of route examples in the middle seat, 0.24k of boundary and exits in the guard seat — plus a version header: fingerprint, regression-set commit, red lines. Every change diffed first: an $0.18 gate that stops $73 a day of cache bleed. The strategy segment stops being 'a prompt you wrote' and becomes a document that ships."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：一页文档，三个区块加一道闸",
+      "en": "Mechanism: one page, three blocks, one gate"
+     },
+     "p": {
+      "zh": "把昨天的三席落成纸面结构，策略段文档只有四个区块。区块一「版本头」（约 0.1k，挤进前缀席）：三行元数据——前缀指纹（哈希前 8 位）、回归集 commit 号、验收红线（错标为零、丢条为零，第 47 天）——它自己是前缀的一部分，改动它同样断指纹，所以它每月只随冻层动一次。区块二「前缀席骨架」1.2k：角色（0.2k）、规则骨架（0.5k）、工具菜单（0.5k，第 39 天的触发词写法：描述里埋城市、日期、降水这类触发词，命中率 71%→96%）。区块三「中间席路线示例」0.36k：六条「看到什么观察就出口」的对照对（第 51 天），每周用线上错例回流改写（第 42 天）。区块四「守门席边界与出口」0.24k：边界句 0.12k（数据钉成数据，第 41 天）、出口校验 0.08k（几圈内必须给交代）、降级授权 0.04k（什么条件下准许转人工，第 46 天）。三席合计 1.8k，后面跟一道闸：改动先跑 200 条对拍（0.18 美元、5 分钟，第 42 天），红了不合入。",
+      "en": "Yesterday's three seats become paper: the strategy document has exactly four blocks. Block one, the 'version header' (~0.1k, inside the prefix seat): three lines of metadata — prefix fingerprint (first 8 hash chars), regression-set commit, and acceptance red lines (zero mislabels, zero dropped cases; day 47) — the header itself is part of the prefix, so touching it breaks the fingerprint too; it moves only with the monthly frozen-layer change. Block two, the 1.2k prefix-seat skeleton: role (0.2k), rule skeleton (0.5k), tool menu (0.5k, day 39's trigger-word style: descriptions embed words like city, date, precipitation — hit rate 71%→96%). Block three, the 0.36k middle-seat route examples: six observation→exit contrast pairs (day 51), rewritten weekly from online misses (day 42). Block four, the 0.24k guard seat: boundary sentences 0.12k (data pinned as data, day 41), exit validation 0.08k (account within N laps), escalation grants 0.04k (who may hand off to a human, day 46). Three seats total 1.8k, followed by one gate: every change runs the 200-case diff first ($0.18, 5 minutes; day 42) — red means no merge."
+     },
+     "deep": {
+      "zh": "为什么「文档」这个词是机制而不是修辞？因为前三十九天所有纪律都在等一个承载形式：座位表（第 51 天）需要有人审批「谁坐哪」；预算标定（1.8k 不是起点是结论）需要一次拍板而不是每次对话重新讨价还价；回归集（第 42 天）需要稳定的被测对象——你没法对拍「一段心情」，只能对拍一个有版本号的文本。文档就是那个有版本号、有指纹、有验收记录的被测对象。第 45 天承诺的「不变前缀＋变量尾槽的模板交付规范」，落点就是这里：区块边界即槽位边界——前缀席整体是缓存块，中间席是唯一每周合法变更的区块（代价明码：指纹断一块，单圈 0.18k→1.08k），守门席跟出口阀门（第 46 天）同步调。一份文档把散在九天里的纪律钉成一页纸。",
+      "en": "Why is 'document' a mechanism, not rhetoric? Because thirty-nine days of discipline have been waiting for a carrier: the seating chart (day 51) needs someone to approve who sits where; budget calibration (1.8k is a conclusion, not a starting point) needs one sign-off instead of re-negotiating every conversation; the regression set (day 42) needs a stable test subject — you cannot diff 'a vibe', only a text with a version number. The document is that versioned, fingerprinted, acceptance-logged subject. Day 45 promised a 'delivery spec for pinned-prefix + variable-tail templates'; this is where it lands: block boundaries are slot boundaries — the prefix seat is one cache block, the middle seat is the only block allowed to change weekly (at a posted price: one fingerprint block, 0.18k→1.08k per lap), and the guard seat tunes with the exit valves (day 46). One page pins nine days of discipline together."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：0.18 美元的闸门拦 73 美元的血",
+      "en": "The math: an $0.18 gate stops $73 of bleed"
+     },
+     "p": {
+      "zh": "先算文档的维护电费（沿用第 48 天的口径）：前缀席随冻层每月动一次，摊一次全链卷与对拍的份额约 6.5 美元/月；中间席每周回流错例改写，4 次对拍 0.72 美元/月；守门席随告警才动，0 token。合计约 7.2 美元/月——占第 48 天全系统 21.6 美元电费的三分之一，买的是 1.8k 策略段的「敢改」。再算它防的损失：版本头不存在时，一次手痒的措辞改动直接上线——按第 51 天的账，指纹断一块，单圈等效 0.18k→1.08k，多付 0.9k/圈；54 圈任务、日均 500 次，0.9k×54×500＝2,430 万 token/天，3 美元/百万——73 美元/天，一年约 2.7 万美元，全烧在一句没对拍的句子上。闸门账：0.18 美元×月均 5 次改动＝0.9 美元/月，86 美元/年，对 2.7 万美元/年——1:310。最后分项对账：电费 6.5＋0.72＋0＝7.22 美元/月；放血 0.9k×54×500×3 美元/百万＝72.9 美元/天；闸门 0.18×5＝0.9 美元/月——三笔账口径一致，数字能互相咬合。",
+      "en": "First the document's maintenance bill (day 48's accounting): the prefix seat moves with the monthly frozen-layer change, its share of the full-chain run plus diff ≈ $6.5/month; the middle seat absorbs weekly miss rewrites, 4 diffs = $0.72/month; the guard seat moves only on alerts, 0 tokens. Total ≈ $7.2/month — one third of day 48's $21.6 system bill, buying the right to keep editing the 1.8k segment. Now what it prevents: without a version header, one itchy wording change ships directly — by day 51's ledger, one fingerprint block breaks, per-lap equivalent 0.18k→1.08k, an extra 0.9k per lap; on the 54-lap task at 500 runs a day, 0.9k×54×500 = 24.3M tokens a day at $3 per million — $73 a day, about $27k a year, all burned by one un-diffed sentence. The gate's bill: $0.18 × 5 changes a month = $0.9/month, $86 a year, against $27k a year — 1:310. Ledger check: maintenance 6.5 + 0.72 + 0 = $7.22/month; bleed 0.9k×54×500×$3/M = $72.9/day; gate 0.18×5 = $0.9/month — three books, one set of units, all interlocking."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "同一次改动在两种流程下的完整轨迹。改动内容：中间席第 3 条路线示例，把「看到金额与政策无冲突就出口」改写成「金额 ≤5000 且政策库命中就出口」（更准，但也多了 6 个 token）。流程甲（有文档）：① 改完跑 200 条对拍——解析 100%、语义错 0、圈数均值 2.68 对 2.70，绿灯；② 更新版本头：指纹 a3f2→b7c1，回归集 commit 不变，红线不动；③ 合入，缓存 24 小时内自然重钉，当圈起按新指纹计费——多付的 6 个 token 换到 0.3 个误出口的下降。全程 5 分钟、0.18 美元。流程乙（无文档）：同一改动直接贴进线上系统提示——当月第 3 次措辞微调，没人记得第 1 次把「不冲突就出口」改成了「谨慎评估后出口」，圈数悄悄涨到 3.1；月底账单多出 400 美元，归因查不到——三个版本没有指纹，200 条对拍没有对象，谁也说不清是哪一句改坏的。文档省的不是 token，是「能归因」这件事本身。",
+       "en": "The same change under two processes. The change: middle-seat route example 3, 'exit when amount conflicts with no policy' rewritten as 'exit when amount ≤5,000 and the policy DB hits' (more precise, but six tokens longer). Process A (documented): 1) run the 200-case diff — parse 100%, semantic errors 0, mean laps 2.68 vs 2.70, green; 2) update the version header: fingerprint a3f2→b7c1, regression commit unchanged, red lines untouched; 3) merge — the cache re-pins naturally within a day, billing at the new fingerprint from the next lap; six extra tokens buy a 0.3-drop in missed exits. Total: 5 minutes, $0.18. Process B (undocumented): the same change pasted straight into the live system prompt — the third wording tweak this month; nobody remembers that tweak one changed 'exit when no conflict' into 'assess carefully first', and mean laps quietly rose to 3.1; the month-end bill is $400 higher with no attribution — three versions with no fingerprints, a regression set with no subject, nobody able to name the sentence that broke it. The document doesn't save tokens; it saves the very possibility of attribution."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：策略段是写完就完的草稿",
+      "en": "Misconception: the strategy segment is a finished draft"
+     },
+     "p": {
+      "zh": "其一：「文档就是写得全」。反了——四个区块各有预算，超出预算的区块不是更安全是更贵：菜单每加一个工具，命中率随干扰项下滑（第 39 天：5 到 30 个掉 18 个点）；规则每长一句，中间席示例的权重被摊薄（第 6 天的稀释）。文档的完整性指「每个区块都在」：没有版本头的文档不配上线，没有降级授权的守门席是把第 46 天的三支失败处理退回给运气。其二：「上线后就不用管了」。守门席的边界句钉的是上个月的注入手法（第 41 天），中间席的路线示例教的是上个月的出口——三个月不动的文档守的是第一个月的战场；会呼吸（第 48 天）要求冻层月更、中间席周回流、守门席随告警，文档的四个区块就是这三根时间线的具名承载。其三：「对拍是研究员的事」。对拍是合入条件，不是研究动作：0.18 美元、5 分钟、200 条——把它写进版本头的红线里，谁改谁跑，没有例外。跳过闸门的每一次「就改一句」，都是 73 美元/天的潜在放血。",
+      "en": "One: 'a document means writing everything down.' Backwards — each block has a budget, and a block over budget is not safer but costlier: every tool added to the menu drags the hit rate down (day 39: 5→30 tools drops 18 points); every extra rule sentence thins the middle-seat examples (day 6's dilution). 'Complete' means every block exists: a document without a version header has no business shipping, and a guard seat without escalation grants hands day 46's three failure paths back to luck. Two: 'once shipped, leave it alone.' The guard seat's boundary sentences pin last month's injection tricks (day 41); the middle seat's route examples teach last month's exits — a document untouched for three months guards month one's battlefield. Breathing (day 48) means frozen-layer monthly, middle-seat weekly backflow, guard-seat on alert — the four blocks are the named carriers of those three timelines. Three: 'diffing is for researchers.' The diff is a merge condition, not research: $0.18, 5 minutes, 200 cases — write it into the version header's red lines; whoever changes, runs; no exceptions. Every 'just one sentence' that skips the gate is potential $73-a-day bleed."
+     },
+     "deep": {
+      "zh": "为什么交付物形态本身决定行为？没有文档时，「改提示」是一个动作——动作不需要审批、不需要记录、不需要验收，改完贴上去就结束了；有文档时，「改提示」是一次变更——变更自带三问（第 48 天：钉住什么、多久动一次、动了走哪条验收），三问都有区块和闸门接着。软件工程花三十年学会的正是这一步：代码不是写完就上线，是过了版本控制和回归测试才配上线——策略段在 Agent 系统里的地位就是代码，所以它需要代码的一切配套。第 50 天说「策略段是代码搬进文本的第一站」，今天补全下半句：版本头是它的 commit，回归集是它的 CI，红线是它的 lint——三者齐了，文本才真正取得了代码的法律地位。",
+      "en": "Why does the deliverable's form determine behavior? Without a document, 'changing the prompt' is an act — acts need no approval, no record, no acceptance; paste and done. With a document, 'changing the prompt' is a change — changes carry the three questions (day 48: what is pinned, how often it moves, which acceptance it walks), and each question has a block and a gate waiting. Software engineering spent thirty years learning exactly this: code doesn't ship when written, it ships after version control and regression tests — and the strategy segment holds code's position in an agent system, so it needs code's full apparatus. Day 50 said 'the strategy segment is code's first migration into text'; today completes the sentence: the version header is its commit, the regression set its CI, the red lines its lint — with all three, text finally earns code's legal standing."
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：文档之后，把它接进流水线",
+      "en": "Extension: after the document, wire it in"
+     },
+     "p": {
+      "zh": "今天把策略段从「写过的提示」升级成「可上线、可归因、可维护的文档」。明天（第 53 天「上线清单」）把这份文档放进发布流程：上线前过四道闸——形状（批处理，第 44 天）、价格（缓存指纹，第 45 天）、缺陷（校验环，第 43 天）、残局（降级路径，第 46 天）——外加文档自己那道对拍闸，五闸全绿才放行；再带上回滚预案：指纹回退到上一版，窗口行为当天复原。后天第 54 天讲清单的失灵模式：哪道闸最常被绕过、为什么。再往后第 55 天的编排课把多份策略段接成接力：每个循环带自己的文档，前缀席沿流水线共享缓存，版本头里多一行「上游指纹」——上游一变，下游闸门自动亮红灯。今天的一页纸，是那张流水线图的第一个零件。",
+      "en": "Today the strategy segment graduated from 'a prompt you wrote' to 'a document that ships, attributes, and stays maintained'. Tomorrow (day 53, 'the go-live checklist') puts this document into the release flow: before shipping, four gates — shape (batching, day 44), price (cache fingerprint, day 45), defects (validation loop, day 43), leftovers (escalation paths, day 46) — plus the document's own diff gate; five green lights or no go. With a rollback plan: revert the fingerprint one version and the window's behavior resets the same day. Day 54 then covers how checklists fail: which gate gets bypassed most, and why. Further out, day 55's orchestration wires multiple strategy documents into a relay: each loop carries its own document, prefix seats share cache along the pipeline, and version headers gain one line — 'upstream fingerprint' — so an upstream change lights every downstream gate red. Today's one-pager is the first part in that pipeline diagram."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "把你昨天排好三席的策略段写成四区块文档，然后逐项自检：① 版本头三行齐了吗——指纹、回归集 commit、红线各是什么？（提示：红线必须能判 0/1，写「答得好」等于没写——第 47 天的验收红线是「错标为零、丢条为零」。）② 四个区块的预算各是多少，加起来对得上 1.8k 吗？（提示：1.2＋0.36＋0.24；哪个区块超了就从它砍——菜单先砍最泛的描述，第 39 天 71% 那版就是照妖镜。）③ 给下一次改动预演闸门：这一句改动该跑哪 200 条、判分尺是什么？（提示：回归集对象=版本头里的 commit 号——对拍对象不存在，闸门就是空的。）",
+     "en": "Write yesterday's three-seat segment as a four-block document, then self-audit: 1) Are the version header's three lines all there — fingerprint, regression commit, red lines? (Hint: red lines must be decidable 0/1; 'answers well' equals unwritten — day 47's red lines are 'zero mislabels, zero dropped cases'.) 2) What is each block's budget, and do they sum to 1.8k? (Hint: 1.2 + 0.36 + 0.24; whichever block is over, cut from it — the menu sheds its vaguest descriptions first; day 39's 71% version is the mirror.) 3) Rehearse the gate for your next change: which 200 cases, what scoring rule? (Hint: the diff's subject = the commit in your version header — no subject, no gate.)"
+    }
+   },
+   "takeaway": {
+    "zh": "策略段交付物＝四区块：版本头（指纹＋回归集号＋红线）、前缀席 1.2k（角色＋规则＋菜单）、中间席 0.36k（路线示例）、守门席 0.24k（边界＋出口＋降级），外加一道 0.18 美元对拍闸。电费 7.2 美元/月，防的是 73 美元/天的缓存放血——1:310。文档不是写全，是每个区块都在、每笔改动都有闸。",
+    "en": "The strategy deliverable = four blocks: a version header (fingerprint + regression commit + red lines), a 1.2k prefix seat (role + rules + menu), a 0.36k middle seat (route examples), a 0.24k guard seat (boundary + exits + escalation), plus one $0.18 diff gate. $7.2 a month of upkeep against $73 a day of cache bleed — 1:310. 'Complete' means every block exists and every change passes a gate."
+   },
+   "anim": {
+    "tpl": "recipe",
+    "hook": {
+     "zh": "策略段不是写完的草稿，是带着指纹、回归集号和红线的文档——改之前先过 0.18 美元的闸。",
+     "en": "The strategy segment isn't a finished draft — it's a document with a fingerprint, a regression commit, and red lines; pass the $0.18 gate before you touch it."
+    },
+    "coverHook": {
+     "zh": "0.18 美元的对拍闸，拦 73 美元/天的缓存放血",
+     "en": "An $0.18 gate stops $73 a day of cache bleed"
+    },
+    "note": {
+     "zh": "示意：1.8k 策略段文档的区块预算（1 格＝0.1k）——前缀席 12 格（角色 0.2k＋规则 0.5k＋菜单 0.5k＋版本头 0.1k）、中间席 4 格（六条路线示例）、守门席 2 格（边界句＋出口＋降级授权）。改动电费 7.2 美元/月，闸门拦下的是未对拍改动的 73 美元/天（0.9k×54 圈×500 次×3 美元/百万）。",
+     "en": "Illustrative: block budgets of the 1.8k strategy document (1 cell = 0.1k) — prefix seat 12 cells (role 0.2k + rules 0.5k + menu 0.5k + version header 0.1k), middle seat 4 cells (six route examples), guard seat 2 cells (boundary + exits + escalation grants). Upkeep $7.2/month; the gate stops the $73/day an un-diffed change bleeds (0.9k×54 laps×500 runs×$3/M)."
+    },
+    "rows": [
+     {
+      "k": "pin",
+      "tagZh": "前缀席 · 1.2k",
+      "tagEn": "Prefix · 1.2k",
+      "cells": [
+       {
+        "k": "pin",
+        "n": 12
+       }
+      ],
+      "outZh": "钉死 · 每月一动",
+      "outEn": "pinned · moves monthly"
+     },
+     {
+      "k": "live",
+      "tagZh": "中间席 · 0.36k",
+      "tagEn": "Middle · 0.36k",
+      "cells": [
+       {
+        "k": "live",
+        "n": 4
+       }
+      ],
+      "outZh": "周回流 · 断 1 格指纹",
+      "outEn": "weekly backflow · 1 block"
+     },
+     {
+      "k": "guard",
+      "tagZh": "守门席 · 0.24k",
+      "tagEn": "Guard · 0.24k",
+      "cells": [
+       {
+        "k": "guard",
+        "n": 2
+       }
+      ],
+      "outZh": "随告警动 · 0 token",
+      "outEn": "on alert · 0 tokens"
+     }
+    ],
+    "readoutZh": {
+     "recipes": {
+      "num": "4 区块",
+      "cap": "版本头＋三席"
+     },
+     "budget": {
+      "num": "1.8k",
+      "cap": "预算 · 不是起点是结论"
+     },
+     "shape": {
+      "num": "1:310",
+      "cap": "0.9 美元/月闸门 · 对 2.7 万/年放血"
+     }
+    },
+    "readoutEn": {
+     "recipes": {
+      "num": "4 blocks",
+      "cap": "header + three seats"
+     },
+     "budget": {
+      "num": "1.8k",
+      "cap": "budget · a conclusion, not a start"
+     },
+     "shape": {
+      "num": "1:310",
+      "cap": "$0.9/mo gate · vs $27k/yr bleed"
+     }
+    },
+    "viz": [
+     {
+      "chips": [
+       {
+        "tag": "版本头 · 指纹＋红线",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "菜单 0.5k",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "路线示例 0.36k",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "对拍闸 0.18 美元",
+        "merged": true
+       }
+      ],
+      "label": "四个区块一道闸：版本头、前缀席、中间席、守门席，改动先对拍"
+     },
+     {
+      "wide": true,
+      "bars": [
+       {
+        "tag": "文档电费 · 冻层份额",
+        "val": 90,
+        "cls": "",
+        "txt": "6.5 美元/月 · 每月一次配方级改动"
+       },
+       {
+        "tag": "中间席回流 · 4 次对拍",
+        "val": 10,
+        "cls": "",
+        "txt": "0.72 美元/月 · 每周错例改写"
+       },
+       {
+        "tag": "未对拍改动放血",
+        "val": 100,
+        "cls": " materin-learn-viz__bar--en",
+        "txt": "72.9 美元/天 · 一年约 2.7 万"
+       }
+      ],
+      "label": "电费 7.2 美元/月 对 2.7 万美元/年——1:310，先过闸，再合入"
+     },
+     {
+      "routes": [
+       {
+        "tag": "「文档就是写得全」",
+        "cls": "",
+        "verdict": "✗ 每区块各有预算",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「上线后就不用管」",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✗ 三根时间线要动",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「对拍是研究员的事」",
+        "cls": "",
+        "verdict": "✗ 它是合入条件",
+        "vcls": " materin-learn-viz__route-word--bad"
+       }
+      ],
+      "label": "版本头是 commit，回归集是 CI，红线是 lint——齐了才配叫代码",
+      "en": "Version header = commit, regression set = CI, red lines = lint — all three, or it isn't code"
+     },
+     {
+      "routes": [
+       {
+        "tag": "第 53 天 · 上线清单",
+        "cls": "",
+        "verdict": "五道闸全绿才放行",
+        "vcls": ""
+       },
+       {
+        "tag": "第 54 天 · 闸的失灵",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "哪道最常被绕过",
+        "vcls": ""
+       },
+       {
+        "tag": "第 55 天 · 编排",
+        "cls": "",
+        "verdict": "上游指纹一变下游亮红",
+        "vcls": " materin-learn-viz__route-word--ok"
+       }
+      ],
+      "label": "阶段三第 3 课：一页可归因的文档，是流水线的第一个零件",
+      "en": "Stage 3, lesson 3: one attributable page — the first part of the pipeline"
+     }
+    ]
+   }
   }
  ]
 }

@@ -3735,6 +3735,10 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-recipe__cell--code { --recipe-c: var(--materin-secondary); }
 .materin-learn-recipe__cell--zh { --recipe-c: var(--materin-ok); }
 .materin-learn-recipe__cell--math { --recipe-c: var(--materin-warn); }
+/* 第 52 天策略段交付物：区块语义色——钉(品牌蓝) / 活(青绿) / 守(琥珀) */
+.materin-learn-recipe__cell--pin { --recipe-c: var(--materin-accent); }
+.materin-learn-recipe__cell--live { --recipe-c: var(--materin-ok); }
+.materin-learn-recipe__cell--guard { --recipe-c: var(--materin-warn); }
 
 .materin-learn-recipe__out {
   flex: 0 0 158px;
