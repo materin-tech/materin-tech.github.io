@@ -4801,6 +4801,12 @@ a.materin-learn-map__stage-p:hover { color: var(--materin-text); text-decoration
 .materin-learn-chain__row--gather.is-in { border-color: var(--materin-border-strong); }
 .materin-learn-chain__row--outline.is-in { border-color: var(--materin-secondary-border); }
 .materin-learn-chain__row--write.is-in { border-color: var(--materin-accent-border); }
+/* 第 53 天上线清单：五道闸语义色——形状(强边) 价格(次色) 缺陷(琥珀) 残局(次色边) 文档(品牌蓝) */
+.materin-learn-chain__row--shape.is-in { border-color: var(--materin-border-strong); }
+.materin-learn-chain__row--price.is-in { border-color: var(--materin-secondary-border); }
+.materin-learn-chain__row--defect.is-in { border-color: var(--materin-warn); }
+.materin-learn-chain__row--residue.is-in { border-color: var(--materin-secondary-border); }
+.materin-learn-chain__row--doc.is-in { border-color: var(--materin-accent-border); }
 
 .materin-learn-chain__head {
   display: flex;

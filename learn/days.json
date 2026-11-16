@@ -11515,6 +11515,332 @@
      }
     ]
    }
+  },
+  {
+   "n": 53,
+   "stage": 3,
+   "week": 9,
+   "tpl": "chain",
+   "date": "2026-11-16",
+   "title": {
+    "zh": "上线清单：五道闸才放行",
+    "en": "Ship checklist: five gates to green"
+   },
+   "subtitle": {
+    "zh": "阶段三第四课。把 50 天的循环、51 天的座位、52 天的文档装进一张五闸清单：形状（能批先批）、价格（指纹对上）、缺陷（红灯清零）、残局（演练在位）、文档（对拍 0.18 美元）。全绿放行，一红退回对应层——清单 50 分钟/月，拦下 84.2 美元/天起的绕闸损失。",
+    "en": "Stage 3, lesson four. The loop (day 50), the seats (day 51) and the document (day 52) go into one five-gate checklist: shape (batch what batches), price (fingerprint matches), defects (zero red lights), wreckage (drill in place), document (the $0.18 eval gate). All green ships; one red returns the change to its layer — 50 minutes a month against $84+/day of skipped-gate bleed."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：五道闸，一道红就退回",
+      "en": "Mechanism: five gates, one red sends it back"
+     },
+     "p": {
+      "zh": "一份改动要上线，先过五道闸，顺序从便宜到贵。闸一「形状」（第 44 天）：这条流量能批吗——请求独立可并行就走批处理（2000 条从 50 分钟压到 100 秒），有依赖才进循环；判据是拓扑判断，设计时一次定。闸二「价格」（第 45 天）：版本头指纹与线上一致吗——前缀席钉死、措辞没手痒，单圈等效 0.18k 不涨成 1.08k；判据是指纹比对，发布前跑一次。闸三「缺陷」（第 43 天）：200 条对拍红灯清零——schema 全过、语义错 0、错标为零丢条为零（第 47 天红线）；判据是对拍报告，0.18 美元。闸四「残局」（第 46 天）：降级路径在位——白名单、退避加抖动、转人工授权，故障演练通过；判据是演练记录。闸五「文档」（第 52 天）：版本头三行齐、四区块预算对账 1.8k。任何一道红，改动退回对应层——不修，不「先上再说」。",
+      "en": "A change ships only after five gates, ordered from cheap to expensive. Gate 1 'shape' (day 44): can this traffic batch? Independent requests go to batch processing (2,000 items from 50 minutes to 100 seconds); dependent flows stay in the loop. The check is topological, decided once at design time. Gate 2 'price' (day 45): does the version-header fingerprint match production — prefix seat pinned, no wording itch, per-lap equivalent stays 0.18k instead of swelling to 1.08k; the check is a fingerprint diff, run once before release. Gate 3 'defects' (day 43): a 200-item eval with zero red lights — schema clean, zero semantic errors, zero mislabels and zero drops (day 47's red line); the check is the eval report, $0.18. Gate 4 'wreckage' (day 46): fallback paths in place — whitelist, backoff with jitter, human-escalation authorization, drill passed; the check is the drill record. Gate 5 'document' (day 52): version header's three lines complete, four blocks sum to 1.8k. Any red gate returns the change to its layer — no fix-and-ship-anyway."
+     },
+     "deep": {
+      "zh": "为什么闸按这个顺序排？因为越靠后的闸越贵、越靠前的闸省得越多：形状闸改的是架构（一次决定，长期省 4.7 美元/天），价格闸改的是座位（一次核对），缺陷闸跑的是对拍（0.18 美元），残局闸要的是演练（建在没有故障的日子），文档闸守的是现金（73 美元/天）。顺序错了会出现「过了五道闸才发现该走批处理」的返工——先用最便宜的判断砍掉最大的分支，再用最贵的检查守住最后的现金，这是发布流程里的裁剪树：每道闸都是一次分叉，红掉的路越早剪越好。第 48 天的三问（钉住什么、多久动一次、走哪条验收）在今天就变成五个具名 job。",
+      "en": "Why this order? Later gates cost more; earlier gates save more: the shape gate changes architecture (one decision, $4.7/day saved long-term), the price gate checks seats (one diff), the defect gate runs the eval ($0.18), the wreckage gate demands drills (built on days without failures), the document gate guards cash ($73/day). Wrong order means discovering after five gates that the flow should have batched — the cheapest judgment cuts the biggest branch first, the most expensive check guards the last cash: a pruning tree for releases, where every gate is a fork and a red path is pruned as early as possible. Day 48's three questions (what's pinned, how often it moves, which acceptance it passes) become five named jobs today."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：清单 50 分钟，拦 3.1 万美元/年",
+      "en": "The math: 50 minutes of checklist vs $31k a year"
+     },
+     "p": {
+      "zh": "先算清单本身的成本：月均 5 次改动 × 每次 10 分钟（对拍 5 分钟 0.18 美元＋四项核对各 1 分钟）＝50 分钟/月、0.9 美元/月，年化约 10.8 美元。再算它拦的账（美元口径，逐项来自各自那天的算法）：绕形状闸，能批的逐条跑——包装费多付 1552k token/天＝4.7 美元/天（第 44 天）；绕价格闸，座位或措辞错排——6.5 美元/天，一年 2,373 美元（第 45 天）；绕文档闸，一句没对拍的改动上线——0.9k/圈 × 54 圈 × 500 次 × 3 美元/百万＝73 美元/天，一年约 2.7 万美元（第 52 天）。美元口径合计 84.2 美元/天，年约 3.1 万美元。缺陷闸和残局闸的账不在美元里：绕缺陷闸每天 42 分钟返工（第 46 天），绕残局闸批处理吞吐归零。杠杆：10.8 美元/年 对 3.1 万美元/年，约 1:2800——五道闸是这条路线里最便宜的一笔保险。",
+      "en": "First the checklist's own cost: about 5 changes a month × 10 minutes each (5-minute eval at $0.18 plus four 1-minute checks) = 50 minutes and $0.9 a month, about $10.8 a year. Now what it stops (dollar terms, each item from its own day's math): skip shape and run batchable items one by one — packaging overhead of 1,552k extra tokens a day = $4.7/day (day 44); skip price and seats or wording misarranged — $6.5/day, $2,373 a year (day 45); skip document and one un-eval'd change ships — 0.9k × 54 laps × 500 runs × $3/M = $73/day, about $27k a year (day 52). Dollars total $84.2/day, about $31k a year. The defect and wreckage gates bill in minutes and throughput: skip defects, 42 minutes of rework a day (day 46); skip wreckage, batch throughput goes to zero. Leverage: $10.8 a year against $31k — roughly 1:2800, the cheapest insurance on this route."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "同一次改动过五闸的完整记录。改动：中间席第 3 条路线示例改写（第 52 天流程甲的那次）。闸一形状：这是策略段文档改动，不是新流量——批处理拓扑不变，绿灯 1 分钟。闸二价格：改的是中间席，前缀席指纹断 1 格——版本头已更新到 b7c1，单圈等效 0.18k→1.08k 只发生在缓存重钉的 24 小时内，账面可接受，绿灯 2 分钟。闸三缺陷：200 条对拍——解析 100%、语义错 0、圈数均值 2.68 对 2.70，错标 0 丢条 0，绿灯 5 分钟（这 5 分钟就是第 52 天的闸门本身）。闸四残局：降级授权不变、白名单不动，本季演练记录在案，绿灯 1 分钟。闸五文档：版本头三行齐、四区块 1.2＋0.36＋0.24＝1.8k 对账无误，绿灯 1 分钟。总耗时 10 分钟、0.18 美元——对照第 52 天流程乙的无文档直上：当月第 3 次措辞改动，指纹没核过一次、对拍没跑过一次，73 美元/天的血从第一句就开始放。",
+       "en": "One change's full five-gate record. The change: rewriting route example 3 in the middle seat (day 52's flow A). Shape: a strategy-document edit, not new traffic — batch topology unchanged, green in 1 minute. Price: a middle-seat edit breaks one fingerprint block — header already bumped to b7c1; the 0.18k→1.08k per-lap equivalent lasts only the 24h cache re-pin, acceptable on paper, green in 2 minutes. Defects: 200-item eval — parsing 100%, zero semantic errors, lap mean 2.68 vs 2.70, zero mislabels and zero drops, green in 5 minutes (these 5 minutes are day 52's gate itself). Wreckage: escalation authorization unchanged, whitelist untouched, this quarter's drill on file, green in 1 minute. Document: header's three lines complete, four blocks 1.2+0.36+0.24=1.8k reconciled, green in 1 minute. Total: 10 minutes, $0.18 — against day 52's flow B: the month's third wording change, no fingerprint ever checked, no eval ever run, $73/day bleeding from the first sentence."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：清单是给工程师看的表格",
+      "en": "Misconception: the checklist is a form for engineers"
+     },
+     "p": {
+      "zh": "其一：「清单是走形式，勾完就行」。反了——五道闸每道接的是系统不是人眼：缺陷闸是校验环代码（第 43 天），价格闸是指纹比对，文档闸是回归集对拍，人只负责看红灯亮不亮。勾了但没跑闸＝第 52 天流程乙：73 美元/天照放。其二：「赶 deadline，跳两道明天补」。闸的时间成本是分钟级（最贵的一道 5 分钟 0.18 美元），绕闸的返工是小时级——42 分钟/天起，而且错数据进了库就收不回；「先上再说」借的不是时间，是年化 3.1 万美元的高利贷。其三：「清单定一次就不用改」。判据跟着路线升级：今天的判据全部来自第 43/44/45/46/52 天的账，明天第 54 天就会看到哪道闸最常被绕过（残局闸——没有故障日就没人演练）、为什么、怎么把绕过变成数据。",
+      "en": "One: 'a checklist is ceremony — tick the boxes.' Backwards — every gate wires into a system, not human eyes: the defect gate is validation code (day 43), the price gate is a fingerprint diff, the document gate is the regression eval; people only read whether the light is red. Ticking without running the gate = day 52's flow B: $73/day keeps bleeding. Two: 'deadline tonight, skip two gates, patch tomorrow.' Gate time is minutes (the priciest is 5 minutes and $0.18); skipped-gate rework is hours — 42 minutes/day and up, and bad data in the store cannot be recalled. 'Ship first' isn't borrowing time; it's a $31k-a-year loan at street rates. Three: 'define the checklist once.' Criteria upgrade with the route: today's all come from days 43/44/45/46/52; tomorrow (day 54) shows which gate gets skipped most (wreckage — nobody drills on days without failures) and how to turn skips into data."
+     },
+     "deep": {
+      "zh": "为什么清单必须是「闸」而不是「提醒」？航空业花了四十年把 checklist 从纸进化成结构：「拿不到绿灯，引擎点不着火」——流程从记忆搬到结构里，绕过从「忘了吗」变成「做不到」。软件的对应物就是 CI：五个 job，红一个 merge 按钮就是灰的，没有人能「记得跑一下」。第 50 天说模型在圈里自己转，第 52 天说文档取得代码的法律地位，今天的下半句是：发布取得航空 checklist 的结构地位——五道闸不是贴在墙上的纸，是焊在流水线上的阀门。提醒依赖自觉，闸门依赖结构。",
+      "en": "Why must the checklist be gates, not reminders? Aviation spent forty years evolving the checklist from paper to structure: 'no green light, no engine start' — the process moved from memory into machinery, and skipping changed from 'did you forget?' to 'you can't.' Software's equivalent is CI: five jobs, one red and the merge button grays out; nobody can 'remember to run it.' Day 50 said the model spins in its own loop; day 52 said the document earns code's legal status; today's second half: the release earns the aviation checklist's structural status — five gates are not paper on a wall, they are valves welded into the pipeline. Reminders rely on discipline; gates rely on structure."
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：闸也会失灵——明天讲哪道最常被绕过",
+      "en": "What's next: gates fail too — which one gets skipped"
+     },
+     "p": {
+      "zh": "今天把 50 天的循环、51 天的座位、52 天的文档装进一张清单：五道闸，全绿放行，一红退回对应层。明天（第 54 天）讲清单的失灵模式：残局闸为什么最常被绕过（它查验的是「还没发生的故障」，没有故障日就没人跑）、报警疲劳怎么让红灯失去权威、怎么给每道闸装计数器让「绕过」变成数据。第 55 天编排课把清单推广到接力：多份策略段前后相接，闸从五道变 N＋2——每个循环自己的五道，加上游指纹闸和下游一致性闸；上游一变，下游闸门自动亮红。第 85 天的 RAG 也会回到这张清单：「搜知识库」这个工具上线前，同样要过形状、价格、缺陷、残局、文档五道——清单不是阶段三的终点站，是此后每个新零件的通用验关口。",
+      "en": "Today the loop (day 50), the seats (day 51) and the document (day 52) fit into one checklist: five gates, all green to ship, one red returns the change. Tomorrow (day 54) covers how checklists fail: why the wreckage gate is skipped most (it verifies failures that have not happened yet — nobody runs it on a calm day), how alert fatigue strips red lights of authority, and how gate counters turn skips into data. Day 55's orchestration extends the checklist to relays: multiple strategy segments in sequence, gates go from five to N+2 — each loop's own five, plus an upstream-fingerprint gate and a downstream-consistency gate; upstream moves, downstream lights red automatically. Day 85's RAG returns here too: the 'search the knowledge base' tool passes the same five gates before it ships. The checklist isn't stage 3's terminus — it is the customs office every new part crosses for the rest of the route."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "把你昨天的策略段文档配一张五闸清单，逐项预演：① 每道闸的判据能判 0/1 吗？（提示：「检查缓存」不是判据，「指纹 b7c1 与线上一致且单圈等效 ≤1.08k」才是——判据取自第 44/45/43/46/52 天的账。）② 五道里哪道今天就能跑、哪道还得建？（提示：文档闸与缺陷闸有对拍就齐了；残局闸要白名单和演练记录——失败路径要在没故障的日子建成，第 46 天。）③ 算你的绕闸账：跳过价格闸，单圈等效涨多少、一天多少钱？（提示：用第 45 天的座位账——措辞手痒一次，阶梯塌一层，2,373 美元/年始于一次「先上再说」。）",
+     "en": "Write a five-gate checklist for yesterday's strategy document and dry-run it: 1) Can each gate's criterion judge 0/1? (Hint: 'check the cache' isn't one; 'fingerprint b7c1 matches production and per-lap equivalent ≤1.08k' is — pull numbers from days 44/45/43/46/52.) 2) Which gates can run today, which need building? (Hint: document and defect gates are ready with the eval; the wreckage gate needs whitelist and drill records — failure paths are built on calm days, day 46.) 3) Compute your skip bill: skip the price gate — how much does the per-lap equivalent rise, and what does a day cost? (Hint: day 45's seat math — one wording itch collapses one tier; $2,373/year started with one 'ship it anyway.')"
+    }
+   },
+   "takeaway": {
+    "zh": "上线清单＝五道闸：形状（能批先批）、价格（指纹对上）、缺陷（红灯清零）、残局（演练在位）、文档（0.18 美元对拍）。全绿放行，一红退回对应层。绕闸损失 84.2 美元/天起，清单 50 分钟/月——不是提醒，是闸。",
+    "en": "The ship checklist = five gates: shape (batch what batches), price (fingerprint matches), defects (zero red lights), wreckage (drill in place), document (the $0.18 eval). All green ships; one red returns the change to its layer. Skipped-gate bleed starts at $84.2/day; the checklist costs 50 minutes a month — not a reminder, a gate."
+   },
+   "anim": {
+    "tpl": "chain",
+    "hook": {
+     "zh": "上线不是按钮，是闸门——五道全绿才放行",
+     "en": "Shipping isn't a button, it's gates — five greens to pass"
+    },
+    "coverHook": {
+     "zh": "五道闸 10 分钟，拦 84 美元/天的绕闸放血",
+     "en": "Five gates, 10 minutes, against $84+/day of skipped-gate bleed"
+    },
+    "question": {
+     "zh": "这份改动，凭什么上线？",
+     "en": "What earns this change a release?"
+    },
+    "steps": [
+     {
+      "k": "shape",
+      "tagZh": "闸一 · 形状",
+      "tagEn": "Gate 1 · shape",
+      "capZh": "能批先批——拓扑判断，设计时定（第 44 天）",
+      "capEn": "batch what batches — topological, set at design (day 44)",
+      "inZh": "2000 条分诊流",
+      "inEn": "2,000 triage items",
+      "outZh": "63 批 · 快 30 倍",
+      "outEn": "63 batches · 30× faster",
+      "tok": "绕过：+4.7 美元/天"
+     },
+     {
+      "k": "price",
+      "tagZh": "闸二 · 价格",
+      "tagEn": "Gate 2 · price",
+      "capZh": "指纹对上——1 折才保住（第 45 天）",
+      "capEn": "fingerprint matches — the discount survives (day 45)",
+      "inZh": "版本头指纹 b7c1",
+      "inEn": "header fingerprint b7c1",
+      "outZh": "缓存命中 · 单圈 0.18k",
+      "outEn": "cache hit · 0.18k per lap",
+      "tok": "绕过：+6.5 美元/天"
+     },
+     {
+      "k": "defect",
+      "tagZh": "闸三 · 缺陷",
+      "tagEn": "Gate 3 · defects",
+      "capZh": "校验环红灯清零才出门（第 43 天）",
+      "capEn": "validation clears before it leaves (day 43)",
+      "inZh": "200 条对拍",
+      "inEn": "200-item eval",
+      "outZh": "错标 0 · 丢条 0",
+      "outEn": "0 mislabels · 0 drops",
+      "tok": "绕过：42 分钟/天返工"
+     },
+     {
+      "k": "residue",
+      "tagZh": "闸四 · 残局",
+      "tagEn": "Gate 4 · wreckage",
+      "capZh": "白名单与演练在位（第 46 天）",
+      "capEn": "whitelist and drill in place (day 46)",
+      "inZh": "故障演练 · 19 条残余",
+      "inEn": "drill · 19 stragglers",
+      "outZh": "人工 3 分钟/条 · 错标 0",
+      "outEn": "3 min each · 0 mislabels",
+      "tok": "绕过：吞吐归零"
+     },
+     {
+      "k": "doc",
+      "tagZh": "闸五 · 文档",
+      "tagEn": "Gate 5 · document",
+      "capZh": "版本头三行齐 · 预算对上 1.8k（第 52 天）",
+      "capEn": "header complete · budget sums to 1.8k (day 52)",
+      "inZh": "策略段四区块",
+      "inEn": "four strategy blocks",
+      "outZh": "0.18 美元对拍 · 绿灯",
+      "outEn": "$0.18 eval · green",
+      "tok": "绕过：73 美元/天放血"
+     }
+    ],
+    "retry": {
+     "failZh": "✗ 赶工想跳闸——先上再说",
+     "failEn": "✗ deadline pressure — ship it anyway",
+     "okZh": "✓ 闸门红灯：退回对应层返工",
+     "okEn": "✓ red gate: return the change to its layer"
+    },
+    "mergeZh": "五道闸 · 月均 5 次 × 10 分钟 + 0.9 美元——拦 84.2 美元/天起的绕闸损失",
+    "mergeEn": "Five gates · ~5 runs × 10 min + $0.9 a month — against $84.2+/day of bleed",
+    "readoutZh": [
+     {
+      "num": "5 道",
+      "cap": "闸 · 一红即退回"
+     },
+     {
+      "num": "10 分钟",
+      "cap": "单次清单 · 对拍 0.18 美元"
+     },
+     {
+      "num": "1:2800",
+      "cap": "10.8 美元/年 · 拦 3.1 万美元绕闸损失"
+     }
+    ],
+    "readoutEn": [
+     {
+      "num": "5",
+      "cap": "gates · one red returns"
+     },
+     {
+      "num": "10 min",
+      "cap": "per checklist · $0.18 eval"
+     },
+     {
+      "num": "1:2800",
+      "cap": "$10.8/yr vs $31k skipped-gate bleed"
+     }
+    ],
+    "note": {
+     "zh": "示意：上线清单按发布顺序逐闸亮灯（第 i 闸在 i×1.7 秒落位）；判据全部来自第 44/45/43/46/52 天各自的账——任何一道红，改动退回对应层，不修不硬上。",
+     "en": "Illustrative: gates light up in release order (gate i lands at i×1.7s); every criterion comes from days 44/45/43/46/52's own math — one red returns the change to its layer."
+    },
+    "viz": [
+     {
+      "chips": [
+       {
+        "tag": "形状闸 · 能批先批",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "价格闸 · 指纹对上",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "缺陷闸 · 红灯清零",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "残局闸 · 演练在位",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "文档闸 · 0.18 美元对拍",
+        "alt": false
+       },
+       {
+        "tag": "全绿才放行",
+        "merged": true
+       }
+      ],
+      "label": "五道闸从便宜到贵排闸序——一道红，退回对应层",
+      "en": "Five gates, cheap to dear — one red returns the change to its layer"
+     },
+     {
+      "bars": [
+       {
+        "tag": "绕文档闸",
+        "val": 100,
+        "cls": "",
+        "txt": "73 美元/天 · 一句没对拍的句子"
+       },
+       {
+        "tag": "绕价格闸",
+        "val": 9,
+        "cls": "",
+        "txt": "6.5 美元/天 · 座位或措辞错排"
+       },
+       {
+        "tag": "绕形状闸",
+        "val": 6,
+        "cls": "",
+        "txt": "4.7 美元/天 · 能批的逐条跑"
+       }
+      ],
+      "label": "绕闸 84.2 美元/天——缺陷与残局按分钟计",
+      "en": "$84.2/day skipped-gate bleed — defects and wreckage bill in minutes"
+     },
+     {
+      "routes": [
+       {
+        "tag": "「清单是走形式」",
+        "cls": "",
+        "verdict": "✗ 闸接系统非人眼",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「赶工跳两道」",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✗ 返工 42 分钟/天",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「定一次就不用改」",
+        "cls": "",
+        "verdict": "✗ 判据跟着账升级",
+        "vcls": " materin-learn-viz__route-word--bad"
+       }
+      ],
+      "label": "清单的价值在不可绕过——勾了没跑闸等于没清单",
+      "en": "A checklist's worth is that it can't be skipped — ticks without gates are nothing"
+     },
+     {
+      "routes": [
+       {
+        "tag": "第 54 天 · 闸的失灵",
+        "cls": "",
+        "verdict": "残局闸最常被绕过",
+        "vcls": ""
+       },
+       {
+        "tag": "第 55 天 · 编排接力",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "闸变 N+2 · 上游亮红",
+        "vcls": ""
+       },
+       {
+        "tag": "第 85 天 · RAG",
+        "cls": "",
+        "verdict": "新零件同过五闸",
+        "vcls": " materin-learn-viz__route-word--ok"
+       }
+      ],
+      "label": "阶段三第 4 课：零件齐了，后面讲它们怎么坏",
+      "en": "Stage 3, lesson 4: the parts are ready — next, how they fail"
+     }
+    ]
+   }
   }
  ]
 }
