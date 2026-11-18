@@ -11841,6 +11841,285 @@
      }
     ]
    }
+  },
+  {
+   "n": 54,
+   "stage": 3,
+   "week": 9,
+   "tpl": "strform",
+   "date": "2026-11-17",
+   "title": {
+    "zh": "闸的失灵：没度量就烂掉",
+    "en": "When gates rot: no metric, no gate"
+   },
+   "subtitle": {
+    "zh": "阶段三第五课。清单装好了不等于闸还在：残局闸查验的是还没发生的故障，上月 5 次改动被跳过 3 次；120 条红灯/天全推给人，4 周后抽验率只剩 9%。处方两味——红灯分级（绿自愈、黄人工、红停线）＋给每道闸装计数器：跳过必须写理由，理由写不出来，闸就自己跑了。",
+    "en": "Stage 3, lesson five. Installing the checklist doesn't mean the gates still work: the wreckage gate checks failures that haven't happened yet — skipped 3 of last month's 5 changes; push all 120 daily red lights to a human and sampling drops to 9% within four weeks. Two cures — triage the lights (green self-heals, yellow to humans, red stops the line) and give every gate a counter: a skip demands a written reason, and if you can't write one, the gate runs itself."
+   },
+   "sections": [
+    {
+     "h": {
+      "zh": "机制：闸怎么会静默死掉",
+      "en": "Mechanism: how gates die quietly"
+     },
+     "p": {
+      "zh": "闸不会一夜报废，它按三种模式烂掉，每种都能在今天的数据里对号。模式一「没人跑」：残局闸查验的是还没发生的故障——白名单、退避、转人工授权都是给「最坏那天」准备的，而最坏那天没来，闸就永远不用跑；上月 5 次改动里它被跳过 3 次，绕过率 60%，是五道闸里最高的。模式二「跑了没人看」：校验环每天亮 120 条红灯，其中 101 条带清单重试自愈（第 43 天的 84%）、19 条进人工队列——把 120 条全推给一个人，第一周他逐条看，第四周只剩 9% 的抽验率（120 条里看 11 条）：红灯还是红灯，只是没了权威。模式三「看了没记录」：绕闸这个动作不进任何系统，跳过只发生在当事人的记忆里——你问「上个月为什么没跑残局闸」，答案是一句「忘了」，没有数据能反驳它。三种模式共享一个根源：闸没有度量。第 42 天说提示漂移是静默的、要靠回归集钉住；闸的漂移同样静默，却没有人给闸装回归集。",
+      "en": "Gates don't break overnight — they rot in three patterns, each visible in today's numbers. Pattern one, 'nobody runs it': the wreckage gate verifies failures that haven't happened yet — whitelist, backoff, escalation grants are all built for the worst day, and the worst day never came, so the gate never runs; last month it was skipped on 3 of 5 changes, a 60% skip rate, the highest of the five. Pattern two, 'runs but nobody looks': the validation loop lights 120 red lights a day — 101 self-heal with a checklist retry (day 43's 84%) and 19 go to the human queue; push all 120 to one person and week one he reads every light, but by week four only 9% get sampled (11 of 120): the lights are still lights, just stripped of authority. Pattern three, 'looked but unrecorded': a skipped gate leaves no trace in any system — it lives in the person's memory, and 'I forgot' is an answer no dataset can rebut. All three share one root: the gate has no metric. Day 42 said prompt drift is silent and needs a regression suite; gate drift is just as silent, and nobody built the gate one."
+     },
+     "deep": {
+      "zh": "为什么红灯会失去权威？因为信号的价值等于「响的时候真有事」的频率。第 43 天故意把红灯设计成响个不停——120 条/天是校验环在勤快工作，101 条自愈根本不需要人；把「机器的自愈通知」和「需要人的判决」混进同一个收件箱，人脑会用统计方式适应：响 120 次、99 次无事，第 121 次响时手已经不在键盘上。这就是报警疲劳的机制本质——不是人不负责，是信号没有分级。分级就是把「响」拆成三种语义：绿（自愈完成，只进周报，人零介入）、黄（进人工队列，第 46 天的 19 条，每条带机器可读的错误类型）、红（红线被破，立即停线——错标为零丢条为零那类，一年响不了几次，响一次就必须有人抬头）。分级之后，人眼日均只看 19 条黄和 0 条红——红灯重新变贵，权威回来了。",
+      "en": "Why do red lights lose authority? Because a signal is worth exactly how often 'it rings, and it matters.' Day 43 designed the red light to ring constantly — 120 a day is the validator doing its job, and 101 of them need no human at all; mix machine self-heal notices with verdicts that need a person in one inbox, and the human brain adapts statistically: it rings 120 times, 99 mean nothing, and on ring 121 the hand is already off the keyboard. That's the mechanism of alert fatigue — not irresponsibility, but ungraded signals. Grading splits 'ringing' into three semantics: green (self-healed, weekly report only, zero human touch), yellow (to the human queue — day 46's 19 items, each with a machine-readable error type), red (a red line broken, stop the line now — the zero-mislabel zero-drop class; it rings a few times a year, and when it does someone must look up). Graded, a human reads 19 yellows and 0 reds a day — red lights get expensive again, and authority returns."
+     }
+    },
+    {
+     "h": {
+      "zh": "算一笔账：9% 的抽验率漏掉什么",
+      "en": "The math: what 9% sampling misses"
+     },
+     "p": {
+      "zh": "分两笔，一笔在窗口内、一笔在窗口外。窗口内（缺陷闸疲劳）：120 条红灯里自愈失败的 19 条全部进人工——第 43 天的账，这条防线本身没坏；坏的是抽验：第四周人只看 11/120，2 条「重试也没修好」的真红灯从指缝漏过，2 条错标上路，每条下游返工 3 分钟——这只是单件账；若漏的是批内串位（第 47 天的 3% 串位率），2 批整批错标、64 条坏数据进库，返工 190 分钟起步。窗口外（残局闸绕过）：跳过的 3 次里只要 1 次赶上故障日——429 无退避时限流 40 次/天、限流窗口连续满格，批处理从 100 秒退回 50 分钟（第 46 天的账），2000 条卡在队列里，下游全等。合起来：两种失灵各漏一次的期望代价，就超过清单全年的成本（10.8 美元，第 53 天）——而计数器的成本是每天一行日志。分项对账：疲劳漏看 2 条×3 分钟＝6 分钟＋坏数据风险；绕残局闸 1 次＝吞吐 30 倍塌方；计数器＝1 行日志×5 道闸×5 次改动/月——三笔口径一致。",
+      "en": "Two bills, one inside the window and one outside. Inside (defect-gate fatigue): the 19 lights that fail self-heal all reach the human queue — day 43's defense itself is fine; what breaks is sampling: in week four only 11 of 120 get read, and 2 true reds that retry couldn't fix slip through — 2 mislabels ship, 3 minutes of downstream rework each. That's the single-item bill; miss a batch skew (day 47's 3% skew rate) and 2 whole batches mislabel, 64 bad rows enter the store, 190 minutes of rework and up. Outside (wreckage-gate skips): if just 1 of the 3 skipped changes lands on a failure day — 429s without backoff mean 40 rate-limit hits a day, the limit window stays saturated, and batch processing falls from 100 seconds back to 50 minutes (day 46's math), 2,000 items stuck in the queue, everything downstream waiting. Together: the expected cost of one miss on each pattern exceeds the checklist's entire annual cost (0.8, day 53) — while a counter costs one log line a day. Itemized: fatigue miss = 2 × 3 minutes plus bad-data risk; wreckage skip = a 30× throughput collapse; counters = 1 log line × 5 gates × 5 changes a month — the books reconcile."
+     },
+     "example": {
+      "h": {
+       "zh": "实例",
+       "en": "Worked example"
+      },
+      "p": {
+       "zh": "同一条分诊线的两个月对比。十月（无分级、无计数器）：120 条红灯/天全进一个收件箱，第一周逐条看，第四周抽验 11 条；残局闸月内跳过 3 次，其中 1 次赶上批量高峰日，429 连环、批次从 100 秒拖到 47 分钟，当天下午人工催单 6 次。十一月（分级＋计数器）：绿灯 101 条静默自愈只进周报，黄 19 条进队列（3 分钟/条，57 分钟，与第 46 天同账），红 0 条；五道闸各带三列计数——跑了几次、跳过几次、谁批的：形状 5/0，价格 5/0，缺陷 5/0，残局 2/3（跳过必写理由，三条理由分别是「改动只碰文案」「高峰没窗口」「下月补演」——「下月补演」这条在月审时被打回，演练补跑，版本头多一行「演练记录：11-08」），文档 5/0。同一张清单，没有加一道新闸，只是让每一次跳过都留下了一个必须签字的空格。",
+       "en": "Two months of the same triage line. October (no grading, no counters): 120 red lights a day land in one inbox — week one every light read, week four 11 sampled; the wreckage gate skipped 3 times, once on a peak day: 429s in a chain, batches drag from 100 seconds to 47 minutes, six manual chase-ups that afternoon. November (graded + counted): green 101 self-heals silently into the weekly report, yellow 19 to the queue (3 minutes each, 57 minutes — day 46's own math), red 0; each of the five gates carries a three-column counter — runs, skips, approver: shape 5/0, price 5/0, defects 5/0, wreckage 2/3 (every skip needs a written reason; the three read 'wording only', 'no window at peak', and 'drill next month' — the last got bounced at monthly review, the drill was run, and the version header gained a line: 'drill record: Nov 8'), document 5/0. Same checklist, no new gate added — just a signature line that every skip must fill."
+      }
+     }
+    },
+    {
+     "h": {
+      "zh": "误区：闸装好了就永远在",
+      "en": "Misconception: installed means working"
+     },
+     "p": {
+      "zh": "其一：「我们上次跑过全链对拍，闸是好的」。上次跑只证明上次跑过——第 42 天说提示漂移是静默的，闸的漂移一样：代码重构把校验环挪了个位置、新人接手不知道演练在哪跑、白名单跟着业务长大没人复审，每一件都不报错。闸的健康度要靠计数器持续读数，不是靠一次上线验收终身有效——第 47 天说验收过了就一劳永逸是错觉，对闸来说同样成立。其二：「计数器是管理层要的报表」。反了——计数器首先是写给改动人自己的：跳过残局闸前必须写下理由，而「写不出理由」这个动作本身就把 60% 的绕过拦住了（十一月实例里三条理由被打回一条）；报表是副产品，闸门自检才是目的。其三：「红灯分级会把警报关掉」。分级不是关报警，是把「响」重新对准语义——绿响归机器，黄响归队列，红响必须停线；被关掉的只是那 101 条根本不需要人的自愈通知。分级之后红灯从 120 条/天变成 0 条/天，但每一条红都真的红。",
+      "en": "One: 'we ran the full-line eval last month — the gates are healthy.' Last month only proves last month: day 42 said prompt drift is silent, and gate drift is too — a refactor moves the validator, a newcomer doesn't know where drills run, the whitelist grows with the business and nobody re-audits; none of it throws an error. Gate health needs counters reading continuously, not a one-time launch acceptance valid for life — day 47 called 'accepted once, safe forever' an illusion; for gates it's the same illusion. Two: 'counters are a management report.' Backwards — counters are written for the person making the change: skipping the wreckage gate demands a written reason, and 'can't write one' blocks 60% of the skips by itself (November's example bounced one of three reasons); the report is a by-product, the gate's self-check is the point. Three: 'grading turns alerts off.' Grading doesn't mute alarms — it re-aims 'ringing' at semantics: green rings go to machines, yellow rings to the queue, red rings stop the line; all that gets muted is the 101 self-heal notices no human ever needed. Graded, red lights go from 120 a day to 0 a day — and every red is truly red."
+     },
+     "deep": {
+      "zh": "为什么「写理由」比「不许跳」更有效？因为绕闸的决策成本被从 0 拉回到可见。行为设计里有个稳定的结论：摩擦最小的路径会被选择，不管它是不是正确的路径——跳闸原来只花一个念头，写理由要花三句话，而且第三句通常写不出来（「下月补演」在月审被问「哪一天」时就塌了）。这和第 52 天的版本头是同一个设计：版本头让「没写指纹」变得显眼，计数器让「没跑闸」变得显眼——两者都是把「不作为」从不可见变成一条必须填的空行。闸的最终形态不是最强的拦截，而是最诚实的账本：它不阻止你绕行，它只保证绕行留下签名。",
+      "en": "Why is 'write a reason' stronger than 'no skipping'? Because it pulls the cost of skipping from zero to visible. A stable finding from behavior design: the lowest-friction path gets chosen, right or wrong — skipping used to cost one thought, a written reason costs three sentences, and the third usually can't be written ('drill next month' collapses the moment monthly review asks 'which day'). This is day 52's version header by another name: the header makes a missing fingerprint visible, the counter makes an un-run gate visible — both turn 'not doing it' from invisible into a blank line someone must fill. A gate's final form isn't the strongest interception but the most honest ledger: it doesn't stop you from going around, it just guarantees going around leaves a signature."
+     }
+    },
+    {
+     "h": {
+      "zh": "延伸：闸要跟着流水线长大——明天，编排",
+      "en": "What's next: gates scale with the pipeline — tomorrow, orchestration"
+     },
+     "p": {
+      "zh": "今天的计数器解决了单条流水线上的失灵，但第 55 天的编排会把清单推到新的尺度：多个循环前后接力，每段带自己的五道闸，闸从五道变 N＋2——N 段各自的清单，加上游指纹闸（上段的版本头指纹进了下段的版本头，上游一变，下游全部亮红）和下游一致性闸（上段的出口 schema 是下段的输入约束）。计数器的思路直接平移：每段闸的三列计数进同一个表，任何一段的「跳过」在总表里无处可藏——接力把「没人看见的绕过」变成「N 段都看得见的绕过」。再往后：第 85 天的 RAG 上线前，「搜知识库」这个工具同样过形状、价格、缺陷、残局、文档五道，同样带计数器——第 53 天说清单是通用验关口，今天补全后半句：度量让它保持通用。阶段三还剩 30 天，清单、文档、循环、座位四个零件已经齐了，明天开始把它们接成流水线。",
+      "en": "Today's counters fix one pipeline, but day 55's orchestration pushes the checklist to a new scale: multiple loops in relay, each with its own five gates — five become N+2: each segment's checklist, plus an upstream-fingerprint gate (the upstream header's fingerprint lives in the downstream header; upstream moves, everything downstream lights red) and a downstream-consistency gate (the upstream exit schema is the downstream input constraint). The counter idea transfers directly: every segment's three-column counts land in one table, and no skip can hide — a relay turns 'the skip nobody saw' into 'the skip all N segments see.' Later: before day 85's RAG ships, the 'search the knowledge base' tool passes the same five gates and carries the same counters — day 53 called the checklist a universal customs office; today adds the second half: measurement keeps it universal. Stage 3 has 30 days left; the four parts — checklist, document, loop, seats — are complete, and tomorrow they start becoming a pipeline."
+     }
+    }
+   ],
+   "action": {
+    "h": {
+     "zh": "动手（15 分钟）",
+     "en": "Hands-on (15 min)"
+    },
+    "p": {
+     "zh": "给你昨天的五闸清单装上度量，然后做一次月审预演：① 给五道闸各画三列表（跑了几次、跳过几次、谁批的），填上你最近 5 次改动的真实记录——哪道闸的跳过率最高？（提示：八成是残局闸——它查验还没发生的故障，第 46 天的失败路径要在没故障的日子演练，没人给「没发生的日子」排期。）② 给校验环的红灯分三级：哪些该静默自愈只进周报、哪些进人工队列、哪些必须停线？数一数分级后你的人眼日均看几条。（提示：绿灯是第 43 天那 84% 的自愈，红线是第 47 天「错标为零丢条为零」——分级对了，日均人眼读数应该从 120 掉到 20 以内。）③ 给最高跳过率的闸写「跳过理由模板」，试着替上次真跳过的人填一遍——第三句写得出来吗？（提示：写不出来的理由就是闸在说话——「下月补演」缺一个日期，缺日期的承诺不算承诺。）",
+     "en": "Put metrics on yesterday's five-gate checklist, then run a dry monthly review: 1) Draw a three-column table for each gate (runs, skips, approver) and fill in your last 5 real changes — which gate has the highest skip rate? (Hint: probably wreckage — it verifies failures that haven't happened, and day 46's failure paths need drilling on days without failures; nobody schedules the day that never comes.) 2) Grade the validation loop's red lights: which self-heal silently into a weekly report, which go to the human queue, which must stop the line? Count how many a human reads per day after grading. (Hint: green is day 43's 84% self-heal, red is day 47's zero-mislabel zero-drop — graded right, your daily human reading drops from 120 to under 20.) 3) Write a skip-reason template for the highest-skip gate and fill it in for the last real skip — can you write the third sentence? (Hint: a reason that can't be written is the gate speaking — 'drill next month' lacks a date, and a promise without a date isn't one.)"
+    }
+   },
+   "takeaway": {
+    "zh": "闸会烂，三种模式：没人跑（残局闸 60% 被绕过）、跑了没人看（120 条红灯把抽验率磨到 9%）、看了没记录（「忘了」无账可查）。处方两味：红灯三级分色——绿自愈、黄人工、红停线，人眼日均从 120 条降到 20 条内；闸装计数器——跳过必写理由，写不出理由闸就自己跑了。闸也需要回归集。",
+    "en": "Gates rot three ways: nobody runs them (wreckage skipped 60%), runs but nobody looks (120 daily lights grind sampling to 9%), looked but unrecorded ('forgot' leaves no ledger). Two cures: grade the lights — green self-heals, yellow queues, red stops the line, human reading drops from 120 a day to under 20; give every gate a counter — a skip demands a written reason, and if you can't write one, the gate runs itself. Gates need a regression suite too."
+   },
+   "anim": {
+    "tpl": "strform",
+    "hook": {
+     "zh": "闸装好了不等于闸还在——没有度量的闸，会安静地烂掉。",
+     "en": "Installed isn't the same as alive — a gate without a metric rots quietly."
+    },
+    "question": {
+     "zh": "五道闸装了两个月，哪几道还在真跑？",
+     "en": "The five gates shipped two months ago — which ones still really run?"
+    },
+    "layers": [
+     {
+      "k": "spec",
+      "tagZh": "残局闸 · 没人跑",
+      "tagEn": "Wreckage · nobody runs it",
+      "capZh": "查验还没发生的故障 · 上月跳过 3/5 次",
+      "capEn": "checks failures that haven't happened · 3 of 5 skips last month",
+      "noteZh": "故障日没来，闸就永远不用跑",
+      "noteEn": "the worst day never came, so the gate never ran",
+      "acc": 60
+     },
+     {
+      "k": "example",
+      "tagZh": "红灯 · 跑了没人看",
+      "tagEn": "Red lights · run but unread",
+      "capZh": "120 条/天全推给人 · 4 周后抽验 9%",
+      "capEn": "120 a day to one human · 9% sampled by week four",
+      "noteZh": "101 条自愈通知淹掉 19 条真判决",
+      "noteEn": "101 self-heal notices drown 19 real verdicts",
+      "acc": 9
+     },
+     {
+      "k": "lock",
+      "tagZh": "计数器 · 看了有记录",
+      "tagEn": "Counters · looked and logged",
+      "capZh": "跑几次/跳几次/谁批 · 跳过必写理由",
+      "capEn": "runs / skips / approver · a skip demands a reason",
+      "noteZh": "理由写不出来，闸就自己跑了",
+      "noteEn": "if you can't write one, the gate runs itself",
+      "acc": 100
+     }
+    ],
+    "mergeZh": "三种失灵一个根源：闸没有度量——分级＋计数器之后，抽验 9%→100%，绕过 60%→0",
+    "mergeEn": "One root under all three: gates without metrics — graded and counted, sampling 9%→100%, skips 60%→0",
+    "readoutZh": {
+     "spec": {
+      "num": "60%",
+      "cap": "残局闸绕过率 · 上月 3/5 次改动"
+     },
+     "example": {
+      "num": "9%",
+      "cap": "红灯抽验率 · 全推给人 4 周后"
+     },
+     "lock": {
+      "num": "20 条",
+      "cap": "分级后人眼日均读数 · 120→20 内"
+     }
+    },
+    "readoutEn": {
+     "spec": {
+      "num": "60%",
+      "cap": "wreckage-gate skip rate · 3 of 5 changes last month"
+     },
+     "example": {
+      "num": "9%",
+      "cap": "light-sampling rate · 4 weeks after full push"
+     },
+     "lock": {
+      "num": "20",
+      "cap": "daily human reads after grading · 120→<20"
+     }
+    },
+    "note": {
+     "zh": "示意：三种失灵模式的量化（同一条 2000 条分诊线，第 43/46/47/53 天的账）。残局闸上月 5 次改动跳过 3 次＝60%；校验环红灯 120 条/天（101 自愈＋19 人工），全推给人第 4 周抽验 11/120＝9%；计数器三列（跑/跳/批）让每次跳过必须留下签字理由。分级后绿灯 101 条零介入、黄 19 条 57 分钟（第 46 天同账）、红 0 条。",
+     "en": "Illustrative: the three failure modes quantified (same 2,000-item triage line; days 43/46/47/53's math). Wreckage skipped 3 of 5 changes last month = 60%; the validator lights 120 red lights a day (101 self-heal + 19 queue), and full-push sampling is 11/120 = 9% by week four; the three-column counter (runs/skips/approver) makes every skip leave a signed reason. Graded: green 101 untouched, yellow 19 at 57 minutes (day 46's math), red 0."
+    },
+    "coverHook": {
+     "zh": "60% 的改动跳过了残局闸——没有度量，闸会安静烂掉",
+     "en": "60% of changes skipped the wreckage gate — unmeasured gates rot quietly"
+    },
+    "viz": [
+     {
+      "chips": [
+       {
+        "tag": "残局闸 · 没人跑",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "红灯 · 没人看",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "绕过 · 没记录",
+        "alt": false
+       },
+       {
+        "tag": "→",
+        "alt": true
+       },
+       {
+        "tag": "分级＋计数器",
+        "merged": true
+       }
+      ],
+      "label": "三种失灵一个根源：闸没有度量——度量让闸保持是闸",
+      "en": "One root under three failures: gates without metrics — metrics keep gates gates"
+     },
+     {
+      "wide": true,
+      "bars": [
+       {
+        "tag": "残局闸 · 被跳过",
+        "val": 60,
+        "cls": "",
+        "txt": "3/5 次改动 · 上月最高绕过率"
+       },
+       {
+        "tag": "红灯 · 抽验率",
+        "val": 9,
+        "cls": "",
+        "txt": "11/120 · 全推给人第 4 周"
+       },
+       {
+        "tag": "计数器 · 覆盖率",
+        "val": 100,
+        "cls": " materin-learn-viz__bar--en",
+        "txt": "5/5 道闸 · 每次跳过必写理由"
+       }
+      ],
+      "label": "两味药各管一半：分级救「没人看」，计数器救「没记录」",
+      "en": "Two cures, one each: grading saves 'nobody looks', counters save 'no record'"
+     },
+     {
+      "routes": [
+       {
+        "tag": "「上次跑过闸是好的」",
+        "cls": "",
+        "verdict": "✗ 闸的漂移也静默",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「计数器是报表」",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "✗ 先写给改动人自己",
+        "vcls": " materin-learn-viz__route-word--bad"
+       },
+       {
+        "tag": "「分级会关掉报警」",
+        "cls": "",
+        "verdict": "✗ 关掉的只是自愈通知",
+        "vcls": " materin-learn-viz__route-word--bad"
+       }
+      ],
+      "label": "闸的健康度要持续读数，不是一次验收终身有效",
+      "en": "Gate health needs continuous readings — one acceptance isn't lifetime validity"
+     },
+     {
+      "routes": [
+       {
+        "tag": "第 55 天 · 编排接力",
+        "cls": "",
+        "verdict": "闸变 N+2 · 总表无处藏",
+        "vcls": ""
+       },
+       {
+        "tag": "第 85 天 · RAG",
+        "cls": " materin-learn-viz__route-row--think",
+        "verdict": "搜库工具同过五闸",
+        "vcls": ""
+       },
+       {
+        "tag": "第 42 天 · 回归集",
+        "cls": "",
+        "verdict": "✓ 计数器是闸的回归集",
+        "vcls": " materin-learn-viz__route-word--ok"
+       }
+      ],
+      "label": "阶段三第 5 课：零件全部齐了——明天开始接线",
+      "en": "Stage 3, lesson 5: all parts complete — wiring starts tomorrow"
+     }
+    ]
+   }
   }
  ]
 }
