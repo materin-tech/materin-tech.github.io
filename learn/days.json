@@ -11927,8 +11927,8 @@
     }
    },
    "takeaway": {
-    "zh": "闸会烂，三种模式：没人跑（残局闸 60% 被绕过）、跑了没人看（120 条红灯把抽验率磨到 9%）、看了没记录（「忘了」无账可查）。处方两味：红灯三级分色——绿自愈、黄人工、红停线，人眼日均从 120 条降到 20 条内；闸装计数器——跳过必写理由，写不出理由闸就自己跑了。闸也需要回归集。",
-    "en": "Gates rot three ways: nobody runs them (wreckage skipped 60%), runs but nobody looks (120 daily lights grind sampling to 9%), looked but unrecorded ('forgot' leaves no ledger). Two cures: grade the lights — green self-heals, yellow queues, red stops the line, human reading drops from 120 a day to under 20; give every gate a counter — a skip demands a written reason, and if you can't write one, the gate runs itself. Gates need a regression suite too."
+    "zh": "闸会烂：没人跑、没人看、没记录。处方两味——红灯分三级（绿自愈、黄人工、红停线），人眼日读从 120 降到 20 内；每道闸装计数器，跳过必写理由。",
+    "en": "Gates rot three ways: nobody runs them, nobody looks, nobody records. Grade the lights — green self-heals, yellow queues, red stops the line; give every gate a counter — a skip demands a written reason."
    },
    "anim": {
     "tpl": "strform",
