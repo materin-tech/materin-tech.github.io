@@ -12421,6 +12421,298 @@
           }
         ]
       }
+    },
+    {
+      "n": 56,
+      "stage": 3,
+      "week": 9,
+      "tpl": "bench",
+      "date": "2026-11-19",
+      "title": {
+        "zh": "流水线观测：三个数盯一条线",
+        "en": "Pipeline observability: three numbers, one line"
+      },
+      "subtitle": {
+        "zh": "阶段三第七课。给流水线装仪表：闸计数按段分组（月审）、红灯分级跨段统一（日清）、熔断跳闸留时间线（即读）。全线只盯三个数——停线、人工分钟、日账单；观测读日志不跑模型，0 token 电费。同一条线，无总表月健康分 52，总表当月 98——分差全在「当天知道」。",
+        "en": "Stage 3, lesson seven. Instrument the pipeline: gate counters grouped by segment (monthly), graded lights unified across segments (daily), breaker trips as timelines (immediate). The whole line watches three vitals — stops, human minutes, daily bill; observability reads logs and runs no model, at 0 tokens. Same line: health 52 the month without the table, 98 the month with it — the gap is 'known the same day'."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：三张表，三种节奏",
+            "en": "Mechanism: three tables, three rhythms"
+          },
+          "p": {
+            "zh": "观测不是一块大屏，是三张各带读数节奏的表，全部由已有零件的输出汇成——不新增任何模型调用。表一「闸计数总表」：第 54 天的三列计数按段汇总，行＝段×闸（3 段×7 道闸），列＝跑/跳/批，月审节奏——它回答「每道闸还在不在岗」。表二「红灯分级总表」：第 54 天的绿黄红三级跨段统一——绿 101 条自愈只进周报、黄 19 条进人工队列（57 分钟预算）、红必须停线，日清节奏——它回答「质量今天在不在漂」，且每段的红不会被别段的绿淹没。表三「熔断时间线」：第 46 天的守门人每跳一次闸记四元组——哪段、第几次红灯、切降级时刻、恢复时刻，即读节奏——它回答「故障长什么样、多久能好」。三种节奏刻意错开：月审的别天天看（报警疲劳，第 54 天），日清的别攒进月报（漂移是时间函数，第 42 天），跳闸的别等任何报告（止损以分钟计）。",
+            "en": "Observability isn't one big screen — it's three tables, each with its own reading rhythm, all assembled from parts you already have, with zero new model calls. Table one, the gate-counter table: day 54's three-column counts grouped by segment, rows = segment × gate (3 segments × 7 gates), columns = runs/skips/approver, read monthly — it answers 'is every gate still on duty.' Table two, the graded-lights table: day 54's green/yellow/red unified across segments — green, 101 self-heals, weekly report only; yellow, 19 items to the human queue (57-minute budget); red must stop the line, read daily — it answers 'is quality drifting today,' and no segment's red gets drowned by another's green. Table three, the breaker timeline: day 46's gatekeeper logs a four-tuple on every trip — which segment, which consecutive red, the degrade moment, the recovery moment, read immediately — it answers 'what do failures look like and how long they take to heal.' The three rhythms are deliberately staggered: monthly items shouldn't be watched daily (alert fatigue, day 54), daily items shouldn't wait for the monthly report (drift is a function of time, day 42), trips shouldn't wait for any report (stop-loss is counted in minutes)."
+          },
+          "deep": {
+            "zh": "为什么「汇总」本身是危险的？因为求和淹没尾部：段 A 的绿 101 加段 B 的绿 99 等于 200 绿——数字对了，结构没了；第 54 天的报警疲劳在总表尺度重演，规模乘上段数。所以总表有一条硬纪律：按段分组、按级分列，全线求和只允许发生在两个数上——停线次数（红）与人工分钟（黄），因为只有这两个数直接决定「现在动不动手」；绿永远不进总表，只进周报。这和第 40 天的位置权重同构：观测数据也有座位——能触发动作的信号坐前排（即读），只供复盘的坐后排（周报）。第 48 天的三问在这里第三次换尺度：单站（第 48 天资产图）、全图（第 55 天接力），今天到整条线——钉住什么（三个数）、多久动一次（月/日/即）、走哪条验收（明天第 57 天的回放卷）。",
+            "en": "Why is 'summing' itself dangerous? Because sums drown tails: segment A's 101 greens plus segment B's 99 greens equals 200 green — the number is right and the structure is gone; day 54's alert fatigue replays at table scale, multiplied by segment count. So the table has one hard rule: group by segment, split by grade, and line-wide summation is allowed on exactly two numbers — line stops (red) and human minutes (yellow), the only two that decide 'do we act now'; green never enters the table, only the weekly report. This is day 40's position weight in another form: observability data has seats too — signals that trigger action sit up front (immediate), review-only signals sit in back (weekly). Day 48's three questions change scale a third time: one station (day 48's asset map), the whole map (day 55's relay), now the entire line — what is pinned (three vitals), how often it moves (month/day/immediate), which acceptance it walks (day 57's replay suite, tomorrow)."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：检出从月底压到当周",
+            "en": "The math: detection from month-end to this week"
+          },
+          "p": {
+            "zh": "先算观测的电费：表一是每道闸 1 行日志——3 段×7 道＝21 行/改动、月均 5 次改动约 105 行，一屏读完；表二 0 新增 token——红灯本来就是校验环的输出（第 43 天 120 条/天），分级只是把它送进不同收件箱；表三跳闸时才写，平时 0 成本。观测全程读日志、不跑模型：新增电费 0 美元，人力＝周报 10 分钟。再算它买回的账，用一个真实剧本——供应商静默升级模型（第 42/48 天的剧情在流水线尺度重演）：段 B 的修复率从 84% 滑到 76%（第 43 天的环还在跑，只是修不动了），黄灯从 19 条涨到 29 条/天（120×16%＝19、120×24%＝29，口径咬合）。无总表：漂移存活 30 天——队列 87 分钟/天，超载 30 分钟×30 天＝900 分钟；第 4 周抽验塌方（第 54 天的 9%）漏掉真红灯，批内串位整批错标（第 47 天 3%）、64 条坏数据进库，返工 190 分钟起步——合计约 1,090 分钟起步，外加不可逆的坏数据。有总表：周报把存活期压到 7 天内——超载 7×30＝210 分钟，加周报 10 分钟、200 条回归 0.18 美元、重钉 10 分钟，合计约 230 分钟；塌方需要 4 周才成形，周报的节奏恰好卡在它之前。1,090 对 230 约 4.7:1——还不算省下的坏数据。",
+            "en": "First the electric bill: table one is one log line per gate — 3 × 7 = 21 lines per change, about 105 lines a month at 5 changes, one screenful; table two costs 0 new tokens — the red lights are the validation loop's own output (day 43's 120/day), grading only routes them into different inboxes; table three writes only on trips, zero cost otherwise. Observability reads logs and runs no model: $0 added, 10 minutes a week of human time. Now what it buys, via a real script — a vendor silently upgrades the model (day 42/48's plot at pipeline scale): segment B's repair rate slides from 84% to 76% (day 43's loop still runs; it just can't repair anymore), yellow lights rise from 19 to 29 a day (120 × 16% = 19, 120 × 24% = 29 — the books reconcile). Without the table the drift survives 30 days: the queue sits at 87 minutes/day, 30 over budget × 30 days = 900 minutes; in week four sampling collapses (day 54's 9%), a missed true red lets a batch skew mislabel wholesale (day 47's 3%), 64 bad rows enter the store, 190 minutes of rework and up — about 1,090 minutes and up, plus irreversible bad data. With the table, the weekly report caps survival at 7 days: 7 × 30 = 210 minutes of overload, plus a 10-minute report, a 200-item eval at $0.18, and a 10-minute re-pin — about 230 minutes total. Collapse takes four weeks to form; the weekly rhythm lands just before it. 1,090 against 230 is about 4.7:1 — before counting the bad data it never lets in."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "同一个下午的两件事，总表怎么分别记账。第一件是计划内改动：12:03 段 A 策略段改写、五闸全绿放行（第 55 天的那次），指纹 b7c1→b7c2 顺批次表下发——表一新增一行「段 A 文档闸 跑 1 跳 0 批 1」；12:07 段 B 上游指纹闸亮红扣住——表一记「段 B 指纹闸 跑 1、拦 1」：这不是停线，是闸在干活；12:19 改一行指纹、重钉缓存、放行，全程 12 分钟，总表留下完整一行。第二件是计划外事故：14:41 起段 B 黄灯异常上涨——14:52 熔断器在第 3 次连续红灯跳闸切降级，表三记下四元组（段 B／第 3 次／14:52／15:10 恢复）；当晚周报自动写入「黄灯 +53%、跳闸 1 次」；次日 200 条回归检出修复率 84%→76%，定位到供应商静默升级，重钉放行。对照无总表的同一个下午：指纹事件静默变成单圈等效 0.18k→1.08k 的 73 美元/天放血（第 53 天的账），黄灯超载没人看——两件事各自静默发酵，月底对账才一起爆，而且分不清谁是谁。",
+              "en": "Two events, one afternoon — how the tables keep them separate. The planned change: 12:03, segment A's strategy edit ships green through its five gates (day 55's event), fingerprint b7c1→b7c2 flows down the batch table — table one gains a row, 'A document gate: ran 1, skipped 0, approved 1'; 12:07, segment B's upstream-fingerprint gate lights red and holds the change — the table logs 'B fingerprint gate: ran 1, caught 1'; that's not a stop, that's a gate doing its job; 12:19, one line fixed, cache re-pinned, released — 12 minutes end to end, one complete row on the table. The accident: from 14:41 segment B's yellow lights climb abnormally — at 14:52 the breaker trips on the third consecutive red and degrades; table three records the four-tuple (segment B / third red / 14:52 / recovered 15:10); that evening's report writes itself: 'yellows +53%, 1 trip'; next morning the 200-item eval finds repair at 84%→76%, points to the silent vendor upgrade, re-pins, releases. Without the tables, the same afternoon: the fingerprint event silently becomes $73/day of bleed at a 6× per-lap equivalent (day 53's math), the yellow overload goes unread — both incidents ferment quietly and blow up together at month-end reconciliation, indistinguishable."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：上大屏就是观测",
+            "en": "Misconception: a big screen is observability"
+          },
+          "p": {
+            "zh": "其一：「上大屏、做告警就是观测」。大屏是展示，观测是节奏：三张表各带自己的读数节奏（月审、日清、即读），把所有信号都做成实时告警，等于把第 54 天的报警疲劳放大 N 段——120 条红灯全推给人尚且四周塌方，N 段的总线上只会更快。其二：「指标越多越安全」。总表放 40 个指标，人眼读不过来——第 39 天的工具清单从 5 个加到 30 个、命中率掉 18 个点，同一个稀释效应在仪表盘上重演；全线进总表的只有三个数，其余进周报。其三：「观测是建完流水线再补的」。反了——第 53 天的五闸清单里，缺陷闸跑对拍的输出就是红灯计数，价格闸的判据就是指纹读数：观测不是新零件，是已有零件输出的汇总；出事之后再补，每张表都缺一段历史——熔断时间线的价值全在「事前就在记录」。",
+            "en": "One: 'a big screen and some alerts — that's observability.' A screen is display; observability is rhythm: three tables each with their own cadence (monthly, daily, immediate). Wire every signal into real-time alerting and you scale day 54's alert fatigue by N segments — 120 red lights pushed to one human collapsed in four weeks; a bus of N segments collapses faster. Two: 'more metrics, more safety.' Forty metrics on one table outrun human eyes — day 39's tool list went from 5 to 30 tools and hit rate fell 18 points; the same dilution replays on dashboards. Three vitals enter the table; everything else goes to the weekly report. Three: 'observability is bolted on after the pipeline ships.' Backwards — day 53's checklist already outputs it: the defect gate's eval run is the red-light count, the price gate's criterion is the fingerprint reading. Observability isn't a new part, it's the aggregation of existing parts' outputs; bolt it on after an incident and every table is missing its history — the breaker timeline is worth exactly that it was recording before the fact."
+          },
+          "deep": {
+            "zh": "为什么三个数就够？因为它们各守一条命。停线次数守质量的命：红线被破就是第 47 天的「错标为零丢条为零」被打破，停线是系统在自救，这个数应该常年为 0——非 0 即查，没有灰区。人工分钟守成本的命：降级白名单烧的是人时（3 分钟/条），57 分钟是设计预算，读数连续高于预算说明上游在恶化，而恶化最先在修复率上现形。日账单守价格的命：第 47 天验收门一「总账差不超过 5%」从发布时刻的快照变成运行时刻的连续读数——指纹断、缓存折扣清零、过量重跑，全都先在账单上现形，12.8 美元/天的预算超 5% 就是第一声警报。验收四门回答「这次改动能不能上线」，总表三个数回答「这条线今天健不健康」——两个问题不同，指标就该不同：验收要四门全过，观测只要三数在轨。",
+            "en": "Why are three numbers enough? Because each guards one life. Line stops guard quality's life: a broken red line is day 47's 'zero mislabels, zero drops' violated, and stopping the line is the system saving itself — this count should be 0 all year; non-zero means investigate, no gray zone. Human minutes guard cost's life: the whitelist burns human time (3 minutes per item) against a 57-minute design budget; readings above budget for consecutive days mean the upstream is worsening, and worsening shows in the repair rate first. The daily bill guards price's life: day 47's acceptance gate one — 'total within 5% of estimate' — turns from a launch-day snapshot into a continuous running reading; a broken fingerprint, a lost cache discount, excess re-runs all surface on the bill first, and 5% over the $12.8/day budget is the first alarm. The four acceptance gates answer 'can this change ship'; the table's three vitals answer 'is this line healthy today' — different questions, different metrics: acceptance wants four gates green, observability wants three vitals in range."
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：仪表只答现在——明天，回放",
+            "en": "Extension: instruments answer now — tomorrow, replay"
+          },
+          "p": {
+            "zh": "观测给流水线装上仪表，但仪表只回答「现在健不健康」——管不了「改完之后还能不能复现」。明天（第 57 天）讲检查点与回放：把第 55 天的批次表升级成检查点，工作流每次改环，先回放历史批次再上线——第 47 天预告过「全链卷变成回放测试」，今天总表里每一次跳闸的时间线，就是回放的索引。再往后：阶段三还剩 28 天，观测与回放之后，这条流水线要迎接更长的任务和更多的段；第 85 天 RAG 上线时，「搜知识库」作为一个段接进接力——自带版本头、过五道闸、带着今天的三个读数。带走一条纪律：观测不是看见更多，是让每个信号都有人、有节奏、有去处——看得全的仪表盘没用，动了手的三个数才有用。",
+            "en": "Observability instruments the pipeline, but instruments only answer 'is it healthy now' — not 'will it still reproduce after the next change.' Tomorrow (day 57) covers checkpoints and replay: day 55's batch tables become checkpoints; every workflow change replays historical batches before shipping — day 47 previewed 'the full-chain suite becomes a replay test,' and every breaker timeline on today's table is a replay index. Further out: 28 days left in stage 3; after observability and replay the line faces longer tasks and more segments; when RAG ships on day 85, 'search the knowledge base' joins the relay as a segment — its own header, its own five gates, carrying today's three vitals. One discipline to leave with: observability isn't seeing more — it's giving every signal an owner, a rhythm, and a destination. A dashboard that sees everything is useless; three numbers someone acts on are the product."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "给你的流水线（或任何有日志的系统）配三张表：① 给闸计数、质量信号、事件时间线各定读数节奏——月、日、即三选一。（提示：定成「即读」的信号一个月响不了一次，说明坐错了节奏，降级进周报。）② 从日志里数出三个数并写「在轨区间」：停线次数、人工分钟、日账单。（提示：区间取预算 ±15%，连续 3 天越界才算漂——单日毛刺不告警，这是给报警疲劳留的余量。）③ 演练「黄灯 +53%」：假如明天队列涨 30 分钟，你几点会发现、去查哪个版本号？（提示：答案应该是「周报当天」而不是「月底对账」——答不上来，说明表二还没建。）",
+          "en": "Give your pipeline (or any system with logs) its three tables: 1) Set a reading rhythm for gate counters, quality signals, and event timelines — month, day, or immediate. (Hint: a signal set to 'immediate' that rings less than once a month sits in the wrong rhythm — demote it to the weekly report.) 2) Count your three vitals from the logs and write an in-range band for each: line stops, human minutes, daily bill. (Hint: band = budget ±15%, drifting only after 3 consecutive days out — single-day spikes don't alert; that slack is what keeps alert fatigue away.) 3) Drill 'yellows +53%': if the queue grows 30 minutes tomorrow, when do you find out, and which version do you check? (Hint: the answer should be 'the day the report lands,' not 'month-end reconciliation' — if you can't answer, table two doesn't exist yet.)"
+        }
+      },
+      "takeaway": {
+        "zh": "观测＝三张表三个数：闸计数按段分组（月审）、红灯分级跨段统一（日清）、跳闸留时间线（即读）。全线只盯停线、人工分钟、日账单——读日志不跑模型，0 token 买回「当天知道」。",
+        "en": "Observability = three tables, three vitals: gate counters grouped by segment (monthly), graded lights unified across segments (daily), breaker trips as timelines (immediate). The line watches stops, human minutes, and the daily bill; the weekly rhythm lands before alert fatigue forms (4 weeks) — reading logs runs no model, 0 tokens buy 'known the same day'."
+      },
+      "anim": {
+        "tpl": "bench",
+        "hook": {
+          "zh": "流水线装上仪表：三张表、三个数、三种节奏——观测读日志，不烧 token。",
+          "en": "Instrument the line: three tables, three vitals, three rhythms — read logs, burn no tokens."
+        },
+        "coverHook": {
+          "zh": "无总表月健康分 52，总表当月 98",
+          "en": "No tables: 52. Table month: 98."
+        },
+        "models": [
+          {
+            "k": "stop",
+            "name": {
+              "zh": "停线次数",
+              "en": "Line stops"
+            }
+          },
+          {
+            "k": "human",
+            "name": {
+              "zh": "人工分钟",
+              "en": "Human minutes"
+            }
+          },
+          {
+            "k": "bill",
+            "name": {
+              "zh": "日账单",
+              "en": "Daily bill"
+            }
+          }
+        ],
+        "recipes": [
+          {
+            "k": "oct",
+            "tag": {
+              "zh": "配方 A · 十月：无总表，月底才对账",
+              "en": "Recipe A · Oct: no table, month-end reconciliation"
+            },
+            "scores": [
+              40,
+              55,
+              60
+            ]
+          },
+          {
+            "k": "nov",
+            "tag": {
+              "zh": "配方 B · 十一月：总表三数在轨",
+              "en": "Recipe B · Nov: three vitals on the table"
+            },
+            "scores": [
+              100,
+              98,
+              96
+            ]
+          }
+        ],
+        "readoutZh": {
+          "recipe": {
+            "num": "3 个数",
+            "cap": "全线只盯：停线·人工·账单"
+          },
+          "flip": {
+            "num": "52→98",
+            "cap": "健康分 · 无总表月 vs 总表月"
+          },
+          "noise": {
+            "num": "0 token",
+            "cap": "读日志不跑模型 · 周报 10 分钟"
+          }
+        },
+        "readoutEn": {
+          "recipe": {
+            "num": "3 vitals",
+            "cap": "line-wide: stops · minutes · bill"
+          },
+          "flip": {
+            "num": "52→98",
+            "cap": "health score · no-table vs table month"
+          },
+          "noise": {
+            "num": "0 token",
+            "cap": "reads logs, no model · 10-min weekly"
+          }
+        },
+        "verdictZh": "零件没换、闸没加——总表上线当月，健康分 52→98：分数 = 流水线 × 表。",
+        "verdictEn": "Same parts, same gates — the table month flips the health score 52→98. Score = pipeline × table.",
+        "note": {
+          "zh": "示意：同一条 2000 条分诊线（第 47 天上线版 12.8 美元/天），三个数的健康分（0–100，越高越在轨）。无总表的十月：红线破 6 天后月报才见（40）、队列 87 分钟超载 53% 无人察觉（55）、指纹静默断后 73 美元/天放血月底才爆（60）；总表的十一月：跳闸时间线即读（100）、黄灯周环比当周显形（98）、账单 5% 内在轨（96）。三个数的读数节奏：月审、日清、即读。",
+          "en": "Illustrative: the same 2,000-ticket line (day 47's shipped $12.8/day), health scores for the three vitals (0–100, higher = in range). October without the table: a broken red line surfaces 6 days later in the monthly report (40), the queue sits at 87 minutes, 53% over, unnoticed (55), and the silent fingerprint break bleeds $73/day until month-end (60); November with the table: trips read immediately (100), yellow week-over-week shows the same week (98), the bill stays within 5% (96). Rhythms: monthly, daily, immediate."
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "段 A 计数",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "段 B 计数",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "段 C 计数",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "总表 · 按段分组",
+                "merged": true
+              }
+            ],
+            "label": "求和淹没尾部：绿不进总表，只进周报",
+            "en": "Sums drown tails: green stays out of the table, in the weekly report"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "人工分钟 · 无总表",
+                "val": 100,
+                "cls": "",
+                "txt": "87 分钟/天 · 超载 30 天没人看"
+              },
+              {
+                "tag": "人工分钟 · 有总表",
+                "val": 27,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "超载 ≤7 天 · 周报当周显形"
+              },
+              {
+                "tag": "观测电费",
+                "val": 4,
+                "cls": "",
+                "txt": "0 token · 周报 10 分钟"
+              }
+            ],
+            "label": "周报的节奏卡在报警疲劳成形之前",
+            "en": "The weekly rhythm lands just before alert fatigue forms"
+          },
+          {
+            "routes": [
+              {
+                "tag": "「上大屏就是观测」",
+                "cls": "",
+                "verdict": "✗ 大屏是展示 · 表才有节奏",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「指标越多越安全」",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 30 个干扰项掉 18 点",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「建完线再补观测」",
+                "cls": "",
+                "verdict": "✗ 补的表没有历史",
+                "vcls": " materin-learn-viz__route-word--bad"
+              }
+            ],
+            "label": "每个信号都要有人、有节奏、有去处",
+            "en": "Every signal needs an owner, a rhythm, a destination"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 57 天 · 检查点回放",
+                "cls": "",
+                "verdict": "改环先回放历史批次",
+                "vcls": ""
+              },
+              {
+                "tag": "第 85 天 · RAG 入列",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "搜库段自带三读数",
+                "vcls": ""
+              },
+              {
+                "tag": "第 48 天 · 三问",
+                "cls": "",
+                "verdict": "✓ 第三次换尺度",
+                "vcls": " materin-learn-viz__route-word--ok"
+              }
+            ],
+            "label": "阶段三第 7 课：仪表上墙——明天讲复现",
+            "en": "Stage 3, lesson 7: instruments up — tomorrow, replay"
+          }
+        ]
+      }
     }
   ]
 }
