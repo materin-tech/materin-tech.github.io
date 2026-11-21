@@ -13005,6 +13005,307 @@
           }
         ]
       }
+    },
+    {
+      "n": 58,
+      "stage": 3,
+      "week": 9,
+      "tpl": "turns",
+      "date": "2026-11-21",
+      "title": {
+        "zh": "长任务：进度记进账本",
+        "en": "Long tasks: progress lives in a ledger"
+      },
+      "subtitle": {
+        "zh": "阶段三第九课。40 分钟的长任务断不起——把进度从对话窗口搬进账本：每段一行结论＋产出＋指纹，崩溃后读账本从断段续写，5 分钟接上，不用 46 分钟重跑。",
+        "en": "Stage 3, lesson nine. A 40-minute task cannot afford a crash — move progress out of the window into a ledger: one row per segment (conclusion + output + fingerprint); after a crash, read the ledger and resume at the broken segment — 5 minutes instead of a 46-minute rerun."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：进度记进账本，不记对话",
+            "en": "Mechanism: progress in the ledger, not the chat"
+          },
+          "p": {
+            "zh": "第 41 分钟崩溃的长任务，续跑只花 5 分钟——靠的不是运气，是把进度从窗口搬进账本。机制三步：其一，任务开跑先建账本文件，每完成一段就追加一行——段号、一句话结论、产出落盘路径、输出指纹，12 段共 0.24k；其二，循环窗口只装三样：任务目标（0.5k 策略段）、账本全量（0.24k）、当前段任务——40 分钟跑完窗口始终 2.2k，不随时间膨胀；其三，崩溃后新进程第一步不是「继续」，是读账本末行、逐个核对产出文件指纹，对上才从断段续写。这和第 55 天的接力是同一条纪律：段与段之间传的是账本，不是整个对话——接力传的是指纹加批次表，长任务传的是结论加指纹，账本格式不同，原则相同：结论过段，过程不过段。",
+            "en": "A long task that crashes at minute 41 and resumes in 5 minutes is not luck — it is progress moved from the window into a ledger. Three steps. One, the task opens a ledger file and appends a row per completed segment — segment number, one-line conclusion, output file path, output fingerprint — 0.24k across 12 segments. Two, the loop window carries exactly three things: the task goal (a 0.5k strategy doc), the full ledger (0.24k), and the current segment's job — the window stays 2.2k for all 40 minutes, never growing with time. Three, after a crash the new process's first move is not 'continue' — it reads the ledger's last rows and verifies each output file's fingerprint before writing on from the broken segment. This is day 55's relay discipline again: segments pass a ledger, not the whole conversation — the relay passes fingerprints plus a batch table, a long task passes conclusions plus fingerprints; formats differ, the principle is identical: conclusions cross the seam, process does not."
+          },
+          "deep": {
+            "zh": "为什么不能靠「窗口里本来就有」续跑？因为 40 分钟任务在窗口里堆的是探索路径：试错、回退、中间版本——200k 历史里「下一段做什么」的答案只有一行。塞回去有三重代价：token 账 ×6（崩溃瞬间的窗口已经 200k，重塞等于再买一遍）；定位会错——第 32 天的 lost in the middle，模型在 200k 噪声里找一行答案，错误率随长度上升；而且历史是只读的，崩溃丢的是进程状态，不是知识——账本把进程状态外置成文件，这正是第 44 天批次表的角色：结论给模型读，形状稳定的交接物给程序读。",
+            "en": "Why not just resume from what is already in the window? Because a 40-minute task piles exploration into the window: trials, backtracks, intermediate drafts — the answer to 'what is the next segment' is one line buried in 200k of history. Stuffing it back costs three times over: the token bill ×6 (the window at minute 41 is already 200k; re-stuffing buys it all again); localization errs — day 32's lost-in-the-middle, error rates climb as the model hunts one line in 200k of noise; and history is read-only — a crash loses process state, not knowledge. The ledger externalizes process state into a file, exactly day 44's batch-table role: conclusions for the model to read, shape-stable handoffs for the program to read."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：断一次省 41 分钟",
+            "en": "The math: one crash, 41 minutes back"
+          },
+          "p": {
+            "zh": "先把任务的全价算清：周报 Agent 12 段、46 分钟，输入 340k、输出 24k，按输入 1.5 美元/M、输出 6 美元/M，一次全程 0.66 美元——0.51 输入加 0.15 输出。无断点崩溃一次（第 41 分钟）：整条从头重跑 0.66 美元，人等 46 分钟。有账本续跑：段 9–12 只占全程一成账（定稿发送比源分析轻得多），重付 0.09 美元、等 5 分钟——单次省 0.57 美元、41 分钟。账本的保险费：12 段 × 0.02k = 0.24k 输入，约 0.0004 美元，占全程万分之六。月账：30 条长任务、约每周崩一次，一个月省约 2.3 美元、164 分钟。钱是小头——0.57 美元没人失眠，41 分钟等人是真疼：断点续跑买的主要是「崩溃后不用从头等」。",
+            "en": "First, the task's full price: the weekly-report agent runs 12 segments in 46 minutes, 340k input and 24k output; at $1.5/M input and $6/M output one full run is $0.66 — $0.51 input plus $0.15 output. A crash without checkpoints (minute 41) means rerunning everything: $0.66 and a 46-minute wait. With a ledger, resuming costs 10% of the run (finalizing and sending weigh far less than source analysis): $0.09 and a 5-minute wait — $0.57 and 41 minutes saved per crash. The ledger's premium: 12 segments × 0.02k = 0.24k of input, about $0.0004, six parts per million of the run. Monthly: 30 long tasks, a crash roughly weekly — about $2.3 and 164 minutes a month. The money is the small half — nobody loses sleep over $0.57; the 41-minute wait is the real pain: what resumability buys is 'no waiting from zero after a crash'."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "第 41 分钟、段 9 交叉核对开跑 30 秒后崩——供应商 429 重试耗尽。账本此刻 8 行：段 1–5 各一行（产出在 sections/d1.md 至 d5.md，指纹 f3a1 至 e77c）、段 6–8 各一行（三节初稿落盘）。恢复：08:02 新进程启动，读账本 0.1 秒，逐个核对 8 个文件指纹——7 个对上，段 8 的对不上（上次写入写到一半崩了）；按纪律整段重跑段 8（0.03 美元、1 分钟）再续；08:03 从段 9 续跑；08:08 定稿发送。全程多花 5 分钟、0.09 美元，比从头重跑省 41 分钟、0.57 美元。关键动作就是那一次核对：账本说段 8 写完了，文件里只有半节——指纹闸拦下，重跑一段而不是带病续写。",
+              "en": "Minute 41, 30 seconds into segment 9's cross-check, the run dies — the vendor's 429 retries are exhausted. The ledger holds 8 rows: one per segment 1–5 (outputs at sections/d1.md through d5.md, fingerprints f3a1 through e77c) and one per segment 6–8 (three draft sections on disk). Recovery: 08:02, a new process starts, reads the ledger in 0.1 s, verifies all 8 file fingerprints — 7 match; segment 8's does not (the last write died mid-file); per the discipline, segment 8 reruns whole ($0.03, 1 minute) before anything continues; 08:03, resume from segment 9; 08:08, final draft sent. Five extra minutes and $0.09 against a from-zero rerun: 41 minutes and $0.57 saved. The pivotal move is that one check: the ledger said segment 8 was done, the file held half a section — the fingerprint gate caught it, one segment reran instead of a sick continuation."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：续跑就是把记录塞回去",
+            "en": "Misconception: resume = replay the transcript"
+          },
+          "p": {
+            "zh": "其一：「把会话历史存成 JSON，重启塞回去就是续跑」。那叫录像回放：200k 过程录像塞满窗口，账单 ×6，模型还得在噪声里定位「现在到哪了」——续跑读的是结论账（2.2k），不是过程录像（200k）。其二：「账本先攒内存里，任务结束统一落盘」。崩溃不看你的落盘计划——内存账本跟着进程一起死，等于没做；落盘节奏跟着段走：每段结束落一行，崩溃最多丢当前段。其三：「续跑嘛，接着写就行」。续跑的接缝是新的风险面：账本说段 8 写完了，文件里可能只有半节——第 53 天的指纹闸在这里复用：续跑第一件事是核对（账本行对文件指纹），不是接着写。核对不过就整段重跑——重跑一段 0.03 美元，带病续写返工 190 分钟起步（第 56 天的老账）。",
+            "en": "One: 'save the chat history as JSON and stuff it back on restart — that is resuming.' That is a replay of the recording: 200k of process video fills the window, the bill ×6, and the model must still locate 'where am I' in the noise — resuming reads the conclusions ledger (2.2k), not the recording (200k). Two: 'accumulate the ledger in memory, flush once at the end.' Crashes do not respect your flush plan — an in-memory ledger dies with the process, which is the same as not having one; the flush cadence follows segments: one row per segment end, a crash costs at most the current segment. Three: 'resuming means just keep writing.' The resume seam is a fresh risk surface: the ledger says segment 8 is done, the file may hold half a section — day 53's fingerprint gate is reused here: the first act of resuming is verification (ledger rows against file fingerprints), not continuation. A failed check reruns the whole segment — $0.03; a sick continuation starts at 190 minutes of rework (day 56's old bill)."
+          },
+          "deep": {
+            "zh": "为什么账本比 transcript 更对模型友好？信息形态不同：transcript 是过程流，账本是索引——「下一段做什么」在账本里是末行，在录像里是散在 200k 里的几百次往返。第 34 天的纪要压缩的是「说过什么」，长任务账本压缩的是「做到哪」——同一原则的两个断面：窗口装结论，历史进文件。指纹进账本还有一个别处没有的理由：账本自己也是文件，也会写一半崩掉——指纹让账本具备自检能力。这延续第 57 天的原则：检查点拍输入与配置（回放用），账本拍进度与产出（续跑用）——同一个词「检查点」在流水线里干两份工，共同点是都不拍「模型的自信」。",
+            "en": "Why is a ledger friendlier to the model than a transcript? The information shape differs: a transcript is a process stream, a ledger is an index — 'what is the next segment' is the last row in the ledger but a few hundred round-trips scattered across 200k in the recording. Day 34's minutes compress 'what was said'; a long-task ledger compresses 'how far we got' — two cross-sections of one principle: the window carries conclusions, history goes to files. The fingerprint earns its ledger slot for a reason that exists nowhere else: the ledger is itself a file and can die mid-write — fingerprints give the ledger self-checking. This extends day 57's principle: the checkpoint photographs inputs and config (for replay), the ledger photographs progress and outputs (for resume) — the same word 'checkpoint' holds two jobs on this pipeline, and neither photographs the model's confidence."
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：单条可续——明天讲并行",
+            "en": "Extension: one task resumable — next, many"
+          },
+          "p": {
+            "zh": "账本让单条长任务可续，也让长任务第一次可以「被管理」：进度不再是黑盒里的一团，而是 12 行可读的账——第 56 天的三个读数（停线、人工分钟、日账单）到这里自然长出第四个：卡段时长，哪一段连续三次超过预算，就是环要改的地方。明天（第 59 天）的课题是并行：两条长任务同时跑，抢同一个预算、同一个工具配额——账本就是调度器的输入，排队和限流都读账本做决定。再往后：长任务的改动同样要过第 57 天的回放卷——账本让回放更便宜：旧账本的 12 行就是现成的基线。带走一条纪律：进度记在账本里，不记在对话里；每行带指纹；续跑先核对再续写——崩溃是常态，账本是保险。",
+            "en": "The ledger makes one long task resumable — and makes long tasks manageable at all: progress stops being a lump inside a black box and becomes 12 readable rows — day 56's three vitals (line stops, human minutes, daily bill) naturally grow a fourth here: per-segment dwell time; any segment over budget three times running marks the loop to fix. Tomorrow (day 59) the subject is parallelism: two long tasks at once, competing for one budget and one tool quota — the ledger is the scheduler's input; queuing and rate limits read it to decide. Further out: changes to a long task walk day 57's replay suite too — and the ledger makes replay cheaper: an old ledger's 12 rows are a ready-made baseline. One discipline: progress lives in the ledger, not the chat; every row carries a fingerprint; resume verifies before it writes — crashes are normal, the ledger is the insurance."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "设计一个 10 步任务的账本：① 每行哪四个字段、各给谁读？（提示：段号和一句话结论给模型读，产出路径和指纹给程序读——结论用来续写，指纹用来自检。）② 演练崩溃恢复：跑到第 4 段杀掉进程，重启后第一条命令是什么？（提示：不是「继续」——是读账本末行加核对指纹；指纹对不上就整段重跑。）③ 给窗口定预算：账本全量进窗口和只进末 3 行差多少？什么时候必须全量？（提示：续写下一段只读末行，跨段引用要读全量；账本是索引，全量也不贵，贵的是把过程录像塞回来。）",
+          "en": "Design a ledger for a 10-step task: 1) Which four fields go in each row, and who reads each? (Hint: segment number and one-line conclusion are for the model; the output path and fingerprint are for the program — conclusions resume the work, fingerprints self-check the ledger.) 2) Drill crash recovery: kill the process at step 4 — what is the first command after restart? (Hint: not 'continue' — read the ledger's last rows and verify fingerprints; rerun the whole segment on a mismatch.) 3) Set the window budget: how much smaller is a last-3-rows window than the full ledger, and when is the full ledger mandatory? (Hint: resuming the next segment reads only the last row, but cross-segment references need the full ledger; an index is cheap in full — what is expensive is stuffing the process recording back in.)"
+        }
+      },
+      "takeaway": {
+        "zh": "断点续跑＝状态外置＋每段落账：账本每行记段号、结论、产出、指纹，窗口只装目标＋账本＋当前段，2.2k 不膨胀。崩溃后先核对指纹再续写——第 41 分钟崩，续跑 5 分钟，重跑 46 分钟 0.66 美元。",
+        "en": "Resumability = state externalized + one row per segment: each row holds number, conclusion, output, fingerprint; the window carries goal + ledger + segment (2.2k, never growing). After a crash, verify before writing on — a minute-41 crash resumes in 5 min instead of a 46-minute $0.66 rerun."
+      },
+      "anim": {
+        "tpl": "turns",
+        "hook": {
+          "zh": "窗口装不下 40 分钟的任务，但装得下它的账本。",
+          "en": "The window can't hold a 40-minute task — it holds the ledger."
+        },
+        "coverHook": {
+          "zh": "断一次：续跑 5 分钟，重跑 46 分钟 0.66 美元",
+          "en": "One crash: resume in 5 min — or rerun 46 min for $0.66"
+        },
+        "question": {
+          "zh": "40 分钟周报任务，第 41 分钟崩溃——窗口里此刻装着什么？",
+          "en": "A 40-minute report task crashes at minute 41 — what does the window hold right now?"
+        },
+        "systemLabel": {
+          "zh": "段 0 · 任务单",
+          "en": "Segment 0 · task sheet"
+        },
+        "systemTokens": [
+          "目标 · 5 源周报",
+          "预算 0.66 美元",
+          "账本 v2"
+        ],
+        "historyLabel": {
+          "zh": "已跑 12 段 · 逐段落账",
+          "en": "12 segments · one row each"
+        },
+        "turns": [
+          {
+            "k": "t1",
+            "capZh": "段 1–5 · 源分析",
+            "capEn": "S1–5 · sources"
+          },
+          {
+            "k": "t2",
+            "capZh": "段 6–8 · 初稿",
+            "capEn": "S6–8 · drafts"
+          },
+          {
+            "k": "t3",
+            "capZh": "段 9–12 · 定稿发送",
+            "capEn": "S9–12 · finalize"
+          }
+        ],
+        "summaryLabel": {
+          "zh": "崩溃瞬间 · 账本 8 行",
+          "en": "At the crash · 8 rows"
+        },
+        "summaryTokens": [
+          "8 段 · 已落盘",
+          "段 9 · 未落账"
+        ],
+        "keepLabel": {
+          "zh": "续跑窗口 · 2.2k",
+          "en": "Resume window · 2.2k"
+        },
+        "readoutZh": [
+          {
+            "num": "200k",
+            "cap": "录像续跑 · 窗口塞全部历史"
+          },
+          {
+            "num": "2.2k",
+            "cap": "账本续跑 · 目标＋账本＋当前段"
+          },
+          {
+            "num": "0.66 美元",
+            "cap": "从头重跑 · 46 分钟白等"
+          },
+          {
+            "num": "0.09 美元",
+            "cap": "断点续跑 · 只补段 9–12"
+          }
+        ],
+        "readoutEn": [
+          {
+            "num": "200k",
+            "cap": "recording resume · full history in window"
+          },
+          {
+            "num": "2.2k",
+            "cap": "ledger resume · goal + ledger + segment"
+          },
+          {
+            "num": "$0.66",
+            "cap": "from-zero rerun · 46 minutes of waiting"
+          },
+          {
+            "num": "$0.09",
+            "cap": "resumed · segments 9–12 only"
+          }
+        ],
+        "alert": {
+          "failZh": "✗ 段 9 崩溃 · 从头重跑 46 分钟 + 0.66 美元",
+          "failEn": "✗ segment 9 crashed — rerun from zero: 46 min + $0.66",
+          "okZh": "✓ 读账本核对指纹 · 续跑段 9–12：5 分钟 + 0.09 美元",
+          "okEn": "✓ ledger read, fingerprints checked — S9–12: 5 min + $0.09"
+        },
+        "note": {
+          "zh": "示意：周报 Agent（12 段 · 46 分钟 · 0.66 美元，输入 1.5 美元/M、输出 6 美元/M）。账本每段一行：段号＋一句话结论＋产出文件＋输出指纹，共 0.24k——崩溃后新进程读账本、核对指纹、从断段续跑，窗口 2.2k，而不是 200k 的过程录像。",
+          "en": "Illustrative: the weekly-report agent (12 segments · 46 min · $0.66 at $1.5/M input, $6/M output). One ledger row per segment — number, one-line conclusion, output file, fingerprint — 0.24k total; after a crash the new process reads the ledger, verifies fingerprints, resumes at the broken segment — a 2.2k window, not 200k of process recording."
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "段 1 · 结论＋指纹",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "段 2 · 结论＋指纹",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "…",
+                "alt": true
+              },
+              {
+                "tag": "段 9",
+                "alt": false
+              },
+              {
+                "tag": "账本 · 8 行",
+                "merged": true
+              }
+            ],
+            "label": "账本记结论不记过程——窗口只装目标＋账本＋当前段",
+            "en": "The ledger keeps conclusions, not process — window: goal + ledger + segment"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "崩溃重跑 · 整条从头",
+                "val": 100,
+                "cls": "",
+                "txt": "46 分钟 + 0.66 美元"
+              },
+              {
+                "tag": "断点续跑 · 只补断段",
+                "val": 11,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "5 分钟 + 0.09 美元"
+              },
+              {
+                "tag": "账本开销 · 12 段落账",
+                "val": 1,
+                "cls": "",
+                "txt": "0.24k token · 约 0.0004 美元"
+              }
+            ],
+            "label": "钱是小头——崩溃真正的成本是等人 46 分钟",
+            "en": "The money is small — a crash's real cost is the 46-minute wait"
+          },
+          {
+            "routes": [
+              {
+                "tag": "「把聊天记录存下来续跑」",
+                "cls": "",
+                "verdict": "✗ 200k 过程录像·账单 ×6",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「账本攒内存、结束再落盘」",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 崩溃不看你的计划",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「续跑接着写就行」",
+                "cls": "",
+                "verdict": "✗ 先核对指纹·账本会撒谎",
+                "vcls": " materin-learn-viz__route-word--bad"
+              }
+            ],
+            "label": "续跑读的是结论账，不是过程录像",
+            "en": "Resume reads the conclusions ledger, not the recording"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 59 天 · 并行排队",
+                "cls": "",
+                "verdict": "账本就是调度器的输入",
+                "vcls": ""
+              },
+              {
+                "tag": "第 57 天 · 回放卷",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "旧账本 12 行＝现成基线",
+                "vcls": ""
+              },
+              {
+                "tag": "第 55 天 · 多段接力",
+                "cls": "",
+                "verdict": "✓ 段间传账·纪律同源",
+                "vcls": " materin-learn-viz__route-word--ok"
+              }
+            ],
+            "label": "阶段三第 9 课：单条可续——明天讲并行",
+            "en": "Stage 3, lesson 9: one resumable — tomorrow, many in parallel"
+          }
+        ]
+      }
     }
   ]
 }
