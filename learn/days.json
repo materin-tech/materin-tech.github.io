@@ -13306,6 +13306,270 @@
           }
         ]
       }
+    },
+    {
+      "n": 59,
+      "stage": 3,
+      "week": 9,
+      "tpl": "batch",
+      "date": "2026-11-22",
+      "title": {
+        "zh": "并行排队：账本当队列表",
+        "en": "Parallel queuing: the ledger is the queue"
+      },
+      "subtitle": {
+        "zh": "阶段三第十课。三条长任务同时开工，抢一个 2 美元/天的预算帽和 60 次/分钟的工具配额——第 58 天的账本兼职队列表：调度器读队列列派槽位，串行 122 分钟压到 71 分钟，队列列每天多付 0.0004 美元。",
+        "en": "Stage 3, lesson ten. Three long tasks start together, competing for a $2/day budget cap and a 60-calls-per-minute tool quota — day 58's ledger moonlights as the queue: the scheduler reads the queue column to hand out slots; 122 serial minutes compress to 71, and the queue column costs $0.0004 a day."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：账本兼职队列表",
+            "en": "Mechanism: the ledger moonlights as the queue"
+          },
+          "p": {
+            "zh": "第 21 天讲过推理引擎的拼车：调度器把同时到达的请求拼进一个批次，每圈顺便算几条——那是请求层的并行。今天的并行在任务层：两条 46 分钟的周报任务（第 58 天的账本任务 ×2）和一条 30 分钟的短任务同时开工，抢一个 2 美元/天的预算帽和 60 次/分钟的外呼配额。谁先谁后、谁让谁，需要一个裁判；裁判不新增任何零件——第 58 天的账本每段一行（段号、结论、产出、指纹），本身就是这条任务对外发布的「我跑到哪了」。调度器给账本加一列「队列状态」：待跑、在跑、已让位，每段结束时更新——三条任务的队列拼成一张表，调度器每次派活读一遍（0.28k），把空闲槽位分给排队最久的那段。任务内部纪律一字不改：每段照旧落账、带指纹、续跑先核对。",
+            "en": "Day 21 covered the inference engine's carpool: the scheduler packs simultaneous requests into one batch and serves several per lap — parallelism at the request layer. Today's parallelism is at the task layer: two 46-minute report tasks (day 58's ledger task, twice) and one 30-minute short task start together, competing for a $2/day cap and a 60-calls-per-minute quota. Who goes first, who yields, needs a referee — and the referee is no new part: day 58's ledger, one row per segment (number, conclusion, output, fingerprint), is already that task's public 'where I am'. The scheduler adds one column to the ledger — queue status: waiting, running, yielded — updated as each segment ends; the three tasks' queues form one table, the scheduler reads it once per dispatch (0.28k) and hands idle slots to the longest-waiting segment. The in-task discipline is untouched: every segment still writes its row, carries a fingerprint, verifies before resuming."
+          },
+          "deep": {
+            "zh": "为什么调度器读账本而不是自己记账？因为账本已经是事实的来源：第 58 天的纪律要求每段落盘——调度器自己再记一份，两份账必然漂移（任务崩了恢复后，调度器那份还停在旧段位）。读账本的第二个理由是崩溃恢复免费：任务 A 在段 9 崩掉，账本末行还是「段 8 完成」——调度器下一个循环自然把槽位让给 B 和 C，A 恢复后重新排队，不需要任何额外的故障通知协议。这和第 21 天的连续批处理同构：引擎不问请求「你准备好了吗」，看的是队列；调度器不问任务「你跑到哪了」，看的是账本——把状态外置成可读的表，调度就从协商变成查表。",
+            "en": "Why does the scheduler read the ledger instead of keeping its own books? Because the ledger is already the source of truth: day 58's discipline demands every segment be flushed to disk — a scheduler-side copy would inevitably drift (after a crash and resume, the scheduler's copy still sits at the old segment). The second reason recovery comes free: task A crashes at segment 9, the ledger's last row still says 'segment 8 done' — the scheduler's next pass naturally hands the slot to B and C, and A re-queues when it recovers, with no extra failure-notification protocol. This mirrors day 21's continuous batching: the engine never asks a request 'are you ready', it watches the queue; the scheduler never asks a task 'how far along are you', it reads the ledger — state externalized into a readable table turns coordination from negotiation into a lookup."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：71 分钟追回 51 分钟",
+            "en": "The math: 71 minutes claws back 51"
+          },
+          "p": {
+            "zh": "三条任务的身位：任务 A 12 段 46 分钟（0.66 美元，第 58 天的周报）、任务 B 12 段 46 分钟（0.66 美元）、任务 C 7 段 30 分钟（0.40 美元）——串行 122 分钟、总账 1.72 美元，第 58 天的账本让单条不怕崩，但没人管并行。排队并行：2 个槽位（60 次/分钟配额 ÷ 每条峰值 28 次 ≈ 2），A、B 各占一个，C 排队；A 的段 9 第 41 分钟崩了（供应商侧 429，第 58 天的老剧本）让位，C 立刻顶上；B 收工让槽、A 续跑 6 分钟收工、C 09:11 收工——71 分钟，总账 1.72 美元一分不变，省 51 分钟。对照裸跑：三个进程抢 60 次/分钟，三条全被限速、爆发期连环 429——74 分钟收工还多烧 0.08 美元重试费，速度没赚到，钱和风险都多了。队列列的成本：0.28k 约 0.0004 美元/天，占 2 美元日预算帽的 0.02%。",
+            "en": "The three tasks: A, 12 segments, 46 minutes ($0.66 — day 58's report); B, 12 segments, 46 minutes ($0.66); C, 7 segments, 30 minutes ($0.40) — serial: 122 minutes, $1.72 total; day 58's ledger makes one task crash-proof, but nobody manages parallelism. Queued parallel: 2 slots (60 calls/min ÷ 28 peak per task ≈ 2), A and B take them, C queues; A's segment 9 crashes at minute 41 (vendor-side 429, day 58's old script) and yields — C takes the slot at once; B finishes and frees a slot, A resumes for 6 minutes and wraps, C wraps at 09:11 — 71 minutes, the $1.72 unchanged, 51 minutes saved. Against bare parallelism: three processes race for 60 calls/min, all three throttle, burst-overlap 429s — 74 minutes plus $0.08 of retry fees; no speed gained, more money and risk. The queue column: 0.28k, about $0.0004 a day, 0.02% of the $2 daily cap."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "08:00 三条任务同时提交，调度器建队列表（3 行 ×4 列：任务、账本路径、队列状态、槽位）。08:00 A、B 各占一个槽位开跑，C 记「待跑」；08:41 A 的段 9 崩溃，账本末行「段 8 · 已落盘」——调度器读到 A 停更，把 A 的槽位标「已让位」，C 从队列顶上开跑；08:49 A 恢复进程、核对 8 行指纹（0.1 秒，7 对 1 错，重跑段 8），重新入队；08:52 B 的 12 段收工，槽位让给 A；08:58 A 续跑 6 分钟收工；09:11 C 收工。全程 71 分钟——对比串行 122 分钟省 51 分钟，对比裸跑：无一次 429、零重试费，总账 1.72 美元零浪费。调度器全程只做查表：每分钟读一遍 0.28k 的队列列，一天约 100 次派活，电费忽略不计。",
+              "en": "08:00, three tasks are submitted; the scheduler opens the queue table (3 rows × 4 columns: task, ledger path, queue status, slot). A and B each take a slot; C is marked waiting. 08:41, A's segment 9 crashes, the ledger's last row reading 'segment 8 · flushed' — the scheduler sees A has stopped updating, marks the slot yielded, and C takes over at once. 08:49, A's process restarts and verifies its 8 rows (0.1 s: 7 match, 1 fails; segment 8 reruns) and re-queues. 08:52, B finishes its 12 segments and hands the slot to A; 08:58, A wraps after a 6-minute resume; 09:11, C wraps. 71 minutes end to end — 51 saved over serial's 122, and against bare parallelism: not a single 429, zero retry fees, the $1.72 spent with nothing wasted. The scheduler does nothing but lookups: one read of the 0.28k queue column per minute, about 100 dispatches a day, an electric bill of nothing."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：并行就是把任务一起发出去",
+            "en": "Misconception: parallelism = fire everything at once"
+          },
+          "p": {
+            "zh": "其一：「并行就是把三个任务同时启动」。同时启动只是同时抢：60 次/分钟的配额养不活三条全速任务，三条全被限速、爆发期还连环 429——74 分钟收工，比排队的 71 分钟还慢，另烧 0.08 美元重试费。并行的正确单位是「槽位」：60÷28≈2 个槽位，第 3 条排队——排队不是浪费，是把「抢」变成「接」。其二：「账本加一列，格式就得重设计」。队列列是账本的第 5 个字段，不是新文件——第 58 天的四字段（段号、结论、产出、指纹）一字不动，老任务不带队列列也能跑（调度器把它当「永远待跑」处理）。字段是加法不是改版，老账本向后兼容。其三：「并行会让成本翻倍」。成本跟着 token 走，不跟着墙钟走：三条任务的 1.72 美元是内容本身的账，串行跑 122 分钟是这个数，并行跑 52 分钟还是这个数——并行改变的是「什么时候拿到结果」，不是「花多少钱拿到结果」。真正会翻倍的是没排队的重试风暴：0.08 美元买教训，0.0004 美元买保险。",
+            "en": "One: 'parallelism means starting all three at once.' Starting together is just grabbing together: 60 calls per minute can't feed three full-speed tasks — all three throttle, bursts trigger 429 chains, 74 minutes to finish (slower than queuing's 71) plus $0.08 of retry fees. The right unit of parallelism is the slot: 60÷28≈2 slots, the third queues — queuing isn't waste, it turns 'grabbing' into 'taking turns.' Two: 'adding a queue column means redesigning the ledger format.' The queue column is the ledger's fifth field, not a new file — day 58's four fields (number, conclusion, output, fingerprint) are untouched, and old tasks without a queue column still run (the scheduler treats them as forever-waiting). Fields are additions, not revisions; old ledgers stay compatible. Three: 'parallelism doubles the cost.' Cost follows tokens, not wall-clock: the three tasks' $1.72 is the content's own bill — serial at 122 minutes is that number, parallel at 52 minutes is still that number. What parallelism changes is 'when the results arrive,' not 'what they cost to obtain.' What actually doubles is the unqueued retry storm: $0.08 buys the lesson, $0.0004 buys the insurance."
+          },
+          "deep": {
+            "zh": "为什么「槽位」比「并发数」更适合当单位？因为长任务的并行风险不在「同时在跑几个进程」，在「同时在跑几个段」——段的粒度才有账本行、有指纹、有落盘，是纪律能管住的最小单元。两个进程各跑一段是 2 个在跑段；一个进程并发跑两个段也是 2 个在跑段——配额压力一样，但后者把账本写乱了：两段的结论行交错了。第 55 天的接力已经把「段」确立为流水线的记账单位，今天的排队只是把同一单位搬进调度：槽位数＝同时在跑段数上限，队列深度＝待跑段数——三个读数（在跑、待跑、已让位）就是第 56 天「三个数盯一条线」的调度版。",
+            "en": "Why is the 'slot' a better unit than 'concurrency'? Because a long task's parallel risk isn't 'how many processes run at once' but 'how many segments run at once' — only the segment has a ledger row, a fingerprint, a flush; it is the smallest unit discipline can govern. Two processes each running a segment are 2 running segments; one process racing two segments is also 2 running segments — same quota pressure, but the second wrecks the ledger: two segments' conclusion rows interleave. Day 55's relay already established the segment as the pipeline's bookkeeping unit; today's queueing just carries that unit into scheduling: slots = max concurrent running segments, queue depth = waiting segments — the three readings (running, waiting, yielded) are day 56's 'three numbers, one line' rescheduled."
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：段列是排队的钥匙——明天讲限流",
+            "en": "Extension: the segment column unlocks queuing — tomorrow, rate limits"
+          },
+          "p": {
+            "zh": "账本排队把第 58 天的「单条可续」升级成「多条可控」：调度器读账本派槽位，预算帽从「每天人工看一眼」变成「槽位数 ×段预算」的自动约束——2 个槽位 × 每段 0.03 美元，最坏情况一小时的烧钱速度就有了硬上限。明天（第 60 天）讲工具限流：外呼配额 60 次/分钟不只是总数帽，每个工具还各有自己的配额（搜索 30、抓取 20、数据库 10）——队列列天然按段聚合，哪个段烧哪个工具的配额，账本上一眼可查。再往后：第 85 天 RAG 建库是排队模式的最大考题——几万段文档批量嵌入，槽位数、批次大小、预算帽三者在那天正式合流。带走一条纪律：并行不靠同时启动，靠槽位和队列；队列不用新零件，账本加一列——状态外置到哪里，控制就在哪里生根。",
+            "en": "Ledger queuing upgrades day 58's 'one task resumable' into 'many tasks governable': the scheduler reads the ledger to hand out slots, and the budget cap goes from 'a human glances daily' to an automatic constraint — slots × per-segment budget, 2 × $0.03, puts a hard ceiling on the worst hourly burn. Tomorrow (day 60) covers tool rate limits: the 60-calls-per-minute quota isn't one number — each tool carries its own (search 30, fetch 20, database 10) — and the queue column already aggregates by segment, so which segment burns which tool's quota is one glance away in the ledger. Further out: day 85's RAG indexing is the queuing pattern's biggest exam — tens of thousands of document chunks embedded in bulk, where slots, batch size, and budget cap formally converge. One discipline: parallelism isn't simultaneous starts — it's slots and a queue; the queue needs no new part, just one more ledger column — state externalized is where control takes root."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "给两条并发任务设计队列表：① 在第 58 天的账本上加队列列——哪三个值、谁在什么时机改写？（提示：待跑/在跑/已让位；只有任务自己写，调度器只读不写。）② 演练让位：任务 A 在段 9 崩了，任务 C 怎么知道槽位空了？（提示：不是 A 通知 C——调度器每轮读账本，发现 A 停更就标「已让位」；恢复的 A 排到队尾。）③ 算槽位数：配额 60 次/分钟、每条峰值 28 次——几个槽位？（提示：60÷28≈2.1 取 2；再用预算帽复核总账 1.72 ≤ 2——配额定上限，预算做复核，两个都过才放行。）",
+          "en": "Design a queue table for two concurrent tasks: 1) Add the queue column to day 58's ledger — which three values, who writes and when? (Hint: waiting / running / yielded; only the task writes — the scheduler reads, never writes.) 2) Drill the yield: task A crashes at segment 9 — how does task C learn the slot is free? (Hint: A doesn't notify C — the scheduler reads each pass, sees A stopped updating, marks it yielded; the recovered A re-queues at the tail.) 3) Size the slots: quota 60 calls/min, 28 peak per task — how many slots? (Hint: 60÷28≈2.1, take 2; re-check the $1.72 total against the $2 cap — quota sets the ceiling, the budget re-checks; both pass or nothing ships.)"
+        }
+      },
+      "takeaway": {
+        "zh": "并行排队＝账本加一列：调度器读 0.28k 队列列派槽位，三条任务 122 分钟压到 71 分钟，总账 1.72 美元一分不变——同时启动是抢（74 分钟还多烧 0.08 美元），槽位加队列是接；队列列每天 0.0004 美元。",
+        "en": "Parallel queuing = one more ledger column: the scheduler reads the 0.28k queue column to hand out slots — three tasks compress from 122 to 71 minutes, the $1.72 unchanged. Starting together is grabbing (74 minutes plus $0.08 of retries); slots plus a queue is taking turns. The column: $0.0004 a day."
+      },
+      "anim": {
+        "tpl": "batch",
+        "hook": {
+          "zh": "三条长任务抢一个预算：调度器不问「你跑到哪了」，读账本的队列列。",
+          "en": "Three long tasks, one budget: the scheduler never asks 'how far along are you' — it reads the ledger's queue column."
+        },
+        "coverHook": {
+          "zh": "122 分钟压到 71 分钟，账单一分不变",
+          "en": "122 minutes become 71 — bill unchanged"
+        },
+        "cols": 6,
+        "lanes": [
+          {
+            "zh": "任务 A · 12 段",
+            "en": "Task A · 12 segments",
+            "arrive": 0
+          },
+          {
+            "zh": "任务 B · 12 段",
+            "en": "Task B · 12 segments",
+            "arrive": 0
+          },
+          {
+            "zh": "任务 C · 排队",
+            "en": "Task C · queued",
+            "arrive": 2
+          },
+          {
+            "zh": "任务 A · 续跑",
+            "en": "Task A · resumed",
+            "arrive": 3
+          }
+        ],
+        "readoutZh": {
+          "serial": {
+            "num": "122 分钟",
+            "cap": "串行 · 三条挨个跑"
+          },
+          "batch": {
+            "num": "71 分钟",
+            "cap": "排队并行 · 2 槽位"
+          },
+          "gain": {
+            "num": "0.0004 美元",
+            "cap": "队列列 · 每天电费"
+          }
+        },
+        "readoutEn": {
+          "serial": {
+            "num": "122 min",
+            "cap": "serial · one after another"
+          },
+          "batch": {
+            "num": "71 min",
+            "cap": "queued parallel · 2 slots"
+          },
+          "gain": {
+            "num": "$0.0004",
+            "cap": "queue column · daily cost"
+          }
+        },
+        "note": {
+          "zh": "示意：列＝调度轮次（每轮约 12 分钟），2 个槽位、3 条任务。A、B 先占槽；C 排队到第 3 轮顶上；A 段 9 崩溃让位，续跑的 A 第 4 轮重新入队。到达前的列画虚线（在排队）——并行不靠同时启动，靠槽位和队列。",
+          "en": "Illustrative: columns = scheduler passes (~12 min each), 2 slots, 3 tasks. A and B take the slots first; C queues and joins at pass 3; A's segment 9 crash yields its slot, and the resumed A re-queues at pass 4. Columns before arrival show dashed (still queuing) — parallelism isn't simultaneous starts, it's slots and a queue."
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "账本 · 每段一行",
+                "alt": false
+              },
+              {
+                "tag": "＋",
+                "alt": true
+              },
+              {
+                "tag": "队列列",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "待跑/在跑/已让位",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "调度器查表派槽",
+                "merged": true
+              }
+            ],
+            "label": "调度器只读不写——队列列由任务自己更新",
+            "en": "The scheduler reads, never writes — tasks update their own queue column"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "串行 · 三条挨个跑",
+                "val": 100,
+                "cls": "",
+                "txt": "122 分钟 · 1.72 美元"
+              },
+              {
+                "tag": "排队并行 · 2 槽位",
+                "val": 58,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "71 分钟 · 1.72 美元不变"
+              },
+              {
+                "tag": "裸跑并行 · 抢配额",
+                "val": 61,
+                "cls": "",
+                "txt": "74 分钟 · 429 风暴多烧 0.08 美元"
+              }
+            ],
+            "label": "排队比裸跑还快 3 分钟：抢来的并发是负资产",
+            "en": "Queued beats bare by 3 minutes: throttling plus storms make grabbed concurrency a liability"
+          },
+          {
+            "routes": [
+              {
+                "tag": "「同时启动就是并行」",
+                "cls": "",
+                "verdict": "✗ 无队列就是抢配额",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「加一列要重设计格式」",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 加字段不改版·老账本兼容",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「并行成本翻倍」",
+                "cls": "",
+                "verdict": "✗ 1.72 美元串行并行一个数",
+                "vcls": " materin-learn-viz__route-word--bad"
+              }
+            ],
+            "label": "并行的单位是槽位＝同时在跑段数",
+            "en": "The unit of parallelism is the slot = concurrent running segments"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 60 天 · 工具限流",
+                "cls": "",
+                "verdict": "队列列按段聚合配额",
+                "vcls": ""
+              },
+              {
+                "tag": "第 85 天 · RAG 建库",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "槽位×批次×预算合流",
+                "vcls": ""
+              },
+              {
+                "tag": "第 56 天 · 三个读数",
+                "cls": "",
+                "verdict": "✓ 在跑/待跑/已让位",
+                "vcls": " materin-learn-viz__route-word--ok"
+              }
+            ],
+            "label": "阶段三第 10 课：多条可控——明天讲限流",
+            "en": "Stage 3, lesson 10: many governable — tomorrow, rate limits"
+          }
+        ]
+      }
     }
   ]
 }
