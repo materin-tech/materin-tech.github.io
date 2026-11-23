@@ -13570,6 +13570,278 @@
           }
         ]
       }
+    },
+    {
+      "n": 60,
+      "stage": 3,
+      "week": 9,
+      "tpl": "think",
+      "date": "2026-11-23",
+      "title": {
+        "zh": "工具限流：每把工具各记各账",
+        "en": "Tool rate limits: every tool keeps its own books"
+      },
+      "subtitle": {
+        "zh": "阶段三第十一课。60 次/分钟不是一顶帽——搜索 30、抓取 20、数据库 10，三把工具三本账：总帽管不住单工具爆仓，分账限流把 429 从 23 次压到 0，全队 71 分钟收工不变。",
+        "en": "Stage 3, lesson eleven. 60 calls per minute isn't one cap — search 30, fetch 20, database 10: three tools, three books. A total cap can't stop a single-tool blowout; per-tool limits push 429s from 23 to zero with the 71-minute finish untouched."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：总帽下面开三个小口",
+            "en": "Mechanism: three sub-caps under one roof"
+          },
+          "p": {
+            "zh": "昨天的队列表管「谁上槽」，今天管「上槽之后用多快的外呼」——第 59 天留下的问题：配额是 60 次/分钟一个总数，可三条任务烧的从来不是同一种调用。任务 A 周报重检索：每段 22 次搜索、4 次抓取；任务 B 同源重抓取：4 次搜索、22 次抓取、2 次数据库；任务 C 核对重数据库：6 次搜索、2 次抓取、20 次数据库。三条全速对撞，撞的其实不是 60 那顶总帽——是搜索 30、抓取 20、数据库 10 这三个供应商各自的小帽：总和 28 次/分钟落在 60 以内，但搜索需求 22+4+6=32 次挤爆 30 的小帽，数据库需求 2+2+20=24 次挤爆 10 的小帽。机制：把总帽拆成分账——调度器给每把工具各设一个信号量（搜索 30、抓取 20、数据库 10），任务外呼前先向对应小口申请，拿到才发；申请被拒就按昨天的方式排队，不动总帽一个字。账本同步加一列「工具账」：每段记下各工具用了几次，调度器读它聚合出每把工具的实时占用——昨天的队列列按任务聚合，今天的工具列按工具聚合，一张表两个断面。",
+            "en": "Day 59's queue table governs who takes a slot; today governs how fast the outsourced calls fly once on it — the question day 59 left open: the quota is one number, 60 calls per minute, but three tasks never burn the same kind of call. Task A's report leans on search: 22 searches, 4 fetches per segment; task B re-fetches the same sources: 4 searches, 22 fetches, 2 database calls; task C's cross-check leans on the database: 6 searches, 2 fetches, 20 database calls. Run all three full speed and what collides isn't the total cap of 60 — it's each vendor's own small cap: search 30, fetch 20, database 10. The 28-call average fits inside 60, but search demand hits 22+4+6=32 against a small cap of 30, and database demand hits 2+2+20=24 against a small cap of 10. The mechanism: split the total into per-tool books — the scheduler holds one semaphore per tool (search 30, fetch 20, database 10); a task requests from the matching sub-cap before each call and only fires once granted; denied requests queue exactly as day 59 queued, and the total cap is untouched. The ledger grows one more column, 'tool tally': each segment records how many calls it made per tool, and the scheduler reads it to aggregate each tool's live usage — day 59's queue column aggregated by task, today's tool column aggregates by tool, one table, two cross-sections."
+          },
+          "deep": {
+            "zh": "为什么总帽必须拆成小口？因为限流的对象不是「调用总量」而是「每一把工具的供给速度」——供给方是三个不同的供应商，各自有各自的 429。总帽是一道平均题：60 的帽子罩着 28 的平均，怎么看都安全；可碰撞发生在峰值分布上——A 的搜索高峰（22 次）正好撞上 C 的数据库高峰（20 次），总帽毫无感知，小帽各自爆仓。这和第 21 天连续批处理是同一条原理的又一断面：引擎按「单圈能算几条」拼批，不看请求总数；调度器按「每把工具每分钟能供几次」放行，不看调用总数——配额永远是按供给方记账，不是按需求方记账。分账还有第二个理由：责任可定位。总帽爆了，你只知道「超了」；工具账爆了，账本一行就指认「哪个段、哪把工具、烧了几次」——第 56 天「三个数盯一条线」到这里长出第四个读数：分工具占用率。",
+            "en": "Why must the total cap split into sub-caps? Because what rate limiting governs isn't 'total calls' but 'each tool's supply speed' — the suppliers are three different vendors, each with its own 429s. The total cap is an averaging exercise: 60 sheltering an average of 28 looks safe; the collision lives in the peak distribution — A's search peak (22) lands exactly on C's database peak (20), the total cap feels nothing, and each small cap blows out on its own. This is day 21's continuous batching again, one more cross-section: the engine packs by 'how many fit per lap', never by total requests; the scheduler admits by 'how many each tool can supply per minute', never by total calls — quota is always booked against the supplier, not the demander. Per-tool books have a second virtue: blame becomes locatable. A total-cap breach tells you only 'over quota'; a tool-column breach points at one ledger row — which segment, which tool, how many calls. Day 56's three vitals grow a fourth here: per-tool utilization."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：23 次 429 换 0 次",
+            "en": "The math: 23 four-hundreds traded for zero"
+          },
+          "p": {
+            "zh": "先把撞车的账摊开：三条任务同时开跑，峰值分钟里搜索需求 32 次 ÷ 小帽 30 = 限速开始，供应商返回 429；重试带指数退避，一个 429 平均耗 1.8 秒等待加一次重发——昨天的裸跑剧本今天换成按工具重演：全程累计 429 共 23 次（搜索 14、数据库 9），多烧 0.09 美元重试费，收工 74 分钟。分账限流之后：搜索需求 32 次，超出的 2 次排进小口队列，下一分钟窗口发出；数据库需求 24 次，超出的 14 次同样排队错峰——每个 429 都没发生，重试费 0 美元，收工 71 分钟（与昨天排队的 71 分钟相同：排队从任务级挪到调用级，总时长不吃亏）。代价算清：工具账列每段 3 个数字，12 段 × 0.015k ≈ 0.18k，约 0.0003 美元/天；信号量申请本身不走模型、不走计费，是调度器内存里的一次加减法。月账：30 天 × 0.0003 = 0.009 美元，换来的是 23 次 429 归零、0.09 美元重试费归零——买的是「74 分钟不变成 74 分钟还带警报」。",
+            "en": "First, the collision laid out: all three tasks start together, and in the peak minute search demand hits 32 against a small cap of 30 — throttling begins, the vendor returns 429; retries carry exponential backoff, each 429 costing 1.8 seconds of waiting plus one resend on average — yesterday's bare-run script replays per tool: 23 fours across the run (14 search, 9 database), $0.09 of retry fees, a 74-minute finish. After per-tool limits: the 2 excess searches queue in their sub-cap and fire in the next minute window; the 14 excess database calls likewise stagger — not one 429 fires, retry fees are zero, and the finish is 71 minutes (the same 71 as day 59's queuing: the queue moved from task level to call level, total duration unharmed). The cost, honestly: the tool column adds 3 numbers per segment, 12 × 0.015k ≈ 0.18k, about $0.0003 a day; the semaphore request itself touches neither model nor meter — one addition inside the scheduler's memory. Monthly: 30 days × $0.0003 = $0.009, in exchange for 23 fours going to zero and $0.09 of retry fees going to zero — buying '74 minutes stay 71 minutes, with no alarms'."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "08:00 三条任务上槽，工具列同步开账。08:03 峰值分钟：搜索申请 32 件，小口放行 30、2 件挂起；数据库申请 24 件，小口放行 10、14 件挂起——挂起的申请按「任务优先级 + 提交时刻」排序，下一窗口优先发出。抓取 6 件全程有余量，零等待。08:07 挂起的 16 件全部清空，没有任何一次触碰供应商的 429 线。对照组（关掉分账、只留总帽）：同一分钟搜索打出 32 件，30 件成功、2 件 429，其中 1 件触发连环重试——供应商把重试也算进配额，重试本身又可能 429，恶性循环开始；全程 23 次 429、0.09 美元重试费、收工 74 分钟。调度器的日志一行看完差别：分账版每分钟打印「search 30/30 · fetch 6/20 · db 10/10 · queued 16」，总帽版只有一行「total 58/60」——数字上健康，实际上搜索已经爆了。",
+              "en": "08:00, three tasks take their slots and the tool column opens its books. 08:03, the peak minute: 32 search requests arrive, the sub-cap admits 30 and holds 2; 24 database requests arrive, the sub-cap admits 10 and holds 14 — held requests sort by task priority then submission time, firing first in the next window. Fetching sees 6 requests with slack all run, zero waiting. 08:07, all 16 held requests have cleared; not once did a call touch the vendor's 429 line. The control group (per-tool limits off, total cap only): the same minute fires 32 searches — 30 succeed, 2 return 429, and 1 of those triggers a retry chain — the vendor counts retries against quota too, so a retry can itself 429, and the loop begins; 23 fours total, $0.09 in fees, a 74-minute finish. One log line shows the difference: the per-tool version prints 'search 30/30 · fetch 6/20 · db 10/10 · queued 16' each minute; the total-cap version prints only 'total 58/60' — healthy on paper, while search is already on fire."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：总帽没超就是安全的",
+            "en": "Misconception: under the total cap, all is well"
+          },
+          "p": {
+            "zh": "其一：「总账 58/60，离帽远着呢」。总账健康不等于每把工具健康——60 的帽子罩三本账，每本只能分到平均 20，而搜索的峰值需求是 32：平均数掩盖峰值分布，爆仓永远发生在「某一刻的某一把」上，不发生在平均里。这正是第 54 天的老病换个部位发作：没有分工具的度量，你连「哪把工具在爆」都不知道，只知道总账上偶尔抖一下。其二：「限流就是限总帽，拆小口是过度设计」。拆小口不是多一道闸，是把闸从「问错了对象」挪到「问对了对象」——供应商的 429 按工具发，你的闸也必须按工具设；对齐供给方的限流才拦得住 429，总帽拦的是自己的预算，拦不住别人的拒绝。成本侧：三本账一天 0.0003 美元，一次 429 风暴重试费 0.09 美元——「过度设计」的判据是成本，这笔账一天就回本三百次。其三：「排队挂起会拖慢任务」。挂起的 2 件搜索下一窗口就发，任务 A 在那个分钟本来也做不了别的——调用级排队挪的是几十秒的错峰，不是分钟级的等待；真正拖慢任务的是 429 重试链：1.8 秒等待 × 23 次 = 41 秒纯烧在等待上，还附带把配额烧得更满。",
+            "en": "One: 'the total sits at 58/60, miles from the cap.' A healthy total doesn't mean healthy tools — 60 shelters three books at an average of 20 each, while search's peak demand is 32: the average hides the peak distribution, and blowouts always happen to 'one tool at one moment', never in the average. This is day 54's old disease in a new organ: without per-tool measurement you can't even say which tool is blowing — only that the total occasionally wobbles. Two: 'rate limiting means one total cap; sub-caps are over-engineering.' Sub-caps aren't an extra gate, they're the same gate moved from 'asking the wrong party' to 'asking the right one' — the vendor's 429s come per tool, so your gate must sit per tool; limits aligned with the supplier actually stop 429s, while a total cap stops only your own budget, never someone else's refusal. On cost: three books cost $0.0003 a day; one 429 storm costs $0.09 in retries — by the only test that matters (cost), this 'over-engineering' pays for itself three hundred times a day. Three: 'queued holds slow the tasks down.' The 2 held searches fire in the very next window, and task A couldn't have done anything else that minute anyway — call-level queuing shifts seconds of staggering, not minutes of waiting; what actually slows tasks is the 429 retry chain: 1.8 seconds × 23 = 41 seconds burned purely waiting, with the quota burned fuller as a bonus."
+          },
+          "deep": {
+            "zh": "为什么「平均安全」的直觉这么顽固？因为人脑对配额的想象是水箱：进水 28、容量 60，水位怎么看都低。但供应商的限流不是水箱，是三个独立的闸门——每个闸门只看自己门口的流量。这也解释了为什么分账必须记在账本里而不是调度器内存里：内存里的计数器重启就丢，账本里的工具列跟着段落盘——第 58 天「状态外置」的原则第三次生效（队列列外置了任务状态，工具列外置了工具占用），崩溃后调度器读账本重建每个信号量的水位，不需要任何额外的恢复协议。三条列（任务、队列、工具）拼成一张完整的外置状态表：任务维度管生死，队列维度管次序，工具维度管速度——调度器查表治国，三个断面互不覆盖。",
+            "en": "Why is the 'average is safe' intuition so stubborn? Because the mind pictures quota as a water tank: inflow 28, capacity 60, the level always looks low. But vendor limits aren't a tank — they're three independent gates, each watching only its own doorway. This also explains why the books must live in the ledger, not the scheduler's memory: in-memory counters die on restart, while the ledger's tool column flushes with each segment — day 58's 'externalize state' principle fires a third time (the queue column externalized task state, the tool column externalizes tool usage); after a crash the scheduler reads the ledger to rebuild every semaphore's level, no recovery protocol needed. Three columns — task, queue, tool — form one complete externalized state table: the task dimension governs life and death, the queue dimension governs order, the tool dimension governs speed; the scheduler rules by lookup, three cross-sections that never overlap."
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：工具账——明天讲复盘",
+            "en": "Extension: the tool tally — tomorrow, review"
+          },
+          "p": {
+            "zh": "工具列让配额第一次变成可审计的账：哪段烧了哪把工具、烧了几次、超没超小口——一行看完，第 56 天的「三个读数」到这里凑成一套仪表盘（停线、人工分钟、日账单、分工具占用率）。明天（第 61 天）讲复盘：任务收工不只交产出，还要交一份「跑了什么」的流水——工具账就是流水的原材料，哪段搜索最密、哪段数据库卡壳、429 挂起发生在哪一分钟，全是复盘要读的行。再往后：第 85 天 RAG 建库是分账限流的最大考题——几万段批量嵌入时，嵌入接口自己的小帽才是瓶颈，总帽反而宽裕；第 59 天的槽位、今天的工具口、第 85 天的批次，三条线在那里合流。带走一条纪律：总帽管预算，小口管供给；账本记到工具粒度，限流才拦得住真正的 429——闸要对齐供给方，账要跟到烧钱处。",
+            "en": "The tool column makes quota auditable for the first time: which segment burned which tool, how many calls, over or under the sub-cap — one row, and day 56's three vitals grow into a dashboard (line stops, human minutes, daily bill, per-tool utilization). Tomorrow (day 61) covers review: a task hands over not just its output but a record of what it did — the tool tally is that record's raw material: the densest search segments, the database stalls, the minute a hold fired, all rows the review reads. Further out: day 85's RAG indexing is per-tool limiting's biggest exam — tens of thousands of bulk embeddings, where the embedding API's own small cap is the bottleneck and the total cap sits idle; day 59's slots, today's tool gates, and day 85's batches converge there. One discipline: the total cap governs budget, sub-caps govern supply; record at tool granularity and rate limiting stops the real 429s — align the gate with the supplier, follow the books to where the money burns."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "给昨天的三条任务装分账限流：① 从第 59 天的账本推每段工具用量——任务 A、B、C 各自每分钟烧搜索/抓取/数据库几次？（提示：别按平均算，按峰值算——A 的搜索 22、C 的数据库 20，撞点在峰值不在平均。）② 哪把工具的小口先爆？超出几次？（提示：搜索 32÷30 先爆、数据库 24÷10 最惨——爆的次序由「需求÷小帽」定，不由总量定。）③ 给信号量写一行恢复逻辑：调度器重启后怎么重建三把小口的水位？（提示：读账本的工具列逐段重放——状态外置到哪里，恢复就从哪里读；这也是账本不记内存的理由。）",
+          "en": "Fit yesterday's three tasks with per-tool limits: 1) From day 59's ledger, derive each segment's tool usage — how many searches / fetches / database calls does A, B, C burn per minute? (Hint: compute peaks, not averages — A's 22 searches and C's 20 database calls collide at peaks, not averages.) 2) Which sub-cap blows first, and by how much? (Hint: search 32÷30 blows first, database 24÷10 hurts worst — blowout order is set by demand ÷ sub-cap, never by totals.) 3) Write one line of recovery for the semaphores: after a scheduler restart, how do you rebuild all three levels? (Hint: replay the ledger's tool column segment by segment — state externalized is where recovery reads; that's also why the books live in the ledger, not memory.)"
+        }
+      },
+      "takeaway": {
+        "zh": "工具限流＝总帽下面开小口：搜索 30、抓取 20、数据库 10 三本分账，调度器按工具放行——总帽罩住 28 的平均却拦不住 32 的峰值，23 次 429 归零、重试费 0.09 美元归零，收工 71 分钟不变；工具账列 0.0003 美元/天。",
+        "en": "Tool rate limits = sub-caps under one roof: search 30, fetch 20, database 10 — the scheduler admits per tool. The total cap shelters a 28 average but can't stop a 32 peak; 23 fours go to zero, $0.09 of retry fees to zero, the 71-minute finish unchanged; the tool column costs $0.0003 a day."
+      },
+      "anim": {
+        "tpl": "think",
+        "hook": {
+          "zh": "总账 58/60 看着健康——搜索那条小口已经在爆了。",
+          "en": "The total reads 58/60, perfectly healthy — while the search sub-cap is already on fire."
+        },
+        "coverHook": {
+          "zh": "23 次 429 归零：只把总帽拆成三本账",
+          "en": "23 fours go to zero: just split one cap into three books"
+        },
+        "question": {
+          "zh": "峰值一分钟：搜索 32 件、抓取 6 件、数据库 24 件——三顶小帽各几件能过？",
+          "en": "Peak minute: 32 searches, 6 fetches, 24 database calls — how many pass each sub-cap?"
+        },
+        "fastTagZh": "只留总帽 · 一笔糊涂账",
+        "fastTagEn": "total cap only · one blurred book",
+        "fastTokens": [
+          "总账 58/60",
+          "实际：搜索 32/30 爆"
+        ],
+        "fastVerdictZh": "✗ 平均掩盖峰值 · 23 次 429",
+        "fastVerdictEn": "✗ average hides peaks · 23 fours",
+        "thinkTagZh": "分账限流 · 三本小账",
+        "thinkTagEn": "per-tool limits · three small books",
+        "thinkTokens": [
+          {
+            "w": "搜索 30 口：过 30 · 挂 2"
+          },
+          {
+            "w": "抓取 20 口：过 6 · 有余"
+          },
+          {
+            "w": "数据库 10 口：过 10",
+            "bad": true
+          },
+          {
+            "w": "修正：分窗错峰"
+          },
+          {
+            "w": "挂 14 件 · 下一窗口清",
+            "ans": true
+          }
+        ],
+        "slowVerdictZh": "✓ 429 · 0 次",
+        "slowVerdictEn": "✓ zero fours",
+        "readoutZh": {
+          "fast": {
+            "num": "23 次",
+            "cap": "429 · 只留总帽"
+          },
+          "think": {
+            "num": "0 次",
+            "cap": "429 · 三本分账"
+          },
+          "aime": {
+            "num": "74→71",
+            "cap": "分钟 · 重试风暴消失"
+          }
+        },
+        "readoutEn": {
+          "fast": {
+            "num": "23",
+            "cap": "fours · total cap only"
+          },
+          "think": {
+            "num": "0",
+            "cap": "fours · three books"
+          },
+          "aime": {
+            "num": "74→71",
+            "cap": "minutes · retry storm gone"
+          }
+        },
+        "note": {
+          "zh": "示意：三条任务峰值分钟的外呼需求（搜索 32、抓取 6、数据库 24）撞三顶小帽（30/20/10）。分账限流把超出的件数挂进小口队列、下一窗口错峰发出——重试链不存在了。对照只留总帽：总账 58/60 数字健康，搜索和数据库各自爆仓，23 次 429、0.09 美元重试费。工具账列 0.0003 美元/天。",
+          "en": "Illustrative: three tasks' peak-minute demand (search 32, fetch 6, database 24) against three sub-caps (30/20/10). Per-tool limits hold the excess in each sub-cap's queue and stagger it into the next window — the retry chain never exists. Total-cap-only control: the total reads a healthy 58/60 while search and database blow out on their own — 23 fours, $0.09 of retry fees. The tool column: $0.0003 a day."
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "总帽 60",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "搜索 30",
+                "alt": false
+              },
+              {
+                "tag": "抓取 20",
+                "alt": false
+              },
+              {
+                "tag": "数据库 10",
+                "alt": false
+              },
+              {
+                "tag": "三本分账 · 按工具放行",
+                "merged": true
+              }
+            ],
+            "label": "闸对齐供给方：429 按工具发，闸按工具设",
+            "en": "Align the gate with the supplier: 429s come per tool, gates sit per tool"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "只留总帽 · 58/60 看着健康",
+                "val": 100,
+                "cls": "",
+                "txt": "23 次 429 · 多烧 0.09 美元 · 74 分钟"
+              },
+              {
+                "tag": "三本分账 · 按工具放行",
+                "val": 96,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "0 次 429 · 重试费 0 · 71 分钟"
+              },
+              {
+                "tag": "工具账列 · 12 段 0.18k",
+                "val": 1,
+                "cls": "",
+                "txt": "0.0003 美元/天 · 日回本 300 次"
+              }
+            ],
+            "label": "排队挪到调用级：时长不吃亏，重试链消失",
+            "en": "The queue moves to call level: duration unharmed, retry chain gone"
+          },
+          {
+            "routes": [
+              {
+                "tag": "「总账没超就是安全」",
+                "cls": "",
+                "verdict": "✗ 平均掩盖峰值分布",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「拆小口是过度设计」",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 一天回本三百次",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「挂起排队拖慢任务」",
+                "cls": "",
+                "verdict": "✗ 错峰几十秒·重试烧 41 秒",
+                "vcls": " materin-learn-viz__route-word--bad"
+              }
+            ],
+            "label": "限流的对象是每把工具的供给速度，不是调用总数",
+            "en": "What's limited is each tool's supply speed, not the call total"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 61 天 · 复盘流水",
+                "cls": "",
+                "verdict": "工具账是流水的原材料",
+                "vcls": ""
+              },
+              {
+                "tag": "第 85 天 · RAG 建库",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "嵌入小帽才是瓶颈",
+                "vcls": ""
+              },
+              {
+                "tag": "第 56 天 · 三个读数",
+                "cls": "",
+                "verdict": "✓ +分工具占用率",
+                "vcls": " materin-learn-viz__route-word--ok"
+              }
+            ],
+            "label": "阶段三第 11 课：配额可审计——明天讲复盘",
+            "en": "Stage 3, lesson 11: quota becomes auditable — tomorrow, review"
+          }
+        ]
+      }
     }
   ]
 }
