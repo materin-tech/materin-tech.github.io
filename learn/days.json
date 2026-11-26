@@ -13843,604 +13843,919 @@
         ]
       }
     },
-{
-  "n": 61,
-  "stage": 3,
-  "week": 9,
-  "tpl": "rag",
-  "date": "2026-11-24",
-  "title": {
-    "zh": "复盘：把流水读成经验",
-    "en": "Review: read the run log into lessons"
-  },
-  "subtitle": {
-    "zh": "阶段三第十二课。收工还要交一份复盘单：带三个问句检索账本流水——C 的 8 次重复查询、第 4 段的空指纹，都是 0.011 美元/天抓出来的，第二天 71 分钟变 68。",
-    "en": "Stage 3, lesson twelve. A finished task also hands over a review sheet: query the ledger log with three questions — C's 8 repeated lookups and segment 4's missing fingerprint are caught for $0.011 a day, and tomorrow finishes in 68 minutes instead of 71."
-  },
-  "sections": [
     {
-      "h": {
-        "zh": "机制：带问句重读流水",
-        "en": "Mechanism: re-read the log with questions"
+      "n": 61,
+      "stage": 3,
+      "week": 9,
+      "tpl": "rag",
+      "date": "2026-11-24",
+      "title": {
+        "zh": "复盘：把流水读成经验",
+        "en": "Review: read the run log into lessons"
       },
-      "p": {
-        "zh": "复盘的机制不是「让模型总结一下」，是一条固定的检索流水线：任务收工（第 59 天的 71 分钟），调度器先把账本流水压成摘要——84 行原文按「每段一行」压成 12 行、1.2k token；再把复盘模板的骨架（0.6k：三个问句＋复盘单格式）和摘要拼进窗口，调一次便宜模型。模型做的事和第 35 天的 RAG 同构：不是读完整本账，而是带着问句在流水里检索，只把命中行抄进复盘单——问句一「哪里烧得最贵」命中工具列的高占用行，问句二「哪里卡得最久」命中队列列的挂起行，问句三「哪里缺记录」命中指纹列的空缺行。复盘单三栏：证据行（账本原文＋行号）、结论（一句话）、改动（明天能验证的一条）。和 RAG 的差别只有一个：知识库不是文档库，是任务自己写的流水——第 58 天的账本从「续跑的依据」升级成「复盘的语料」。",
-        "en": "A review isn't 'ask the model to summarize' — it's a fixed retrieval pipeline: when the task finishes (day 59's 71 minutes), the scheduler first compresses the ledger log into a digest — 84 raw rows squeezed to 12 rows, one per segment, 1.2k tokens; then the review template's skeleton (0.6k: three questions plus the review-sheet format) and the digest go into the window, and a cheap model runs once. What the model does is isomorphic to day 35's RAG: it never reads the whole ledger, it retrieves inside the log with questions and copies only the hit rows into the review sheet — question one, 'where did it burn most', hits high-usage rows in the tool column; question two, 'where did it stall longest', hits held rows in the queue column; question three, 'where is a record missing', hits empty cells in the fingerprint column. The review sheet has three fields: evidence rows (ledger text plus line number), a one-sentence conclusion, and one change verifiable tomorrow. The only difference from RAG: the knowledge base isn't a document library, it's the log the task wrote itself — day 58's ledger graduates from 'the basis for resuming' to 'the corpus for reviewing'."
+      "subtitle": {
+        "zh": "阶段三第十二课。收工还要交一份复盘单：带三个问句检索账本流水——C 的 8 次重复查询、第 4 段的空指纹，都是 0.011 美元/天抓出来的，第二天 71 分钟变 68。",
+        "en": "Stage 3, lesson twelve. A finished task also hands over a review sheet: query the ledger log with three questions — C's 8 repeated lookups and segment 4's missing fingerprint are caught for $0.011 a day, and tomorrow finishes in 68 minutes instead of 71."
       },
-      "deep": {
-        "zh": "为什么复盘必须是检索而不是总结？因为注意力是摊薄的：总结 84 行原文要 3.4k 输入（84 行 × 40 token），模型平均用力，最贵的段和最闲的段得到同样的笔墨；先压缩再检索，模型只对 1.2k 摘要和命中的 3 行用力——第 6 天的稀释效应在这里反过来用：窗口越小，命中行得到的注意力越足。第二个理由是结论可核查：复盘单每条结论必须挂证据行号——「模型觉得 C 有问题」和「C 的数据列写着 20 次/分钟、其中 8 次查同一张表」是两种东西，只有后者能写进文档、被下一个人复检。这也解释了为什么复盘排在流水线文档（第 52 天）之后：复盘单是文档的补丁，没有版本头的文档接不住复盘的结论。",
-        "en": "Why must a review be retrieval, not a summary? Because attention dilutes: summarizing 84 raw rows takes 3.4k input (84 × 40 tokens), and the model spreads itself evenly — the priciest segment gets the same ink as the idlest one; compress first, then retrieve, and the model spends its attention on the 1.2k digest plus 3 hit rows — day 6's dilution effect used in reverse: the smaller the window, the more attention each hit gets. The second reason is checkability: every conclusion on the sheet must cite evidence rows — 'the model feels C is off' and 'C's database column reads 20 calls per minute, 8 of them querying the same table' are two different things; only the latter can go into a document and be re-checked by the next person. That's also why review comes after the pipeline document (day 52): a review sheet is a patch on the document, and a document without a version header can't hold the patch."
-      }
-    },
-    {
-      "h": {
-        "zh": "算一笔账：0.011 美元的账单",
-        "en": "The math: an $0.011 bill"
-      },
-      "p": {
-        "zh": "先列分项再写总数：复盘一次的成本 = 输入 + 输出。输入 = 复盘骨架 0.6k + 流水摘要 1.2k = 1.8k，按 3 美元/百万 = 0.0054 美元；输出 = 复盘单 0.4k，按 15 美元/百万 = 0.0060 美元；合计 0.0114 ≈ 0.011 美元/天，月账 30 天 = 0.34 美元。这笔钱买回什么？拿昨天的流水实算：其一，问句一命中 C 的数据列——每分钟 20 次里有 8 次是核对段重复查询同一张表（幂等查询没做缓存），给 C 加 60 秒查询缓存，数据库需求 24→16，挂起 14→6（搜索照旧挂 2，总挂起 16→8），第二天收工 71→68 分钟。其二，问句三命中第 4 段的指纹列——昨天人工改过产出、指纹没重算，留着空值：若当天崩溃，第 58 天的续跑会因指纹对不上退化成 71 分钟全量重跑；补上「落账前指纹必须非空」的校验，险情排除。0.011 美元/天，换第二天的 3 分钟和一次 71 分钟重跑的保险。",
-        "en": "Line items first, then the total: one review costs input + output. Input = skeleton 0.6k + digest 1.2k = 1.8k, at $3/M = $0.0054; output = the 0.4k review sheet at $15/M = $0.0060; total $0.0114 ≈ $0.011 a day, $0.34 a month. What does that buy? Run it on yesterday's log: first, question one hits C's database column — 8 of its 20 calls per minute are the cross-check segment re-querying the same table (an idempotent query with no cache); add a 60-second query cache and database demand falls 24→16, holds fall 14→6 (search still holds 2, total holds 16→8), and tomorrow finishes 71→68 minutes. Second, question three hits segment 4's fingerprint column — yesterday someone hand-edited the output without recomputing the fingerprint, leaving it blank: had the run crashed, day 58's resume would have degraded into a full 71-minute rerun; add the check 'fingerprint must be non-empty before a row lands' and the risk is gone. $0.011 a day buys tomorrow's 3 minutes and insurance against a 71-minute rerun."
-      },
-      "example": {
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：带问句重读流水",
+            "en": "Mechanism: re-read the log with questions"
+          },
+          "p": {
+            "zh": "复盘的机制不是「让模型总结一下」，是一条固定的检索流水线：任务收工（第 59 天的 71 分钟），调度器先把账本流水压成摘要——84 行原文按「每段一行」压成 12 行、1.2k token；再把复盘模板的骨架（0.6k：三个问句＋复盘单格式）和摘要拼进窗口，调一次便宜模型。模型做的事和第 35 天的 RAG 同构：不是读完整本账，而是带着问句在流水里检索，只把命中行抄进复盘单——问句一「哪里烧得最贵」命中工具列的高占用行，问句二「哪里卡得最久」命中队列列的挂起行，问句三「哪里缺记录」命中指纹列的空缺行。复盘单三栏：证据行（账本原文＋行号）、结论（一句话）、改动（明天能验证的一条）。和 RAG 的差别只有一个：知识库不是文档库，是任务自己写的流水——第 58 天的账本从「续跑的依据」升级成「复盘的语料」。",
+            "en": "A review isn't 'ask the model to summarize' — it's a fixed retrieval pipeline: when the task finishes (day 59's 71 minutes), the scheduler first compresses the ledger log into a digest — 84 raw rows squeezed to 12 rows, one per segment, 1.2k tokens; then the review template's skeleton (0.6k: three questions plus the review-sheet format) and the digest go into the window, and a cheap model runs once. What the model does is isomorphic to day 35's RAG: it never reads the whole ledger, it retrieves inside the log with questions and copies only the hit rows into the review sheet — question one, 'where did it burn most', hits high-usage rows in the tool column; question two, 'where did it stall longest', hits held rows in the queue column; question three, 'where is a record missing', hits empty cells in the fingerprint column. The review sheet has three fields: evidence rows (ledger text plus line number), a one-sentence conclusion, and one change verifiable tomorrow. The only difference from RAG: the knowledge base isn't a document library, it's the log the task wrote itself — day 58's ledger graduates from 'the basis for resuming' to 'the corpus for reviewing'."
+          },
+          "deep": {
+            "zh": "为什么复盘必须是检索而不是总结？因为注意力是摊薄的：总结 84 行原文要 3.4k 输入（84 行 × 40 token），模型平均用力，最贵的段和最闲的段得到同样的笔墨；先压缩再检索，模型只对 1.2k 摘要和命中的 3 行用力——第 6 天的稀释效应在这里反过来用：窗口越小，命中行得到的注意力越足。第二个理由是结论可核查：复盘单每条结论必须挂证据行号——「模型觉得 C 有问题」和「C 的数据列写着 20 次/分钟、其中 8 次查同一张表」是两种东西，只有后者能写进文档、被下一个人复检。这也解释了为什么复盘排在流水线文档（第 52 天）之后：复盘单是文档的补丁，没有版本头的文档接不住复盘的结论。",
+            "en": "Why must a review be retrieval, not a summary? Because attention dilutes: summarizing 84 raw rows takes 3.4k input (84 × 40 tokens), and the model spreads itself evenly — the priciest segment gets the same ink as the idlest one; compress first, then retrieve, and the model spends its attention on the 1.2k digest plus 3 hit rows — day 6's dilution effect used in reverse: the smaller the window, the more attention each hit gets. The second reason is checkability: every conclusion on the sheet must cite evidence rows — 'the model feels C is off' and 'C's database column reads 20 calls per minute, 8 of them querying the same table' are two different things; only the latter can go into a document and be re-checked by the next person. That's also why review comes after the pipeline document (day 52): a review sheet is a patch on the document, and a document without a version header can't hold the patch."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：0.011 美元的账单",
+            "en": "The math: an $0.011 bill"
+          },
+          "p": {
+            "zh": "先列分项再写总数：复盘一次的成本 = 输入 + 输出。输入 = 复盘骨架 0.6k + 流水摘要 1.2k = 1.8k，按 3 美元/百万 = 0.0054 美元；输出 = 复盘单 0.4k，按 15 美元/百万 = 0.0060 美元；合计 0.0114 ≈ 0.011 美元/天，月账 30 天 = 0.34 美元。这笔钱买回什么？拿昨天的流水实算：其一，问句一命中 C 的数据列——每分钟 20 次里有 8 次是核对段重复查询同一张表（幂等查询没做缓存），给 C 加 60 秒查询缓存，数据库需求 24→16，挂起 14→6（搜索照旧挂 2，总挂起 16→8），第二天收工 71→68 分钟。其二，问句三命中第 4 段的指纹列——昨天人工改过产出、指纹没重算，留着空值：若当天崩溃，第 58 天的续跑会因指纹对不上退化成 71 分钟全量重跑；补上「落账前指纹必须非空」的校验，险情排除。0.011 美元/天，换第二天的 3 分钟和一次 71 分钟重跑的保险。",
+            "en": "Line items first, then the total: one review costs input + output. Input = skeleton 0.6k + digest 1.2k = 1.8k, at $3/M = $0.0054; output = the 0.4k review sheet at $15/M = $0.0060; total $0.0114 ≈ $0.011 a day, $0.34 a month. What does that buy? Run it on yesterday's log: first, question one hits C's database column — 8 of its 20 calls per minute are the cross-check segment re-querying the same table (an idempotent query with no cache); add a 60-second query cache and database demand falls 24→16, holds fall 14→6 (search still holds 2, total holds 16→8), and tomorrow finishes 71→68 minutes. Second, question three hits segment 4's fingerprint column — yesterday someone hand-edited the output without recomputing the fingerprint, leaving it blank: had the run crashed, day 58's resume would have degraded into a full 71-minute rerun; add the check 'fingerprint must be non-empty before a row lands' and the risk is gone. $0.011 a day buys tomorrow's 3 minutes and insurance against a 71-minute rerun."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "08:11 收工后的复盘时刻：调度器把 84 行流水压成 12 行摘要（1.2k），骨架 0.6k 拼窗，一次调用 14 秒返回复盘单。证据行三行——「C 数据列：20 次/分钟，其中核对段 8 次查同一张表」「队列列：08:03 挂起 16 件（搜索 2＋数据库 14），08:07 清空」「第 4 段指纹：空」。结论两行、改动两行：「给 C 的核对查询加 60 秒缓存」「落账前指纹必须非空」。第二天 08:03 峰值分钟：数据库需求 16 次、挂起 8 件、08:05 清空，收工 68 分钟。对照组（不做复盘）原样重演：71 分钟、挂起 16、空指纹继续潜伏——坑不会自己消失，只会等你下一次崩溃。",
+              "en": "08:11, the review moment after the 71-minute finish: the scheduler compresses 84 rows into a 12-row digest (1.2k), splices in the 0.6k skeleton, and one call returns the sheet in 14 seconds. Three evidence rows — 'C's database column: 20 calls/minute, 8 of them the cross-check segment querying the same table'; 'queue column: 08:03, 16 held calls (2 search + 14 database), cleared 08:07'; 'segment 4 fingerprint: empty'. Two conclusions, two changes: 'add a 60-second cache to C's cross-check queries'; 'fingerprint must be non-empty before a row lands'. Next day, 08:03 peak minute: database demand 16, 8 calls held, cleared by 08:05, finish 68 minutes. The control group (no review) replays itself: 71 minutes, 16 holds, and the blank fingerprint still lying in wait — pits don't vanish on their own; they wait for your next crash."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：复盘不是会议纪要",
+            "en": "Misconception: a review is not meeting minutes"
+          },
+          "p": {
+            "zh": "其一：「复盘就是让模型写段总结」。总结和复盘的分界在「改不改明天」：总结可以夸自己「今天很顺利」，复盘单的每一行必须落到「明天能验证的一条改动」——没有改动栏的复盘单是日记。其二：「账本里什么都有，模型自然会找到」。错——问句决定命中：带着「今天做了什么」去问，捞回来的是流水账；带着「哪里烧得冤枉」去问，才命中 C 的重查和空指纹。第 35 天的教训在复盘层重演：检索质量的上限是回答质量的上限，复盘质量的上限是问句质量的上限。其三：「复盘每周做一次就够」。坑不过夜：C 的重复查询是每天复利烧的（8 次 × 60 分钟 × 每分钟的排队等待），空指纹是随机爆炸的——0.011 美元/天的账单说明复盘是日常运营成本，不是周会节目。",
+            "en": "One: 'a review is just asking the model to write a summary.' The line between summary and review is whether tomorrow changes: a summary may praise itself — 'smooth run today' — while every row of a review sheet must land on 'one change verifiable tomorrow'; a sheet without a change field is a diary. Two: 'the ledger has everything; the model will find it.' No — questions decide hits: ask 'what did we do today' and you fish up a diary; ask 'where did it burn unjustly' and you hit C's repeated queries and the blank fingerprint. Day 35's lesson replayed at the review layer: the ceiling of retrieval quality is the ceiling of answer quality — the ceiling of review quality is the ceiling of question quality. Three: 'a weekly review is enough.' Pits don't wait: C's repeated queries compound daily (8 calls × 60 minutes × the queueing wait in each), and the blank fingerprint detonates at random — the $0.011-a-day bill says review is an operating cost, not a meeting item."
+          },
+          "deep": {
+            "zh": "为什么「写回」是复盘的最后一公里？因为经验不写回就只活在那张复盘单里：下个版本改了提示、换了工具，新流水不会自动继承旧教训。所以复盘单的改动栏要写回第 52 天的流水线文档——版本头加一行「第 61 天复盘：C 加查询缓存」，第 57 天的回归集加一条用例「核对段不得重复查询」。这也是「生成≠发布」纪律的学习版：复盘≠改进，写回才算改进闭环。明天（第 62 天）专门讲写回：结论怎么变成下一版模板和回归集的新用例。",
+            "en": "Why is 'writing back' the last mile of review? Because an unwritten lesson lives only on that one sheet: the next version changes the prompt, swaps a tool, and the new log inherits nothing. So the change field must be written back into day 52's pipeline document — one line in the version header ('day 61 review: C gets a query cache'), one new case in day 57's regression set ('the cross-check segment must not re-query'). This is the 'generation ≠ release' discipline, study edition: review ≠ improvement; writing back is what closes the loop. Tomorrow (day 62) covers the write-back: how conclusions become template v2 and new regression cases."
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：流水喂回明天的提示",
+            "en": "Extension: the log feeds tomorrow's prompt"
+          },
+          "p": {
+            "zh": "今天把第 58 天的账本用出了第四个身份：任务状态表（生死）、队列表（次序）、工具账（速度）、复盘语料（经验）——一份账本四个断面，外置状态的复利开始兑现。往后看：明天（第 62 天）讲写回——复盘单怎么变成模板 v2 和回归集新用例，改进回路闭环；第 85 天 RAG 建库时，你会认出今天的整套动作（压缩、按问句检索、带出处引用）——只是语料从账本流水换成了文档库，检索器从调度器换成了向量库。带走一条纪律：复盘不是总结，是带着问句的检索——问句写「哪里」，命中的才是证据；结论不写回，经验就不存在。",
+            "en": "Today the day-58 ledger takes on a fourth identity: task state table (life and death), queue table (order), tool tally (speed), review corpus (lessons) — one ledger, four cross-sections, and the compound interest of externalized state starts paying out. Looking ahead: tomorrow (day 62) covers the write-back — how the sheet becomes template v2 and new regression cases, closing the improvement loop; at day 85's RAG indexing you'll recognize today's whole routine (compress, retrieve by question, cite sources) — only the corpus swaps from ledger log to document library, and the retriever from scheduler to vector store. One discipline: a review is not a summary, it's retrieval with questions — write 'where' and the hits are evidence; a conclusion not written back is a lesson that never existed."
+          }
+        }
+      ],
+      "action": {
         "h": {
-          "zh": "实例",
-          "en": "Worked example"
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
         },
         "p": {
-          "zh": "08:11 收工后的复盘时刻：调度器把 84 行流水压成 12 行摘要（1.2k），骨架 0.6k 拼窗，一次调用 14 秒返回复盘单。证据行三行——「C 数据列：20 次/分钟，其中核对段 8 次查同一张表」「队列列：08:03 挂起 16 件（搜索 2＋数据库 14），08:07 清空」「第 4 段指纹：空」。结论两行、改动两行：「给 C 的核对查询加 60 秒缓存」「落账前指纹必须非空」。第二天 08:03 峰值分钟：数据库需求 16 次、挂起 8 件、08:05 清空，收工 68 分钟。对照组（不做复盘）原样重演：71 分钟、挂起 16、空指纹继续潜伏——坑不会自己消失，只会等你下一次崩溃。",
-          "en": "08:11, the review moment after the 71-minute finish: the scheduler compresses 84 rows into a 12-row digest (1.2k), splices in the 0.6k skeleton, and one call returns the sheet in 14 seconds. Three evidence rows — 'C's database column: 20 calls/minute, 8 of them the cross-check segment querying the same table'; 'queue column: 08:03, 16 held calls (2 search + 14 database), cleared 08:07'; 'segment 4 fingerprint: empty'. Two conclusions, two changes: 'add a 60-second cache to C's cross-check queries'; 'fingerprint must be non-empty before a row lands'. Next day, 08:03 peak minute: database demand 16, 8 calls held, cleared by 08:05, finish 68 minutes. The control group (no review) replays itself: 71 minutes, 16 holds, and the blank fingerprint still lying in wait — pits don't vanish on their own; they wait for your next crash."
+          "zh": "给昨天的流水做一次复盘：① 写三个复盘问句——哪句最能捞「烧钱行」？（提示：问「哪里烧得冤枉」命中的才是证据行；问「今天做了什么」捞回来的全是流水账。）② 用账本数字填复盘单：最贵的段烧了多少、卡了几次、明天改一条什么？（提示：改动必须落到明天能验证的数字，比如「C 数据 20→12」。）③ 复盘单写回哪里？（提示：第 52 天的文档版本头——不写回的复盘是日记，写回的才是改进回路。）",
+          "en": "Run one review over yesterday's log: (1) write three review questions — which one best fishes up 'the rows where money burns'? (Hint: ask 'where did it burn unjustly' and hits are evidence rows; ask 'what did we do today' and you get a diary.) (2) Fill the sheet with ledger numbers: which segment burned most, how long the stalls, and one change for tomorrow? (Hint: the change must land on a number verifiable tomorrow, e.g. 'C's database calls 20→12'.) (3) Where does the sheet get written back? (Hint: day 52's document version header — a review not written back is a diary; written back, it's the improvement loop.)"
         }
+      },
+      "takeaway": {
+        "zh": "任务复盘＝收工后带三个问句检索流水：C 的 8 次重复查询、第 4 段的空指纹，都由 0.011 美元/天的复盘单抓出——输入 1.8k＋输出 0.4k；第二天 71 分钟变 68，坑不过夜。结论写回文档，复盘才算闭环。",
+        "en": "A task review = querying the log with three questions after the finish: C's 8 repeated lookups and segment 4's blank fingerprint are caught by a $0.011-a-day sheet — 1.8k input + 0.4k output; tomorrow finishes 68 instead of 71, and no pit survives the night. Write the conclusions back, or the review never happened."
+      },
+      "anim": {
+        "tpl": "rag",
+        "hook": {
+          "zh": "不复盘的第二天，原样重演今天的坑。",
+          "en": "Skip the review and tomorrow replays today's pits."
+        },
+        "coverHook": {
+          "zh": "0.011 美元一天：抓出重查 8 次，71 分钟变 68",
+          "en": "$0.011 a day: 8 repeated lookups caught, 71 minutes become 68"
+        },
+        "question": {
+          "zh": "问：今天哪里烧得冤枉？",
+          "en": "Q: Where did today burn unjustly?"
+        },
+        "docTag": {
+          "zh": "账本流水 · 9 行（示意）",
+          "en": "Ledger log · 9 rows (illustrative)"
+        },
+        "pages": [
+          {
+            "zh": "A 搜索 22",
+            "en": "A · 22 search",
+            "hit": false
+          },
+          {
+            "zh": "A 抓取 4",
+            "en": "A · 4 fetch",
+            "hit": false
+          },
+          {
+            "zh": "A 数据 2",
+            "en": "A · 2 db",
+            "hit": false
+          },
+          {
+            "zh": "B 搜索 4",
+            "en": "B · 4 search",
+            "hit": false
+          },
+          {
+            "zh": "B 抓取 22",
+            "en": "B · 22 fetch",
+            "hit": false
+          },
+          {
+            "zh": "C 数据 20",
+            "en": "C · 20 db",
+            "hit": true
+          },
+          {
+            "zh": "挂起 16",
+            "en": "16 held",
+            "hit": true
+          },
+          {
+            "zh": "4 段指纹空",
+            "en": "seg 4 fp void",
+            "hit": true
+          },
+          {
+            "zh": "收工 71 分",
+            "en": "71-min finish",
+            "hit": false
+          }
+        ],
+        "arrowLabel": {
+          "zh": "⇣ 复盘检索 · 带问句取 3 行",
+          "en": "⇣ review retrieval · 3 rows by question"
+        },
+        "windowTag": {
+          "zh": "复盘单 · 只写证据 3 行",
+          "en": "Review sheet · 3 evidence rows only"
+        },
+        "answer": {
+          "zh": "答：C 重查 8 次、第 4 段指纹空——明天改两条",
+          "en": "A: C re-queries 8×, segment 4 fingerprint blank — two changes tomorrow"
+        },
+        "statsZh": [
+          {
+            "num": "1.8k",
+            "cap": "复盘一次 · 骨架 0.6k＋流水 1.2k"
+          },
+          {
+            "num": "$0.011",
+            "cap": "每天 · 复盘单全部账单"
+          },
+          {
+            "num": "71→68",
+            "cap": "分钟 · 第二天收工（挂起 16→8）"
+          }
+        ],
+        "statsEn": [
+          {
+            "num": "1.8k",
+            "cap": "per review · 0.6k skeleton + 1.2k digest"
+          },
+          {
+            "num": "$0.011",
+            "cap": "a day · the whole review bill"
+          },
+          {
+            "num": "71→68",
+            "cap": "minutes · next-day finish (holds 16→8)"
+          }
+        ],
+        "note": {
+          "zh": "示意：84 行账本流水压成 1.2k 摘要，带三个问句检索，命中 3 行写成复盘单（0.4k 输出）。复盘单抓出两条：C 的核对段每分钟重复查询同一张表 8 次（加缓存后 71 分钟变 68）、第 4 段指纹空缺（补校验，排除 71 分钟全量重跑的险情）。复盘一次 0.011 美元，月账 0.34 美元。",
+          "en": "Illustrative: 84 ledger rows compressed to a 1.2k digest, retrieved with three questions, 3 hits written into a 0.4k review sheet. It catches two things: C's cross-check segment re-querying the same table 8 times a minute (a cache turns 71 minutes into 68), and segment 4's blank fingerprint (a check is added, averting a 71-minute full rerun). One review costs $0.011, $0.34 a month."
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "流水 84 行"
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "问句 3 条"
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "复盘单 0.4k"
+              },
+              {
+                "tag": "干了什么·卡在哪·改什么",
+                "merged": true
+              }
+            ],
+            "label": "复盘不是重读账本，是带着问句去检索",
+            "en": "A review isn't re-reading the ledger — it's retrieving with questions"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "不复盘 · 第二天原样重演",
+                "val": 100,
+                "cls": "",
+                "txt": "71 分钟 · 挂起 16 · 指纹空缺潜伏"
+              },
+              {
+                "tag": "每天复盘 · $0.011",
+                "val": 68,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "68 分钟 · 挂起 8 · 险情当天落单"
+              },
+              {
+                "tag": "月账 · $0.34",
+                "val": 2,
+                "cls": "",
+                "txt": "30 天 × $0.011 · 一条流水线的保险"
+              }
+            ],
+            "label": "0.011 美元/天：第二天 71 变 68，坑不过夜",
+            "en": "$0.011 a day: tomorrow runs 68 not 71, no pit survives the night"
+          },
+          {
+            "routes": [
+              {
+                "tag": "复盘＝写段总结感想",
+                "cls": "",
+                "verdict": "✗ 没有改动栏的日记",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "账本自己会说话",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 问句决定命中",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "复盘每周一次就够",
+                "cls": "",
+                "verdict": "✗ 坑是每天复利的",
+                "vcls": " materin-learn-viz__route-word--bad"
+              }
+            ],
+            "label": "复盘是带问句的检索：问「哪里」，命中的才是证据",
+            "en": "A review is retrieval with questions: ask 'where', hits are evidence"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 62 天 · 写回模板",
+                "cls": "",
+                "verdict": "结论变下一版骨架",
+                "vcls": ""
+              },
+              {
+                "tag": "第 85 天 · RAG 建库",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "同款检索，换个语料",
+                "vcls": ""
+              },
+              {
+                "tag": "第 52 天 · 流水线文档",
+                "cls": "",
+                "verdict": "✓ 复盘单挂版本头",
+                "vcls": " materin-learn-viz__route-word--ok"
+              }
+            ],
+            "label": "阶段三第 12 课：经验可沉淀——明天讲写回",
+            "en": "Stage 3, lesson 12: lessons persist — tomorrow, write-back"
+          }
+        ]
       }
     },
     {
-      "h": {
-        "zh": "误区：复盘不是会议纪要",
-        "en": "Misconception: a review is not meeting minutes"
+      "n": 62,
+      "stage": 3,
+      "week": 9,
+      "tpl": "chain",
+      "date": "2026-11-25",
+      "title": {
+        "zh": "写回：结论钉进新版",
+        "en": "Write-back: pin conclusions into the next build"
       },
-      "p": {
-        "zh": "其一：「复盘就是让模型写段总结」。总结和复盘的分界在「改不改明天」：总结可以夸自己「今天很顺利」，复盘单的每一行必须落到「明天能验证的一条改动」——没有改动栏的复盘单是日记。其二：「账本里什么都有，模型自然会找到」。错——问句决定命中：带着「今天做了什么」去问，捞回来的是流水账；带着「哪里烧得冤枉」去问，才命中 C 的重查和空指纹。第 35 天的教训在复盘层重演：检索质量的上限是回答质量的上限，复盘质量的上限是问句质量的上限。其三：「复盘每周做一次就够」。坑不过夜：C 的重复查询是每天复利烧的（8 次 × 60 分钟 × 每分钟的排队等待），空指纹是随机爆炸的——0.011 美元/天的账单说明复盘是日常运营成本，不是周会节目。",
-        "en": "One: 'a review is just asking the model to write a summary.' The line between summary and review is whether tomorrow changes: a summary may praise itself — 'smooth run today' — while every row of a review sheet must land on 'one change verifiable tomorrow'; a sheet without a change field is a diary. Two: 'the ledger has everything; the model will find it.' No — questions decide hits: ask 'what did we do today' and you fish up a diary; ask 'where did it burn unjustly' and you hit C's repeated queries and the blank fingerprint. Day 35's lesson replayed at the review layer: the ceiling of retrieval quality is the ceiling of answer quality — the ceiling of review quality is the ceiling of question quality. Three: 'a weekly review is enough.' Pits don't wait: C's repeated queries compound daily (8 calls × 60 minutes × the queueing wait in each), and the blank fingerprint detonates at random — the $0.011-a-day bill says review is an operating cost, not a meeting item."
+      "subtitle": {
+        "zh": "阶段三第十三课。复盘单的改动栏今天落进两处：模板 v2 的版本头加一行变更记录，回归集加一条「核对段不得重复查询」的新用例——写回让结论从日记变成改进，71 分钟降到 68 才开始复利。",
+        "en": "Stage 3, lesson thirteen. The sheet's change column lands in two places today: one change line in template v2's header, one new regression case — 'no repeated same-table queries'. Write-back turns conclusions from a diary into improvements, and only then do 71→68 minutes start compounding."
       },
-      "deep": {
-        "zh": "为什么「写回」是复盘的最后一公里？因为经验不写回就只活在那张复盘单里：下个版本改了提示、换了工具，新流水不会自动继承旧教训。所以复盘单的改动栏要写回第 52 天的流水线文档——版本头加一行「第 61 天复盘：C 加查询缓存」，第 57 天的回归集加一条用例「核对段不得重复查询」。这也是「生成≠发布」纪律的学习版：复盘≠改进，写回才算改进闭环。明天（第 62 天）专门讲写回：结论怎么变成下一版模板和回归集的新用例。",
-        "en": "Why is 'writing back' the last mile of review? Because an unwritten lesson lives only on that one sheet: the next version changes the prompt, swaps a tool, and the new log inherits nothing. So the change field must be written back into day 52's pipeline document — one line in the version header ('day 61 review: C gets a query cache'), one new case in day 57's regression set ('the cross-check segment must not re-query'). This is the 'generation ≠ release' discipline, study edition: review ≠ improvement; writing back is what closes the loop. Tomorrow (day 62) covers the write-back: how conclusions become template v2 and new regression cases."
-      }
-    },
-    {
-      "h": {
-        "zh": "延伸：流水喂回明天的提示",
-        "en": "Extension: the log feeds tomorrow's prompt"
-      },
-      "p": {
-        "zh": "今天把第 58 天的账本用出了第四个身份：任务状态表（生死）、队列表（次序）、工具账（速度）、复盘语料（经验）——一份账本四个断面，外置状态的复利开始兑现。往后看：明天（第 62 天）讲写回——复盘单怎么变成模板 v2 和回归集新用例，改进回路闭环；第 85 天 RAG 建库时，你会认出今天的整套动作（压缩、按问句检索、带出处引用）——只是语料从账本流水换成了文档库，检索器从调度器换成了向量库。带走一条纪律：复盘不是总结，是带着问句的检索——问句写「哪里」，命中的才是证据；结论不写回，经验就不存在。",
-        "en": "Today the day-58 ledger takes on a fourth identity: task state table (life and death), queue table (order), tool tally (speed), review corpus (lessons) — one ledger, four cross-sections, and the compound interest of externalized state starts paying out. Looking ahead: tomorrow (day 62) covers the write-back — how the sheet becomes template v2 and new regression cases, closing the improvement loop; at day 85's RAG indexing you'll recognize today's whole routine (compress, retrieve by question, cite sources) — only the corpus swaps from ledger log to document library, and the retriever from scheduler to vector store. One discipline: a review is not a summary, it's retrieval with questions — write 'where' and the hits are evidence; a conclusion not written back is a lesson that never existed."
-      }
-    }
-  ],
-  "action": {
-    "h": {
-      "zh": "动手（15 分钟）",
-      "en": "Hands-on (15 min)"
-    },
-    "p": {
-      "zh": "给昨天的流水做一次复盘：① 写三个复盘问句——哪句最能捞「烧钱行」？（提示：问「哪里烧得冤枉」命中的才是证据行；问「今天做了什么」捞回来的全是流水账。）② 用账本数字填复盘单：最贵的段烧了多少、卡了几次、明天改一条什么？（提示：改动必须落到明天能验证的数字，比如「C 数据 20→12」。）③ 复盘单写回哪里？（提示：第 52 天的文档版本头——不写回的复盘是日记，写回的才是改进回路。）",
-      "en": "Run one review over yesterday's log: (1) write three review questions — which one best fishes up 'the rows where money burns'? (Hint: ask 'where did it burn unjustly' and hits are evidence rows; ask 'what did we do today' and you get a diary.) (2) Fill the sheet with ledger numbers: which segment burned most, how long the stalls, and one change for tomorrow? (Hint: the change must land on a number verifiable tomorrow, e.g. 'C's database calls 20→12'.) (3) Where does the sheet get written back? (Hint: day 52's document version header — a review not written back is a diary; written back, it's the improvement loop.)"
-    }
-  },
-  "takeaway": {
-    "zh": "任务复盘＝收工后带三个问句检索流水：C 的 8 次重复查询、第 4 段的空指纹，都由 0.011 美元/天的复盘单抓出——输入 1.8k＋输出 0.4k；第二天 71 分钟变 68，坑不过夜。结论写回文档，复盘才算闭环。",
-    "en": "A task review = querying the log with three questions after the finish: C's 8 repeated lookups and segment 4's blank fingerprint are caught by a $0.011-a-day sheet — 1.8k input + 0.4k output; tomorrow finishes 68 instead of 71, and no pit survives the night. Write the conclusions back, or the review never happened."
-  },
-  "anim": {
-    "tpl": "rag",
-    "hook": {
-      "zh": "不复盘的第二天，原样重演今天的坑。",
-      "en": "Skip the review and tomorrow replays today's pits."
-    },
-    "coverHook": {
-      "zh": "0.011 美元一天：抓出重查 8 次，71 分钟变 68",
-      "en": "$0.011 a day: 8 repeated lookups caught, 71 minutes become 68"
-    },
-    "question": {
-      "zh": "问：今天哪里烧得冤枉？",
-      "en": "Q: Where did today burn unjustly?"
-    },
-    "docTag": {
-      "zh": "账本流水 · 9 行（示意）",
-      "en": "Ledger log · 9 rows (illustrative)"
-    },
-    "pages": [
-      {
-        "zh": "A 搜索 22",
-        "en": "A · 22 search",
-        "hit": false
-      },
-      {
-        "zh": "A 抓取 4",
-        "en": "A · 4 fetch",
-        "hit": false
-      },
-      {
-        "zh": "A 数据 2",
-        "en": "A · 2 db",
-        "hit": false
-      },
-      {
-        "zh": "B 搜索 4",
-        "en": "B · 4 search",
-        "hit": false
-      },
-      {
-        "zh": "B 抓取 22",
-        "en": "B · 22 fetch",
-        "hit": false
-      },
-      {
-        "zh": "C 数据 20",
-        "en": "C · 20 db",
-        "hit": true
-      },
-      {
-        "zh": "挂起 16",
-        "en": "16 held",
-        "hit": true
-      },
-      {
-        "zh": "4 段指纹空",
-        "en": "seg 4 fp void",
-        "hit": true
-      },
-      {
-        "zh": "收工 71 分",
-        "en": "71-min finish",
-        "hit": false
-      }
-    ],
-    "arrowLabel": {
-      "zh": "⇣ 复盘检索 · 带问句取 3 行",
-      "en": "⇣ review retrieval · 3 rows by question"
-    },
-    "windowTag": {
-      "zh": "复盘单 · 只写证据 3 行",
-      "en": "Review sheet · 3 evidence rows only"
-    },
-    "answer": {
-      "zh": "答：C 重查 8 次、第 4 段指纹空——明天改两条",
-      "en": "A: C re-queries 8×, segment 4 fingerprint blank — two changes tomorrow"
-    },
-    "statsZh": [
-      {
-        "num": "1.8k",
-        "cap": "复盘一次 · 骨架 0.6k＋流水 1.2k"
-      },
-      {
-        "num": "$0.011",
-        "cap": "每天 · 复盘单全部账单"
-      },
-      {
-        "num": "71→68",
-        "cap": "分钟 · 第二天收工（挂起 16→8）"
-      }
-    ],
-    "statsEn": [
-      {
-        "num": "1.8k",
-        "cap": "per review · 0.6k skeleton + 1.2k digest"
-      },
-      {
-        "num": "$0.011",
-        "cap": "a day · the whole review bill"
-      },
-      {
-        "num": "71→68",
-        "cap": "minutes · next-day finish (holds 16→8)"
-      }
-    ],
-    "note": {
-      "zh": "示意：84 行账本流水压成 1.2k 摘要，带三个问句检索，命中 3 行写成复盘单（0.4k 输出）。复盘单抓出两条：C 的核对段每分钟重复查询同一张表 8 次（加缓存后 71 分钟变 68）、第 4 段指纹空缺（补校验，排除 71 分钟全量重跑的险情）。复盘一次 0.011 美元，月账 0.34 美元。",
-      "en": "Illustrative: 84 ledger rows compressed to a 1.2k digest, retrieved with three questions, 3 hits written into a 0.4k review sheet. It catches two things: C's cross-check segment re-querying the same table 8 times a minute (a cache turns 71 minutes into 68), and segment 4's blank fingerprint (a check is added, averting a 71-minute full rerun). One review costs $0.011, $0.34 a month."
-    },
-    "viz": [
-      {
-        "chips": [
-          {
-            "tag": "流水 84 行"
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：结论找座位",
+            "en": "Mechanism: every conclusion finds a seat"
           },
-          {
-            "tag": "→",
-            "alt": true
+          "p": {
+            "zh": "写回的机制是一条「结论找座位」的固定流程：复盘单的改动栏不是终点——每条改动必须指到「它属于哪个可执行的层」。昨天那两条：给 C 的核对查询加 60 秒缓存，改的是任务 C 自己的提示骨架（第 33 天链的搜集环）；「落账前指纹必须非空」，改的是校验环代码（第 43 天）——前者是中间席的路线示例换一句，后者是 20 行校验器加一条断言。座位定位之后走第 57 天的回放闸：新版跑 202 条旧账，diff 逐条解释，全绿才入库。入库动作就是写回的两处落笔：流水线文档（第 52 天）的版本头加一行变更记录——「v2.3 · 第 62 天 · C 加查询缓存 · 回归 202 条全绿」，指向 fingerprint b7c1→b8d2；回归集（第 57 天）加一条新用例——「同一窗口内查同一张表 ≤1 次」。版本头和回归集都是已注册的层，结论钉进去，下一版自动继承。",
+            "en": "Write-back is a fixed 'every conclusion finds a seat' pipeline: the sheet's change column is not the destination — each change must name 'which executable layer it belongs to'. Yesterday's two: adding a 60-second cache to C's cross-check queries belongs to task C's own prompt skeleton (day 33's gather link); 'fingerprints must be non-empty before a row lands' belongs to the validator code (day 43) — the former is one route-example line in the middle seat, the latter one assertion in a 20-line checker. Once seated, the change walks day 57's replay gate: the new build runs the 202 old inputs, every diff explained, all green before it commits. Committing is exactly the two write-back strokes: the pipeline document (day 52) header gains a change line — 'v2.3 · day 62 · C adds a query cache · 202-item regression green' — pointing at fingerprint b7c1→b8d2; the regression set (day 57) gains one case — 'same-window queries against the same table ≤ 1'. Header and regression set are both registered layers: once the conclusion is pinned in, every future version inherits it."
           },
-          {
-            "tag": "问句 3 条"
-          },
-          {
-            "tag": "→",
-            "alt": true
-          },
-          {
-            "tag": "复盘单 0.4k"
-          },
-          {
-            "tag": "干了什么·卡在哪·改什么",
-            "merged": true
+          "deep": {
+            "zh": "为什么写回必须落到「可执行的层」而不是记在复盘单里？因为复盘单是一次性文档：它不参与任何一次运行，改了它什么都不会变。第 52 天说文档取得代码的法律地位，今天的下半句是：结论也必须取得用例的法律地位——「C 不该重复查询」写在复盘单里是感想，写进回归集里是断言，0/1 可判、红了会拦。这也解释了为什么写回排在检查点与回放（第 57 天）之后：写回的每一次落笔都是一次改动，而这条流水线的铁律是改动先过回放闸——写回和「先上再说」的区别，就是 diff 全绿和没有 diff 的区别。第 6 天的注意力账在这里同样成立：结论留在复盘单里，注意力只付一次；钉进回归集，每个后续版本都要为它再付一次 202 条的注意力——教训因此获得了复利。",
+            "en": "Why must write-back land on an 'executable layer' rather than live in the sheet? Because the sheet is a one-off document: nothing runs on it, so editing it changes nothing. Day 52 said the document earns the legal standing of code; today's second half is: a conclusion must also earn the legal standing of a test case — 'C shouldn't repeat queries' written in the sheet is an opinion; written into the regression set it is an assertion, judgeable 0/1, and it turns red when violated. This also explains why write-back comes after checkpoints and replay (day 57): every write-back stroke is a change, and this pipeline's iron law is that changes pass the replay gate first — the difference between write-back and 'ship it anyway' is exactly the difference between a green diff and no diff. Day 6's attention math applies too: a conclusion left in the sheet gets attention paid once; pinned into the regression set, every future version pays for it again across 202 inputs — and that is how a lesson starts compounding."
           }
-        ],
-        "label": "复盘不是重读账本，是带着问句去检索",
-        "en": "A review isn't re-reading the ledger — it's retrieving with questions"
-      },
-      {
-        "wide": true,
-        "bars": [
-          {
-            "tag": "不复盘 · 第二天原样重演",
-            "val": 100,
-            "cls": "",
-            "txt": "71 分钟 · 挂起 16 · 指纹空缺潜伏"
+        },
+        {
+          "h": {
+            "zh": "算一笔账：6.5 美元/月的保险",
+            "en": "The math: $6.5/month of insurance"
           },
-          {
-            "tag": "每天复盘 · $0.011",
-            "val": 68,
-            "cls": " materin-learn-viz__bar--en",
-            "txt": "68 分钟 · 挂起 8 · 险情当天落单"
+          "p": {
+            "zh": "先列分项再写总数。写回的成本（沿用第 57 天的账）：座位定位 0 次（复盘单的改动栏已经写明层级，0 token）＋改模板 v2 一行（中间席换一句，措辞改动 0.02k）＋校验器加一条断言（代码，0 token）＋回放闸 202 条全量跑一遍＝1.3 美元、40 分钟。合计一次写回 1.3 美元，月均 5 次改动 = 6.5 美元/月。这笔钱买回什么？拿昨天的实账：C 的缓存改动如果只改了提示、没写回归用例——下个版本重构搜集环时把缓存调用顺手删了，没有任何一道闸会亮红，第 61 天的 3 分钟当天清零，重复查询重新开始每天复利烧。写回之后：同一场景回归必红——「核对段 8 次查同一张表」命中新用例，202 条里那条对拍直接拦住，坏改动不出门（第 43 天）。账再核一遍：回放 1.3 美元/次 × 5 次 = 6.5 美元/月，对照它拦的「教训静默丢失」——丢一条就是 0.09 美元/天的重试费或 71 分钟长回来，月账 2.7 美元起步且不可见。6.5 美元买的是「教训不会静默蒸发」。",
+            "en": "Itemize first, total last. The cost of one write-back (day 57's accounting): seat location 0 calls (the sheet's change column already names the layer) + one line in template v2 (a 0.02k wording change) + one assertion in the validator (code, 0 tokens) + the replay gate, a full run over 202 inputs = $1.3 and 40 minutes. One write-back is $1.3; at ~5 changes a month that is $6.5/month. What does it buy? Yesterday's real bill: if the cache change had edited only the prompt without a regression case, a later refactor of the gather link could delete the cache call and no gate would turn red — day 61's 3 minutes reset to zero overnight, and the repeated lookups resume compounding daily. With write-back, the same scenario turns the regression red — '8 same-table queries in the cross-check segment' hits case #217 and the eval blocks it; broken changes don't leave (day 43). Cross-check the ledger: $1.3 × 5 = $6.5/month against the silent loss of a lesson — losing one costs $0.09/day in retries or brings the 71 minutes back, from $2.7/month and invisible. $6.5 buys 'lessons never silently evaporate'."
           },
-          {
-            "tag": "月账 · $0.34",
-            "val": 2,
-            "cls": "",
-            "txt": "30 天 × $0.011 · 一条流水线的保险"
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "08:31 复盘单到手，写回开工：① 座位定位——改动一「C 加 60 秒查询缓存」指到中间席（任务 C 的搜集环示例句），改动二「指纹非空」指到校验环断言表；② 落笔——模板 v2.3 的版本头追加一行变更记录，指纹 b7c1→b8d2，回归集追加用例 #217「同窗口同表查询 ≤1 次」；③ 回放——新版跑 202 条旧账，40 分钟 1.3 美元：200 条全绿，2 条 diff 全部可解释（C 的核对段查询数 8→1，正是预期行为），入库。第二天 08:03：数据库需求 16 次、挂起 8 件、收工 68 分钟。对照（只复盘不写回）：复盘单躺在报告里，第二天照旧 71 分钟；第三周重构搜集环，缓存句被顺手删掉——没有用例拦，重复查询复活，谁也说不清是哪天丢的。",
+              "en": "08:31, the sheet arrives, write-back starts: (1) seat each change — the 60-second cache goes to the middle seat (task C's gather-link example line), the fingerprint assertion to the validator's check table; (2) write — template v2.3's header gains a change line, fingerprint b7c1→b8d2, the regression set gains case #217 \"same-window same-table queries ≤1\"; (3) replay — new build over 202 old inputs, 40 minutes, $1.3: 200 all green, 2 diffs both explainable (C's cross-check queries 8→1, exactly the intended behavior), committed. Next day 08:03: database demand 16, 8 held, finish 68 minutes. The control (review without write-back): the sheet sits in a report, day two still takes 71 minutes; in week three a gather-link refactor quietly deletes the cache line — no case turns red, repeated lookups revive, and nobody can say which day they were lost."
+            }
           }
-        ],
-        "label": "0.011 美元/天：第二天 71 变 68，坑不过夜",
-        "en": "$0.011 a day: tomorrow runs 68 not 71, no pit survives the night"
-      },
-      {
-        "routes": [
-          {
-            "tag": "复盘＝写段总结感想",
-            "cls": "",
-            "verdict": "✗ 没有改动栏的日记",
-            "vcls": " materin-learn-viz__route-word--bad"
+        },
+        {
+          "h": {
+            "zh": "误区：写回就是改改文档",
+            "en": "Misconception: write-back is not doc editing"
           },
-          {
-            "tag": "账本自己会说话",
-            "cls": " materin-learn-viz__route-row--think",
-            "verdict": "✗ 问句决定命中",
-            "vcls": " materin-learn-viz__route-word--bad"
+          "p": {
+            "zh": "其一：「写回就是改改文档」。文档只是两个座位之一——只改文档不改回归集，结论没有断言保护，下个版本照丢；只改代码不更新版本头，指纹对不上，第 45 天的缓存全断（1.08k/圈代替 0.18k）。两处都要落笔，缺一就是漏写。其二：「结论都记在复盘单里，要用的时候再查」。复盘单不入任何运行时路径——第 58 天的账本续跑读的是账本不是复盘单，第 57 天的回放跑的是回归集不是复盘单；存在报告里的经验，检索不到就不会被执行，「要用再查」查到的多半是第 41 天那种没加过滤的召回。其三：「这次改动很小，不用走回放」。写回的每一笔都是改动——措辞改动 0.02k 也要过闸：小改动的 diff 小，可解释性高，回放只花 1.3 美元；跳闸省下的 40 分钟，对照一次教训静默丢失的 42 分钟/天返工（第 53 天的账），闸比路便宜。",
+            "en": "First: 'write-back means editing the doc'. The document is one of two seats — edit the doc without the regression set and the conclusion has no assertion guard, lost again next version; edit the code without updating the header and the fingerprint breaks, day 45's cache collapses (1.08k per lap instead of 0.18k). Both seats, or it isn't written back. Second: 'the conclusions are in the sheet; we'll look them up when needed'. The sheet sits on no runtime path — day 58's resume reads the ledger, not the sheet; day 57's replay runs the regression set, not the sheet. Experience stored in a report is never retrieved by anything that runs; what 'we'll look it up' finds is usually day 41's unfiltered recall. Third: 'this change is tiny, skip the gate'. Every write-back stroke is a change — even a 0.02k wording change passes the gate: a tiny diff is highly explainable and replay costs only $1.3; the 40 minutes you skip are cheaper than a silently lost lesson's 42 minutes/day of rework (day 53's bill). The gate is cheaper than the road."
           },
-          {
-            "tag": "复盘每周一次就够",
-            "cls": "",
-            "verdict": "✗ 坑是每天复利的",
-            "vcls": " materin-learn-viz__route-word--bad"
+          "deep": {
+            "zh": "为什么写回是「复盘≠改进」的分界线？因为改进的定义是「系统行为改变」，而这条流水线的行为只由三层可执行物决定：模板（提示层）、校验器（代码层）、回归集（验收层）。结论钉进这三层，之后每一次运行、每一个新版本都被迫继承它——第 50 天说模型在圈里自己转，转的每一圈读的都是这三层；结论留在圈外，圈就永远不知道。这也是「生成≠发布」纪律（第 58 天的坑）在知识层的镜像：生成复盘≠发布改进，发布改进的唯一凭据是可执行层里能指到的那一笔。",
+            "en": "Why is write-back the line between 'review' and 'improvement'? Because improvement means 'system behavior changed', and this pipeline's behavior is decided by exactly three executable layers: the template (prompt), the validator (code), and the regression set (acceptance). Pin a conclusion into those three and every future run, every future version is forced to inherit it — day 50 said the model spins in its loop, and every lap reads those three layers; a conclusion left outside the loop is a conclusion the loop never sees. This is the knowledge-layer mirror of the 'generation ≠ publication' discipline (day 58's pit): a generated review ≠ a published improvement, and the only proof of publication is a stroke you can point to inside an executable layer."
           }
-        ],
-        "label": "复盘是带问句的检索：问「哪里」，命中的才是证据",
-        "en": "A review is retrieval with questions: ask 'where', hits are evidence"
-      },
-      {
-        "routes": [
-          {
-            "tag": "第 62 天 · 写回模板",
-            "cls": "",
-            "verdict": "结论变下一版骨架",
-            "vcls": ""
+        },
+        {
+          "h": {
+            "zh": "延伸：复盘闭环合拢",
+            "en": "Extension: the review loop closes"
           },
-          {
-            "tag": "第 85 天 · RAG 建库",
-            "cls": " materin-learn-viz__route-row--think",
-            "verdict": "同款检索，换个语料",
-            "vcls": ""
-          },
-          {
-            "tag": "第 52 天 · 流水线文档",
-            "cls": "",
-            "verdict": "✓ 复盘单挂版本头",
-            "vcls": " materin-learn-viz__route-word--ok"
+          "p": {
+            "zh": "今天复盘闭环：收工（第 59 天）→ 复盘检索（第 61 天）→ 写回（今天）——结论回到模板与回归集，明天的新任务自动带着昨天的教训开跑，改进回路合拢。阶段三的账本至此有了完整身份：任务状态表（生死）、队列表（次序）、工具账（速度）、复盘语料（经验）、写回源（教训）——五个断面，一张表。往后看：明天（第 63 天）进入阶段三的收官段——把这条流水线整体穿一遍，五闸清单（第 53 天）加写回回路，从开工到复盘走完整趟；第 85 天 RAG 建库时，写回会再升一级：检索命中的错例回流成新用例，语料库自己长出回归集——你在账本上练的这套动作，就是在练未来的知识库运维。带走一条纪律：结论没有座位就不存在——写回不是归档，是把教训钉进下一次运行必经的路上。",
+            "en": "The review loop closes today: finish (day 59) → review retrieval (day 61) → write-back (today) — conclusions return to the template and the regression set, and tomorrow's tasks start already carrying yesterday's lessons. The stage-3 ledger now has a full identity: task state (life and death), queue column (order), tool tally (speed), review corpus (lessons), write-back source (what persists) — five cross-sections of one table. Looking ahead: tomorrow (day 63) opens the closing stretch of stage 3 — one full pass down the pipeline, the five-gate checklist (day 53) plus the write-back loop, from kickoff to review; on day 85, when RAG builds the knowledge base, write-back levels up again: retrieval misses flow back as new cases, and the corpus grows its own regression set — the moves you practiced on the ledger are exactly knowledge-base operations. One discipline to keep: a conclusion without a seat does not exist — write-back isn't archiving; it's pinning the lesson onto the road every future run must travel."
           }
-        ],
-        "label": "阶段三第 12 课：经验可沉淀——明天讲写回",
-        "en": "Stage 3, lesson 12: lessons persist — tomorrow, write-back"
-      }
-    ]
-  }
-},
-{
-  "n": 62,
-  "stage": 3,
-  "week": 9,
-  "tpl": "chain",
-  "date": "2026-11-25",
-  "title": {
-    "zh": "写回：结论钉进新版",
-    "en": "Write-back: pin conclusions into the next build"
-  },
-  "subtitle": {
-    "zh": "阶段三第十三课。复盘单的改动栏今天落进两处：模板 v2 的版本头加一行变更记录，回归集加一条「核对段不得重复查询」的新用例——写回让结论从日记变成改进，71 分钟降到 68 才开始复利。",
-    "en": "Stage 3, lesson thirteen. The sheet's change column lands in two places today: one change line in template v2's header, one new regression case — 'no repeated same-table queries'. Write-back turns conclusions from a diary into improvements, and only then do 71→68 minutes start compounding."
-  },
-  "sections": [
-    {
-      "h": {
-        "zh": "机制：结论找座位",
-        "en": "Mechanism: every conclusion finds a seat"
-      },
-      "p": {
-        "zh": "写回的机制是一条「结论找座位」的固定流程：复盘单的改动栏不是终点——每条改动必须指到「它属于哪个可执行的层」。昨天那两条：给 C 的核对查询加 60 秒缓存，改的是任务 C 自己的提示骨架（第 33 天链的搜集环）；「落账前指纹必须非空」，改的是校验环代码（第 43 天）——前者是中间席的路线示例换一句，后者是 20 行校验器加一条断言。座位定位之后走第 57 天的回放闸：新版跑 202 条旧账，diff 逐条解释，全绿才入库。入库动作就是写回的两处落笔：流水线文档（第 52 天）的版本头加一行变更记录——「v2.3 · 第 62 天 · C 加查询缓存 · 回归 202 条全绿」，指向 fingerprint b7c1→b8d2；回归集（第 57 天）加一条新用例——「同一窗口内查同一张表 ≤1 次」。版本头和回归集都是已注册的层，结论钉进去，下一版自动继承。",
-        "en": "Write-back is a fixed 'every conclusion finds a seat' pipeline: the sheet's change column is not the destination — each change must name 'which executable layer it belongs to'. Yesterday's two: adding a 60-second cache to C's cross-check queries belongs to task C's own prompt skeleton (day 33's gather link); 'fingerprints must be non-empty before a row lands' belongs to the validator code (day 43) — the former is one route-example line in the middle seat, the latter one assertion in a 20-line checker. Once seated, the change walks day 57's replay gate: the new build runs the 202 old inputs, every diff explained, all green before it commits. Committing is exactly the two write-back strokes: the pipeline document (day 52) header gains a change line — 'v2.3 · day 62 · C adds a query cache · 202-item regression green' — pointing at fingerprint b7c1→b8d2; the regression set (day 57) gains one case — 'same-window queries against the same table ≤ 1'. Header and regression set are both registered layers: once the conclusion is pinned in, every future version inherits it."
-      },
-      "deep": {
-        "zh": "为什么写回必须落到「可执行的层」而不是记在复盘单里？因为复盘单是一次性文档：它不参与任何一次运行，改了它什么都不会变。第 52 天说文档取得代码的法律地位，今天的下半句是：结论也必须取得用例的法律地位——「C 不该重复查询」写在复盘单里是感想，写进回归集里是断言，0/1 可判、红了会拦。这也解释了为什么写回排在检查点与回放（第 57 天）之后：写回的每一次落笔都是一次改动，而这条流水线的铁律是改动先过回放闸——写回和「先上再说」的区别，就是 diff 全绿和没有 diff 的区别。第 6 天的注意力账在这里同样成立：结论留在复盘单里，注意力只付一次；钉进回归集，每个后续版本都要为它再付一次 202 条的注意力——教训因此获得了复利。",
-        "en": "Why must write-back land on an 'executable layer' rather than live in the sheet? Because the sheet is a one-off document: nothing runs on it, so editing it changes nothing. Day 52 said the document earns the legal standing of code; today's second half is: a conclusion must also earn the legal standing of a test case — 'C shouldn't repeat queries' written in the sheet is an opinion; written into the regression set it is an assertion, judgeable 0/1, and it turns red when violated. This also explains why write-back comes after checkpoints and replay (day 57): every write-back stroke is a change, and this pipeline's iron law is that changes pass the replay gate first — the difference between write-back and 'ship it anyway' is exactly the difference between a green diff and no diff. Day 6's attention math applies too: a conclusion left in the sheet gets attention paid once; pinned into the regression set, every future version pays for it again across 202 inputs — and that is how a lesson starts compounding."
-      }
-    },
-    {
-      "h": {
-        "zh": "算一笔账：6.5 美元/月的保险",
-        "en": "The math: $6.5/month of insurance"
-      },
-      "p": {
-        "zh": "先列分项再写总数。写回的成本（沿用第 57 天的账）：座位定位 0 次（复盘单的改动栏已经写明层级，0 token）＋改模板 v2 一行（中间席换一句，措辞改动 0.02k）＋校验器加一条断言（代码，0 token）＋回放闸 202 条全量跑一遍＝1.3 美元、40 分钟。合计一次写回 1.3 美元，月均 5 次改动 = 6.5 美元/月。这笔钱买回什么？拿昨天的实账：C 的缓存改动如果只改了提示、没写回归用例——下个版本重构搜集环时把缓存调用顺手删了，没有任何一道闸会亮红，第 61 天的 3 分钟当天清零，重复查询重新开始每天复利烧。写回之后：同一场景回归必红——「核对段 8 次查同一张表」命中新用例，202 条里那条对拍直接拦住，坏改动不出门（第 43 天）。账再核一遍：回放 1.3 美元/次 × 5 次 = 6.5 美元/月，对照它拦的「教训静默丢失」——丢一条就是 0.09 美元/天的重试费或 71 分钟长回来，月账 2.7 美元起步且不可见。6.5 美元买的是「教训不会静默蒸发」。",
-        "en": "Itemize first, total last. The cost of one write-back (day 57's accounting): seat location 0 calls (the sheet's change column already names the layer) + one line in template v2 (a 0.02k wording change) + one assertion in the validator (code, 0 tokens) + the replay gate, a full run over 202 inputs = $1.3 and 40 minutes. One write-back is $1.3; at ~5 changes a month that is $6.5/month. What does it buy? Yesterday's real bill: if the cache change had edited only the prompt without a regression case, a later refactor of the gather link could delete the cache call and no gate would turn red — day 61's 3 minutes reset to zero overnight, and the repeated lookups resume compounding daily. With write-back, the same scenario turns the regression red — '8 same-table queries in the cross-check segment' hits case #217 and the eval blocks it; broken changes don't leave (day 43). Cross-check the ledger: $1.3 × 5 = $6.5/month against the silent loss of a lesson — losing one costs $0.09/day in retries or brings the 71 minutes back, from $2.7/month and invisible. $6.5 buys 'lessons never silently evaporate'."
-      },
-      "example": {
+        }
+      ],
+      "action": {
         "h": {
-          "zh": "实例",
-          "en": "Worked example"
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
         },
         "p": {
-          "zh": "08:31 复盘单到手，写回开工：① 座位定位——改动一「C 加 60 秒查询缓存」指到中间席（任务 C 的搜集环示例句），改动二「指纹非空」指到校验环断言表；② 落笔——模板 v2.3 的版本头追加一行变更记录，指纹 b7c1→b8d2，回归集追加用例 #217「同窗口同表查询 ≤1 次」；③ 回放——新版跑 202 条旧账，40 分钟 1.3 美元：200 条全绿，2 条 diff 全部可解释（C 的核对段查询数 8→1，正是预期行为），入库。第二天 08:03：数据库需求 16 次、挂起 8 件、收工 68 分钟。对照（只复盘不写回）：复盘单躺在报告里，第二天照旧 71 分钟；第三周重构搜集环，缓存句被顺手删掉——没有用例拦，重复查询复活，谁也说不清是哪天丢的。",
-          "en": "08:31, the sheet arrives, write-back starts: (1) seat each change — the 60-second cache goes to the middle seat (task C's gather-link example line), the fingerprint assertion to the validator's check table; (2) write — template v2.3's header gains a change line, fingerprint b7c1→b8d2, the regression set gains case #217 \"same-window same-table queries ≤1\"; (3) replay — new build over 202 old inputs, 40 minutes, $1.3: 200 all green, 2 diffs both explainable (C's cross-check queries 8→1, exactly the intended behavior), committed. Next day 08:03: database demand 16, 8 held, finish 68 minutes. The control (review without write-back): the sheet sits in a report, day two still takes 71 minutes; in week three a gather-link refactor quietly deletes the cache line — no case turns red, repeated lookups revive, and nobody can say which day they were lost."
+          "zh": "给昨天的复盘单办一次写回：① 两条改动各去哪个文件？（提示：先定位再动笔——「给 C 加 60 秒缓存」的座位是第 52 天文档的中间席，「指纹必须非空」的座位是校验环代码（第 43 天）；写回不是改文案，是改可执行的层。）② 新用例怎么写才算 0/1 可判？（提示：「不得重复查询」要落成断言——同一窗口内查同一张表的次数 ≤1；判不了 0/1 的用例是愿望。）③ 回归什么时候跑？（提示：写回即触发——第 57 天的回放闸，202 条 × 1.3 美元，红一条就退回，别攒到月底。）",
+          "en": "Run one write-back over yesterday's sheet: (1) which file does each change go to? (Hint: locate before writing — the cache lands in day 52's middle seat, the fingerprint check in day 43's validator; write-back edits an executable layer, not prose.) (2) What makes a new case judgeable 0/1? (Hint: 'no repeated queries' must become an assertion — same-window same-table queries ≤ 1; a case you can't judge 0/1 is a wish.) (3) When does the regression run? (Hint: write-back triggers it — day 57's replay gate, 202 inputs × $1.3; one red returns the change, don't stockpile to month-end.)"
         }
+      },
+      "takeaway": {
+        "zh": "写回＝结论找座位：改动栏的每一条都落到两个已注册的地方——流水线文档版本头（变更一行）与回归集（新用例一条）。C 加缓存后回归必须重跑：202 条全绿 1.3 美元，红了拦住的是自己；不写回的复盘是日记，写回的才是回路。",
+        "en": "Write-back = finding each conclusion a seat: every change lands in one of two registered places — the pipeline doc's header (one change line) and the regression set (one new case). After C's cache, the regression must rerun: 202 inputs green for $1.3, and a red blocks your own change. A review without write-back is a diary; with it, a loop."
+      },
+      "anim": {
+        "tpl": "chain",
+        "hook": {
+          "zh": "结论没有座位就不存在——写回把教训钉进下一次运行必经的路上。",
+          "en": "A conclusion without a seat does not exist — write-back pins lessons onto the road every future run must travel."
+        },
+        "coverHook": {
+          "zh": "写回两处：版本头一行，回归集一条，68 分钟复利",
+          "en": "Two seats: one header line, one regression case — 68 minutes compounds"
+        },
+        "question": {
+          "zh": "把复盘单的 2 条改动写回流水线",
+          "en": "Write the sheet's 2 changes back into the pipeline"
+        },
+        "steps": [
+          {
+            "k": "gather",
+            "tagZh": "站 1 · 定位",
+            "tagEn": "Seat · locate",
+            "capZh": "每条改动指到可执行的层",
+            "capEn": "each change names its executable layer",
+            "inZh": "复盘单 · 改动 2 条",
+            "inEn": "sheet · 2 changes",
+            "outZh": "座位 · 中间席＋校验环",
+            "outEn": "seats · middle seat + validator",
+            "tok": "0 token"
+          },
+          {
+            "k": "outline",
+            "tagZh": "站 2 · 落笔",
+            "tagEn": "Write · commit",
+            "capZh": "版本头一行＋回归用例一条",
+            "capEn": "one header line + one regression case",
+            "inZh": "座位清单",
+            "inEn": "seat list",
+            "outZh": "v2.3 · b8d2 · 用例 #217",
+            "outEn": "v2.3 · b8d2 · case #217",
+            "tok": "0.02k"
+          },
+          {
+            "k": "write",
+            "tagZh": "站 3 · 回放",
+            "tagEn": "Replay · gate",
+            "capZh": "新版跑 202 条旧账，diff 可解释",
+            "capEn": "new build over 202 old inputs",
+            "inZh": "202 条旧账",
+            "inEn": "202 old inputs",
+            "outZh": "全绿 · 2 条 diff 可解释",
+            "outEn": "all green · 2 diffs explained",
+            "tok": "1.3 美元"
+          }
+        ],
+        "retry": {
+          "failZh": "✗ 顺手删了缓存句——用例 #217 红",
+          "failEn": "✗ cache line deleted — case #217 red",
+          "okZh": "✓ 回归全绿 · 教训进入下一版",
+          "okEn": "✓ regression green · the lesson ships"
+        },
+        "mergeZh": "写回两处：版本头（指纹 b7c1→b8d2）＋回归集（#217）——复盘闭环合拢",
+        "mergeEn": "Two seats: the header (b7c1→b8d2) and the regression set (#217) — the review loop closes",
+        "readoutZh": [
+          {
+            "num": "2 处",
+            "cap": "写回座位 · 版本头＋回归集"
+          },
+          {
+            "num": "1.3 美元",
+            "cap": "一次写回 · 回放闸 202 条 40 分钟"
+          },
+          {
+            "num": "6.5 美元/月",
+            "cap": "月均 5 次改动 · 拦教训静默丢失"
+          }
+        ],
+        "readoutEn": [
+          {
+            "num": "2 seats",
+            "cap": "header + regression set"
+          },
+          {
+            "num": "$1.3",
+            "cap": "per write-back · 202-item replay, 40 min"
+          },
+          {
+            "num": "$6.5/mo",
+            "cap": "~5 changes a month · no silent loss"
+          }
+        ],
+        "note": {
+          "zh": "示意：复盘单的改动栏不是终点——每条改动先定位座位（中间席示例句 / 校验环断言），落笔后必须过第 57 天的回放闸（202 条 1.3 美元）。版本头记指纹 b7c1→b8d2，回归集记用例 #217「同窗口同表查询 ≤1 次」。只改文档不改回归集＝没有断言保护；跳过回放＝改动作弊改自己。",
+          "en": "Illustrative: the sheet's change column is not the end — each change names its seat (middle-seat example line / validator assertion), then passes the day-57 replay gate (202 items, $1.3). The header records fingerprint b7c1→b8d2; the regression set records case #217 \"same-window same-table queries ≤1\". Doc without a case = no assertion guard; skipping the gate = grading your own homework."
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "改动栏 2 条"
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "座位 · 中间席"
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "座位 · 校验环"
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "v2.3 ＋ 用例 #217",
+                "merged": true
+              }
+            ],
+            "routes": [
+              {
+                "tag": "结论留在复盘单里",
+                "cls": "",
+                "verdict": "✗ 报告不参与运行",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "结论钉进回归集",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✓ 每个版本被迫继承",
+                "vcls": " materin-learn-viz__route-word--ok"
+              }
+            ],
+            "label": "结论没有座位，就只活在复盘单里"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "一次写回 · 回放闸",
+                "val": 100,
+                "cls": "",
+                "txt": "202 条旧账 · 40 分钟 · 1.3 美元"
+              },
+              {
+                "tag": "月均 5 次改动",
+                "val": 38,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "6.5 美元/月 · 教训不蒸发"
+              },
+              {
+                "tag": "对照 · 丢一次教训",
+                "val": 16,
+                "cls": "",
+                "txt": "重试费 2.7 美元/月起 · 还不可见"
+              }
+            ],
+            "label": "写回的账：1.3 美元一次，6.5 美元一月"
+          },
+          {
+            "routes": [
+              {
+                "tag": "「写回就是改改文档」",
+                "cls": "",
+                "verdict": "✗ 没有断言保护",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「要用的时候再查」",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 报告检索不到",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「小改动不用走闸」",
+                "cls": "",
+                "verdict": "✗ 1.3 美元比返工便宜",
+                "vcls": " materin-learn-viz__route-word--bad"
+              }
+            ],
+            "label": "写回＝把结论变成用例的法律地位"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 63 天 · 全链穿行",
+                "cls": "",
+                "verdict": "五闸＋写回走整趟",
+                "vcls": ""
+              },
+              {
+                "tag": "第 85 天 · RAG 建库",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "错例回流成新用例",
+                "vcls": ""
+              },
+              {
+                "tag": "复盘闭环 · 今天合拢",
+                "cls": "",
+                "verdict": "✓ 收工→复盘→写回",
+                "vcls": " materin-learn-viz__route-word--ok"
+              }
+            ],
+            "label": "复盘闭环合拢：明天全链穿行收官"
+          }
+        ]
       }
     },
     {
-      "h": {
-        "zh": "误区：写回就是改改文档",
-        "en": "Misconception: write-back is not doc editing"
+      "n": 63,
+      "stage": 3,
+      "week": 9,
+      "tpl": "chain",
+      "date": "2026-11-26",
+      "title": {
+        "zh": "全链穿行：一天走完整趟",
+        "en": "Full-chain run: one day, the whole loop"
       },
-      "p": {
-        "zh": "其一：「写回就是改改文档」。文档只是两个座位之一——只改文档不改回归集，结论没有断言保护，下个版本照丢；只改代码不更新版本头，指纹对不上，第 45 天的缓存全断（1.08k/圈代替 0.18k）。两处都要落笔，缺一就是漏写。其二：「结论都记在复盘单里，要用的时候再查」。复盘单不入任何运行时路径——第 58 天的账本续跑读的是账本不是复盘单，第 57 天的回放跑的是回归集不是复盘单；存在报告里的经验，检索不到就不会被执行，「要用再查」查到的多半是第 41 天那种没加过滤的召回。其三：「这次改动很小，不用走回放」。写回的每一笔都是改动——措辞改动 0.02k 也要过闸：小改动的 diff 小，可解释性高，回放只花 1.3 美元；跳闸省下的 40 分钟，对照一次教训静默丢失的 42 分钟/天返工（第 53 天的账），闸比路便宜。",
-        "en": "First: 'write-back means editing the doc'. The document is one of two seats — edit the doc without the regression set and the conclusion has no assertion guard, lost again next version; edit the code without updating the header and the fingerprint breaks, day 45's cache collapses (1.08k per lap instead of 0.18k). Both seats, or it isn't written back. Second: 'the conclusions are in the sheet; we'll look them up when needed'. The sheet sits on no runtime path — day 58's resume reads the ledger, not the sheet; day 57's replay runs the regression set, not the sheet. Experience stored in a report is never retrieved by anything that runs; what 'we'll look it up' finds is usually day 41's unfiltered recall. Third: 'this change is tiny, skip the gate'. Every write-back stroke is a change — even a 0.02k wording change passes the gate: a tiny diff is highly explainable and replay costs only $1.3; the 40 minutes you skip are cheaper than a silently lost lesson's 42 minutes/day of rework (day 53's bill). The gate is cheaper than the road."
+      "subtitle": {
+        "zh": "阶段三第十四课。五闸清单（第 53 天）加写回回路（第 62 天）拼成一天的工作节拍：08:00 开工查表、08:05 过五闸、08:41 崩溃续跑、17:30 复盘写回——五段节拍走完整趟，19.9 分钟人时管 2000 条，机器账 9.7 美元一天。",
+        "en": "Stage 3, lesson fourteen. The five-gate checklist (day 53) plus the write-back loop (day 62) become one day's working rhythm: 08:00 check the table, 08:05 pass five gates, 08:41 crash and resume, 17:30 review and write back — a full pass in five beats, 19.9 human-minutes minding 2,000 items, a $9.7 machine bill for the day."
       },
-      "deep": {
-        "zh": "为什么写回是「复盘≠改进」的分界线？因为改进的定义是「系统行为改变」，而这条流水线的行为只由三层可执行物决定：模板（提示层）、校验器（代码层）、回归集（验收层）。结论钉进这三层，之后每一次运行、每一个新版本都被迫继承它——第 50 天说模型在圈里自己转，转的每一圈读的都是这三层；结论留在圈外，圈就永远不知道。这也是「生成≠发布」纪律（第 58 天的坑）在知识层的镜像：生成复盘≠发布改进，发布改进的唯一凭据是可执行层里能指到的那一笔。",
-        "en": "Why is write-back the line between 'review' and 'improvement'? Because improvement means 'system behavior changed', and this pipeline's behavior is decided by exactly three executable layers: the template (prompt), the validator (code), and the regression set (acceptance). Pin a conclusion into those three and every future run, every future version is forced to inherit it — day 50 said the model spins in its loop, and every lap reads those three layers; a conclusion left outside the loop is a conclusion the loop never sees. This is the knowledge-layer mirror of the 'generation ≠ publication' discipline (day 58's pit): a generated review ≠ a published improvement, and the only proof of publication is a stroke you can point to inside an executable layer."
-      }
-    },
-    {
-      "h": {
-        "zh": "延伸：复盘闭环合拢",
-        "en": "Extension: the review loop closes"
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：五段节拍，一表到底",
+            "en": "Mechanism: five beats, one table"
+          },
+          "p": {
+            "zh": "穿行不是新流程，是把 59–62 天的零件按一天的时间轴排一遍，五段节拍共用第 58 天那张账本。段一「开工查表」（08:00，2 分钟）：调度器读队列列派槽位（第 59 天），确认三条任务的身位——账本在，开工就没有动员会。段二「过五闸」（08:05，10 分钟）：今天的改动是给分诊表加一类「夜间工单」的降级授权，五闸按序走——形状绿灯（仍是批处理流量）、价格绿灯（版本头指纹 b8d2 未动）、缺陷闸跑 200 条对拍、残局闸核对本季演练记录、文档闸对四区块预算 1.8k（第 53 天的清单照抄）。段三「上槽跑批」（08:15）：2 个槽位 × 63 批，工具列分账放行（第 60 天），全程无 429。段四「崩溃续跑」（08:41）：供应商一次 429 重试耗尽，段 9 崩——账本末行「段 8 · 已落盘」，新进程读账本核对 8 个指纹、重跑段 8、续写 5 分钟（第 58 天）。段五「复盘写回」（17:30，14 分钟）：流水压成摘要带问句检索（第 61 天），改动栏两条落进版本头与回归集，回放闸 202 条全绿（第 62 天）。五段读完，账本从头到尾没有换过一张表——队列列、工具列、复盘语料、写回源，全是同一份账的不同读法。",
+            "en": "The full pass isn't a new process — it's days 59–62's parts laid out on one day's timeline, five beats sharing day 58's ledger. Beat one, 'check the table' (08:00, 2 min): the scheduler reads the queue column and assigns slots (day 59), confirming all three tasks' positions — with the ledger there's no kickoff meeting. Beat two, 'pass five gates' (08:05, 10 min): today's change adds a degraded-authorization rule for overnight tickets; the gates run in order — shape green (still batchable), price green (header fingerprint b8d2 untouched), defects run the 200-item eval, wreckage checks this quarter's drill log, document reconciles the four blocks to 1.8k (day 53's checklist verbatim). Beat three, 'run the batch' (08:15): 2 slots × 63 batches, the tool column lets calls through per book (day 60), zero 429s all run. Beat four, 'crash and resume' (08:41): one vendor 429 exhausts retries and segment 9 dies — the ledger's last row reads 'seg 8 · committed'; the new process reads the ledger, checks 8 fingerprints, reruns segment 8, and resumes in 5 minutes (day 58). Beat five, 'review and write back' (17:30, 14 min): the log compresses to a digest retrieved with questions (day 61), and the change column lands two strokes in the header and the regression set, replay all green (day 62). Across all five beats, the ledger never changes — queue, tools, review corpus, write-back source are all readings of the same table."
+          },
+          "deep": {
+            "zh": "为什么五段之间不需要任何「交接会」？因为每一段的输入输出都是账本里已注册的字段：开工段读队列列，闸门段读版本头与对拍报告，跑批段写工具列，续跑段读指纹列，复盘段读全表——第 55 天说编排是「机器跑全程」，今天补上人机分工的另一半：人只在两个节拍出手（过闸的 10 分钟和写回的 14 分钟），其余三段机器自转。这正是第 48 天运行图的「会呼吸」：冻层没动过一个字，活层今天长了一条用例，守层的演练记录被核对了一次——一张图挂了 41 天，靠的不是盯，是每个节拍都踩在同一张表上。所谓「全链穿行」，本质是验证五天的零件真的共享同一份状态，而不是各自带了五份副本。",
+            "en": "Why do the five beats need no 'handoff meetings'? Because every beat's input and output is a registered field in the ledger: kickoff reads the queue column, the gates read the header and the eval report, the run writes the tool column, resume reads the fingerprint column, review reads the whole table — day 55 said orchestration is 'the machine runs the whole course'; today adds the other half of the human-machine split: a person touches only two beats (10 minutes of gates and 14 minutes of write-back), and the other three run themselves. That is day 48's 'breathing' run-map in practice: the frozen layer hasn't changed a word, the living layer grew one case today, the guarded layer's drill log got checked once — a map has hung there 41 days not because someone watches it, but because every beat steps on the same table. A 'full-chain run' is really a test that five days of parts share one state, not five copies of it."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：19.9 分钟人时的一天",
+            "en": "The math: one day, 19.9 human-minutes"
+          },
+          "p": {
+            "zh": "先列分项再写总数。人时分项：开工查表 2 分钟＋过闸 10 分钟＋写回落笔 4 分钟（回放闸的 40 分钟是机器跑的，人只写改动栏）＋读复盘单 3 分钟＋崩溃告警看一眼 0.9 分钟（续跑是机器自愈的）——合计 2 + 10 + 4 + 3 + 0.9 = 19.9 分钟人时，管 2000 条分诊、三条长任务、一次崩溃恢复、一次写回。机器账分项：跑批 8.4 美元（第 44 天口径）＋回放 1.3 美元＋复盘 0.011 美元＋账本三列 0.001 美元，合计约 9.7 美元。对照第 47 天上线前夜：那时同样 2000 条要人盯 50 分钟；五天的零件拼齐后，人时从 50 分钟压到 19.9 分钟——省下的 30.1 分钟不是来自某个新零件，是来自「每个节拍都读同一张表」：查表代替开会，指纹代替人眼，断言代替叮嘱。",
+            "en": "Itemize first, total last. Human time, itemized: table check 2 min + gates 10 min + write-back strokes 4 min (the replay's 40 minutes are machine time; a person only writes the change column) + reading the sheet 3 min + one glance at the crash alert 0.9 min (the resume heals itself) = 2 + 10 + 4 + 3 + 0.9 = 19.9 human-minutes, minding 2,000 triage items, three long tasks, one crash recovery, and one write-back. Machine bill, itemized: batch run $8.4 (day 44's accounting) + replay $1.3 + review $0.011 + the ledger's three columns $0.001 ≈ $9.7 total. Against day 47's launch eve, when the same 2,000 items took 50 minutes of human watching: with five days of parts assembled, human time drops from 50 to 19.9 minutes — the 30.1 saved minutes come from no single new part but from 'every beat reads the same table': a table check instead of a meeting, fingerprints instead of eyeballs, assertions instead of reminders."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "把一天摊在钟面上：08:00 查表 2 分钟（队列列 3 行，A/B 上槽、C 待跑）；08:05 五闸 10 分钟（缺陷闸的对拍 5 分钟占一半，其余四闸各 1 分钟核对）；08:15 跑批开槽，人离场；08:41 段 9 崩溃——08:41 告警推到手机，08:42 人看一眼「账本末行段 8 · 已落盘，自动续跑」，0.9 分钟；08:49 新进程核对 8 指纹、重跑段 8、续写；09:01 A 收工、09:11 C 收工，机器段合计 71 分钟；17:30 复盘 14 分钟——其中模型检索 14 秒、人读单 3 分钟、落笔 4 分钟、回放闸 40 分钟纯机器；17:44 收工。全天人出现 4 次、合计 19.9 分钟，其余时间流水线自转。对照第 47 天验收那天的记录：人出现 11 次、50 分钟——两次穿行的差异，就是五天零件有没有共享一张表的差异。",
+              "en": "Spread the day on a clock face: 08:00 table check, 2 min (3 queue rows, A/B slotted, C waiting); 08:05 five gates, 10 min (the defects gate's eval takes 5 of them, the other four get 1 minute each); 08:15 the batch takes its slots and the human leaves; 08:41 segment 9 crashes — the alert reaches the phone, and at 08:42 one glance confirms 'ledger's last row: seg 8 committed, auto-resuming', 0.9 min; 08:49 the new process checks 8 fingerprints, reruns segment 8, resumes; 09:01 A finishes, 09:11 C finishes, the machine phase totaling 71 minutes; 17:30 review, 14 min — 14 seconds of model retrieval, 3 minutes reading the sheet, 4 minutes writing back, and a purely machine-side 40-minute replay; 17:44 done. The human appears 4 times for 19.9 minutes total; the rest of the day the pipeline spins alone. Against day 47's acceptance log — 11 appearances, 50 minutes — the difference between the two runs is exactly whether five days of parts share one table."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：穿行是把流程背一遍",
+            "en": "Misconception: a full pass means reciting the process"
+          },
+          "p": {
+            "zh": "其一：「穿行就是把五天的动作从头到尾背一遍」。背一遍是巡检，不是穿行——穿行的判据是「状态真的流过去了」：段三跑批写下的工具列，段五的复盘要真读到；段四续跑核对过的指纹，段五的证据行要真引用。只走动作不验状态，等于把五份副本各演一遍，那份「共享的状态」从未被测过。其二：「五闸每天都得过一遍才安心」。闸的成本是按改动计的，不是按天计的——今天只有一处改动（降级授权），过一遍闸 10 分钟；没有改动的日子，五闸安静待命就是它们的工作，为过闸而过闸是把 10.8 美元/年的保险费翻成按天计。其三：「人时 19.9 分钟，那我可以再塞两条流水线」。槽位上限是配额算出来的（60÷28≈2），不是人的余量算出来的——人多出来的 30 分钟该花在写回更多用例上，不是把系统推过配额再靠 429 限速（第 59 天裸跑的 74 分钟教训）。",
+            "en": "First: 'the full pass means walking through all five days' moves once'. That's an inspection, not a pass — the pass's criterion is 'state actually flowed': the tool column written in beat three must be truly read by beat five's review; the fingerprints checked in beat four must be truly cited in beat five's evidence rows. Walk the moves without verifying the state and you've performed five copies once each, never testing the shared state at all. Second: 'the five gates should run daily for peace of mind'. Gate cost scales with changes, not days — today there is exactly one change (the degraded authorization), one pass, 10 minutes; on changeless days the gates standing quietly by is their job, and gating daily turns $10.8/year of premium into a daily expense. Third: '19.9 human-minutes — I can squeeze in two more pipelines'. The slot cap comes from quota (60÷28≈2), not from human headroom — the spare 30 minutes belong to writing back more cases, not pushing the system past its quota and leaning on 429 throttling (day 59's 74-minute lesson)."
+          },
+          "deep": {
+            "zh": "为什么「验状态」比「走动作」重要？因为流程的腐败从来不是动作消失，是状态断链：第 54 天的残局闸没人跑，动作还在清单上、状态早就没人写；第 56 天的总表只读不写，读数还在跳、账已经死了。穿行的五段恰好是五种「写状态」的动作：队列列写次序、闸门写判决、工具列写占用、指纹列写进度、复盘写教训——一天走完，五个断面各被写过一次、各被读过一次，链路活着。这也解释了为什么穿行安排在阶段三收官段而不是第 59 天：五个断面是五天里逐天长出来的（状态、判决、占用、进度、教训），最后一天才第一次同时在场——它们的首次合演就是验收。",
+            "en": "Why does 'verifying state' matter more than 'walking the moves'? Because process rot never looks like missing moves — it looks like broken state chains: day 54's wreckage gate had nobody running it, the move was still on the checklist while its state had long gone unwritten; day 56's master tables were read-only, the numbers still ticked while the account was dead. The five beats are exactly five state-writing moves: the queue column writes order, the gates write verdicts, the tool column writes occupancy, the fingerprint column writes progress, the review writes lessons — one full day, each cross-section written once and read once, the chain alive. This also explains why the pass lands in stage 3's closing stretch and not on day 59: the five cross-sections grew one per day (state, verdicts, occupancy, progress, lessons), and only today are they all on stage together for the first time — their first joint performance is the acceptance test."
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：收官之后，账本进考场",
+            "en": "Extension: after the closing stretch, the ledger sits for exams"
+          },
+          "p": {
+            "zh": "阶段三还剩 21 天（64–84），收官段的三条线在这里汇合：其一，迁移考（对照第 49 天的阶段二考）——把今天这套五段节拍搬到一个新任务上（合同审查线），考的不是背流程，是账本字段跟着任务重标定：队列列还是队列列，但「段」的定义变了。其二，85 天 RAG 建库是这套节拍的最大考场：检索段要过五闸、嵌入段要过工具小帽、错例要回流成回归用例——你在账本上练的三个断面（次序、占用、教训）在那里各就各位。其三，明天的课题先落地：第 64 天讲错误预算——五闸绿灯不代表零风险，给这条线配一笔「可花的错误预算」，让告警从「出事才响」变成「额度见底才响」。带走一条纪律：流程是背不完的，账本是一张就够的——穿行验证的从来不是记性，是那张表。",
+            "en": "Stage 3 has 21 days left (64–84), and the closing stretch's three lines converge here. One: the migration exam (mirroring stage 2's day-49 exam) — carry today's five-beat rhythm onto a new task (a contract-review line); what's examined isn't reciting the process but recalibrating the ledger's fields to the task: the queue column stays the queue column, but 'segment' gets a new definition. Two: day 85's RAG build is this rhythm's biggest exam hall — the retrieval segment passes five gates, the embedding segment passes the tool sub-caps, misses flow back as regression cases — the three cross-sections you practiced (order, occupancy, lessons) each take their seat there. Three: tomorrow lands first — day 64 covers error budgets: five green gates don't mean zero risk; give this line a spendable error budget so alerts fire when the allowance runs low, not only when something breaks. One discipline to keep: you can never finish reciting a process, but one table is enough — a full pass tests memory of nothing; it tests the table."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "给你的流水线也排一张「一天节拍表」：① 五段里哪几段你的系统有、哪几段空缺？（提示：对着 59–62 天的五段抄——查表、过闸、跑批、续跑、复盘；空缺最多的是「复盘写回」段，多数人的流水线到「收工」就停了。）② 你的五段共用一张表吗？（提示：找一个状态字段追问三次——它被哪段写、被哪段读、断了谁先知道；答不出第三问的就是断链，第 56 天的 9% 抽验率就是这么来的。）③ 人时算一遍：你的 2000 条一天，人出现几次、几分钟？（提示：把「看一眼」也算进去——对照第 47 天的 50 分钟基线，压不到 20 分钟通常是因为还缺断言，靠人眼兜底。）",
+          "en": "Draw a 'one-day rhythm sheet' for your own pipeline: (1) of the five beats, which does your system have and which are missing? (Hint: copy from days 59–62 — table check, gates, run, resume, review; the most commonly missing beat is 'review and write back' — most pipelines stop at 'finished'.) (2) Do your beats share one table? (Hint: pick one state field and ask three questions — which beat writes it, which reads it, and who notices first when the chain breaks; if you can't answer the third, it's a broken link — day 56's 9% sampling rate came from exactly that.) (3) Count your human time: for your 2,000 items a day, how many appearances, how many minutes? (Hint: count 'one glance' too — against day 47's 50-minute baseline, if you can't get under 20 the usual reason is missing assertions and human eyes as the fallback.)"
+        }
       },
-      "p": {
-        "zh": "今天复盘闭环：收工（第 59 天）→ 复盘检索（第 61 天）→ 写回（今天）——结论回到模板与回归集，明天的新任务自动带着昨天的教训开跑，改进回路合拢。阶段三的账本至此有了完整身份：任务状态表（生死）、队列表（次序）、工具账（速度）、复盘语料（经验）、写回源（教训）——五个断面，一张表。往后看：明天（第 63 天）进入阶段三的收官段——把这条流水线整体穿一遍，五闸清单（第 53 天）加写回回路，从开工到复盘走完整趟；第 85 天 RAG 建库时，写回会再升一级：检索命中的错例回流成新用例，语料库自己长出回归集——你在账本上练的这套动作，就是在练未来的知识库运维。带走一条纪律：结论没有座位就不存在——写回不是归档，是把教训钉进下一次运行必经的路上。",
-        "en": "The review loop closes today: finish (day 59) → review retrieval (day 61) → write-back (today) — conclusions return to the template and the regression set, and tomorrow's tasks start already carrying yesterday's lessons. The stage-3 ledger now has a full identity: task state (life and death), queue column (order), tool tally (speed), review corpus (lessons), write-back source (what persists) — five cross-sections of one table. Looking ahead: tomorrow (day 63) opens the closing stretch of stage 3 — one full pass down the pipeline, the five-gate checklist (day 53) plus the write-back loop, from kickoff to review; on day 85, when RAG builds the knowledge base, write-back levels up again: retrieval misses flow back as new cases, and the corpus grows its own regression set — the moves you practiced on the ledger are exactly knowledge-base operations. One discipline to keep: a conclusion without a seat does not exist — write-back isn't archiving; it's pinning the lesson onto the road every future run must travel."
+      "takeaway": {
+        "zh": "全链穿行＝五段节拍共读一张账本：查表 2 分钟、过闸 10 分钟、跑批自转、续跑 5 分钟、复盘写回落笔 14 分钟（回放 40 分钟是机器的）——全天人时 19.9 分钟管 2000 条，对照第 47 天的 50 分钟；省下的不是新零件，是查表代替开会。",
+        "en": "The full-chain run = five beats reading one ledger: table check 2 min, gates 10 min, the batch spins alone, resume 5 min, review-write-back 14 min (plus 40 machine minutes) — 19.9 human-minutes a day for 2,000 items against day 47's 50. What's saved isn't a new part; it's a table check replacing a meeting."
+      },
+      "anim": {
+        "tpl": "chain",
+        "hook": {
+          "zh": "五天的零件排进一天的钟面——五段节拍，共读一张账本。",
+          "en": "Five days of parts laid onto one day's clock — five beats, one shared ledger."
+        },
+        "coverHook": {
+          "zh": "19.9 分钟人时管 2000 条，五段节拍走完整趟",
+          "en": "19.9 human-minutes for 2,000 items — five beats, one full pass"
+        },
+        "question": {
+          "zh": "同一条 2000 条分诊线的一天：五段节拍怎么走？",
+          "en": "One day on the 2,000-item triage line: how do the five beats run?"
+        },
+        "steps": [
+          {
+            "k": "gather",
+            "tagZh": "段一 · 开工查表",
+            "tagEn": "Beat 1 · table check",
+            "capZh": "调度器读队列列派槽位（第 59 天）",
+            "capEn": "scheduler reads the queue column (day 59)",
+            "inZh": "队列列 · 3 行",
+            "inEn": "queue column · 3 rows",
+            "outZh": "A/B 上槽 · C 待跑",
+            "outEn": "A/B slotted · C queued",
+            "tok": "2 分钟"
+          },
+          {
+            "k": "shape",
+            "tagZh": "段二 · 过五闸",
+            "tagEn": "Beat 2 · five gates",
+            "capZh": "五闸按序全绿（第 53 天清单）",
+            "capEn": "five gates green in order (day 53)",
+            "inZh": "1 处改动 · 降级授权",
+            "inEn": "1 change · degraded auth",
+            "outZh": "五闸绿灯 · 对拍 0.18 美元",
+            "outEn": "5 greens · $0.18 eval",
+            "tok": "10 分钟"
+          },
+          {
+            "k": "write",
+            "tagZh": "段三 · 上槽跑批",
+            "tagEn": "Beat 3 · batch runs",
+            "capZh": "2 槽位 × 63 批 · 工具列分账放行（第 60 天）",
+            "capEn": "2 slots × 63 batches · per-tool books (day 60)",
+            "inZh": "2000 条工单",
+            "inEn": "2,000 tickets",
+            "outZh": "账单 8.4 美元 · 0 次 429",
+            "outEn": "$8.4 · zero 429s",
+            "tok": "机器 71 分钟"
+          },
+          {
+            "k": "residue",
+            "tagZh": "段四 · 崩溃续跑",
+            "tagEn": "Beat 4 · crash & resume",
+            "capZh": "读账本核对指纹，断段续写（第 58 天）",
+            "capEn": "read ledger, check fingerprints, resume (day 58)",
+            "inZh": "段 9 崩溃 · 账本 8 行",
+            "inEn": "seg 9 crash · 8 ledger rows",
+            "outZh": "重跑段 8 · 续写 5 分钟",
+            "outEn": "seg 8 rerun · 5-min resume",
+            "tok": "0.09 美元"
+          },
+          {
+            "k": "doc",
+            "tagZh": "段五 · 复盘写回",
+            "tagEn": "Beat 5 · review & write back",
+            "capZh": "问句检索流水，结论落座（第 61/62 天）",
+            "capEn": "retrieve with questions, seat conclusions (days 61–62)",
+            "inZh": "流水 84 行",
+            "inEn": "84 log rows",
+            "outZh": "v2.4 · 回放 202 条全绿",
+            "outEn": "v2.4 · 202-item replay green",
+            "tok": "1.31 美元"
+          }
+        ],
+        "retry": {
+          "failZh": "✗ 五段各带各的副本——交接会开不完",
+          "failEn": "✗ five beats, five copies — meetings that never end",
+          "okZh": "✓ 五段共读一张账本——查表代替开会",
+          "okEn": "✓ five beats, one shared ledger — a table check beats a meeting"
+        },
+        "mergeZh": "五段节拍 · 人时 19.9 分钟管 2000 条——第 47 天的 50 分钟省下 30.1 分钟",
+        "mergeEn": "Five beats · 19.9 human-minutes for 2,000 items — 60% off day 47's 50",
+        "readoutZh": [
+          {
+            "num": "19.9 分钟",
+            "cap": "全天人时 · 人出现 4 次"
+          },
+          {
+            "num": "9.7 美元",
+            "cap": "机器账 · 跑批 8.4＋回放 1.3＋复盘 0.011"
+          },
+          {
+            "num": "5 断面",
+            "cap": "一天内各写一次读一次 · 链路活着"
+          }
+        ],
+        "readoutEn": [
+          {
+            "num": "19.9 min",
+            "cap": "human time all day · 4 appearances"
+          },
+          {
+            "num": "$9.7",
+            "cap": "machine bill · $8.4 batch + $1.3 replay + $0.011 review"
+          },
+          {
+            "num": "5 sections",
+            "cap": "each written & read once today · chain alive"
+          }
+        ],
+        "note": {
+          "zh": "示意：第 59–62 天的零件按一天的时间轴合演。五段的输入输出全是账本里已注册的字段——队列列写次序、闸门写判决、工具列写占用、指纹列写进度、复盘写教训；人只在段二和段五出手，其余三段机器自转。对照第 47 天验收（人出现 11 次、50 分钟），省下的 30 分钟来自「每个节拍读同一张表」。",
+          "en": "Illustrative: days 59–62's parts perform together on one day's timeline. Every beat's inputs and outputs are registered ledger fields — the queue column writes order, the gates write verdicts, the tool column writes occupancy, the fingerprint column writes progress, the review writes lessons; a person touches only beats 2 and 5, the other three run themselves. Against day 47's acceptance (11 appearances, 50 minutes), the 30 saved minutes come from 'every beat reads the same table'."
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "查表 2′",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "过闸 10′",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "跑批 · 自转",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "续跑 5′ · 写回 14′",
+                "merged": true
+              }
+            ],
+            "label": "人只在段二和段五出手——五段共读一张账本",
+            "en": "Humans touch beats 2 and 5 only — five beats, one shared ledger"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "第 47 天 · 上线前夜",
+                "val": 100,
+                "cls": "",
+                "txt": "人出现 11 次 · 50 分钟"
+              },
+              {
+                "tag": "今天 · 全链穿行",
+                "val": 40,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "人出现 4 次 · 19.9 分钟"
+              },
+              {
+                "tag": "机器账 · 全天",
+                "val": 57,
+                "cls": "",
+                "txt": "9.7 美元 · 三次模型调用"
+              }
+            ],
+            "label": "人时 50→19.9 分钟：查表代替开会，指纹代替人眼",
+            "en": "Human time 50→19.9: a table check replaces a meeting, fingerprints replace eyeballs"
+          },
+          {
+            "routes": [
+              {
+                "tag": "「穿行是背流程」",
+                "cls": "",
+                "verdict": "✗ 要验状态在流",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「五闸每天过一遍」",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 闸按改动计不按天",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「人时省了多塞两条」",
+                "cls": "",
+                "verdict": "✗ 槽位是配额算的",
+                "vcls": " materin-learn-viz__route-word--bad"
+              }
+            ],
+            "label": "穿行的判据是五个断面各写一次读一次——链路活着",
+            "en": "The pass's criterion: five cross-sections each written and read once — the chain is alive"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 64 天 · 错误预算",
+                "cls": "",
+                "verdict": "五闸绿灯≠零风险",
+                "vcls": ""
+              },
+              {
+                "tag": "第 85 天 · RAG 建库",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "节拍的最大考场",
+                "vcls": ""
+              },
+              {
+                "tag": "阶段三 · 收官段开跑",
+                "cls": "",
+                "verdict": "✓ 三条线今天汇合",
+                "vcls": " materin-learn-viz__route-word--ok"
+              }
+            ],
+            "label": "阶段三第 14 课：全链可穿行——明天讲错误预算",
+            "en": "Stage 3, lesson 14: the chain runs end-to-end — tomorrow, error budgets"
+          }
+        ]
       }
     }
-  ],
-  "action": {
-    "h": {
-      "zh": "动手（15 分钟）",
-      "en": "Hands-on (15 min)"
-    },
-    "p": {
-      "zh": "给昨天的复盘单办一次写回：① 两条改动各去哪个文件？（提示：先定位再动笔——「给 C 加 60 秒缓存」的座位是第 52 天文档的中间席，「指纹必须非空」的座位是校验环代码（第 43 天）；写回不是改文案，是改可执行的层。）② 新用例怎么写才算 0/1 可判？（提示：「不得重复查询」要落成断言——同一窗口内查同一张表的次数 ≤1；判不了 0/1 的用例是愿望。）③ 回归什么时候跑？（提示：写回即触发——第 57 天的回放闸，202 条 × 1.3 美元，红一条就退回，别攒到月底。）",
-      "en": "Run one write-back over yesterday's sheet: (1) which file does each change go to? (Hint: locate before writing — the cache lands in day 52's middle seat, the fingerprint check in day 43's validator; write-back edits an executable layer, not prose.) (2) What makes a new case judgeable 0/1? (Hint: 'no repeated queries' must become an assertion — same-window same-table queries ≤ 1; a case you can't judge 0/1 is a wish.) (3) When does the regression run? (Hint: write-back triggers it — day 57's replay gate, 202 inputs × $1.3; one red returns the change, don't stockpile to month-end.)"
-    }
-  },
-  "takeaway": {
-    "zh": "写回＝结论找座位：改动栏的每一条都落到两个已注册的地方——流水线文档版本头（变更一行）与回归集（新用例一条）。C 加缓存后回归必须重跑：202 条全绿 1.3 美元，红了拦住的是自己；不写回的复盘是日记，写回的才是回路。",
-    "en": "Write-back = finding each conclusion a seat: every change lands in one of two registered places — the pipeline doc's header (one change line) and the regression set (one new case). After C's cache, the regression must rerun: 202 inputs green for $1.3, and a red blocks your own change. A review without write-back is a diary; with it, a loop."
-  },
-  "anim": {
-    "tpl": "chain",
-    "hook": {
-      "zh": "结论没有座位就不存在——写回把教训钉进下一次运行必经的路上。",
-      "en": "A conclusion without a seat does not exist — write-back pins lessons onto the road every future run must travel."
-    },
-    "coverHook": {
-      "zh": "写回两处：版本头一行，回归集一条，68 分钟复利",
-      "en": "Two seats: one header line, one regression case — 68 minutes compounds"
-    },
-    "question": {
-      "zh": "把复盘单的 2 条改动写回流水线",
-      "en": "Write the sheet's 2 changes back into the pipeline"
-    },
-    "steps": [
-      {
-        "k": "gather",
-        "tagZh": "站 1 · 定位",
-        "tagEn": "Seat · locate",
-        "capZh": "每条改动指到可执行的层",
-        "capEn": "each change names its executable layer",
-        "inZh": "复盘单 · 改动 2 条",
-        "inEn": "sheet · 2 changes",
-        "outZh": "座位 · 中间席＋校验环",
-        "outEn": "seats · middle seat + validator",
-        "tok": "0 token"
-      },
-      {
-        "k": "outline",
-        "tagZh": "站 2 · 落笔",
-        "tagEn": "Write · commit",
-        "capZh": "版本头一行＋回归用例一条",
-        "capEn": "one header line + one regression case",
-        "inZh": "座位清单",
-        "inEn": "seat list",
-        "outZh": "v2.3 · b8d2 · 用例 #217",
-        "outEn": "v2.3 · b8d2 · case #217",
-        "tok": "0.02k"
-      },
-      {
-        "k": "write",
-        "tagZh": "站 3 · 回放",
-        "tagEn": "Replay · gate",
-        "capZh": "新版跑 202 条旧账，diff 可解释",
-        "capEn": "new build over 202 old inputs",
-        "inZh": "202 条旧账",
-        "inEn": "202 old inputs",
-        "outZh": "全绿 · 2 条 diff 可解释",
-        "outEn": "all green · 2 diffs explained",
-        "tok": "1.3 美元"
-      }
-    ],
-    "retry": {
-      "failZh": "✗ 顺手删了缓存句——用例 #217 红",
-      "failEn": "✗ cache line deleted — case #217 red",
-      "okZh": "✓ 回归全绿 · 教训进入下一版",
-      "okEn": "✓ regression green · the lesson ships"
-    },
-    "mergeZh": "写回两处：版本头（指纹 b7c1→b8d2）＋回归集（#217）——复盘闭环合拢",
-    "mergeEn": "Two seats: the header (b7c1→b8d2) and the regression set (#217) — the review loop closes",
-    "readoutZh": [
-      {
-        "num": "2 处",
-        "cap": "写回座位 · 版本头＋回归集"
-      },
-      {
-        "num": "1.3 美元",
-        "cap": "一次写回 · 回放闸 202 条 40 分钟"
-      },
-      {
-        "num": "6.5 美元/月",
-        "cap": "月均 5 次改动 · 拦教训静默丢失"
-      }
-    ],
-    "readoutEn": [
-      {
-        "num": "2 seats",
-        "cap": "header + regression set"
-      },
-      {
-        "num": "$1.3",
-        "cap": "per write-back · 202-item replay, 40 min"
-      },
-      {
-        "num": "$6.5/mo",
-        "cap": "~5 changes a month · no silent loss"
-      }
-    ],
-    "note": {
-      "zh": "示意：复盘单的改动栏不是终点——每条改动先定位座位（中间席示例句 / 校验环断言），落笔后必须过第 57 天的回放闸（202 条 1.3 美元）。版本头记指纹 b7c1→b8d2，回归集记用例 #217「同窗口同表查询 ≤1 次」。只改文档不改回归集＝没有断言保护；跳过回放＝改动作弊改自己。",
-      "en": "Illustrative: the sheet's change column is not the end — each change names its seat (middle-seat example line / validator assertion), then passes the day-57 replay gate (202 items, $1.3). The header records fingerprint b7c1→b8d2; the regression set records case #217 \"same-window same-table queries ≤1\". Doc without a case = no assertion guard; skipping the gate = grading your own homework."
-    },
-    "viz": [
-      {
-        "chips": [
-          {
-            "tag": "改动栏 2 条"
-          },
-          {
-            "tag": "→",
-            "alt": true
-          },
-          {
-            "tag": "座位 · 中间席"
-          },
-          {
-            "tag": "→",
-            "alt": true
-          },
-          {
-            "tag": "座位 · 校验环"
-          },
-          {
-            "tag": "→",
-            "alt": true
-          },
-          {
-            "tag": "v2.3 ＋ 用例 #217",
-            "merged": true
-          }
-        ],
-        "routes": [
-          {
-            "tag": "结论留在复盘单里",
-            "cls": "",
-            "verdict": "✗ 报告不参与运行",
-            "vcls": " materin-learn-viz__route-word--bad"
-          },
-          {
-            "tag": "结论钉进回归集",
-            "cls": " materin-learn-viz__route-row--think",
-            "verdict": "✓ 每个版本被迫继承",
-            "vcls": " materin-learn-viz__route-word--ok"
-          }
-        ],
-        "label": "结论没有座位，就只活在复盘单里"
-      },
-      {
-        "wide": true,
-        "bars": [
-          {
-            "tag": "一次写回 · 回放闸",
-            "val": 100,
-            "cls": "",
-            "txt": "202 条旧账 · 40 分钟 · 1.3 美元"
-          },
-          {
-            "tag": "月均 5 次改动",
-            "val": 38,
-            "cls": " materin-learn-viz__bar--en",
-            "txt": "6.5 美元/月 · 教训不蒸发"
-          },
-          {
-            "tag": "对照 · 丢一次教训",
-            "val": 16,
-            "cls": "",
-            "txt": "重试费 2.7 美元/月起 · 还不可见"
-          }
-        ],
-        "label": "写回的账：1.3 美元一次，6.5 美元一月"
-      },
-      {
-        "routes": [
-          {
-            "tag": "「写回就是改改文档」",
-            "cls": "",
-            "verdict": "✗ 没有断言保护",
-            "vcls": " materin-learn-viz__route-word--bad"
-          },
-          {
-            "tag": "「要用的时候再查」",
-            "cls": " materin-learn-viz__route-row--think",
-            "verdict": "✗ 报告检索不到",
-            "vcls": " materin-learn-viz__route-word--bad"
-          },
-          {
-            "tag": "「小改动不用走闸」",
-            "cls": "",
-            "verdict": "✗ 1.3 美元比返工便宜",
-            "vcls": " materin-learn-viz__route-word--bad"
-          }
-        ],
-        "label": "写回＝把结论变成用例的法律地位"
-      },
-      {
-        "routes": [
-          {
-            "tag": "第 63 天 · 全链穿行",
-            "cls": "",
-            "verdict": "五闸＋写回走整趟",
-            "vcls": ""
-          },
-          {
-            "tag": "第 85 天 · RAG 建库",
-            "cls": " materin-learn-viz__route-row--think",
-            "verdict": "错例回流成新用例",
-            "vcls": ""
-          },
-          {
-            "tag": "复盘闭环 · 今天合拢",
-            "cls": "",
-            "verdict": "✓ 收工→复盘→写回",
-            "vcls": " materin-learn-viz__route-word--ok"
-          }
-        ],
-        "label": "复盘闭环合拢：明天全链穿行收官"
-      }
-    ]
-  }
-}
   ]
 }
