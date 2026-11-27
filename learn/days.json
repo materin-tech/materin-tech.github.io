@@ -14769,8 +14769,8 @@
         "en": "Error budget: price your failures"
       },
       "subtitle": {
-        "zh": "阶段三第十五课。五闸管入口，预算管运行：月预算 120 条（60k × 0.2%），稳态烧 20、试新烧 70、供应商改版第 22 天烧穿——额度见底冻结改动，敢不敢上线从吵架变成看数。",
-        "en": "Stage 3, lesson fifteen. Gates mind the entrance, the budget minds the run: a monthly budget of 120 misses (60k × 0.2%), 20 burned in steady state, 70 in trials, burned through on day 22 by a vendor's silent format change — at zero the changes freeze, and 'dare we ship' stops being an argument and becomes a number."
+        "zh": "阶段三第十五课。五闸管入口，预算管运行：月预算 120 条（60k×0.2%），稳态烧 20、试新烧 70、供应商改版第 22 天烧穿——额度见底冻结改动，敢不敢上线从吵架变成看数。",
+        "en": "Stage 3, lesson fifteen. Gates mind the entrance, the budget minds the run: a monthly budget of 120 misses (60k×0.2%), 20 burned in steady state, 70 in trials, burned through on day 22 by a vendor's silent format change — at zero the changes freeze, and 'dare we ship' stops being an argument and becomes a number."
       },
       "sections": [
         {
