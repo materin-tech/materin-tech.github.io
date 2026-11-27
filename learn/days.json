@@ -14757,5 +14757,291 @@
         ]
       }
     }
+,
+    {
+      "n": 64,
+      "stage": 3,
+      "week": 10,
+      "tpl": "strform",
+      "date": "2026-11-27",
+      "title": {
+        "zh": "错误预算：把故障花在明处",
+        "en": "Error budget: price your failures"
+      },
+      "subtitle": {
+        "zh": "阶段三第十五课。五闸管入口，预算管运行：月预算 120 条（60k × 0.2%），稳态烧 20、试新烧 70、供应商改版第 22 天烧穿——额度见底冻结改动，敢不敢上线从吵架变成看数。",
+        "en": "Stage 3, lesson fifteen. Gates mind the entrance, the budget minds the run: a monthly budget of 120 misses (60k × 0.2%), 20 burned in steady state, 70 in trials, burned through on day 22 by a vendor's silent format change — at zero the changes freeze, and 'dare we ship' stops being an argument and becomes a number."
+      },
+      "sections": [
+        {
+          "h": {
+            "zh": "机制：预算是算出来的额度",
+            "en": "Mechanism: a budget is computed, not wished"
+          },
+          "p": {
+            "zh": "上线五闸（第 53 天）回答的是「这次改动能不能进门」，回答不了「运行中的系统正在悄悄变坏」——供应商改一个日期格式、工单语言自己漂移、回归集没见过的错法，闸全绿照样出错。错误预算是补上这个断面的仪表：先把「错误」定义清楚（分诊线的错分/漏分/重复三类分开记，口径来自第 53 天缺陷闸的对拍），再定 SLO——月错分率 ≤ 0.2%，月量 60,000 条（2000 × 30 天），预算 = 60,000 × 0.2% = 120 条。这 120 条是可花的额度：每确认一条错分就扣一条（回放闸对拍发现的和用户申诉进来的都入账），额度剩多少决定敢做什么——余量过半可以试新版本，低于一半只修不改，烧到零就冻结改动、全员只做可靠性。它和五闸不重复：闸管单次放行（二值判决，改动进门之前），预算管整月风险（连续读数，改动出门之后）——两个断面拼上，质量闭环才完整。",
+            "en": "The five launch gates (day 53) answer 'can this change come in', not 'is the running system quietly getting worse' — a vendor changes a date format, ticket language drifts on its own, the replay set meets an error it has never seen, and the gates stay green while reality rots. The error budget is the gauge for that missing cross-section: define 'error' first (misrouted, missed, duplicated — recorded as three separate counts, per day 53's defects-gate eval), then set the SLO — monthly miss rate ≤ 0.2%, monthly volume 60,000 (2,000 × 30 days), budget = 60,000 × 0.2% = 120 misses. Those 120 are spendable allowance: every confirmed miss deducts one (found by the replay gate's eval or via user appeals — all go on the books), and what's left decides what you may do — above half you may trial a new version, below half you only fix, at zero you freeze changes and everyone works reliability. It does not overlap the gates: gates rule single releases (binary verdicts, before the change enters), the budget rules the month's risk (a continuous reading, after the change is out) — two cross-sections, one closed loop."
+          },
+          "deep": {
+            "zh": "为什么用「可花的额度」而不是「零容忍」？因为两种制度训练出两种人。零容忍下，隐瞒错误是最优策略：报一条错分要写检查、要背责任，于是账面全绿、真实腐烂——第 56 天红灯没人看不是人懒，是报错的代价太高。额度制下，报告错误无害甚至有功：反正有 120 条额度，早报一天就早修一天——第 61 天复盘单敢写「错分 3 条」，前提就是报错不追责。这也是这套算术的出身：SRE 从 Google 的运维里长出来，第一原则就是「100% 可靠性是错误的目标」——不花预算的团队在冒险上的投入为零，而一个从不冒险的系统学不到任何新错法，等世界漂到它面前时一击即溃。顺带一个换算：可用性 99.9% 听着像口号，算成账是每月 30 × 24 × 60 × 0.001 ≈ 43 分钟——和分诊线的 120 条是同一道算术，额度把口号变回数字。",
+            "en": "Why a spendable allowance instead of zero tolerance? Because the two regimes train two kinds of people. Under zero tolerance, hiding errors is the optimal move: reporting a miss means a self-criticism and owning the blame, so the books stay green while reality rots — day 56's unread red lamps weren't laziness, reporting just cost too much. Under an allowance, reporting is free, even virtuous: there are 120 misses budgeted anyway, and one day earlier reported is one day earlier fixed — day 61's review sheet dares to write '3 misses' precisely because reporting carries no blame. That is also where this arithmetic comes from: SRE grew out of Google's operations, and its first principle is that 100% reliability is the wrong target — a team that spends no budget takes zero risks, and a system that never experiments learns no new failure modes, so when the world drifts to its door it breaks in one hit. A side conversion: 99.9% availability sounds like a slogan, but as arithmetic it is 30 × 24 × 60 × 0.001 ≈ 43 minutes a month — the same sum as the triage line's 120; an allowance turns the slogan back into a number."
+          }
+        },
+        {
+          "h": {
+            "zh": "算一笔账：120 条额度怎么烧",
+            "en": "The math: how 120 misses burn"
+          },
+          "p": {
+            "zh": "先列分项再写总数。预算推导：2000 条/天 × 30 天 = 60,000 条；SLO 错分率 ≤ 0.2%；预算 = 60,000 × 0.2% = 120 条/月。上旬（1–10 日）稳态烧 20 条：v2.4 正常跑批，错分 2 条/天（0.1%），累计 20，余 100（83%）——注意稳态也在烧，错误不是只有改动才产生。中旬（11–20 日）试新烧 70 条：第 63 天排进队的「夜间工单降级授权」上线，错分率从 0.1% 涨到 0.35%（7 条/天），10 天烧 70，累计 90，余 30（25%）——预算就是为这种时刻设计的：花 70 条额度换一个新能力的真实读数，值不值看数字，不看会议室里的嗓门。下旬第 21–22 日烧穿：供应商悄悄改了工单模板的日期格式，五闸全绿（版本头指纹没变、回归集没这个用例），错分跳到 18 条/天——第 21 日累计 108，第 22 日 126，超出预算 6 条。烧穿当天的动作只有两个：冻结一切新改动（五闸全绿也不许上），把日期格式写进回归集（第 62 天的写回）；修好之前，机器账里多出的只有预算表本身的 0.001 美元。",
+            "en": "Itemize first, total last. Derivation: 2,000 items/day × 30 days = 60,000; SLO miss rate ≤ 0.2%; budget = 60,000 × 0.2% = 120 misses a month. Early month (days 1–10), steady state burns 20: v2.4 runs its normal batches, 2 misses a day (0.1%), cumulative 20, remaining 100 (83%) — note that steady state burns too; errors aren't only born from changes. Mid-month (days 11–20), trials burn 70: the degraded overnight-ticket authorization queued on day 63 ships, the miss rate rises from 0.1% to 0.35% (7 a day), ten days burn 70, cumulative 90, remaining 30 (25%) — this is what the budget is for: spending 70 misses of allowance to buy a real reading on a new capability, worth it or not by the numbers, not by who shouts loudest in the meeting. Late month, days 21–22, burn-through: the vendor silently changes the date format in the ticket template, all five gates stay green (the header fingerprint is untouched, the replay set has no such case), and misses jump to 18 a day — day 21 cumulative 108, day 22 reaches 126, six over budget. Burn-through day has exactly two moves: freeze every new change (even five-green ones), and write the date format into the replay set (day 62's write-back); until it's fixed, the only new line on the machine bill is $0.001 for the budget table itself."
+          },
+          "example": {
+            "h": {
+              "zh": "实例",
+              "en": "Worked example"
+            },
+            "p": {
+              "zh": "把一个月摊在账本上：1–10 日每天 2 条错分入账（回放闸 200 条对拍 + 用户申诉两条路），10 日累计 20，余 83%——这周把「夜间降级」排进了试新队列。11 日降级上线，错分涨到 7 条/天，20 日累计 90，余 25%——中旬的复盘单写着「花了 70 条额度，买到降级授权的真实错分率 0.35%，可接受」。21 日供应商改版，闸全绿、错分 18 条/天；22 日累计 126，预算烧穿，超额 6 条照记——这是整月最响的一次告警，比任何监控都早。22–28 日冻结期：0 个新改动、写回 1 条用例、修好错分规则，28 日恢复上线时预算已重置。对照没有预算的同一条线：改版那天没人知道——错分会静默烧到月底盘点才被发现，那时已经错了一个月。",
+              "en": "Spread the month on a ledger: days 1–10 book 2 misses a day (via the replay gate's 200-item eval and user appeals), day 10 cumulative 20, 83% left — that week the degraded-overnight case enters the trial queue. Day 11 it ships, misses rise to 7 a day, day 20 cumulative 90, 25% left — the mid-month review sheet reads 'spent 70 of allowance, bought a real 0.35% miss rate for the degraded authorization: acceptable'. Day 21 the vendor changes formats, gates green, 18 misses a day; day 22 cumulative 126 — burn-through, the 6 over allowance recorded as-is — the loudest alert of the month, earlier than any monitor. Days 22–28 are the freeze: zero new changes, one case written back, the miss rule fixed; when the line relaunches on day 28 the budget has reset. Compare the same line without a budget: on format-change day nobody knows — misses burn silently until the month-end inventory, by which point it has been wrong for a month."
+            }
+          }
+        },
+        {
+          "h": {
+            "zh": "误区：五闸全绿就是零风险",
+            "en": "Misconception: five greens mean zero risk"
+          },
+          "p": {
+            "zh": "其一：「五闸全绿 = 零风险」。闸是入口抽检，回归集只覆盖见过的错法——第 62 天的用例 #217 本身就是漏网之后补的；供应商改个日期格式，五道闸照样一路绿灯。闸管「改动不引入新错」，预算管「世界自己会变」，拿闸的绿灯当运行的体检报告，是把入口安检当成了年度体检。其二：「预算烧穿 = 事故，要追责」。烧穿恰恰是机制在工作：SRE 的第一原则就是不追求 100%——不烧预算的团队在冒险上投入为零，学不到新错法；烧穿触发的是「暂停冒险」，不是「追责会议」，把烧穿当事故处理，下个月就没人敢把真实错分写进账本。其三：「SLO 定得越高越好」。每个「九」都是真金白银：分诊线从 0.2% 拧到 0.05%，抽验量翻 4 倍、回归集翻倍，机器账从 9.7 美元/天涨到约 15——SLO 是产品决策不是技术指标，先回答「一条错分的代价是多少」（错分进错部门要返工 40 分钟），代价高就拧紧，代价低就放宽，别跟风追九。",
+            "en": "First: 'five greens = zero risk'. The gates are entrance sampling; the replay set only covers errors it has seen — day 62's case #217 exists precisely because one escaped first; change a date format and all five gates wave it through. Gates rule 'the change introduces nothing new'; the budget rules 'the world changes by itself' — treating green gates as a health check on the running system is mistaking entrance security for an annual physical. Second: 'burn-through = an incident, someone must answer for it'. Burn-through is the mechanism working: SRE's first principle is not to chase 100% — a team that never burns its budget invests nothing in risk and learns no new failure modes; burn-through triggers 'pause the experimenting', not a blame meeting, and if you treat it as an incident, next month nobody dares book the true miss count. Third: 'the tighter the SLO the better'. Every nine costs real money: tightening the triage line from 0.2% to 0.05% quadruples sampling, doubles the replay set, and lifts the machine bill from $9.7 to about $15 a day — an SLO is a product decision, not a technical one; answer 'what does one miss cost' first (a misrouted ticket costs 40 minutes of rework), tighten when the cost is high, loosen when it's low, and don't chase nines on fashion."
+          },
+          "deep": {
+            "zh": "为什么「额度」比「零容忍」更能让系统变好？这是激励设计，不是宽容：零容忍制度下，对每个一线操作者来说，隐瞒是最优策略——错分不上账，账面全绿，绩效好看，直到腐烂大到瞒不住；第 56 天红灯没人看、第 61 天复盘单里「错分 3 条」敢不敢写，是同一个激励问题的两个断面。额度制把「报告错误」从担责变成入账：额度是组织预先批准的学费，花学费不丢人，瞒学费才丢人——数据真实了，修复才快，预算的读数才有意义。这也解释了为什么预算表必须人人可读（第 58 天账本的同一纪律）：一条只有负责人能看的预算，和一份没有额度的制度，激励效果相同——都是零容忍换了件马甲。",
+            "en": "Why does an allowance improve a system better than zero tolerance? This is incentive design, not leniency: under zero tolerance, hiding is optimal for every operator — misses off the books, dashboards green, reviews clean, until the rot is too big to hide; day 56's unread red lamps and the hesitation to write '3 misses' in day 61's review sheet are two cross-sections of the same incentive problem. An allowance turns 'reporting an error' from owning a blame into booking a cost: the budget is tuition the organization has pre-approved, and spending tuition is no shame — hiding it is. Once the data is honest, fixes come fast and the budget's reading means something. This is also why the budget table must be readable by everyone (day 58's same ledger discipline): a budget only its owner can see is zero tolerance in disguise — identical incentives under a nicer coat."
+          }
+        },
+        {
+          "h": {
+            "zh": "延伸：预算之后的两步棋",
+            "en": "Extension: two moves after the budget"
+          },
+          "p": {
+            "zh": "阶段三收官段还剩 20 天（65–84）。明天（第 65 天）先落一步：燃烧率告警——绝对数告警有个盲区，月初烧 30 条不响（还剩 75%），可如果这 30 条是一天烧掉的（速率 30 倍于允许值），就该立刻响；燃烧率 = 实际消耗速率 ÷ 允许速率，1× 上下是稳态，14× 持续一小时就告警——把「额度见底才响」升级成「烧得太快就响」。第 85 天 RAG 建库是预算的第二个考场：检索质量同样可以立 SLO（命中率 ≥ 90% 对应月预算多少条错检），错检也是错，同一张表照记。再远一步是迁移考：合同审查线的 SLO 要重新标定——错审一份合同的代价远高于错分一张工单，SLO 就该拧得更紧。带走一条纪律：先给风险定价格，再谈自动化——没有预算的自动化，是在没有刹车的车上谈速度。",
+            "en": "Stage 3's closing stretch has 20 days left (65–84). Tomorrow (day 65) lands the first move: burn-rate alerts — absolute-count alerts have a blind spot: burning 30 early in the month stays silent (75% left), but if those 30 burned in one day (30× the allowed rate) it should scream now; burn rate = actual spend ÷ allowed spend, hovering near 1× is steady state, a sustained 14× for an hour alerts — upgrading 'alert when the allowance is gone' to 'alert when it burns too fast'. Day 85's RAG build is the budget's second exam hall: retrieval quality can carry an SLO too (a ≥90% hit rate implies a monthly budget of bad retrievals), a bad retrieval is an error, same table, same bookings. Further out is the migration exam: the contract-review line's SLO needs recalibration — mistaking one contract costs far more than misrouting one ticket, so the SLO tightens. One discipline to keep: price the risk before you automate — automation without a budget is speed talk in a car with no brakes."
+          }
+        }
+      ],
+      "action": {
+        "h": {
+          "zh": "动手（15 分钟）",
+          "en": "Hands-on (15 min)"
+        },
+        "p": {
+          "zh": "给你的系统立一本错误预算：① 先定义「错误」再谈 SLO：列出你的系统里什么算错？（提示：对着第 53 天缺陷闸的对拍口径抄——错分/漏分/重复三类分开记；混在一个数里，预算就没法按类型花。）② 算预算：量 × (1 − SLO)。（提示：SLO 别拍脑袋——先回答「一个错误代价多少」，再决定拧多紧；代价 × 频率低于修复成本，就别把 SLO 定得比业务需要紧。）③ 写冻结线：预算剩多少时禁上新？（提示：照抄 50% 线——余量过半才试新，不过半只修不改；没有这条线，预算就只是一张没人看的报表。）",
+          "en": "Stand up an error budget for your system: (1) define 'error' before any SLO: what counts as wrong in your system? (Hint: copy day 53's defects-gate eval — misrouted, missed, duplicated, recorded as three separate counts; merge them and the budget can't be spent by type.) (2) compute the budget: volume × (1 − SLO). (Hint: don't pick the SLO by feel — answer 'what does one error cost' first, then decide how tight; if cost × frequency is below the fix cost, don't set the SLO tighter than the business needs.) (3) write the freeze line: at how much remaining budget do new launches stop? (Hint: copy the 50% line — above half you may experiment, below half you only fix; without that line the budget is a report nobody reads.)"
+        }
+      },
+      "takeaway": {
+        "zh": "错误预算＝把风险定价成可花的额度：60k 条 × 0.2% → 月预算 120 条，稳态烧 20、试新烧 70、供应商改版第 22 天烧穿（超额 6 条照记）——烧穿不是事故，是暂停冒险的信号；五闸管入口，预算管运行，两个断面才闭环。",
+        "en": "An error budget prices risk as spendable allowance: 60k items × 0.2% → 120 misses a month, 20 burned in steady state, 70 in trials, burned through on day 22 by a vendor's silent format change (6 over, recorded as-is) — burn-through isn't an incident, it's the pause-experimenting signal; gates mind the entrance, the budget minds the run, two cross-sections close the loop."
+      },
+      "anim": {
+        "tpl": "strform",
+        "hook": {
+          "zh": "五闸全绿的版本照样烧穿预算——世界自己会变。",
+          "en": "A five-green build still burns through the budget — the world changes by itself."
+        },
+        "coverHook": {
+          "zh": "120 条额度烧穿那天，五闸全绿",
+          "en": "120 misses of allowance, spent through green gates"
+        },
+        "question": {
+          "zh": "同一条分诊线的一个月：120 条预算怎么烧到烧穿？",
+          "en": "One month on the triage line: how does a 120-miss budget burn through?"
+        },
+        "layers": [
+          {
+            "k": "spec",
+            "tagZh": "上旬 · 稳态烧 20",
+            "tagEn": "Early month · steady, 20",
+            "capZh": "2 条/天 × 10 天 · 余 100",
+            "capEn": "2/day × 10 days · 100 left",
+            "noteZh": "余 83%：敢排一个新用例",
+            "noteEn": "83% left: room for a new case",
+            "acc": 17
+          },
+          {
+            "k": "example",
+            "tagZh": "中旬 · 试新烧 70",
+            "tagEn": "Mid-month · trials, 70",
+            "capZh": "降级上线 · 7 条/天 · 余 30",
+            "capEn": "degraded ships · 7/day · 30 left",
+            "noteZh": "余 25%：还能试，每次留痕",
+            "noteEn": "25% left: still allowed, all logged",
+            "acc": 75
+          },
+          {
+            "k": "lock",
+            "tagZh": "下旬 · 改版烧穿",
+            "tagEn": "Late month · burn-through",
+            "capZh": "供应商改版 · 18 条/天 · 126 入账",
+            "capEn": "vendor format change · 18/day · 126 booked",
+            "noteZh": "超额 6 条照记 · 最响的告警",
+            "noteEn": "6 over, recorded · the loudest alert",
+            "acc": 100
+          }
+        ],
+        "mergeZh": "烧穿不是终点是换挡：冻结改动、写回用例、修好再上路",
+        "mergeEn": "Burn-through isn't the end, it's a gear change: freeze, write back, fix, go",
+        "readoutZh": {
+          "spec": {
+            "num": "120 条",
+            "cap": "月预算 · 60k × 0.2%"
+          },
+          "example": {
+            "num": "第 22 天",
+            "cap": "烧穿日 · 126 入账"
+          },
+          "lock": {
+            "num": "0 个新改动",
+            "cap": "冻结期 · 只修不改"
+          }
+        },
+        "readoutEn": {
+          "spec": {
+            "num": "120",
+            "cap": "monthly budget · 60k × 0.2%"
+          },
+          "example": {
+            "num": "day 22",
+            "cap": "burn-through · 126 booked"
+          },
+          "lock": {
+            "num": "0 new changes",
+            "cap": "freeze · fixes only"
+          }
+        },
+        "note": {
+          "zh": "示意：同一条 2000 条/天分诊线的一个月。预算 = 60,000 × 0.2% = 120 条错分；稳态也烧（0.1%），试新更烧（0.35%），供应商改版把速率顶到 0.9%——第 22 天烧穿，冻结改动、写回用例。五闸管入口，预算管运行：闸全绿不代表系统没在变坏，额度见底才是最诚实的体检。",
+          "en": "Illustrative: one month of the 2,000-a-day triage line. Budget = 60,000 × 0.2% = 120 misses; steady state burns (0.1%), trials burn more (0.35%), and a vendor format change pushes the rate to 0.9% — burn-through on day 22, freeze changes, write the case back. Gates mind the entrance, the budget minds the run: green gates don't mean the system isn't silently degrading; an empty allowance is the most honest physical."
+        },
+        "viz": [
+          {
+            "chips": [
+              {
+                "tag": "SLO ≤0.2%",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "预算 120 条",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "逐日入账",
+                "alt": false
+              },
+              {
+                "tag": "→",
+                "alt": true
+              },
+              {
+                "tag": "烧穿即冻结",
+                "merged": true
+              }
+            ],
+            "label": "五闸管入口，预算管运行——两个断面才闭环",
+            "en": "Gates mind the entrance, the budget the run — two cross-sections, one loop"
+          },
+          {
+            "wide": true,
+            "bars": [
+              {
+                "tag": "月预算 · 0.2%",
+                "val": 100,
+                "cls": "",
+                "txt": "120 条 · 60k 口径"
+              },
+              {
+                "tag": "上旬稳态 · 20 条",
+                "val": 17,
+                "cls": "",
+                "txt": "2 条/天 × 10 天"
+              },
+              {
+                "tag": "中旬试新 · 70 条",
+                "val": 58,
+                "cls": " materin-learn-viz__bar--en",
+                "txt": "7 条/天 × 10 天"
+              },
+              {
+                "tag": "下旬改版 · 烧穿",
+                "val": 100,
+                "cls": "",
+                "txt": "18 条/天 · 第 22 天见底"
+              }
+            ],
+            "label": "敢不敢上线从吵架变成看数：剩多少烧多少",
+            "en": "'Dare we ship' stops being an argument: spend what's left"
+          },
+          {
+            "routes": [
+              {
+                "tag": "「五闸全绿＝零风险」",
+                "cls": "",
+                "verdict": "✗ 闸管入口不管运行",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「烧穿就是事故」",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "✗ 是暂停冒险的信号",
+                "vcls": " materin-learn-viz__route-word--bad"
+              },
+              {
+                "tag": "「SLO 越高越好」",
+                "cls": "",
+                "verdict": "✗ 每个 9 都在烧钱",
+                "vcls": " materin-learn-viz__route-word--bad"
+              }
+            ],
+            "label": "额度让报错无害——零容忍只会教会大家瞒账",
+            "en": "An allowance makes reporting free — zero tolerance teaches hiding"
+          },
+          {
+            "routes": [
+              {
+                "tag": "第 65 天 · 燃烧率告警",
+                "cls": "",
+                "verdict": "不看绝对数看速率",
+                "vcls": ""
+              },
+              {
+                "tag": "第 85 天 · RAG 建库",
+                "cls": " materin-learn-viz__route-row--think",
+                "verdict": "检索质量也配预算",
+                "vcls": ""
+              },
+              {
+                "tag": "迁移考 · 合同审查线",
+                "cls": "",
+                "verdict": "✓ SLO 重标定再上路",
+                "vcls": " materin-learn-viz__route-word--ok"
+              }
+            ],
+            "label": "先给风险定价，再谈自动化——明天讲燃烧率",
+            "en": "Price the risk first, then automate — tomorrow, burn rates"
+          }
+        ]
+      }
+    }
   ]
 }
